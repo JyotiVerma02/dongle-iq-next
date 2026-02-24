@@ -2,14 +2,26 @@
 
 import { useEffect, useState } from "react";
 
+type ApplicationStatus = "Pending" | "Approved" | "Rejected";
+
+type Application = {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  mobileNumber: string;
+  status: ApplicationStatus;
+  submittedAt: string;
+};
+
 export default function Admin() {
-  const [applications, setApplications] = useState([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
         const stored = localStorage.getItem("dongleApplications");
-        const data = stored ? JSON.parse(stored) : [];
-        setApplications(data);
+      const data: Application[] = stored ? JSON.parse(stored) : [];
+setApplications(data);
       } catch (error) {
         console.error("Failed to load applications:", error);
         setApplications([]);
@@ -17,10 +29,10 @@ export default function Admin() {
     }
   }, []);
 
-  const [selectedApp, setSelectedApp] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedApp, setSelectedApp] = useState<Application | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const updateStatus = (id, newStatus) => {
+  const updateStatus = (id: number, newStatus: ApplicationStatus): void => {
     const updated = applications.map((app) =>
       app.id === id ? { ...app, status: newStatus } : app,
     );
@@ -28,13 +40,13 @@ export default function Admin() {
     localStorage.setItem("dongleApplications", JSON.stringify(updated));
   };
 
-  const deleteApplication = (id) => {
+  const deleteApplication = (id: number): void => {
     const filtered = applications.filter((app) => app.id !== id);
     setApplications(filtered);
     localStorage.setItem("dongleApplications", JSON.stringify(filtered));
   };
 
-  const filteredApplications = applications.filter((app) => {
+  const filteredApplications = applications.filter((app: Application) => {
     const term = searchTerm.toLowerCase();
 
     return (
@@ -174,7 +186,7 @@ export default function Admin() {
               <tbody className="divide-y divide-white/5 text-sm">
                 {filteredApplications.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="text-center py-12">
+                    <td colSpan={6} className="text-center py-12">
                       <div className="flex flex-col items-center justify-center text-white/30">
                         <svg
                           className="w-12 h-12 mb-3 opacity-50"
@@ -198,9 +210,9 @@ export default function Admin() {
                     </td>
                   </tr>
                 ) : (
-                  filteredApplications.map((app) => (
+                  filteredApplications.map((app: Application) => (
                     <tr
-                      key={app.id || Math.random()}
+                      key={app.id}
                       className="group hover:bg-white/[0.02] transition-colors duration-200"
                     >
                       <td className="p-4 pl-6 text-white/40 font-mono text-xs">
@@ -291,7 +303,9 @@ export default function Admin() {
                   <h2 className="text-lg font-bold text-white mb-1">
                     Application Details
                   </h2>
-                  <p className="text-xs text-white/40">ID: #{selectedApp.id}</p>
+                  <p className="text-xs text-white/40">
+                    ID: #{selectedApp?.id}
+                  </p>
                 </div>
                 <button
                   onClick={() => setSelectedApp(null)}
@@ -330,7 +344,9 @@ export default function Admin() {
                   </h3>
                   <div className="flex justify-between text-sm">
                     <span className="text-white/40">Status</span>
-                    <StatusBadge status={selectedApp.status} />
+                    <StatusBadge
+                      status={selectedApp?.status as ApplicationStatus}
+                    />
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-white/40">Submitted At</span>
@@ -362,8 +378,14 @@ export default function Admin() {
     </div>
   );
 }
+type CardProps = {
+  title: string;
+  value: number;
+  color: string;
+  icon: string;
+};
 
-function Card({ title, value, color, icon }) {
+function Card({ title, value, color, icon }: CardProps) {
   const colorMap = {
     "bg-blue-600": "text-blue-400 border-blue-500/20 bg-blue-500/5",
     "bg-yellow-600": "text-yellow-400 border-yellow-500/20 bg-yellow-500/5",
@@ -389,7 +411,13 @@ function Card({ title, value, color, icon }) {
   );
 }
 
-function FilterBadge({ label, options, colors }) {
+type FilterBadgeProps = {
+  label: string;
+  options: string[];
+  colors: string[];
+};
+
+function FilterBadge({ label, options, colors }: FilterBadgeProps) {
   return (
     <div className="flex items-center bg-[#0a0c10] border border-white/10 rounded-xl overflow-hidden h-10 shadow-sm">
       <div className="px-3 h-full flex items-center justify-center bg-white/5 border-r border-white/10 text-[10px] font-bold text-white/50 uppercase tracking-wider">
@@ -416,8 +444,12 @@ function FilterBadge({ label, options, colors }) {
   );
 }
 
-function StatusBadge({ status }) {
-  const styles = {
+type StatusBadgeProps = {
+  status: ApplicationStatus;
+};
+
+function StatusBadge({ status }: StatusBadgeProps) {
+  const styles: Record<ApplicationStatus, string> = {
     Pending:
       "bg-yellow-400/10 text-yellow-400 border-yellow-400/20 shadow-[0_0_10px_rgba(250,204,21,0.1)]",
     Approved:
