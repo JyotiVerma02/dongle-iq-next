@@ -6,48 +6,66 @@ import Link from "next/link";
 
 import { FaWhatsapp } from "react-icons/fa";
 import { MdMessage } from "react-icons/md";
+import { useSearchParams } from "next/navigation";
 
 function Login() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const registered = searchParams.get("registered");
 
   const [password, setPassword] = useState<string>("");
-  const [userId, setUserId] = useState<string>("");
-  const [role, setRole] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  
   const [error, setError] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    if (!userId || !password || !role) {
-      setError("All fields are required");
+  if (!email || !password) {
+    setError("Email and Password are required");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message);
       return;
     }
 
-    const userData = { userId, password, role };
-
-    localStorage.setItem("user", JSON.stringify(userData));
+    // Save login status
     localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("role", data.role);
 
-    setError("");
-
-    if (role === "admin") {
-      router.push("/dashboard");
+    // Redirect user
+    if (data.role === "admin") {
+      router.push("/admin/dashboard");
     } else {
-      router.push("/form");
+      router.push("/user/dashboard");
     }
-  };
+
+  } catch (error) {
+    setError("Login failed");
+  }
+};
 
   return (
-    <div
-      className={`min-h-screen flex pt-14 relative overflow-hidden bg-cover bg-center bg-no-repeat ${
-        role === "admin"
-          ? "bg-linear-to-br from-black via-red-900 to-slate-950"
-          : role === "user"
-            ? "bg-linear-to-br from-slate-900 via-blue-900 to-indigo-950"
-            : "bg-linear-to-br from-slate-900 via-slate-900 to-blue-950"
-      }`}
-      style={{ backgroundImage: "url('/bg.jpg')" }}
-    >
+   <div
+  className="min-h-screen flex pt-14 relative overflow-hidden bg-cover bg-center bg-no-repeat bg-linear-to-br from-slate-900 via-slate-900 to-blue-950"
+  style={{ backgroundImage: "url('/bg.jpg')" }}
+>
       {/* LEFT SIDE */}
       <div
         className="hidden md:flex w-3/5 bg-cover bg-center relative"
@@ -55,55 +73,27 @@ function Login() {
       >
         <div className="absolute inset-0 "></div>
 
-        <div className="relative z-10 text-white p-16 flex flex-col justify-center">
-          <h1 className="text-6xl font-bold mb-6 leading-tight">
-            <span className="text-white">Dongle IQ</span> <br />
-            <span className="text-emerald-400">Management Portal</span>
+        <div className="relative z-10 text-white p-12 md:p-16 flex flex-col justify-center h-full">
+          {/* Heading */}
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 md:mb-6 leading-tight tracking-tight drop-shadow-lg">
+            <span className="block text-white">Smart USB Dongle</span>
+            <span className="block text-emerald-400 text-2xl md:text-4xl mt-2">
+              Management for Agents and Admins
+            </span>
           </h1>
 
-          <p className="text-gray-300 text-lg max-w-md text-bold">
-            Smartly manage dongle applications, approvals and tracking in one
-            secure system.
+          <p className="text-gray-300 text-lg md:text-xl max-w-2xl leading-relaxed font-medium mb-6 drop-shadow-sm">
+            Dongle IQ helps you manage all USB dongle applications in one secure
+            portal. Admins can approve or track agent requests, while agents can
+            submit applications and monitor their dongle status easily. Stay
+            organized, stay updated, and manage everything efficiently.
           </p>
-          <div className="flex gap-4 m-2">
-            {/* Contact Us */}
-            <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg">
-              <MdMessage size={14} />
-              Contact Us
-            </button>
-
-            {/* WhatsApp Us */}
-            <button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 active:scale-95 text-white px-4 py-2.5 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg">
-              <FaWhatsapp size={14} />
-              WhatsApp Us
-            </button>
-          </div>
         </div>
       </div>
 
-      <div
-        className={`absolute w-96 h-96 rounded-full blur-3xl -top-40 -left-40 transition-all duration-700
-    ${
-      role === "admin"
-        ? "bg-red-500/20"
-        : role === "user"
-          ? "bg-blue-500/20"
-          : "bg-emerald-400/20"
-    }
-  `}
-      ></div>
+    <div className="absolute w-96 h-96 rounded-full blur-3xl -top-40 -left-40 bg-blue-500/20"></div>
 
-      <div
-        className={`absolute w-96 h-96 rounded-full blur-3xl -bottom-40 -right-40 transition-all duration-700
-    ${
-      role === "admin"
-        ? "bg-red-700/20"
-        : role === "user"
-          ? "bg-indigo-500/20"
-          : "bg-blue-400/20"
-    }
-  `}
-      ></div>
+     <div className="absolute w-96 h-96 rounded-full blur-3xl -bottom-40 -right-40 bg-indigo-500/20"></div>
 
       {/* RIGHT SIDE */}
       <div className="flex w-full md:w-1/2 items-center justify-center">
@@ -121,6 +111,13 @@ function Login() {
 
           <h2 className="text-4xl font-bold mb-3 text-white">Welcome Back!</h2>
           <p className="text-gray-300 mb-6">Log in to access your account</p>
+
+          {registered && (
+            <div className="mb-4 text-green-400 text-sm font-medium">
+              Registration successful! Please login.
+            </div>
+          )}
+
           {error && (
             <div className="mb-4 text-red-400 text-sm font-medium">{error}</div>
           )}
@@ -129,13 +126,13 @@ function Login() {
             {/* User ID */}
             <div className="mb-2">
               <label className="block text-gray-300 mb-2 font-medium text-sm">
-                User Id
+                Email or phone number
               </label>
               <input
                 type="text"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-                placeholder="Enter User ID"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter email or phone number"
                 className="w-full p-2 rounded-md bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 transition"
               />
             </div>
@@ -161,11 +158,14 @@ function Login() {
               Login
             </button>
 
-            <p className="text-blue-400 text-sm mt-4 hover:underline cursor-pointer">
-              Forgot Password?
-            </p>
-          </form>
           
+
+<Link href="/forgot-password">
+  <p className="text-blue-400 text-sm mt-4 hover:underline cursor-pointer">
+    Forgot Password?
+  </p>
+</Link>
+          </form>
         </div>
       </div>
     </div>
