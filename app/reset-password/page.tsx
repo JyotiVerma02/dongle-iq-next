@@ -36,17 +36,18 @@ const [loading,setLoading] = useState(false);
     body:JSON.stringify({token,password})
   });
 
- const data = await res.json();
+  const data = await res.json();
 
-setMessage(data.message);
+  setMessage(data.message);
 
-if (res.ok) {
-  setTimeout(() => {
-    router.push("/login");
-  }, 2000);
-}
+  if (res.ok) {
+    setTimeout(() => {
+      router.push("/login");
+    }, 2000);
+  }
 
-setLoading(false);
+  setLoading(false);
+};
 
   return (
     <div
@@ -137,5 +138,4 @@ className="w-full bg-green-600 hover:bg-green-700 transition-all duration-300 te
       </div>
     </div>
   );
-}
 }
