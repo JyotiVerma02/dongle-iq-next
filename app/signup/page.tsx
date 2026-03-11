@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaWhatsapp } from "react-icons/fa";
 import { MdMessage } from "react-icons/md";
+import OtpModal from "@/components/OtpModal";
 
 export default function Register() {
   const router = useRouter();
 
+  const [showOtp, setShowOtp] = useState(false);
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -60,7 +62,9 @@ export default function Register() {
         return;
       }
 
-      router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
+      // ✅ Open OTP modal instead of redirect
+      setShowOtp(true);
+      setLoading(false);
     } catch (err) {
       setError("Something went wrong. Please try again.");
       setLoading(false);
@@ -104,7 +108,6 @@ export default function Register() {
       {/* RIGHT SIDE */}
       <div className="flex w-full md:w-1/2 items-center justify-center">
         <div className="relative bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl w-[400px] border border-white/20 text-white">
-
           <h2 className="text-4xl font-bold mb-3">Create Account</h2>
           <p className="text-gray-300 mb-6">
             Let’s get you all set up so you can access your personal account.
@@ -202,6 +205,22 @@ export default function Register() {
           </form>
         </div>
       </div>
+
+      {/* 🔹 OTP MODAL */}
+      <OtpModal
+        isOpen={showOtp}
+        onClose={() => setShowOtp(false)}
+        onVerify={(otp) => {
+          console.log("OTP entered:", otp);
+
+          // ✅ Call OTP verify API here if you have
+          // Example:
+          // fetch("/api/verify-otp", { method: "POST", body: JSON.stringify({ email, otp }) })
+
+          // On success, redirect
+          router.push("/login");
+        }}
+      />
     </div>
   );
 }
