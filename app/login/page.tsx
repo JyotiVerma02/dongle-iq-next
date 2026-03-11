@@ -15,57 +15,53 @@ function Login() {
 
   const [password, setPassword] = useState<string>("");
   const [email, setEmail] = useState<string>("");
-  
+
   const [error, setError] = useState<string>("");
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  if (!email || !password) {
-    setError("Email and Password are required");
-    return;
-  }
-
-  try {
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setError(data.message);
+    if (!email || !password) {
+      setError("Email and Password are required");
       return;
     }
 
-    // Save login status
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("role", data.role);
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-    // Redirect user
-    if (data.role === "admin") {
-      router.push("/admin/dashboard");
-    } else {
-      router.push("/user/dashboard");
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message);
+        return;
+      }
+
+      // ✅ Token is already stored in cookie by backend
+
+      if (data.role === "admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/user/dashboard");
+      }
+    } catch (error) {
+      setError("Login failed");
     }
-
-  } catch (error) {
-    setError("Login failed");
-  }
-};
+  };
 
   return (
-   <div
-  className="min-h-screen flex pt-14 relative overflow-hidden bg-cover bg-center bg-no-repeat bg-linear-to-br from-slate-900 via-slate-900 to-blue-950"
-  style={{ backgroundImage: "url('/bg.jpg')" }}
->
+    <div
+      className="min-h-screen flex pt-14 relative overflow-hidden bg-cover bg-center bg-no-repeat bg-linear-to-br from-slate-900 via-slate-900 to-blue-950"
+      style={{ backgroundImage: "url('/bg.jpg')" }}
+    >
       {/* LEFT SIDE */}
       <div
         className="hidden md:flex w-3/5 bg-cover bg-center relative"
@@ -91,9 +87,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         </div>
       </div>
 
-    <div className="absolute w-96 h-96 rounded-full blur-3xl -top-40 -left-40 bg-blue-500/20"></div>
+      <div className="absolute w-96 h-96 rounded-full blur-3xl -top-40 -left-40 bg-blue-500/20"></div>
 
-     <div className="absolute w-96 h-96 rounded-full blur-3xl -bottom-40 -right-40 bg-indigo-500/20"></div>
+      <div className="absolute w-96 h-96 rounded-full blur-3xl -bottom-40 -right-40 bg-indigo-500/20"></div>
 
       {/* RIGHT SIDE */}
       <div className="flex w-full md:w-1/2 items-center justify-center">
@@ -158,13 +154,11 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               Login
             </button>
 
-          
-
-<Link href="/forgot-password">
-  <p className="text-blue-400 text-sm mt-4 hover:underline cursor-pointer">
-    Forgot Password?
-  </p>
-</Link>
+            <Link href="/forgot-password">
+              <p className="text-blue-400 text-sm mt-4 hover:underline cursor-pointer">
+                Forgot Password?
+              </p>
+            </Link>
           </form>
         </div>
       </div>
