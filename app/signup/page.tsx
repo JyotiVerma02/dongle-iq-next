@@ -81,13 +81,15 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
       const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.error);
-        return;
-      }
+    if (!res.ok) {
+  setError(data.error);
+  return;
+}
 
+setError("");
+router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
       setError("");
-      router.push("/login?registered=true");
+    router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError("Something went wrong");
     }

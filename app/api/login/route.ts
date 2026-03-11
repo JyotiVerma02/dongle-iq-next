@@ -25,6 +25,14 @@ export async function POST(req: Request) {
       );
     }
 
+    // ✅ ADD EMAIL VERIFICATION CHECK HERE
+    if (!user.isVerified) {
+      return NextResponse.json(
+        { message: "Please verify your email first" },
+        { status: 401 }
+      );
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
