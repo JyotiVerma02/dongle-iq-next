@@ -4,7 +4,9 @@ import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 
 export async function POST(req: Request) {
+
   try {
+
     await connectDB();
 
     const { email, password } = await req.json();
@@ -18,27 +20,17 @@ export async function POST(req: Request) {
 
     const user = await User.findOne({ email });
 
-    if (!user) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return NextResponse.json(
-        { message: "User not found" },
-        { status: 404 }
+        { message: "Invalid email or password" },
+        { status: 401 }
       );
     }
 
-    // ✅ ADD EMAIL VERIFICATION CHECK HERE
     if (!user.isVerified) {
       return NextResponse.json(
         { message: "Please verify your email first" },
-        { status: 401 }
-      );
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return NextResponse.json(
-        { message: "Invalid password" },
-        { status: 401 }
+        { status: 403 }
       );
     }
 
@@ -48,6 +40,11 @@ export async function POST(req: Request) {
     });
 
   } catch (error) {
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+
+    return NextResponse.json(
+      { message: "Server error" },
+      { status: 500 }
+    );
+
   }
 }

@@ -41,6 +41,20 @@ export default function VerifyOTP() {
       setMessage(data.message);
     }
   };
+  const handleResendOTP = async () => {
+
+  const res = await fetch("/api/resend-otp", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ email })
+  });
+
+  const data = await res.json();
+
+  setMessage(data.message);
+};
 
   return (
     <div
@@ -82,6 +96,13 @@ export default function VerifyOTP() {
           >
             Verify OTP
           </button>
+          <button
+  type="button"
+  onClick={handleResendOTP}
+  className="text-blue-400 mt-3 hover:text-blue-300"
+>
+  Resend OTP
+</button>
 
         </form>
 
