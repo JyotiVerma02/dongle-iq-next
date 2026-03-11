@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 import { registerSchema } from "@/schemas/registerSchema";
+import { transporter } from "@/app/lib/mailer";
 
 export async function POST(req: Request) {
   try {
@@ -10,7 +11,6 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
-    // 1️⃣ Validate basic fields (name, email, password, number)
     const parsed = registerSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -21,8 +21,8 @@ export async function POST(req: Request) {
 
     const { name, email, password, number } = parsed.data;
 
-    // 2️⃣ Check existing user
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
       return NextResponse.json(
         { message: "User already exists" },
@@ -30,11 +30,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // 3️⃣ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4️⃣ Role Logic 🔥
-    let role = "user"; // default role
+    let role = "user";
 
     if (body.role === "admin") {
       if (body.adminKey !== process.env.ADMIN_SECRET_KEY) {
@@ -46,17 +44,37 @@ export async function POST(req: Request) {
       role = "admin";
     }
 
-    // 5️⃣ Create user
+    // 🔥 Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // 🔥 Create user with OTP
     await User.create({
       name,
       email,
       password: hashedPassword,
       number: number ?? undefined,
       role,
+      otp,
+      otpExpiry,
+    });
+
+    // 🔥 Send OTP Email
+    await transporter.sendMail({
+      from: `"DongleIQ Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Verify Your Email",
+      html: `
+        <h2>Email Verification</h2>
+        <p>Your OTP is:</p>
+        <h1>${otp}</h1>
+        <p>This OTP expires in 10 minutes.</p>
+      `,
     });
 
     return NextResponse.json(
-      { message: `${role} registered successfully` },
+      { message: "Registration successful. OTP sent to email." },
       { status: 201 }
     );
 
