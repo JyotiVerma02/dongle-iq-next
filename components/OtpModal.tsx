@@ -1,102 +1,167 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   onVerify: (otp: string) => void;
+  onResend: () => void;
 }
 
-export default function OtpModal({ isOpen, onClose, onVerify }: Props) {
+export default function OtpModal({
+  isOpen,
+  onClose,
+  onVerify,
+  onResend,
+}: Props) {
   const [otp, setOtp] = useState(Array(6).fill(""));
-  const inputsRef = useRef<Array<HTMLInputElement | null>>([]);
+  const inputs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const [timer, setTimer] = useState(30);
+  const [canResend, setCanResend] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      setOtp(Array(6).fill(""));
-      inputsRef.current[0]?.focus();
-    }
+    if (!isOpen) return;
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTimer(30);
+    setCanResend(false);
   }, [isOpen]);
 
-  const handleChange = (index: number, value: string) => {
+  useEffect(() => {
+    if (timer === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCanResend(true);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTimer((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  if (!isOpen) return null;
+
+  const handleChange = (value: string, index: number) => {
     if (!/^[0-9]?$/.test(value)) return;
+
     const newOtp = [...otp];
     newOtp[index] = value;
+
     setOtp(newOtp);
 
     if (value && index < 5) {
-      inputsRef.current[index + 1]?.focus();
+      inputs.current[index + 1]?.focus();
     }
   };
 
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputsRef.current[index - 1]?.focus();
+      inputs.current[index - 1]?.focus();
     }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
-    const pasted = e.clipboardData.getData("Text").slice(0, 6);
-    if (!/^\d+$/.test(pasted)) return;
-    const newOtp = pasted.split("").concat(Array(6).fill("")).slice(0, 6);
-    setOtp(newOtp);
-    inputsRef.current[Math.min(pasted.length, 5)]?.focus();
+    const paste = e.clipboardData.getData("text");
+
+    if (!/^\d{6}$/.test(paste)) return;
+
+    const pasteArray = paste.split("");
+    setOtp(pasteArray);
+
+    pasteArray.forEach((digit, i) => {
+      if (inputs.current[i]) {
+        inputs.current[i]!.value = digit;
+      }
+    });
   };
 
-  if (!isOpen) return null;
+  const handleVerify = () => {
+    const finalOtp = otp.join("");
+
+    if (finalOtp.length !== 6) {
+      alert("Enter valid 6 digit OTP");
+      return;
+    }
+
+    onVerify(finalOtp);
+  };
+
+  const handleResend = () => {
+    if (!canResend) return;
+
+    onResend();
+
+    setTimer(30);
+    setCanResend(false);
+
+    setOtp(Array(6).fill(""));
+
+    inputs.current[0]?.focus();
+  };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/70 z-50">
-      <div className="bg-gray-900 p-6 rounded-2xl w-[320px] text-center shadow-2xl">
-        <h2 className="text-2xl font-bold mb-2 text-white">Enter OTP</h2>
-        <p className="text-gray-400 text-sm mb-5">
-          We sent a 6-digit OTP to your email/phone
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+
+      <div className="bg-gray-900 text-white p-8 rounded-xl w-[400px] shadow-2xl">
+
+        <h2 className="text-2xl font-bold mb-2">Verify OTP</h2>
+
+        <p className="text-gray-400 mb-6">
+          Enter the 6 digit OTP sent to your email
         </p>
 
-        <div className="flex justify-between gap-3 mb-6">
-          {otp.map((digit, i) => (
+        <div className="flex justify-between mb-6">
+
+          {otp.map((digit, index) => (
             <input
-              key={i}
-              ref={(el) => (inputsRef.current[i] = el)}
+              key={index}
               type="text"
-              inputMode="numeric"
               maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
+              ref={(el) => (inputs.current[index] = el)}
+              className="w-12 h-12 text-center text-xl bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              onChange={(e) => handleChange(e.target.value, index)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={handlePaste}
-              className="
-                w-9 h-9
-                text-center text-white 
-                bg-gradient-to-b from-gray-700 to-gray-800 
-                border border-gray-600 
-                rounded-xl 
-                text-lg 
-                shadow-md 
-                transition-all duration-200
-                focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:scale-110
-                hover:scale-105 hover:border-emerald-400
-              "
             />
           ))}
+
         </div>
 
-        <div className="flex justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition"
-          >
-            Cancel
-          </button>
+        <button
+          onClick={handleVerify}
+          className="w-full bg-emerald-500 hover:bg-emerald-600 p-3 rounded-lg font-semibold transition"
+        >
+          Verify OTP
+        </button>
 
-          <button
-            onClick={() => onVerify(otp.join(""))}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition"
-          >
-            Verify
-          </button>
+        <div className="text-center mt-4">
+
+          {canResend ? (
+            <button
+              onClick={handleResend}
+              className="text-emerald-400 hover:text-emerald-300"
+            >
+              Resend OTP
+            </button>
+          ) : (
+            <p className="text-gray-400 text-sm">
+              Resend OTP in {timer}s
+            </p>
+          )}
+
         </div>
+
+        <button
+          onClick={onClose}
+          className="w-full mt-4 text-gray-400 hover:text-white"
+        >
+          Cancel
+        </button>
+
       </div>
     </div>
   );

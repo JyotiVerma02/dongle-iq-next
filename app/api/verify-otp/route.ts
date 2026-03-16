@@ -25,18 +25,30 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    if (user.otp !== otp || !user.otpExpiry || user.otpExpiry < new Date()) {
+    // OTP CHECK
+    if (String(user.otp) !== String(otp)) {
       return NextResponse.json(
-        { message: "Invalid OTP or expired" },
+        { message: "Invalid OTP" },
         { status: 400 }
       );
     }
 
-    user.isVerified = true;
-    user.otp = undefined;
-    user.otpExpiry = undefined;
+    // EXPIRY CHECK
+    if (!user.otpExpiry || user.otpExpiry < new Date()) {
+      return NextResponse.json(
+        { message: "OTP expired" },
+        { status: 400 }
+      );
+    }
 
-    await user.save();
+    // VERIFY USER
+    await User.updateOne(
+      { email },
+      {
+        $set: { isVerified: true },
+        $unset: { otp: "", otpExpiry: "" }
+      }
+    );
 
     return NextResponse.json({
       message: "Email verified successfully"
@@ -50,5 +62,6 @@ export async function POST(req: NextRequest) {
       { message: "Server error" },
       { status: 500 }
     );
+
   }
 }

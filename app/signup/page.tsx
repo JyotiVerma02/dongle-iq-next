@@ -28,7 +28,14 @@ export default function Register() {
 
     setError("");
 
-    if (!name || !lastName || !email || !number || !password || !confirmPassword) {
+    if (
+      !name ||
+      !lastName ||
+      !email ||
+      !number ||
+      !password ||
+      !confirmPassword
+    ) {
       setError("All fields are required");
       return;
     }
@@ -88,7 +95,8 @@ export default function Register() {
           </h1>
 
           <p className="text-gray-300 text-lg max-w-md">
-            Smartly manage dongle applications, approvals and tracking in one secure system.
+            Smartly manage dongle applications, approvals and tracking in one
+            secure system.
           </p>
 
           <div className="flex gap-4 mt-6">
@@ -113,12 +121,9 @@ export default function Register() {
             Let’s get you all set up so you can access your personal account.
           </p>
 
-          {error && (
-            <div className="mb-4 text-red-400 text-sm">{error}</div>
-          )}
+          {error && <div className="mb-4 text-red-400 text-sm">{error}</div>}
 
           <form onSubmit={handleRegister} className="space-y-3">
-
             <div className="grid grid-cols-2 gap-4">
               <input
                 type="text"
@@ -187,9 +192,7 @@ export default function Register() {
               <button
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-sm"
-                onClick={() =>
-                  setShowConfirmPassword(!showConfirmPassword)
-                }
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
                 {showConfirmPassword ? "Hide" : "Show"}
               </button>
@@ -201,7 +204,6 @@ export default function Register() {
             >
               {loading ? "Creating Account..." : "SIGN UP"}
             </button>
-
           </form>
         </div>
       </div>
@@ -210,15 +212,38 @@ export default function Register() {
       <OtpModal
         isOpen={showOtp}
         onClose={() => setShowOtp(false)}
-        onVerify={(otp) => {
-          console.log("OTP entered:", otp);
+        onVerify={async (otp) => {
+          const res = await fetch("/api/verify-otp", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, otp }),
+          });
 
-          // ✅ Call OTP verify API here if you have
-          // Example:
-          // fetch("/api/verify-otp", { method: "POST", body: JSON.stringify({ email, otp }) })
+          const data = await res.json();
 
-          // On success, redirect
+          if (!res.ok) {
+            alert(data.message);
+            return;
+          }
+
+          alert("Email verified successfully");
+
+          setShowOtp(false);
+
           router.push("/login");
+        }}
+        onResend={async () => {
+          await fetch("/api/send-otp", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email }),
+          });
+
+          alert("OTP resent successfully");
         }}
       />
     </div>
