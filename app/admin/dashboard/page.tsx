@@ -1,46 +1,95 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useEffect, useState } from "react";
+
 export default function AdminDashboard() {
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+
+  // FETCH USERS
+  const fetchUsers = async () => {
+    const res = await fetch("/api/admin/users");
+    const data = await res.json();
+    setUsers(data.users || []);
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  // UPDATE STATUS
+  const updateStatus = async (id: string, status: string) => {
+    await fetch("/api/admin/update-status", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId: id, status }),
+    });
+
+    fetchUsers();
+  };
+
   return (
-    <div
-      className="min-h-screen flex items-center justify-center pt-14 relative overflow-hidden bg-cover bg-center bg-no-repeat bg-linear-to-br from-slate-900 via-slate-900 to-blue-950"
-      style={{ backgroundImage: "url('/bg.jpg')" }}
-    >
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      {/* TITLE */}
+      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 
-      {/* Glow effects */}
-      <div className="absolute w-96 h-96 rounded-full blur-3xl -top-40 -left-40 bg-blue-500/20"></div>
-      <div className="absolute w-96 h-96 rounded-full blur-3xl -bottom-40 -right-40 bg-indigo-500/20"></div>
+      <div className="grid md:grid-cols-3 gap-6">
+        {/* USER LIST */}
+        <div className="bg-gray-800 p-4 rounded">
+          <h2 className="text-xl mb-4">Users</h2>
 
-      {/* Dashboard Card */}
-      <div className="relative bg-white/10 backdrop-blur-lg p-10 rounded-2xl shadow-2xl w-[450px] border border-white/20 text-white overflow-hidden">
-
-        {/* Shine animation */}
-        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shine_3s_infinite] pointer-events-none"></div>
-
-        <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
-
-        <p className="text-gray-300 mb-6">
-          Welcome Admin 🎉 You have successfully logged in.
-        </p>
-
-        <div className="space-y-3">
-
-          <button className="w-full bg-blue-600 hover:bg-blue-700 transition p-3 rounded-lg font-semibold">
-            Manage Users
-          </button>
-
-          <button className="w-full bg-emerald-600 hover:bg-emerald-700 transition p-3 rounded-lg font-semibold">
-            View Requests
-          </button>
-
-          <button className="w-full bg-purple-600 hover:bg-purple-700 transition p-3 rounded-lg font-semibold">
-            Settings
-          </button>
-
+          {users.length === 0 ? (
+            <p>No users found</p>
+          ) : (
+            users.map((user) => (
+              <div
+                key={user._id}
+                onClick={() => setSelectedUser(user)}
+                className="p-2 border-b cursor-pointer hover:bg-gray-700"
+              >
+                <p>{user.name}</p>
+                <p className="text-sm">{user.email}</p>
+              </div>
+            ))
+          )}
         </div>
 
-      </div>
+        {/* USER DETAILS */}
+        <div className="bg-gray-800 p-6 rounded">
+          {selectedUser ? (
+            <>
+              <h2 className="text-2xl mb-4">{selectedUser.name}</h2>
 
+              <p>Email: {selectedUser.email}</p>
+              <p>Phone: {selectedUser.number}</p>
+
+              <p className="mt-2">Status: {selectedUser.status || "pending"}</p>
+
+              <div className="mt-4">
+                <button
+                  onClick={() => updateStatus(selectedUser._id, "approved")}
+                  className="bg-green-600 px-3 py-1 mr-2 rounded"
+                >
+                  Approve
+                </button>
+
+                <button
+                  onClick={() => updateStatus(selectedUser._id, "rejected")}
+                  className="bg-red-600 px-3 py-1 rounded"
+                >
+                  Reject
+                </button>
+              </div>
+            </>
+          ) : (
+            <p>Select a user</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

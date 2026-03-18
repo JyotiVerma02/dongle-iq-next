@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
+import { sendOTP } from "@/app/lib/sendEmail"; // ✅ import your mail function
 
 export async function POST(req: Request) {
   try {
     await connectDB();
 
-    // 🔥 Check if admin already exists
     const existingAdmin = await User.findOne({ role: "admin" });
     if (existingAdmin) {
       return NextResponse.json(
@@ -18,7 +18,6 @@ export async function POST(req: Request) {
 
     const { name, email, number, password } = await req.json();
 
-    // 🔥 Validation
     if (!name || !email || !number || !password) {
       return NextResponse.json(
         { error: "All fields are required" },
@@ -26,7 +25,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 Email format check
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return NextResponse.json(
@@ -35,7 +33,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 Password length check
     if (password.length < 6) {
       return NextResponse.json(
         { error: "Password must be at least 6 characters" },
@@ -43,7 +40,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 Check existing user
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return NextResponse.json(
@@ -52,25 +48,32 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 🔥 Create Admin
+    // 🔥 STEP 1: Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // 🔥 STEP 2: Create Admin with OTP
     await User.create({
       name,
       email,
-      number, // ✅ FIXED (now stored)
+      number,
       password: hashedPassword,
       role: "admin",
-       isVerified: true
+      isVerified: false,
+      otp,
+      otpExpiry: new Date(Date.now() + 5 * 60 * 1000), // 5 min
     });
 
+    // 🔥 STEP 3: Send OTP email
+    await sendOTP(email, otp);
+
     return NextResponse.json({
-      message: "Admin registered successfully",
+      message: "OTP sent to email. Please verify.",
     });
 
   } catch (error) {
-    console.error("Admin Register Error:", error); // ✅ DEBUGGING
+    console.error("Admin Register Error:", error);
     return NextResponse.json(
       { error: "Server error" },
       { status: 500 }

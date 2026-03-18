@@ -7,6 +7,9 @@ export interface IUser extends Document {
   password: string;
   role: string;
   isVerified: boolean;
+
+  status: string; // ✅ ADD THIS
+
   otp?: string;
   otpExpiry?: Date;
   resetToken?: string;
@@ -22,6 +25,13 @@ const UserSchema: Schema = new Schema(
   role: { type: String, default: "user" },
 
   isVerified: { type: Boolean, default: false },
+
+  // ✅ ADD THIS FIELD
+  status: {
+    type: String,
+    enum: ["pending", "approved", "rejected"],
+    default: "pending",
+  },
 
   otp: { type: String },
   otpExpiry: { type: Date },
