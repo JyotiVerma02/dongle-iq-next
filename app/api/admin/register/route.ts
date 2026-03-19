@@ -60,7 +60,7 @@ export async function POST(req: Request) {
       number,
       password: hashedPassword,
       role: "admin",
-      isVerified: false,
+      isVerified: true,
       otp,
       otpExpiry: new Date(Date.now() + 5 * 60 * 1000), // 5 min
     });
