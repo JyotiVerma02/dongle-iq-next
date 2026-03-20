@@ -2,9 +2,12 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+// eslint-disable-next-line react-hooks/rules-of-hooks
 
 export default function DSCRegistrationForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -71,7 +74,11 @@ export default function DSCRegistrationForm() {
       const data = await res.json();
 
       if (data.success) {
-        alert("✅ Data Saved to MongoDB");
+        if (formData.ekycType === "Aadhaar") {
+          router.push("/verify-aadhaar");
+        } else {
+          router.push("/verify"); // PAN flow
+        }
       } else {
         alert("❌ Failed");
       }
@@ -218,7 +225,7 @@ export default function DSCRegistrationForm() {
                       <thead>
                         <tr className="bg-gray-900 text-white">
                           <th
-                            colSpan="3"
+                            colSpan={3}
                             className="px-3 py-1.5 text-left italic"
                           >
                             Bifurcation (Inc. Tax)

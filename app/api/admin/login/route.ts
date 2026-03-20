@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 const AdminSchema = new mongoose.Schema({
   name: String,
@@ -36,10 +37,28 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({
+    // 🔥 CREATE TOKEN
+    const token = jwt.sign(
+      {
+        userId: admin._id,
+        role: "admin", // important
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "1d" }
+    );
+
+    // 🔥 SET COOKIE
+    const response = NextResponse.json({
       success: true,
       message: "Login successful",
     });
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      path: "/",
+    });
+
+    return response;
 
   } catch (error: any) {
     console.error("ADMIN LOGIN ERROR:", error.message);
