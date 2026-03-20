@@ -22,7 +22,7 @@ export default function AadhaarVerifyPage() {
     }
 
     alert("✅ Aadhaar Verified Successfully");
-    router.push("/success");
+    router.push("/bank-telecom-form");
   };
 
   return (
@@ -50,7 +50,8 @@ export default function AadhaarVerifyPage() {
             placeholder="Enter Aadhaar linked mobile"
             value={mobile}
             onChange={(e) => setMobile(e.target.value)}
-            className="w-full border-2 border-gray-400 rounded-lg p-3 outline-none focus:border-blue-600"
+            // Updated to be darker and bolder
+            className="w-full border-2 border-gray-500 rounded-lg p-3 outline-none focus:border-blue-600 text-black font-bold placeholder-gray-300"
           />
         </div>
 
@@ -64,7 +65,8 @@ export default function AadhaarVerifyPage() {
             placeholder="Enter OTP"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
-            className="w-full border-2 border-gray-400 rounded-lg p-3 outline-none focus:border-blue-600"
+            // Updated to be darker and bolder
+            className="w-full border-2 border-gray-500 rounded-lg p-3 outline-none focus:border-blue-600 text-black font-bold placeholder-gray-300"
           />
         </div>
 
@@ -74,6 +76,7 @@ export default function AadhaarVerifyPage() {
             type="checkbox"
             checked={isChecked}
             onChange={() => setIsChecked(!isChecked)}
+            className="mt-1 w-4 h-4 accent-blue-600"
           />
           <span className="text-xs text-gray-800">
             I authorize verification of my Aadhaar details. <br />
@@ -85,17 +88,17 @@ export default function AadhaarVerifyPage() {
 
         {/* Buttons */}
         <div className="flex flex-col gap-3">
-          <button className="bg-blue-600 text-white py-3 rounded-lg font-bold">
+          <button className="bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors">
             Send OTP
           </button>
 
           <button
             onClick={handleVerify}
             disabled={!isChecked}
-            className={`py-3 rounded-lg font-bold ${
+            className={`py-3 rounded-lg font-bold transition-all ${
               isChecked
-                ? "bg-green-600 text-white"
-                : "bg-gray-300 text-gray-500"
+                ? "bg-green-600 text-white shadow-md"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
             Verify & Continue

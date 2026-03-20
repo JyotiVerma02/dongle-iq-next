@@ -4,6 +4,9 @@ import React, { useState, useRef, ChangeEvent } from "react";
 
 // --- TypeScript Interface ---
 interface FormData {
+  certificateClass: string;
+  tokenType: string;
+  validity: string;
   panName: string;
   gender: string;
   dob: string;
@@ -15,16 +18,39 @@ interface FormData {
   pincode: string;
   city: string;
   state: string;
+  remark?: string;
 }
 
-export default function ProdigiSignForm() {
+export default function DongleIQForm() {
   const [showPin, setShowPin] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Refs for all file inputs
+  const addressRef = useRef<HTMLInputElement>(null);
+  const idProofRef = useRef<HTMLInputElement>(null);
+  const photoRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState<Partial<FormData>>({
+  // States for filenames and photo preview
+  const [addressFile, setAddressFile] = useState<string>("No file chosen");
+  const [idFile, setIdFile] = useState<string>("No file chosen");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<FormData>({
+    certificateClass: "Class 3",
+    tokenType: "Not Required",
+    validity: "2 Years",
+    panName: "",
+    gender: "Select Gender",
+    dob: "",
+    panNumber: "",
+    email: "",
     mobile: "9555744396",
+    ekycId: "",
+    ekycPin: "",
+    pincode: "",
+    city: "",
+    state: "",
+    remark: ""
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -32,169 +58,163 @@ export default function ProdigiSignForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleBoxClick = () => {
-    fileInputRef.current?.click();
+  // --- File Handlers ---
+  const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviewUrl(reader.result as string);
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-    }
+  const handleDocChange = (e: ChangeEvent<HTMLInputElement>, setter: (name: string) => void) => {
+    const file = e.target.files?.[0];
+    if (file) setter(file.name);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitted(true);
-    // Auto-hide popup after 3 seconds
-    setTimeout(() => setIsSubmitted(false), 3000);
   };
 
   return (
     <div className="min-h-screen bg-[#f4f7f9] font-sans text-[#333] pb-20 relative">
       
-      {/* SUCCESS POPUP (Matches Video Alert) */}
+      {/* SUMMARY MODAL */}
       {isSubmitted && (
-        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-50 bg-white border-t-4 border-green-500 shadow-2xl p-6 rounded flex items-center gap-4 animate-bounce">
-          <div className="bg-green-100 text-green-600 rounded-full p-2 text-xl font-bold">✓</div>
-          <div>
-            <h3 className="font-bold text-gray-800 text-lg">Success!</h3>
-            <p className="text-gray-600">✅ Form Submitted Successfully</p>
+        <div className="fixed inset-0 z-[200] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm print:bg-white">
+          <div className="bg-white w-full max-w-3xl rounded-lg shadow-2xl overflow-hidden print:shadow-none">
+            <div className="bg-[#2c8ed3] p-4 text-white flex justify-between items-center print:hidden">
+              <h2 className="font-black text-xl uppercase">Dongle-IQ Summary</h2>
+              <button onClick={() => setIsSubmitted(false)} className="text-2xl hover:opacity-70 transition">✕</button>
+            </div>
+            <div className="p-10 space-y-4 bg-white" id="printable-area">
+              <div className="flex justify-between border-b-2 border-[#2c8ed3] pb-4 mb-6">
+                <div className="font-black text-3xl text-[#2c8ed3] italic tracking-tighter">DONGLE-IQ</div>
+                <div className="text-right font-bold text-gray-500 text-xs">APPLICATION RECEIPT</div>
+              </div>
+              <div className="grid grid-cols-2 gap-6 text-sm">
+                <SummaryItem label="Applicant Name" value={formData.panName} />
+                <SummaryItem label="Mobile Number" value={formData.mobile} />
+                <SummaryItem label="PAN Number" value={formData.panNumber} />
+                <SummaryItem label="eKYC ID" value={formData.ekycId} />
+                <SummaryItem label="Address Proof" value={addressFile} />
+                <SummaryItem label="ID Proof" value={idFile} />
+              </div>
+            </div>
+            <div className="p-6 bg-gray-50 flex gap-4 justify-end border-t print:hidden">
+              <button onClick={() => setIsSubmitted(false)} className="px-6 py-2 font-bold text-gray-400 text-xs uppercase">Back</button>
+              <button onClick={() => window.print()} className="bg-[#2c8ed3] text-white px-10 py-3 rounded font-black shadow-lg uppercase tracking-wide">Print PDF</button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Top Header Bar */}
-      <div className="bg-[#2c8ed3] text-white p-3 px-6 flex justify-between items-center shadow-md">
-        <span className="font-bold text-lg tracking-tight">DSC PAN Based</span>
-        <span className="text-sm font-medium opacity-90">Process Time : 1159 (Sec)</span>
+      {/* HEADER */}
+      <div className="bg-[#2c8ed3] text-white p-3 px-6 flex justify-between items-center shadow-md print:hidden">
+        <span className="font-black text-xl tracking-tight uppercase">Dongle-IQ Portal</span>
+        <span className="text-sm font-bold bg-white/20 px-3 py-1 rounded">PAN BASED DSC</span>
       </div>
 
-      <div className="max-w-[1200px] mx-auto mt-6 px-4">
-        <form onSubmit={handleSubmit} className="bg-white shadow-xl border border-gray-300 rounded-sm overflow-hidden">
+      <div className="max-w-[1250px] mx-auto mt-8 px-4 print:hidden">
+        <form onSubmit={handleSubmit} className="bg-white shadow-2xl border border-gray-300 rounded-sm overflow-hidden">
           
-          {/* TOP DROPDOWNS SECTION */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 bg-[#fcfdfd] border-b border-gray-200">
-            <Select label="Certificate Class" options={["Class 3"]} required />
-            <Select label="Token Type" options={["Not Required"]} required />
-            <Select label="Certificate Validity" options={["2 Years"]} required />
-            <div className="flex items-end pb-1">
-              <span className="bg-[#2c8ed3] text-white px-8 py-2.5 rounded text-lg font-black">
-                Price: ₹899
-              </span>
+          {/* TIER 1 SECTION */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 bg-[#f8fbff] border-b border-gray-200">
+            <Select label="Certificate Class" name="certificateClass" options={["Class 3"]} onChange={handleChange} required />
+            <Select label="Token Type" name="tokenType" options={["Not Required"]} onChange={handleChange} required />
+            <Select label="Validity" name="validity" options={["2 Years"]} onChange={handleChange} required />
+            <div className="flex items-end">
+              <span className="bg-[#2c8ed3] text-white px-8 py-3 rounded-md text-xl font-black shadow-md border-b-4 border-blue-700">Price: ₹899</span>
             </div>
           </div>
 
           <div className="p-8 space-y-10">
-            {/* Rows 1 & 2 */}
+            {/* GRID ROWS */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Input label="Name as per PAN" name="panName" required onChange={handleChange} />
-              <Select label="Gender" options={["Select Gender", "Male", "Female"]} required />
-              <Input label="Date of Birth" name="dob" placeholder="dd-mm-yyyy" required onChange={handleChange} />
+              <Input label="Name as per PAN" name="panName" placeholder="ENTER FULL NAME" required onChange={handleChange} />
+              <Select label="Gender" name="gender" options={["Select Gender", "Male", "Female"]} required onChange={handleChange} />
+              <Input label="Date of Birth" name="dob" placeholder="DD-MM-YYYY" required onChange={handleChange} />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Input label="PAN (Individual)" name="panNumber" placeholder="PAN NUMBER" required onChange={handleChange} />
-              <Input label="Email ID" name="email" placeholder="Email Address" required onChange={handleChange} />
+              <Input label="PAN (Individual)" name="panNumber" placeholder="ABCDE1234F" required onChange={handleChange} />
+              <Input label="Email ID" name="email" type="email" placeholder="EMAIL@DOMAIN.COM" required onChange={handleChange} />
               <Input label="Mobile No" name="mobile" value={formData.mobile} required onChange={handleChange} />
             </div>
 
-            {/* Row 3 - Eye Icon Logic */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Input label="eKYC ID" name="ekycId" placeholder="[number]@pan.prodigisign" required onChange={handleChange} />
-              
+              <Input label="eKYC ID" name="ekycId" placeholder="MOBILE@DONGLE-IQ" required onChange={handleChange} />
               <div className="relative">
-                <Input 
-                  label="eKYC PIN" 
-                  name="ekycPin" 
-                  type={showPin ? "text" : "password"} 
-                  placeholder="For example: 123456" 
-                  required 
-                  onChange={handleChange} 
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setShowPin(!showPin)}
-                  className="absolute right-4 top-[42px] text-[#2c8ed3] text-2xl hover:scale-110 transition"
-                >
-                  {showPin ? "👁️‍🗨️" : ""}
-                </button>
+                <Input label="eKYC PIN" name="ekycPin" type={showPin ? "text" : "password"} placeholder="6 DIGIT PIN" required onChange={handleChange} />
+                <button type="button" onClick={() => setShowPin(!showPin)} className="absolute right-4 top-[44px] text-[#2c8ed3] text-2xl">{showPin ? "👁️‍🗨️" : "👁️"}</button>
               </div>
-
-              <div>
-                <label className="text-[14px] font-bold block mb-2 text-gray-700 uppercase">BP CODE</label>
+              <div className="flex flex-col">
+                <label className="text-sm font-black block mb-2 text-gray-700 uppercase tracking-tight">BP Code</label>
                 <div className="flex gap-2">
-                  <input className="form-input flex-1" placeholder="REFERENCE CODE" />
-                  <div className="flex items-center gap-2 px-3 bg-gray-50 border border-gray-200 rounded">
-                    <span className="text-[10px] font-bold text-gray-400">Available?</span>
+                  <input className="form-input flex-1" placeholder="REF CODE" />
+                  <div className="flex items-center gap-2 px-3 bg-gray-100 border border-gray-200 rounded">
                     <input type="radio" defaultChecked className="accent-[#2c8ed3] w-4 h-4" />
-                    <span className="text-sm font-bold">Yes</span>
+                    <span className="text-xs font-bold uppercase">Yes</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Address Header */}
-            <div className="bg-[#e9ecef] p-3 px-6 -mx-8 font-bold text-[13px] text-gray-600 border-y border-gray-300 uppercase tracking-widest">
-              Address
-            </div>
+            <div className="bg-[#e9ecef] p-3 px-6 -mx-8 font-black text-sm text-gray-600 border-y border-gray-300 uppercase tracking-widest">Address Details</div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Input label="Pincode" name="pincode" placeholder="Enter pincode" required onChange={handleChange} />
-              <Input label="City" name="city" placeholder="City Name" required onChange={handleChange} />
-              <Input label="State" name="state" placeholder="State" required onChange={handleChange} />
+              <Input label="Pincode" name="pincode" placeholder="600001" required onChange={handleChange} />
+              <Input label="City" name="city" placeholder="CITY NAME" required onChange={handleChange} />
+              <Input label="State" name="state" placeholder="STATE NAME" required onChange={handleChange} />
             </div>
 
-            {/* Document Uploads */}
-            <div className="border-t border-gray-100 pt-8">
-              <p className="text-xs text-red-500 italic mb-6">* Supported formats: PDF, JPEG, JPG, PNG (&lt; 5MB)</p>
+            {/* DOCUMENT UPLOADS SECTION */}
+            <div className="pt-6">
+              <p className="text-xs text-red-500 font-bold italic mb-6 tracking-wide">* Supported formats: PDF, JPEG, JPG, PNG (&lt; 5MB)</p>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <FileUpload label="Address Proof" />
-                <FileUpload label="ID Proof" />
+                <FileUpload 
+                  label="Address Proof (Front & Back)" 
+                  inputRef={addressRef} 
+                  fileName={addressFile} 
+                  onChange={(e) => handleDocChange(e, setAddressFile)} 
+                />
+                <FileUpload 
+                  label="ID Proof (PAN Card)" 
+                  inputRef={idProofRef} 
+                  fileName={idFile} 
+                  onChange={(e) => handleDocChange(e, setIdFile)} 
+                />
               </div>
 
-              {/* IMAGE UPLOAD FIELD (Clickable & Drag-Drop style) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
                 <div>
-                  <label className="text-sm font-bold block mb-2 uppercase text-gray-700">
-                    Upload Photo (jpg, jpeg, png) <span className="text-red-500">*</span>
-                  </label>
-                  <input 
-                    type="file" 
-                    ref={fileInputRef} 
-                    onChange={handleFileChange} 
-                    className="hidden" 
-                    accept="image/*"
-                  />
-                  <div 
-                    onClick={handleBoxClick}
-                    className="border-2 border-dashed border-blue-200 bg-[#f0f7ff] h-44 rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-blue-100 transition shadow-inner"
-                  >
-                    <span className="text-5xl mb-2">☁️</span>
-                    <p className="text-lg font-bold text-gray-700">
-                      {selectedFile ? selectedFile.name : "Drag & Drop File"}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1 uppercase">OR Click Box to Browse File</p>
+                  <label className="text-sm font-black block mb-2 uppercase text-gray-700">Applicant Photo <span className="text-red-500">*</span></label>
+                  <input type="file" ref={photoRef} onChange={handlePhotoChange} className="hidden" accept="image/*" />
+                  <div onClick={() => photoRef.current?.click()} className="border-2 border-dashed border-blue-200 bg-[#f8fbff] h-52 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition-all overflow-hidden group shadow-inner">
+                    {previewUrl ? (
+                      <img src={previewUrl} alt="Preview" className="w-full h-full object-contain p-2" />
+                    ) : (
+                      <>
+                        <span className="text-6xl mb-3 text-blue-200 group-hover:scale-105 transition-transform">☁️</span>
+                        <p className="text-lg font-black text-gray-700">Click to Upload Photo</p>
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <label className="text-sm font-bold block mb-2 uppercase text-gray-700">Remark (Optional)</label>
-                  <textarea 
-                    className="form-input flex-1 min-h-[176px] p-4 text-base resize-none" 
-                    placeholder="Enter any additional remarks here..."
-                  ></textarea>
+                  <label className="text-sm font-black block mb-2 uppercase text-gray-700">Internal Remarks</label>
+                  <textarea name="remark" className="form-input flex-1 min-h-[208px] p-4 font-bold resize-none shadow-inner" placeholder="ANY EXTRA NOTES..." onChange={handleChange}></textarea>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* FINAL SUBMIT BUTTON */}
-          <div className="p-8 bg-[#fcfdfd] border-t border-gray-200">
-            <button 
-              type="submit"
-              className="w-full bg-[#28a745] hover:bg-[#218838] text-white py-4 rounded font-black text-2xl shadow-lg transition-transform active:scale-[0.99]"
-            >
-              Proceed (Next)
+          <div className="p-10 bg-gray-50 border-t border-gray-200 flex justify-center">
+            <button type="submit" className="w-full max-w-xl bg-[#28a745] hover:bg-[#218838] text-white py-5 rounded-md font-black text-2xl shadow-xl transition-all hover:translate-y-[-2px] uppercase">
+              PROCEED TO SUMMARY
             </button>
           </div>
         </form>
@@ -202,68 +222,61 @@ export default function ProdigiSignForm() {
 
       <style jsx>{`
         .form-input {
-          width: 100%;
-          border: 1px solid #adb5bd;
-          padding: 12px 16px;
-          font-size: 16px;
-          font-weight: 600;
-          color: #000; /* Deep black text for clarity */
-          border-radius: 4px;
-          background: #fff;
+          width: 100%; border: 1.5px solid #ced4da; padding: 14px 18px; font-size: 16px;
+          font-weight: 700; color: #000; border-radius: 4px; background: #fff; transition: all 0.2s;
         }
-        .form-input::placeholder {
-          color: #dee2e6; /* Very light placeholder */
-          font-weight: 400;
-        }
-        .form-input:focus {
-          border-color: #2c8ed3;
-          outline: none;
-          box-shadow: 0 0 0 4px rgba(44, 142, 211, 0.1);
-        }
+        .form-input::placeholder { color: #dee2e6; font-weight: 500; }
+        .form-input:focus { border-color: #2c8ed3; outline: none; box-shadow: 0 0 0 4px rgba(44, 142, 211, 0.15); }
+        @media print { .print-hidden { display: none !important; } }
       `}</style>
     </div>
   );
 }
 
-// --- Internal Helpers ---
-
-function Input({ label, required, type = "text", ...props }: any) {
+// --- Helpers ---
+function SummaryItem({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="w-full">
-      <label className="text-[14px] font-bold block mb-2 text-gray-700 uppercase tracking-tight">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <input className="form-input" type={type} {...props} />
+    <div className="border-b border-gray-100 pb-1">
+      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{label}</p>
+      <p className="text-base font-bold text-gray-900 truncate">{value || "---"}</p>
     </div>
   );
 }
 
-function Select({ label, options, required }: any) {
+function Input({ label, required, type = "text", ...props }: any) {
   return (
     <div className="w-full">
-      <label className="text-[14px] font-bold block mb-2 text-gray-700 uppercase tracking-tight">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <select className="form-input cursor-pointer">
-        {options.map((opt: string) => (
-          <option key={opt} value={opt}>{opt}</option>
-        ))}
+      <label className="text-sm font-black block mb-2 text-gray-700 uppercase tracking-tight">{label} {required && <span className="text-red-500">*</span>}</label>
+      <input className="form-input shadow-sm" type={type} {...props} />
+    </div>
+  );
+}
+
+function Select({ label, options, required, ...props }: any) {
+  return (
+    <div className="w-full">
+      <label className="text-sm font-black block mb-2 text-gray-700 uppercase tracking-tight">{label} {required && <span className="text-red-500">*</span>}</label>
+      <select className="form-input cursor-pointer shadow-sm" {...props}>
+        {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
       </select>
     </div>
   );
 }
 
-function FileUpload({ label }: { label: string }) {
+function FileUpload({ label, inputRef, fileName, onChange }: any) {
   return (
     <div className="flex flex-col gap-3">
-      <label className="text-[14px] font-bold text-gray-700 uppercase tracking-tight">
-        {label} <span className="text-red-500">*</span>
-      </label>
+      <label className="text-sm font-black text-gray-700 uppercase tracking-tight">{label} <span className="text-red-500">*</span></label>
       <div className="flex items-center gap-4">
-        <button type="button" className="bg-[#f1f3f5] border border-gray-400 px-6 py-2 text-sm font-bold rounded hover:bg-gray-200">
-          Choose File
+        <input type="file" ref={inputRef} onChange={onChange} className="hidden" />
+        <button 
+          type="button" 
+          onClick={() => inputRef.current?.click()}
+          className="bg-[#f8f9fa] border-2 border-gray-300 px-6 py-2.5 text-xs font-black rounded hover:border-[#2c8ed3] shadow-sm transition-all active:scale-95"
+        >
+          CHOOSE FILE
         </button>
-        <span className="text-sm text-gray-400 italic">No file chosen</span>
+        <span className="text-xs text-gray-400 font-bold italic truncate max-w-[150px]">{fileName}</span>
       </div>
     </div>
   );
