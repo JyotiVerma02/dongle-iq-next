@@ -6,9 +6,24 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 // eslint-disable-next-line react-hooks/rules-of-hooks
 
+
+type FormDataType = {
+  name: string;
+  email: string;
+  mobile: string;
+  userType: string;
+  classType: string;
+  certType: string;
+  validity: string;
+  tokenType: string;
+  assistedService: string;
+  ekycType: string;
+};
 export default function DSCRegistrationForm() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [error, setError] = useState("");
+const [submitted, setSubmitted] = useState(false);
+ const [formData, setFormData] = useState<FormDataType>({
     name: "",
     email: "",
     mobile: "",
@@ -59,6 +74,21 @@ export default function DSCRegistrationForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // ✅ validation
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.mobile ||
+      !formData.certType ||
+      !formData.validity
+    ) {
+      setError("⚠️ Please fill all required (*) fields");
+      return;
+    }
+
+    // clear error
+    setError("");
+
     try {
       const res = await fetch("/api/user-dashboard", {
         method: "POST",
@@ -74,11 +104,9 @@ export default function DSCRegistrationForm() {
       const data = await res.json();
 
       if (data.success) {
-        if (formData.ekycType === "Aadhaar") {
-          router.push("/verify-aadhaar");
-        } else {
-          router.push("/verify"); // PAN flow
-        }
+        router.push(
+          formData.ekycType === "Aadhaar" ? "/verify-aadhaar" : "/verify",
+        );
       } else {
         alert("❌ Failed");
       }
@@ -86,6 +114,7 @@ export default function DSCRegistrationForm() {
       console.error(error);
       alert("⚠️ Server Error");
     }
+    setSubmitted(true);
   };
 
   return (
@@ -121,16 +150,24 @@ export default function DSCRegistrationForm() {
                 ].map((field) => (
                   <div key={field.key}>
                     <label className="block text-sm font-bold text-gray-900 mb-1.5">
-                      {field.label}
+                      {field.label} <span className="text-red-500">*</span>
                     </label>
+
                     <input
                       type={field.type}
-                      className="w-full border-2 border-gray-100 rounded-xl p-3 text-gray-800 font-medium outline-none focus:border-teal-400 focus:bg-teal-50/10 transition-all"
+                      value={formData[field.key as keyof FormDataType]}
+                      className={`w-full border-2 rounded-xl p-3 text-gray-800 font-medium outline-none transition-all
+    ${
+    submitted && !formData[field.key as keyof FormDataType]
+        ? "border-red-500"
+        : "border-gray-100 focus:border-teal-400"
+    }
+  `}
                       placeholder={`Enter your ${field.label.toLowerCase()}`}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          [field.key]: e.target.value,
+                          [field.key as keyof FormDataType]: e.target.value
                         })
                       }
                     />
@@ -195,9 +232,9 @@ export default function DSCRegistrationForm() {
                     </label>
                     <select
                       className="w-full border-2 border-blue-100 rounded-xl p-3 bg-white text-sm font-bold text-gray-800 outline-none focus:border-blue-500 focus:ring-4 ring-blue-50"
-                      value={formData[item.key]}
+                     value={formData[item.key as keyof FormDataType]} 
                       onChange={(e) =>
-                        setFormData({ ...formData, [item.key]: e.target.value })
+                        setFormData({ ...formData, [item.key as keyof FormDataType]: e.target.value })
                       }
                     >
                       {item.key === "certType" || item.key === "validity" ? (
@@ -287,7 +324,9 @@ export default function DSCRegistrationForm() {
                     ))}
                   </div>
                 </div>
-
+                {error && (
+                  <p className="text-red-500 text-sm font-bold mt-2">{error}</p>
+                )}
                 <button
                   type="submit"
                   className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-blue-200 transition-all hover:-translate-y-1 active:scale-95"

@@ -23,7 +23,8 @@ export default function VerifyPage() {
     }
 
     alert("✅ Verified Successfully");
-    router.push("/success");
+ router.push("/bank-telecom-form");
+    
   };
 
   return (
