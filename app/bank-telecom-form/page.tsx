@@ -24,7 +24,7 @@ interface FormData {
 export default function DongleIQForm() {
   const [showPin, setShowPin] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  
+
   // Refs for all file inputs
   const addressRef = useRef<HTMLInputElement>(null);
   const idProofRef = useRef<HTMLInputElement>(null);
@@ -80,7 +80,7 @@ export default function DongleIQForm() {
 
   return (
     <div className="min-h-screen bg-[#f4f7f9] font-sans text-[#333] pb-20 relative">
-      
+
       {/* SUMMARY MODAL */}
       {isSubmitted && (
         <div className="fixed inset-0 z-[200] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm print:bg-white">
@@ -119,7 +119,7 @@ export default function DongleIQForm() {
 
       <div className="max-w-[1250px] mx-auto mt-8 px-4 print:hidden">
         <form onSubmit={handleSubmit} className="bg-white shadow-2xl border border-gray-300 rounded-sm overflow-hidden">
-          
+
           {/* TIER 1 SECTION */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 bg-[#f8fbff] border-b border-gray-200">
             <Select label="Certificate Class" name="certificateClass" options={["Class 3"]} onChange={handleChange} required />
@@ -146,9 +146,25 @@ export default function DongleIQForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <Input label="eKYC ID" name="ekycId" placeholder="MOBILE@DONGLE-IQ" required onChange={handleChange} />
-              <div className="relative">
-                <Input label="eKYC PIN" name="ekycPin" type={showPin ? "text" : "password"} placeholder="6 DIGIT PIN" required onChange={handleChange} />
-                <button type="button" onClick={() => setShowPin(!showPin)} className="absolute right-4 top-[44px] text-[#2c8ed3] text-2xl">{showPin ? "👁️‍🗨️" : "👁️"}</button>
+              <div className="relative w-auto">
+                <Input
+                  label="eKYC PIN"
+                  name="ekycPin"
+                  type={showPin ? "text" : "password"}
+                  placeholder="6 DIGIT PIN"
+                  required
+                  onChange={handleChange}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => setShowPin(!showPin)}
+                      className="text-[#2c8ed3]"
+                    >
+                      {showPin ? "🙈" : "👁️"}
+                    </button>
+                  }
+                />
+                
               </div>
               <div className="flex flex-col">
                 <label className="text-sm font-black block mb-2 text-gray-700 uppercase tracking-tight">BP Code</label>
@@ -173,19 +189,19 @@ export default function DongleIQForm() {
             {/* DOCUMENT UPLOADS SECTION */}
             <div className="pt-6">
               <p className="text-xs text-red-500 font-bold italic mb-6 tracking-wide">* Supported formats: PDF, JPEG, JPG, PNG (&lt; 5MB)</p>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <FileUpload 
-                  label="Address Proof (Front & Back)" 
-                  inputRef={addressRef} 
-                  fileName={addressFile} 
-                  onChange={(e) => handleDocChange(e, setAddressFile)} 
+                <FileUpload
+                  label="Address Proof (Front & Back)"
+                  inputRef={addressRef}
+                  fileName={addressFile}
+                  onChange={(e) => handleDocChange(e, setAddressFile)}
                 />
-                <FileUpload 
-                  label="ID Proof (PAN Card)" 
-                  inputRef={idProofRef} 
-                  fileName={idFile} 
-                  onChange={(e) => handleDocChange(e, setIdFile)} 
+                <FileUpload
+                  label="ID Proof (PAN Card)"
+                  inputRef={idProofRef}
+                  fileName={idFile}
+                  onChange={(e) => handleDocChange(e, setIdFile)}
                 />
               </div>
 
@@ -243,11 +259,60 @@ function SummaryItem({ label, value }: { label: string; value?: string }) {
   );
 }
 
-function Input({ label, required, type = "text", ...props }: any) {
+function Input({
+  label,
+  required,
+  type = "text",
+  rightIcon,
+  ...props
+}: any) {
   return (
     <div className="w-full">
-      <label className="text-sm font-black block mb-2 text-gray-700 uppercase tracking-tight">{label} {required && <span className="text-red-500">*</span>}</label>
-      <input className="form-input shadow-sm" type={type} {...props} />
+      <label className="text-xs sm:text-sm font-black block mb-1 sm:mb-2 text-gray-700 uppercase tracking-tight">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+
+      <div className="relative group">
+        <input
+          type={type}
+          {...props}
+          className="
+            w-full border-2 border-gray-200
+            px-4 py-3 sm:py-3.5 pr-12
+            text-sm sm:text-base font-semibold
+            rounded-lg bg-white
+            transition-all duration-200
+
+            focus:border-[#2c8ed3]
+            focus:ring-4 focus:ring-blue-100
+            outline-none
+
+            hover:border-[#2c8ed3]/60
+          "
+        />
+
+        {rightIcon && (
+          <div
+            className="
+              absolute right-3 top-1/2 -translate-y-1/2
+              flex items-center justify-center
+              h-9 w-9 sm:h-10 sm:w-10
+              rounded-md
+              bg-gray-50
+              border border-gray-200
+              text-gray-500
+
+              group-focus-within:bg-blue-50
+              group-focus-within:border-[#2c8ed3]
+              group-focus-within:text-[#2c8ed3]
+
+              transition-all duration-200
+            "
+          >
+            {rightIcon}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -269,8 +334,8 @@ function FileUpload({ label, inputRef, fileName, onChange }: any) {
       <label className="text-sm font-black text-gray-700 uppercase tracking-tight">{label} <span className="text-red-500">*</span></label>
       <div className="flex items-center gap-4">
         <input type="file" ref={inputRef} onChange={onChange} className="hidden" />
-        <button 
-          type="button" 
+        <button
+          type="button"
           onClick={() => inputRef.current?.click()}
           className="bg-[#f8f9fa] border-2 border-gray-300 px-6 py-2.5 text-xs font-black rounded hover:border-[#2c8ed3] shadow-sm transition-all active:scale-95"
         >
