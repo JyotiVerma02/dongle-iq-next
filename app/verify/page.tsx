@@ -117,7 +117,7 @@ export default function VerifyPage() {
       <ParticleBackground />
 
       {/* Optimized Width: Clamped between 320px and 440px for perfect responsiveness */}
-      <div className="relative z-10 w-full max-w-110 bg-white/75 backdrop-blur-2xl rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-6 border border-white/60 transition-all duration-500">
+      <div className="relative z-10 w-full max-w-110 bg-white/75 backdrop-blur-2xl rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-6 border border-white/60 transition-all duration-500">
         {/* Header Section */}
         <div className="text-center mb-6">
           <h1 className="text-2xl md:text-3xl font-light text-slate-800 tracking-tight uppercase">
@@ -128,7 +128,7 @@ export default function VerifyPage() {
         </div>
 
         {/* Tabs - Centered and Larger Font */}
-        <div className="flex gap-2 mb-1 bg-slate-200/40 p-1.5 rounded-2xl border border-slate-200/50">
+        <div className="flex gap-2 mb-1 bg-slate-200/40 p-1.5 rounded-md border border-slate-200/50">
           {["telecom", "bank"].map((tab) => (
             <button
               key={tab}
@@ -145,7 +145,7 @@ export default function VerifyPage() {
         </div>
 
         {/* Dynamic Instruction - Higher Contrast */}
-        <div className="bg-blue-600/5 rounded-2xl p-4 border border-blue-100/50">
+        <div className="bg-blue-600/5 rounded- p-4 border border-blue-100/50">
           <p className="text-[13px] md:text-[14px] text-slate-700 text-center font-medium leading-relaxed">
             {activeTab === "telecom" ? (
               <>
@@ -220,14 +220,14 @@ export default function VerifyPage() {
 
         {/* Buttons */}
         <div className="flex flex-col gap-3.5">
-          <button className="w-full py-3 rounded-2xl font-black text-[12px] uppercase tracking-[0.2em] transition-all bg-white border-2 border-slate-800 text-slate-800 hover:bg-slate-800 hover:text-white active:scale-95 shadow-sm">
+          <button className="w-full py-3 rounded- font-black text-[12px] uppercase tracking-[0.2em] transition-all bg-white border-2 border-slate-800 text-slate-800 hover:bg-slate-800 hover:text-white active:scale-95 shadow-sm">
             Send OTP
           </button>
 
           <button
             onClick={handleVerify}
             disabled={!isChecked}
-            className={`w-full py-4 rounded-2xl font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl transition-all duration-300 active:scale-95 ${
+            className={`w-full py-4 rounded- font-black text-[12px] uppercase tracking-[0.2em] shadow-2xl transition-all duration-300 active:scale-95 ${
               isChecked
                 ? "bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/30"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed shadow-none"
