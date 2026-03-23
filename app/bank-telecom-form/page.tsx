@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, ChangeEvent } from "react";
+import React, { useState, useRef, ChangeEvent, FormEvent } from "react";
 
 // --- TypeScript Interface ---
 interface FormData {
@@ -25,7 +25,7 @@ export default function DongleIQForm() {
   const [showPin, setShowPin] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
-  // Refs for all file inputs
+  // Refs for file inputs
   const addressRef = useRef<HTMLInputElement>(null);
   const idProofRef = useRef<HTMLInputElement>(null);
   const photoRef = useRef<HTMLInputElement>(null);
@@ -58,7 +58,7 @@ export default function DongleIQForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // --- File Handlers ---
+  // --- Fixed File Handlers ---
   const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -68,19 +68,19 @@ export default function DongleIQForm() {
     }
   };
 
-  const handleDocChange = (e: ChangeEvent<HTMLInputElement>, setter: (name: string) => void) => {
+  // Fixed the type for the setter function and the event
+  const handleDocChange = (e: ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
     const file = e.target.files?.[0];
     if (file) setter(file.name);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitted(true);
   };
 
   return (
     <div className="min-h-screen bg-[#f4f7f9] font-sans text-[#333] pb-20 relative">
-
       {/* SUMMARY MODAL */}
       {isSubmitted && (
         <div className="fixed inset-0 z-[200] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm print:bg-white">
@@ -119,7 +119,6 @@ export default function DongleIQForm() {
 
       <div className="max-w-[1250px] mx-auto mt-8 px-4 print:hidden">
         <form onSubmit={handleSubmit} className="bg-white shadow-2xl border border-gray-300 rounded-sm overflow-hidden">
-
           {/* TIER 1 SECTION */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 bg-[#f8fbff] border-b border-gray-200">
             <Select label="Certificate Class" name="certificateClass" options={["Class 3"]} onChange={handleChange} required />
@@ -131,7 +130,6 @@ export default function DongleIQForm() {
           </div>
 
           <div className="p-8 space-y-10">
-            {/* GRID ROWS */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <Input label="Name as per PAN" name="panName" placeholder="ENTER FULL NAME" required onChange={handleChange} />
               <Select label="Gender" name="gender" options={["Select Gender", "Male", "Female"]} required onChange={handleChange} />
@@ -146,30 +144,23 @@ export default function DongleIQForm() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <Input label="eKYC ID" name="ekycId" placeholder="MOBILE@DONGLE-IQ" required onChange={handleChange} />
-              <div className="relative w-auto">
-                <Input
-                  label="eKYC PIN"
-                  name="ekycPin"
-                  type={showPin ? "text" : "password"}
-                  placeholder="6 DIGIT PIN"
-                  required
-                  onChange={handleChange}
-                  rightIcon={
-                    <button
-                      type="button"
-                      onClick={() => setShowPin(!showPin)}
-                      className="text-[#2c8ed3]"
-                    >
-                      {showPin ? "🙈" : "👁️"}
-                    </button>
-                  }
-                />
-                
-              </div>
+              <Input
+                label="eKYC PIN"
+                name="ekycPin"
+                type={showPin ? "text" : "password"}
+                placeholder="6 DIGIT PIN"
+                required
+                onChange={handleChange}
+                rightIcon={
+                  <button type="button" onClick={() => setShowPin(!showPin)} className="text-[#2c8ed3]">
+                    {showPin ? "🙈" : "👁️"}
+                  </button>
+                }
+              />
               <div className="flex flex-col">
                 <label className="text-sm font-black block mb-2 text-gray-700 uppercase tracking-tight">BP Code</label>
                 <div className="flex gap-2">
-                  <input className="form-input flex-1" placeholder="REF CODE" />
+                  <input className="w-full border: 1.5px solid #ced4da; p-[14px_18px] text-[16px] font-bold rounded bg-white border-2 border-gray-200" placeholder="REF CODE" />
                   <div className="flex items-center gap-2 px-3 bg-gray-100 border border-gray-200 rounded">
                     <input type="radio" defaultChecked className="accent-[#2c8ed3] w-4 h-4" />
                     <span className="text-xs font-bold uppercase">Yes</span>
@@ -186,23 +177,11 @@ export default function DongleIQForm() {
               <Input label="State" name="state" placeholder="STATE NAME" required onChange={handleChange} />
             </div>
 
-            {/* DOCUMENT UPLOADS SECTION */}
             <div className="pt-6">
               <p className="text-xs text-red-500 font-bold italic mb-6 tracking-wide">* Supported formats: PDF, JPEG, JPG, PNG (&lt; 5MB)</p>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <FileUpload
-                  label="Address Proof (Front & Back)"
-                  inputRef={addressRef}
-                  fileName={addressFile}
-                  onChange={(e) => handleDocChange(e, setAddressFile)}
-                />
-                <FileUpload
-                  label="ID Proof (PAN Card)"
-                  inputRef={idProofRef}
-                  fileName={idFile}
-                  onChange={(e) => handleDocChange(e, setIdFile)}
-                />
+                <FileUpload label="Address Proof" inputRef={addressRef} fileName={addressFile} onChange={(e) => handleDocChange(e, setAddressFile)} />
+                <FileUpload label="ID Proof (PAN Card)" inputRef={idProofRef} fileName={idFile} onChange={(e) => handleDocChange(e, setIdFile)} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
@@ -210,19 +189,12 @@ export default function DongleIQForm() {
                   <label className="text-sm font-black block mb-2 uppercase text-gray-700">Applicant Photo <span className="text-red-500">*</span></label>
                   <input type="file" ref={photoRef} onChange={handlePhotoChange} className="hidden" accept="image/*" />
                   <div onClick={() => photoRef.current?.click()} className="border-2 border-dashed border-blue-200 bg-[#f8fbff] h-52 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition-all overflow-hidden group shadow-inner">
-                    {previewUrl ? (
-                      <img src={previewUrl} alt="Preview" className="w-full h-full object-contain p-2" />
-                    ) : (
-                      <>
-                        <span className="text-6xl mb-3 text-blue-200 group-hover:scale-105 transition-transform">☁️</span>
-                        <p className="text-lg font-black text-gray-700">Click to Upload Photo</p>
-                      </>
-                    )}
+                    {previewUrl ? <img src={previewUrl} alt="Preview" className="w-full h-full object-contain p-2" /> : <><span className="text-6xl mb-3">☁️</span><p className="text-lg font-black text-gray-700">Click to Upload Photo</p></>}
                   </div>
                 </div>
                 <div className="flex flex-col">
                   <label className="text-sm font-black block mb-2 uppercase text-gray-700">Internal Remarks</label>
-                  <textarea name="remark" className="form-input flex-1 min-h-[208px] p-4 font-bold resize-none shadow-inner" placeholder="ANY EXTRA NOTES..." onChange={handleChange}></textarea>
+                  <textarea name="remark" className="w-full border-2 border-gray-200 flex-1 min-h-[208px] p-4 font-bold resize-none shadow-inner rounded-lg focus:border-[#2c8ed3] outline-none" placeholder="ANY EXTRA NOTES..." onChange={handleChange}></textarea>
                 </div>
               </div>
             </div>
@@ -235,21 +207,11 @@ export default function DongleIQForm() {
           </div>
         </form>
       </div>
-
-      <style jsx>{`
-        .form-input {
-          width: 100%; border: 1.5px solid #ced4da; padding: 14px 18px; font-size: 16px;
-          font-weight: 700; color: #000; border-radius: 4px; background: #fff; transition: all 0.2s;
-        }
-        .form-input::placeholder { color: #dee2e6; font-weight: 500; }
-        .form-input:focus { border-color: #2c8ed3; outline: none; box-shadow: 0 0 0 4px rgba(44, 142, 211, 0.15); }
-        @media print { .print-hidden { display: none !important; } }
-      `}</style>
     </div>
   );
 }
 
-// --- Helpers ---
+// --- Helper Components with Fixed Types ---
 function SummaryItem({ label, value }: { label: string; value?: string }) {
   return (
     <div className="border-b border-gray-100 pb-1">
@@ -259,56 +221,25 @@ function SummaryItem({ label, value }: { label: string; value?: string }) {
   );
 }
 
-function Input({
-  label,
-  required,
-  type = "text",
-  rightIcon,
-  ...props
-}: any) {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+  rightIcon?: React.ReactNode;
+}
+
+function Input({ label, required, type = "text", rightIcon, ...props }: InputProps) {
   return (
     <div className="w-full">
       <label className="text-xs sm:text-sm font-black block mb-1 sm:mb-2 text-gray-700 uppercase tracking-tight">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-
       <div className="relative group">
         <input
           type={type}
           {...props}
-          className="
-            w-full border-2 border-gray-200
-            px-4 py-3 sm:py-3.5 pr-12
-            text-sm sm:text-base font-semibold
-            rounded-lg bg-white
-            transition-all duration-200
-
-            focus:border-[#2c8ed3]
-            focus:ring-4 focus:ring-blue-100
-            outline-none
-
-            hover:border-[#2c8ed3]/60
-          "
+          className="w-full border-2 border-gray-200 px-4 py-3 sm:py-3.5 pr-12 text-sm sm:text-base font-semibold rounded-lg bg-white transition-all duration-200 focus:border-[#2c8ed3] focus:ring-4 focus:ring-blue-100 outline-none hover:border-[#2c8ed3]/60"
         />
-
         {rightIcon && (
-          <div
-            className="
-              absolute right-3 top-1/2 -translate-y-1/2
-              flex items-center justify-center
-              h-9 w-9 sm:h-10 sm:w-10
-              rounded-md
-              bg-gray-50
-              border border-gray-200
-              text-gray-500
-
-              group-focus-within:bg-blue-50
-              group-focus-within:border-[#2c8ed3]
-              group-focus-within:text-[#2c8ed3]
-
-              transition-all duration-200
-            "
-          >
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-md bg-gray-50 border border-gray-200 text-gray-500 group-focus-within:text-[#2c8ed3] transition-all duration-200">
             {rightIcon}
           </div>
         )}
@@ -317,18 +248,30 @@ function Input({
   );
 }
 
-function Select({ label, options, required, ...props }: any) {
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  label: string;
+  options: string[];
+}
+
+function Select({ label, options, required, ...props }: SelectProps) {
   return (
     <div className="w-full">
       <label className="text-sm font-black block mb-2 text-gray-700 uppercase tracking-tight">{label} {required && <span className="text-red-500">*</span>}</label>
-      <select className="form-input cursor-pointer shadow-sm" {...props}>
+      <select {...props} className="w-full border-2 border-gray-200 px-4 py-3 text-sm font-semibold rounded-lg bg-white transition-all duration-200 focus:border-[#2c8ed3] focus:ring-4 focus:ring-blue-100 outline-none hover:border-[#2c8ed3]/60">
         {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
       </select>
     </div>
   );
 }
 
-function FileUpload({ label, inputRef, fileName, onChange }: any) {
+interface FileUploadProps {
+  label: string;
+  inputRef: React.RefObject<HTMLInputElement | null>; // Fixed ref type
+  fileName: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+function FileUpload({ label, inputRef, fileName, onChange }: FileUploadProps) {
   return (
     <div className="flex flex-col gap-3">
       <label className="text-sm font-black text-gray-700 uppercase tracking-tight">{label} <span className="text-red-500">*</span></label>

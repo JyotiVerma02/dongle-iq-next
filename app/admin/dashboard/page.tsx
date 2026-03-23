@@ -1,205 +1,318 @@
 "use client";
-
-import React, { useState, useEffect } from "react";
-import { 
-  User, Users, FileText, ChevronRight, Search, 
-  Download, Landmark, Smartphone, Zap, Fingerprint, 
-  ShieldCheck, ArrowLeft, Mail, CreditCard, Cpu 
+import React, { useState, useEffect, useRef } from "react";
+import {
+  // User, Users, ChevronRight, Search,
+  Smartphone,
+  Zap,
+  Fingerprint,
+  ShieldCheck,
+  ArrowLeft,
+  Mail,
+  Cpu,
+  Hash,
+  Calendar,
+  Users,
+  User,
+  ChevronRight,
 } from "lucide-react";
-
-// --- TYPES ---
-type Agent = {
-  _id: string;
-  name: string;
-  email: string;
-  status: "Approved" | "Pending" | "Rejected";
-  dongleId: string;
-  bankName: string;
-  accountNo: string;
-  ifsc: string;
-  operator: string;
-  simSerial: string;
-  regDate: string;
+import UserLedgerView from "@/components/UserLedger";
+// --- SHARED PARTICLE BACKGROUND (Matches your other pages) ---
+const ParticleBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    let particles: Particle[] = [];
+    let animationFrameId: number;
+    // eslint-disable-next-line react-hooks/unsupported-syntax
+    class Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      constructor() {
+        this.x = Math.random() * canvas!.width;
+        this.y = Math.random() * canvas!.height;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3;
+        this.size = Math.random() * 1.5 + 0.5;
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > canvas!.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas!.height) this.vy *= -1;
+      }
+      draw() {
+        ctx!.beginPath();
+        ctx!.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx!.fillStyle = "rgba(59, 130, 246, 0.2)";
+        ctx!.fill();
+      }
+    }
+    const init = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particles = [];
+      const count = Math.floor((canvas.width * canvas.height) / 20000);
+      for (let i = 0; i < count; i++) particles.push(new Particle());
+    };
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p) => {
+        p.update();
+        p.draw();
+      });
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    init();
+    animate();
+    window.addEventListener("resize", init);
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", init);
+    };
+  }, []);
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none bg-[#f8fbff]"
+    />
+  );
 };
 
 export default function DongleIQAdminHub() {
-  const [view, setView] = useState<"home" | "table" | "details" | "admin">("home");
-  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
-  const [agents, setAgents] = useState<Agent[]>([]);
+  const [view, setView] = useState<"home" | "admin" | "ledger">("home");
 
-  useEffect(() => {
-    const mockData: Agent[] = [
-      {
-        _id: "1", name: "Jyoti Verma", email: "jyoti@dongleiq.com", status: "Approved",
-        dongleId: "DSC-8829-X", bankName: "HDFC Bank", accountNo: "50100422...", 
-        ifsc: "HDFC0001", operator: "Airtel IQ", simSerial: "8991...", regDate: "2024-03-20"
-      },
-      {
-        _id: "2", name: "Amit Sharma", email: "amit@tech.in", status: "Pending",
-        dongleId: "DSC-1102-Q", bankName: "ICICI", accountNo: "9122...", 
-        ifsc: "ICIC0002", operator: "Jio Fiber", simSerial: "8992...", regDate: "2024-03-21"
-      }
-    ];
-    setAgents(mockData);
-  }, []);
+  const raviProfile = {
+    _id: "69bbc4118f66fba161167eec",
+    name: "Ravi Kaliya",
+    email: "ravi.k@webshlok.com",
+    number: "7835025024",
+    role: "Admin",
+    isVerified: true,
+    status: "Active",
+    otp: "306940",
+    createdAt: "2026-03-19",
+  };
 
-  // --- PAGE 1: COMMAND CENTER ---
-  if (view === "home") {
-    return (
-      <div className="p-10 bg-slate-50 min-h-screen font-sans">
-        <header className="mb-10 text-center md:text-left">
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">
-            Dongle <span className="text-blue-600 italic text-4xl">IQ</span> Hub
+  return (
+    <div className="min-h-screen selection:bg-blue-100 selection:text-blue-900 font-sans p-6 md:p-12">
+      <ParticleBackground />
+
+      {/* --- HEADER --- */}
+      <header className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-16 gap-6">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-light text-slate-800 tracking-tight uppercase">
+            Dongle <span className="text-blue-600 font-black">IQ</span> Hub
           </h1>
-          <p className="text-slate-500 font-medium">Digital Signature Certificate Infrastructure Management</p>
-        </header>
+          <p className="text-[10px] md:text-[12px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">
+            Infrastructure <span className="text-blue-500">Management</span>{" "}
+            Terminal
+          </p>
+        </div>
+        <div className="flex items-center gap-4 bg-white/60 backdrop-blur-xl p-2 pr-6 rounded-full border border-white shadow-sm">
+          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+            R
+          </div>
+          <div className="text-left">
+            <p className="text-xs font-black text-slate-800 uppercase">
+              Ravi Kaliya
+            </p>
+            <p className="text-[9px] font-bold text-blue-500 uppercase tracking-tighter">
+              System Root
+            </p>
+          </div>
+        </div>
+      </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <MenuCard 
-            title="Admin Profile" 
+      {/* --- HOME VIEW --- */}
+      {view === "home" && (
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+          <MenuCard
+            title="Admin Profile"
             desc="Manage system-wide permissions, security keys, and administrative credentials."
-            icon={<ShieldCheck size={32} />}
+            icon={<ShieldCheck size={28} />}
+            accent="blue"
             onClick={() => setView("admin")}
           />
-          <MenuCard 
-            title="User Profile" 
-            desc="Access the master ledger of all registered agents and their current verification status."
-            icon={<Users size={32} />}
-            onClick={() => setView("table")}
+          <MenuCard
+            title="User Ledger"
+            desc="Monitor registered agents and real-time identity verification statuses."
+            icon={<Users size={24} />}
+            accent="green"
+            onClick={() => setView("ledger")} // Change this line
           />
-          <MenuCard 
-            title="User Dongle" 
+          <MenuCard
+            title="User Dongle"
             desc="Technical vault for hardware serials, firmware versions, and SIM integrations."
-            icon={<Cpu size={32} />}
-            onClick={() => setView("table")}
+            icon={<Cpu size={28} />}
+            accent="blue"
+            onClick={() => setView("ledger")}
           />
         </div>
-      </div>
-    );
-  }
+      )}
 
-  // --- NEW PAGE: ADMIN DETAILS ---
-if (view === "admin") {
-    // This is the data object based on your database record
-    const raviProfile = {
-      _id: "69bbc4118f66fba161167eec",
-      name: "Ravi Kaliya",
-      email: "ravi.k@webshlok.com",
-      number: "7835025024",
-      role: "admin",
-      isVerified: true,
-      status: "pending",
-      otp: "306940",
-      createdAt: "2026-03-19T09:38:25.704Z"
-    };
+      {/* --- ADMIN PROFILE VIEW --- */}
+      {view === "admin" && (
+        <div className="max-w-5xl mx-auto animate-in fade-in zoom-in duration-500">
+          <button
+            onClick={() => setView("home")}
+            className="group flex items-center gap-2 text-slate-400 hover:text-blue-600 mb-8 font-black text-[10px] tracking-[0.2em] transition-all uppercase"
+          >
+            <ArrowLeft
+              size={14}
+              className="group-hover:-translate-x-1 transition-transform"
+            />{" "}
+            Return to Hub
+          </button>
 
-    return (
-      <div className="p-10 bg-slate-950 min-h-screen text-white font-sans">
-        <button 
-          onClick={() => setView("home")} 
-          className="flex items-center gap-2 text-slate-500 hover:text-blue-400 mb-10 font-black text-[10px] tracking-[0.3em] transition-all"
-        >
-          <ArrowLeft size={14} /> EXIT SECURE TERMINAL
-        </button>
-
-        <div className="max-w-5xl mx-auto">
-          <div className="bg-slate-900/50 border border-slate-800 p-12 rounded-[56px] backdrop-blur-3xl relative overflow-hidden shadow-2xl">
-            {/* Background Decorative Element */}
-            <div className="absolute -top-10 -right-10 opacity-[0.03] rotate-12">
-              <ShieldCheck size={300} />
-            </div>
-            
-            <div className="flex flex-col md:flex-row items-center gap-10 mb-12 relative z-10">
+          <div className="bg-white/70 backdrop-blur-3xl border border-white rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.04)] overflow-hidden">
+            <div className="p-8 md:p-12 border-b border-slate-100/50 flex flex-col md:flex-row items-center gap-8">
               <div className="relative">
-                <div className="w-32 h-32 bg-gradient-to-br from-blue-600 to-blue-700 rounded-[40px] flex items-center justify-center shadow-[0_20px_50px_rgba(37,99,235,0.3)]">
-                  <User size={60} strokeWidth={2.5} className="text-white" />
+                <div className="w-28 h-28 bg-linear-to-tr from-blue-600 to-blue-400 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-blue-500/20 rotate-3">
+                  <User size={50} className="text-white" />
                 </div>
-                <div className="absolute -bottom-2 -right-2 bg-emerald-500 p-2 rounded-xl border-4 border-slate-900">
-                  <Fingerprint size={20} className="text-white" />
+                <div className="absolute -bottom-2 -right-2 bg-[#16a34a] p-2.5 rounded-2xl border-4 border-white shadow-lg">
+                  <Fingerprint size={18} className="text-white" />
                 </div>
               </div>
 
-              <div className="text-center md:text-left">
-                <h2 className="text-5xl font-black tracking-tighter mb-3">{raviProfile.name}</h2>
-                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
-                  <span className="px-4 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase rounded-full tracking-widest">
-                    System {raviProfile.role}
+              <div className="text-center md:text-left flex-1">
+                <h2 className="text-4xl font-black text-slate-800 tracking-tighter mb-2 italic">
+                  {raviProfile.name.split(" ")[0]}{" "}
+                  <span className="text-blue-600 not-italic">
+                    {raviProfile.name.split(" ")[1]}
                   </span>
-                  <span className="px-4 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-full tracking-widest flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> 
-                    {raviProfile.isVerified ? "Verified Identity" : "Unverified"}
+                </h2>
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                  <span className="px-4 py-1.5 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-xl tracking-widest border border-blue-100">
+                    {raviProfile.role} Account
+                  </span>
+                  <span className="px-4 py-1.5 bg-emerald-50 text-[#16a34a] text-[10px] font-black uppercase rounded-xl tracking-widest border border-emerald-100 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-[#16a34a] rounded-full animate-pulse" />{" "}
+                    Identity Verified
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Grid of Real Data */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 relative z-10">
-              <AdminDetailBox label="Registry ID" value={raviProfile._id} icon={<Hash size={14}/>} />
-              <AdminDetailBox label="Email Endpoint" value={raviProfile.email} icon={<Mail size={14}/>} />
-              <AdminDetailBox label="Contact Number" value={raviProfile.number} icon={<Smartphone size={14}/>} />
-              <AdminDetailBox label="Verification Status" value={raviProfile.status.toUpperCase()} icon={<ShieldCheck size={14}/>} />
-              <AdminDetailBox label="Active Session OTP" value={raviProfile.otp} icon={<Zap size={14}/>} />
-              <AdminDetailBox label="Created At" value={new Date(raviProfile.createdAt).toLocaleDateString()} icon={<Calendar size={14}/>} />
+            <div className="p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <AdminDetailBox
+                label="Registry ID"
+                value={raviProfile._id}
+                icon={<Hash size={14} />}
+              />
+              <AdminDetailBox
+                label="Secure Email"
+                value={raviProfile.email}
+                icon={<Mail size={14} />}
+              />
+              <AdminDetailBox
+                label="Contact"
+                value={raviProfile.number}
+                icon={<Smartphone size={14} />}
+              />
+              <AdminDetailBox
+                label="Auth Status"
+                value={raviProfile.status}
+                icon={<ShieldCheck size={14} />}
+              />
+              <AdminDetailBox
+                label="Session OTP"
+                value={raviProfile.otp}
+                icon={<Zap size={14} />}
+                color="text-blue-600"
+              />
+              <AdminDetailBox
+                label="Registry Date"
+                value={raviProfile.createdAt}
+                icon={<Calendar size={14} />}
+              />
             </div>
 
-            {/* Security Note */}
-            <div className="mt-10 p-6 bg-blue-600/5 rounded-3xl border border-blue-500/10 text-center">
-              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">
-                Last system update: {new Date().toLocaleTimeString()} — All actions are logged under Admin ID {raviProfile._id.slice(-6)}
+            <div className="bg-slate-50/50 p-6 text-center border-t border-slate-100/50">
+              <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">
+                Secure Encrypted Terminal — Access ID:{" "}
+                {raviProfile._id.slice(-8)}
               </p>
             </div>
           </div>
         </div>
-      </div>
-    );
-  }
-
-// Add this helper component outside your main component
-function AdminDetailBox({ label, value, icon }: { label: string, value: string, icon: React.ReactNode }) {
-  return (
-    <div className="bg-slate-950/50 border border-slate-800 p-6 rounded-3xl hover:border-blue-500/40 transition-all group">
-      <div className="flex items-center gap-2 mb-2 text-slate-500 group-hover:text-blue-400 transition-colors">
-        {icon}
-        <p className="text-[9px] font-black uppercase tracking-widest">{label}</p>
-      </div>
-      <p className="text-sm font-bold text-slate-200 truncate">{value}</p>
+      )}
+      {view === "ledger" && (
+  <UserLedgerView onBack={() => setView("home")} />
+)}
     </div>
   );
 }
 
-  // ... (Rest of your Table and Detail views remain the same)
+// --- BEAUTIFIED SUB-COMPONENTS ---
+
+interface MenuCardProps {
+  title: string;
+  desc: string;
+  icon: React.ReactNode;
+  accent: "blue" | "green";
+  onClick: () => void;
 }
 
-// --- UPDATED SUB-COMPONENT WITH HOVER EFFECTS ---
-
-function MenuCard({ title, desc, icon, onClick }: any) {
+function MenuCard({ title, desc, icon, accent, onClick }: MenuCardProps) {
+  const isGreen = accent === "green";
   return (
-    <div 
+    <div
       onClick={onClick}
-      className="group relative bg-white border border-slate-200 p-9 rounded-[40px] cursor-pointer 
-                 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
-                 hover:border-blue-500/30 hover:-translate-y-4 hover:shadow-[0_40px_80px_-20px_rgba(59,130,246,0.15)]
-                 overflow-hidden"
+      className="group relative bg-white/70 backdrop-blur-xl border border-white p-10 rounded-[3rem] cursor-pointer 
+                 transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_40px_80px_-20px_rgba(59,130,246,0.12)]"
     >
-      {/* Decorative Blur Background */}
-      <div className="absolute -right-16 -top-16 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors" />
-      
-      <div className="relative z-10 bg-slate-50 text-blue-600 w-16 h-16 rounded-[22px] flex items-center justify-center mb-8 
-                      transition-all duration-500 group-hover:bg-blue-600 group-hover:text-white group-hover:rotate-12 group-hover:scale-110">
+      <div
+        className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-all duration-500 
+                      ${isGreen ? "bg-emerald-50 text-[#16a34a] group-hover:bg-[#16a34a]" : "bg-blue-50 text-blue-600 group-hover:bg-blue-600"} 
+                      group-hover:text-white group-hover:rotate-6 group-hover:scale-110 shadow-sm`}
+      >
         {icon}
       </div>
-
-      <h3 className="relative z-10 text-2xl font-black text-slate-900 mb-3 tracking-tighter group-hover:text-blue-600 transition-colors">
+      <h3 className="text-2xl font-black text-slate-800 mb-4 tracking-tighter group-hover:text-blue-600 transition-colors uppercase">
         {title}
       </h3>
-      <p className="relative z-10 text-sm text-slate-500 leading-relaxed mb-10 font-medium">
+      <p className="text-sm text-slate-500 leading-relaxed mb-10 font-medium">
         {desc}
       </p>
-
-      <div className="relative z-10 flex items-center text-blue-600 font-black text-[10px] uppercase tracking-[0.25em] group-hover:translate-x-3 transition-transform duration-500">
-        Access <ChevronRight size={14} className="ml-1" />
+      <div
+        className={`flex items-center font-black text-[10px] uppercase tracking-[0.3em] transition-all group-hover:translate-x-3
+                      ${isGreen ? "text-[#16a34a]" : "text-blue-600"}`}
+      >
+        Open Terminal <ChevronRight size={14} className="ml-1" />
       </div>
+    </div>
+  );
+}
+
+interface AdminDetailBoxProps {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+  color?: string;
+}
+
+function AdminDetailBox({
+  label,
+  value,
+  icon,
+  color = "text-slate-800",
+}: AdminDetailBoxProps) {
+  return (
+    <div className="bg-white/40 border border-white p-6 rounded-[2rem] hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
+      <div className="flex items-center gap-2 mb-3 text-slate-400 group-hover:text-blue-500 transition-colors">
+        {icon}
+        <p className="text-[9px] font-black uppercase tracking-[0.2em]">
+          {label}
+        </p>
+      </div>
+      <p className={`text-sm font-bold truncate ${color}`}>{value}</p>
     </div>
   );
 }
