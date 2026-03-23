@@ -17,6 +17,7 @@ const ParticleBackground = () => {
     let particles: Particle[] = [];
     let animationFrameId: number;
 
+    // eslint-disable-next-line react-hooks/unsupported-syntax
     class Particle {
       x: number; y: number; vx: number; vy: number; size: number;
       constructor() {
@@ -74,7 +75,7 @@ const ParticleBackground = () => {
     return () => { cancelAnimationFrame(animationFrameId); window.removeEventListener("resize", init); };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none bg-gradient-to-br from-[#f8fbff] to-[#f0f4f9]" />;
+  return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none bg-linear-to-br from-[#f8fbff] to-[#f0f4f9]" />;
 };
 
 type FormDataType = {
@@ -105,6 +106,7 @@ export default function DSCRegistrationForm() {
     } else if (formData.certType === "Signature") cert = 800;
     const token = formData.tokenType === "USB Token" ? 500 : 0;
     const assisted = formData.assistedService === "Required" ? 355 : 0;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPricing({ certificate: cert, token: token, assisted: assisted, total: cert + token + assisted });
   }, [formData]);
 
@@ -127,6 +129,7 @@ export default function DSCRegistrationForm() {
       const data = await res.json();
       if (data.success) router.push(formData.ekycType === "Aadhaar" ? "/verify-aadhaar" : "/verify");
       else alert("❌ Failed");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) { alert("⚠️ Server Error"); }
   };
 
@@ -143,7 +146,7 @@ export default function DSCRegistrationForm() {
             
             <div className="md:w-7/12">
               <div className="flex items-center gap-4 mb-10">
-                <div className="h-[2px] w-12 bg-blue-600"></div>
+                <div className="h-0.5 w-12 bg-blue-600"></div>
                 <h1 className="text-4xl font-light text-slate-800 tracking-tight">DSC <span className="text-blue-600 font-black">ENROLLMENT</span></h1>
               </div>
 
@@ -198,7 +201,7 @@ export default function DSCRegistrationForm() {
                 {/* --- FIXED: Price Placeholder Logic to remove blank gap --- */}
                 <div className="md:col-span-1 lg:col-span-3">
                   {!isProductSelected ? (
-                    <div className="p-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 flex flex-col items-center justify-center min-h-[110px]">
+                    <div className="p-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 flex flex-col items-center justify-center min-h-27.5">
                       <div className="flex gap-1.5 mb-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse"></div>
                         <div className="w-1.5 h-1.5 rounded-full bg-blue-300 animate-pulse delay-75"></div>
@@ -250,7 +253,7 @@ export default function DSCRegistrationForm() {
                   {error && <p className="text-red-500 text-[11px] font-black uppercase italic animate-bounce">{error}</p>}
                   <button type="submit" className="group relative bg-slate-900 hover:bg-blue-600 text-white px-14 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all duration-300 hover:-translate-y-1 active:scale-95 overflow-hidden">
                     <span className="relative z-10">Generate Application →</span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-linear-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </button>
                 </div>
               </div>
