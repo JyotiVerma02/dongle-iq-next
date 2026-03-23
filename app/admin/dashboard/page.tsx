@@ -1,267 +1,205 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { 
+  User, Users, FileText, ChevronRight, Search, 
+  Download, Landmark, Smartphone, Zap, Fingerprint, 
+  ShieldCheck, ArrowLeft, Mail, CreditCard, Cpu 
+} from "lucide-react";
 
-type User = {
+// --- TYPES ---
+type Agent = {
   _id: string;
   name: string;
   email: string;
-  status: "approved" | "rejected" | "pending" | string;
+  status: "Approved" | "Pending" | "Rejected";
+  dongleId: string;
+  bankName: string;
+  accountNo: string;
+  ifsc: string;
+  operator: string;
+  simSerial: string;
+  regDate: string;
 };
 
-export default function AdminDashboard() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [filter, setFilter] = useState<"all" | "approved" | "rejected" | "pending">("all");
-  const [toast, setToast] = useState<string | null>(null);
-  const [dark, setDark] = useState(false);
-  const [page, setPage] = useState(1);
-
-  const pageSize = 5;
-
-  const fetchUsers = async () => {
-    setLoading(true);
-    const res = await fetch("/api/admin/agents");
-    const data = await res.json();
-    setUsers(data.agents || []);
-    setLoading(false);
-  };
+export default function DongleIQAdminHub() {
+  const [view, setView] = useState<"home" | "table" | "details" | "admin">("home");
+  const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
+  const [agents, setAgents] = useState<Agent[]>([]);
 
   useEffect(() => {
-    fetchUsers();
+    const mockData: Agent[] = [
+      {
+        _id: "1", name: "Jyoti Verma", email: "jyoti@dongleiq.com", status: "Approved",
+        dongleId: "DSC-8829-X", bankName: "HDFC Bank", accountNo: "50100422...", 
+        ifsc: "HDFC0001", operator: "Airtel IQ", simSerial: "8991...", regDate: "2024-03-20"
+      },
+      {
+        _id: "2", name: "Amit Sharma", email: "amit@tech.in", status: "Pending",
+        dongleId: "DSC-1102-Q", bankName: "ICICI", accountNo: "9122...", 
+        ifsc: "ICIC0002", operator: "Jio Fiber", simSerial: "8992...", regDate: "2024-03-21"
+      }
+    ];
+    setAgents(mockData);
   }, []);
 
- async function updateStatus(id: string, status: string) {
-  console.log("Sending:", id, status);
+  // --- PAGE 1: COMMAND CENTER ---
+  if (view === "home") {
+    return (
+      <div className="p-10 bg-slate-50 min-h-screen font-sans">
+        <header className="mb-10 text-center md:text-left">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">
+            Dongle <span className="text-blue-600 italic text-4xl">IQ</span> Hub
+          </h1>
+          <p className="text-slate-500 font-medium">Digital Signature Certificate Infrastructure Management</p>
+        </header>
 
-  const res = await fetch("/api/update-status", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ userId: id, status }),
-  });
-
-  const data = await res.json();
-  console.log("Response:", data);
-
-  if (data.success) {
-    setToast(`User ${status}`);
-    fetchUsers();
-  } else {
-    alert("Error updating status");
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <MenuCard 
+            title="Admin Profile" 
+            desc="Manage system-wide permissions, security keys, and administrative credentials."
+            icon={<ShieldCheck size={32} />}
+            onClick={() => setView("admin")}
+          />
+          <MenuCard 
+            title="User Profile" 
+            desc="Access the master ledger of all registered agents and their current verification status."
+            icon={<Users size={32} />}
+            onClick={() => setView("table")}
+          />
+          <MenuCard 
+            title="User Dongle" 
+            desc="Technical vault for hardware serials, firmware versions, and SIM integrations."
+            icon={<Cpu size={32} />}
+            onClick={() => setView("table")}
+          />
+        </div>
+      </div>
+    );
   }
+
+  // --- NEW PAGE: ADMIN DETAILS ---
+if (view === "admin") {
+    // This is the data object based on your database record
+    const raviProfile = {
+      _id: "69bbc4118f66fba161167eec",
+      name: "Ravi Kaliya",
+      email: "ravi.k@webshlok.com",
+      number: "7835025024",
+      role: "admin",
+      isVerified: true,
+      status: "pending",
+      otp: "306940",
+      createdAt: "2026-03-19T09:38:25.704Z"
+    };
+
+    return (
+      <div className="p-10 bg-slate-950 min-h-screen text-white font-sans">
+        <button 
+          onClick={() => setView("home")} 
+          className="flex items-center gap-2 text-slate-500 hover:text-blue-400 mb-10 font-black text-[10px] tracking-[0.3em] transition-all"
+        >
+          <ArrowLeft size={14} /> EXIT SECURE TERMINAL
+        </button>
+
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-slate-900/50 border border-slate-800 p-12 rounded-[56px] backdrop-blur-3xl relative overflow-hidden shadow-2xl">
+            {/* Background Decorative Element */}
+            <div className="absolute -top-10 -right-10 opacity-[0.03] rotate-12">
+              <ShieldCheck size={300} />
+            </div>
+            
+            <div className="flex flex-col md:flex-row items-center gap-10 mb-12 relative z-10">
+              <div className="relative">
+                <div className="w-32 h-32 bg-gradient-to-br from-blue-600 to-blue-700 rounded-[40px] flex items-center justify-center shadow-[0_20px_50px_rgba(37,99,235,0.3)]">
+                  <User size={60} strokeWidth={2.5} className="text-white" />
+                </div>
+                <div className="absolute -bottom-2 -right-2 bg-emerald-500 p-2 rounded-xl border-4 border-slate-900">
+                  <Fingerprint size={20} className="text-white" />
+                </div>
+              </div>
+
+              <div className="text-center md:text-left">
+                <h2 className="text-5xl font-black tracking-tighter mb-3">{raviProfile.name}</h2>
+                <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                  <span className="px-4 py-1 bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-black uppercase rounded-full tracking-widest">
+                    System {raviProfile.role}
+                  </span>
+                  <span className="px-4 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-full tracking-widest flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> 
+                    {raviProfile.isVerified ? "Verified Identity" : "Unverified"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Grid of Real Data */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 relative z-10">
+              <AdminDetailBox label="Registry ID" value={raviProfile._id} icon={<Hash size={14}/>} />
+              <AdminDetailBox label="Email Endpoint" value={raviProfile.email} icon={<Mail size={14}/>} />
+              <AdminDetailBox label="Contact Number" value={raviProfile.number} icon={<Smartphone size={14}/>} />
+              <AdminDetailBox label="Verification Status" value={raviProfile.status.toUpperCase()} icon={<ShieldCheck size={14}/>} />
+              <AdminDetailBox label="Active Session OTP" value={raviProfile.otp} icon={<Zap size={14}/>} />
+              <AdminDetailBox label="Created At" value={new Date(raviProfile.createdAt).toLocaleDateString()} icon={<Calendar size={14}/>} />
+            </div>
+
+            {/* Security Note */}
+            <div className="mt-10 p-6 bg-blue-600/5 rounded-3xl border border-blue-500/10 text-center">
+              <p className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">
+                Last system update: {new Date().toLocaleTimeString()} — All actions are logged under Admin ID {raviProfile._id.slice(-6)}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+// Add this helper component outside your main component
+function AdminDetailBox({ label, value, icon }: { label: string, value: string, icon: React.ReactNode }) {
+  return (
+    <div className="bg-slate-950/50 border border-slate-800 p-6 rounded-3xl hover:border-blue-500/40 transition-all group">
+      <div className="flex items-center gap-2 mb-2 text-slate-500 group-hover:text-blue-400 transition-colors">
+        {icon}
+        <p className="text-[9px] font-black uppercase tracking-widest">{label}</p>
+      </div>
+      <p className="text-sm font-bold text-slate-200 truncate">{value}</p>
+    </div>
+  );
 }
 
-  const filteredUsers = useMemo(() => {
-    return users
-      .filter((u) => (filter === "all" ? true : u.status === filter))
-      .filter((u) =>
-        `${u.name} ${u.email}`.toLowerCase().includes(search.toLowerCase())
-      );
-  }, [users, search, filter]);
+  // ... (Rest of your Table and Detail views remain the same)
+}
 
-  const totalPages = Math.ceil(filteredUsers.length / pageSize);
+// --- UPDATED SUB-COMPONENT WITH HOVER EFFECTS ---
 
-  const paginatedUsers = filteredUsers.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
-
-  const exportCSV = () => {
-    const headers = ["Name", "Email", "Status"];
-    const rows = filteredUsers.map((u) => [u.name, u.email, u.status]);
-
-    const csv =
-      "data:text/csv;charset=utf-8," +
-      [headers, ...rows]
-        .map((e) => e.map((x) => `"${x}"`).join(","))
-        .join("\n");
-
-    const link = document.createElement("a");
-    link.href = encodeURI(csv);
-    link.download = "users.csv";
-    link.click();
-  };
-
+function MenuCard({ title, desc, icon, onClick }: any) {
   return (
-    <div className={`${dark ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"} min-h-screen flex`}>
+    <div 
+      onClick={onClick}
+      className="group relative bg-white border border-slate-200 p-9 rounded-[40px] cursor-pointer 
+                 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+                 hover:border-blue-500/30 hover:-translate-y-4 hover:shadow-[0_40px_80px_-20px_rgba(59,130,246,0.15)]
+                 overflow-hidden"
+    >
+      {/* Decorative Blur Background */}
+      <div className="absolute -right-16 -top-16 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl group-hover:bg-blue-500/10 transition-colors" />
+      
+      <div className="relative z-10 bg-slate-50 text-blue-600 w-16 h-16 rounded-[22px] flex items-center justify-center mb-8 
+                      transition-all duration-500 group-hover:bg-blue-600 group-hover:text-white group-hover:rotate-12 group-hover:scale-110">
+        {icon}
+      </div>
 
-      {/* Sidebar */}
-      <aside className={`${dark ? "bg-gray-800" : "bg-white"} w-64 p-6 shadow-lg hidden md:block`}>
-        <h2 className="text-xl font-bold mb-6">Admin Panel</h2>
-        <ul className="space-y-4">
-          <li className="text-blue-500 font-semibold">Dashboard</li>
-          <li className="hover:text-blue-400 cursor-pointer">Users</li>
-          <li className="hover:text-blue-400 cursor-pointer">Settings</li>
-        </ul>
-      </aside>
+      <h3 className="relative z-10 text-2xl font-black text-slate-900 mb-3 tracking-tighter group-hover:text-blue-600 transition-colors">
+        {title}
+      </h3>
+      <p className="relative z-10 text-sm text-slate-500 leading-relaxed mb-10 font-medium">
+        {desc}
+      </p>
 
-      <main className="flex-1 p-6">
-
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-
-          <div className="flex gap-3">
-            <button
-              onClick={() => setDark(!dark)}
-              className="px-4 py-2 rounded bg-black text-white"
-            >
-              {dark ? "Light Mode" : "Dark Mode"}
-            </button>
-
-            <button
-              onClick={async () => {
-                await fetch("/api/logout");
-                window.location.href = "/login";
-              }}
-              className="px-4 py-2 rounded bg-red-600 text-white"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-
-        {/* Toast */}
-        {toast && (
-          <div className="fixed top-4 right-4 bg-black text-white px-4 py-2 rounded shadow">
-            {toast} ✅
-          </div>
-        )}
-
-        {/* Cards */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {[
-            { title: "Total Users", value: users.length },
-            { title: "Approved", value: users.filter(u => u.status === "approved").length },
-            { title: "Rejected", value: users.filter(u => u.status === "rejected").length },
-          ].map((card, i) => (
-            <div
-              key={i}
-              className={`${dark ? "bg-gray-800" : "bg-white"} p-6 rounded-2xl shadow-lg backdrop-blur-md`}
-            >
-              <h2 className="text-lg">{card.title}</h2>
-              <p className="text-2xl font-bold">{card.value}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Search + Filter */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <input
-            placeholder="Search..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className={`p-2 rounded border w-full md:w-1/2 ${
-              dark ? "bg-gray-800 border-gray-600 text-white" : ""
-            }`}
-          />
-
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as any)}
-            className={`p-2 rounded border ${
-              dark ? "bg-gray-800 border-gray-600 text-white" : ""
-            }`}
-          >
-            <option value="all">All</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="pending">Pending</option>
-          </select>
-
-          <button
-            onClick={exportCSV}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            Export CSV
-          </button>
-        </div>
-
-        {/* Loader */}
-        {loading && <p className="text-blue-500">Loading...</p>}
-
-        {/* Table */}
-        <div className={`${dark ? "bg-gray-800" : "bg-white"} rounded-2xl shadow overflow-hidden`}>
-          <table className="w-full">
-            <thead className={`${dark ? "bg-gray-700" : "bg-gray-200"}`}>
-              <tr>
-                <th className="p-3 text-left">Name</th>
-                <th className="p-3 text-left">Email</th>
-                <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-left">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {paginatedUsers.map((user) => (
-                <tr
-                  key={user._id}
-                  className={`border-t ${dark ? "hover:bg-gray-700" : "hover:bg-gray-50"}`}
-                >
-                  <td className="p-3">{user.name}</td>
-                  <td className="p-3">{user.email}</td>
-
-                  <td className="p-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm ${
-                        user.status === "approved"
-                          ? "bg-green-500 text-white"
-                          : user.status === "rejected"
-                          ? "bg-red-500 text-white"
-                          : "bg-yellow-500 text-white"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-
-                  <td className="p-3 space-x-2">
-                    <button
-                      onClick={() => updateStatus(user._id, "approved")}
-                      className="bg-green-600 text-white px-3 py-1 rounded hover:scale-105 transition"
-                    >
-                      Approve
-                    </button>
-
-                    <button
-                      onClick={() => updateStatus(user._id, "rejected")}
-                      className="bg-red-600 text-white px-3 py-1 rounded hover:scale-105 transition"
-                    >
-                      Reject
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex justify-center mt-6 gap-3">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="px-3 py-1 bg-gray-400 rounded"
-          >
-            Prev
-          </button>
-
-          <span>
-            Page {page} of {totalPages || 1}
-          </span>
-
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-            className="px-3 py-1 bg-gray-400 rounded"
-          >
-            Next
-          </button>
-        </div>
-      </main>
+      <div className="relative z-10 flex items-center text-blue-600 font-black text-[10px] uppercase tracking-[0.25em] group-hover:translate-x-3 transition-transform duration-500">
+        Access <ChevronRight size={14} className="ml-1" />
+      </div>
     </div>
   );
 }
