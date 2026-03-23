@@ -1,11 +1,11 @@
-/* eslint-disable @next/next/no-img-element */
+
 "use client";
 
 import React, { useState } from "react";
 import { 
   Search, Download, Filter, MoreHorizontal, 
   ArrowLeft, CheckCircle2, Clock, XCircle, 
-  ChevronLeft, ChevronRight, Eye, X, Calendar, Shield
+  Eye, X, Calendar, Shield
 } from "lucide-react";
 
 type Agent = {

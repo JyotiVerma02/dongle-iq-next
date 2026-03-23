@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import UserLedgerView from "@/components/UserLedger";
+import UserDongleView from "@/components/UserDongle";
 // --- SHARED PARTICLE BACKGROUND (Matches your other pages) ---
 const ParticleBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -85,7 +86,7 @@ const ParticleBackground = () => {
 };
 
 export default function DongleIQAdminHub() {
-  const [view, setView] = useState<"home" | "admin" | "ledger">("home");
+  const [view, setView] = useState<"home" | "admin" | "ledger" | "dongle">("home");
 
   const raviProfile = {
     _id: "69bbc4118f66fba161167eec",
@@ -151,7 +152,7 @@ export default function DongleIQAdminHub() {
             desc="Technical vault for hardware serials, firmware versions, and SIM integrations."
             icon={<Cpu size={28} />}
             accent="blue"
-            onClick={() => setView("ledger")}
+            onClick={() => setView("dongle")} // Change this line
           />
         </div>
       )}
@@ -246,6 +247,9 @@ export default function DongleIQAdminHub() {
       {view === "ledger" && (
   <UserLedgerView onBack={() => setView("home")} />
 )}
+{view === "dongle" && (
+  <UserDongleView onBack={() => setView("home")} />
+)}
     </div>
   );
 }
@@ -305,7 +309,7 @@ function AdminDetailBox({
   color = "text-slate-800",
 }: AdminDetailBoxProps) {
   return (
-    <div className="bg-white/40 border border-white p-6 rounded-[2rem] hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
+    <div className="bg-white/40 border border-white p-6 rounded-4xl hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
       <div className="flex items-center gap-2 mb-3 text-slate-400 group-hover:text-blue-500 transition-colors">
         {icon}
         <p className="text-[9px] font-black uppercase tracking-[0.2em]">
