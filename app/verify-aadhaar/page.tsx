@@ -1,4 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -17,6 +18,7 @@ const ParticleBackground = () => {
     let particles: Particle[] = [];
     let animationFrameId: number;
 
+    // eslint-disable-next-line react-hooks/unsupported-syntax
     class Particle {
       x: number; y: number; vx: number; vy: number; size: number;
       constructor() {
@@ -74,7 +76,7 @@ const ParticleBackground = () => {
     return () => { cancelAnimationFrame(animationFrameId); window.removeEventListener("resize", init); };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none bg-gradient-to-br from-[#f8fbff] to-[#f0f4f9]" />;
+  return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none bg-linear-to-br from-[#f8fbff] to-[#f0f4f9]" />;
 };
 
 export default function AadhaarVerifyPage() {
@@ -83,31 +85,57 @@ export default function AadhaarVerifyPage() {
   const [isChecked, setIsChecked] = useState(false);
   const router = useRouter();
 
-  const handleVerify = () => {
-    if (!isChecked) {
-      alert("⚠️ Please accept terms & conditions");
-      return;
+  // Inside your AadhaarVerifyPage component...
+
+const handleVerify = async () => {
+  if (!isChecked) {
+    alert("⚠️ Please accept terms & conditions");
+    return;
+  }
+  if (!mobile || !otp) {
+    alert("⚠️ Enter mobile & OTP");
+    return;
+  }
+
+  // Set a loading state if you have one
+  // setIsVerifying(true);
+
+  try {
+    const res = await fetch("/api/verify-aadhar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ mobile, otp }),
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("✅ Aadhaar Verified Successfully");
+      router.push("/bank-telecom-form");
+    } else {
+      alert(`❌ ${data.message}`);
     }
-    if (!mobile || !otp) {
-      alert("⚠️ Enter mobile & OTP");
-      return;
-    }
-    alert("✅ Aadhaar Verified Successfully");
-    router.push("/bank-telecom-form");
-  };
+  } catch (err) {
+    alert("❌ Failed to connect to verification server");
+  } finally {
+    // setIsVerifying(false);
+  }
+};
 
   return (
     <div className="fixed inset-0 flex items-center justify-center px-4 overflow-hidden selection:bg-blue-100 selection:text-blue-900">
       <ParticleBackground />
 
-      <div className="relative z-10 w-full max-w-[440px] bg-white/75 backdrop-blur-2xl rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-6 md:p-10 border border-white/60 transition-all duration-500">
+      <div className="relative z-10 w-full max-w-110 bg-white/75 backdrop-blur-2xl rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.06)] p-6 md:p-10 border border-white/60 transition-all duration-500">
         
         {/* Header Section */}
         <div className="text-center mb-2">
           <h1 className="text-2xl md:text-3xl font-light text-slate-800 tracking-tight uppercase">
             Aadhaar <span className="text-blue-600 font-black">Verification</span>
           </h1>
-          <div className="h-[3px] w-12 bg-blue-600 mx-auto mt-2 rounded-full"></div>
+          <div className="h-0.75 w-12 bg-blue-600 mx-auto mt-2 rounded-full"></div>
         </div>
 
         {/* Static Instruction Box */}
