@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, ChangeEvent, FormEvent } from "react";
-
+import { useSearchParams } from "next/navigation";
 // --- TypeScript Interface ---
 interface FormData {
   certificateClass: string;
@@ -24,7 +24,9 @@ interface FormData {
 export default function DongleIQForm() {
   const [showPin, setShowPin] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-
+  const searchParams = useSearchParams();
+  const verifyType = searchParams.get("type"); // telecom or bank
+  console.log("Verification Type:", verifyType);
   // Refs for file inputs
   const addressRef = useRef<HTMLInputElement>(null);
   const idProofRef = useRef<HTMLInputElement>(null);
@@ -79,16 +81,40 @@ export default function DongleIQForm() {
     if (file) setter(file.name);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setIsSubmitted(true);
+
+    try {
+      const res = await fetch("/api/save-form", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData, // all form fields
+          verifyType, // 🔥 important (telecom or bank)
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        alert("✅ Form saved successfully");
+        setIsSubmitted(true); // show summary AFTER saving
+      } else {
+        alert("❌ Error saving form");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("❌ Server error");
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#f4f7f9] font-sans text-[#333] pb-20 relative">
       {/* SUMMARY MODAL */}
       {isSubmitted && (
-        <div className="fixed inset-0 z-[200] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm print:bg-white">
+        <div className="fixed inset-0 z-200 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm print:bg-white">
           <div className="bg-white w-full max-w-3xl rounded-lg shadow-2xl overflow-hidden print:shadow-none">
             <div className="bg-[#2c8ed3] p-4 text-white flex justify-between items-center print:hidden">
               <h2 className="font-black text-xl uppercase">
@@ -138,6 +164,10 @@ export default function DongleIQForm() {
       )}
 
       {/* HEADER */}
+      <div className="text-center text-sm font-bold text-blue-600 mt-2">
+        Verification Type: {verifyType?.toUpperCase()}
+      </div>
+      <p className="text-center font-bold text-blue-600">{verifyType}</p>
       <div className="bg-[#2c8ed3] text-white p-3 px-6 flex justify-between items-center shadow-md print:hidden">
         <span className="font-black text-xl tracking-tight uppercase">
           Dongle-IQ Portal
@@ -147,7 +177,7 @@ export default function DongleIQForm() {
         </span>
       </div>
 
-      <div className="max-w-[1250px] mx-auto mt-8 px-4 print:hidden">
+      <div className="max-w-312.5 mx-auto mt-8 px-4 print:hidden">
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-2xl border border-gray-300 rounded-sm overflow-hidden"
@@ -342,6 +372,7 @@ export default function DongleIQForm() {
                     className="border-2 border-dashed border-blue-200 bg-[#f8fbff] h-52 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition-all overflow-hidden group shadow-inner"
                   >
                     {previewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={previewUrl}
                         alt="Preview"
@@ -363,7 +394,7 @@ export default function DongleIQForm() {
                   </label>
                   <textarea
                     name="remark"
-                    className="w-full border-2 border-gray-200 flex-1 min-h-[208px] p-4 font-bold resize-none shadow-inner rounded-lg focus:border-[#2c8ed3] outline-none"
+                    className="w-full border-2 border-gray-200 flex-1 min-h-52 p-4 font-bold resize-none shadow-inner rounded-lg focus:border-[#2c8ed3] outline-none"
                     placeholder="ANY EXTRA NOTES..."
                     onChange={handleChange}
                   ></textarea>
@@ -375,7 +406,7 @@ export default function DongleIQForm() {
           <div className="p-10 bg-gray-50 border-t border-gray-200 flex justify-center">
             <button
               type="submit"
-              className="w-full max-w-xl bg-[#28a745] hover:bg-[#218838] text-white py-5 rounded-md font-black text-2xl shadow-xl transition-all hover:translate-y-[-2px] uppercase"
+              className="w-full max-w-xl bg-[#28a745] hover:bg-[#218838] text-white py-5 rounded-md font-black text-2xl shadow-xl transition-all hover:-translate-y-0.5 uppercase"
             >
               PROCEED TO SUMMARY
             </button>
@@ -485,7 +516,7 @@ function FileUpload({ label, inputRef, fileName, onChange }: FileUploadProps) {
         >
           CHOOSE FILE
         </button>
-        <span className="text-xs text-gray-400 font-bold italic truncate max-w-[150px]">
+        <span className="text-xs text-gray-400 font-bold italic truncate max-w-37.5">
           {fileName}
         </span>
       </div>
