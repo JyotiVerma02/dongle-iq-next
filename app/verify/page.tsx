@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -103,19 +104,24 @@ export default function VerifyPage() {
   const router = useRouter();
 
   // Logic Fix: Validate before "Sending"
-  const handleSendOtp = async () => {
-    if (!mobile || mobile.length < 10) {
-      alert("⚠️ Please enter a 10-digit mobile number first.");
-      return;
-    }
-    
-    setIsSending(true);
-    // Simulate API call
-    setTimeout(() => {
-      alert(`✅ OTP sent via ${activeTab.toUpperCase()} to ${mobile}`);
-      setIsSending(false);
-    }, 1000);
-  };
+ const handleSendOtp = async () => {
+  if (mobile.length !== 10) return alert("Enter 10 digit number");
+
+  setIsSending(true);
+  try {
+    const res = await fetch("/api/send-otp", {
+      method: "POST",
+      body: JSON.stringify({ mobile }),
+    });
+    const data = await res.json();
+    if (data.success) alert("✅ OTP Sent!");
+    else alert(`❌ ${data.message}`);
+  } catch (err) {
+    alert("❌ Error");
+  } finally {
+    setIsSending(false);
+  }
+};
 
   const handleVerify = async () => {
     // Logic Fix: Sequential validation checks
