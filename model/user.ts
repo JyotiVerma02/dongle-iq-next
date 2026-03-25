@@ -7,42 +7,43 @@ export interface IUser extends Document {
   password: string;
   role: string;
   isVerified: boolean;
-
-  status: string; // ✅ ADD THIS
-
+  isAadhaarVerified: boolean;
+  status: string;
   otp?: string;
   otpExpiry?: Date;
+  aadhaarOtp?: string;
+  aadhaarOtpExpiry?: Date;
   resetToken?: string;
   resetTokenExpiry?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const UserSchema: Schema = new Schema(
-{
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  number: { type: String, required: true },
-  password: { type: String, required: true },
-  role: { type: String, default: "user" },
-
-  isVerified: { type: Boolean, default: false },
-
-  // ✅ ADD THIS FIELD
-  status: {
-    type: String,
-    enum: ["pending", "approved", "rejected"],
-    default: "pending",
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    number: { type: String, required: true },
+    password: { type: String, required: true },
+    role: { type: String, default: "user" },
+    isVerified: { type: Boolean, default: false },
+    isAadhaarVerified: { type: Boolean, default: false },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+    otp: { type: String },
+    otpExpiry: { type: Date },
+    aadhaarOtp: { type: String },
+    aadhaarOtpExpiry: { type: Date },
+    resetToken: { type: String },
+    resetTokenExpiry: { type: Date },
   },
-
-  otp: { type: String },
-  otpExpiry: { type: Date },
-
-  resetToken: { type: String },
-  resetTokenExpiry: { type: Date }
-},
-{ timestamps: true }
+  { timestamps: true }
 );
 
 const User: Model<IUser> =
-mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
 
 export default User;
