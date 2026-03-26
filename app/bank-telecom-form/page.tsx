@@ -1,487 +1,305 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState, useRef, ChangeEvent, FormEvent } from "react";
-import { useSearchParams } from "next/navigation";
-// --- TypeScript Interface ---
-interface FormData {
-  certificateClass: string;
-  tokenType: string;
-  validity: string;
-  panName: string;
-  gender: string;
-  dob: string;
-  panNumber: string;
-  email: string;
-  mobile: string;
-  ekycId: string;
-  ekycPin: string;
-  pincode: string;
-  city: string;
-  state: string;
-  remark?: string;
-}
+import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function DongleIQForm() {
-  const [showPin, setShowPin] = useState<boolean>(false);
-  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
-  const searchParams = useSearchParams();
-  const verifyType = searchParams.get("type"); // telecom or bank
-  console.log("Verification Type:", verifyType);
-  // Refs for file inputs
-  const addressRef = useRef<HTMLInputElement>(null);
-  const idProofRef = useRef<HTMLInputElement>(null);
-  const photoRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
-  // States for filenames and photo preview
+  // Timer State: 300 seconds (5 minutes)
+  const [timeLeft, setTimeLeft] = useState<number>(1200);
+  const [showPin, setShowPin] = useState<boolean>(false);
   const [addressFile, setAddressFile] = useState<string>("No file chosen");
   const [idFile, setIdFile] = useState<string>("No file chosen");
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<FormData>({
-    certificateClass: "Class 3",
-    tokenType: "Not Required",
-    validity: "2 Years",
-    panName: "",
-    gender: "Select Gender",
-    dob: "",
-    panNumber: "",
-    email: "",
-    mobile: "9555744396",
-    ekycId: "",
-    ekycPin: "",
-    pincode: "",
-    city: "",
-    state: "",
-    remark: "",
-  });
+  const addressRef = useRef<HTMLInputElement>(null);
+  const idProofRef = useRef<HTMLInputElement>(null);
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // --- Fixed File Handlers ---
-  const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setPreviewUrl(reader.result as string);
-      reader.readAsDataURL(file);
+  // Timer Logic
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      alert("Session Expired! Please verify your mobile and OTP again.");
+      router.push("/verify-mobile");
+      return;
     }
-  };
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft, router]);
 
-  // Fixed the type for the setter function and the event
-  const handleDocChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    setter: React.Dispatch<React.SetStateAction<string>>,
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) setter(file.name);
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    try {
-      const res = await fetch("/api/save-form", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData, // all form fields
-          verifyType, // 🔥 important (telecom or bank)
-        }),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        alert("✅ Form saved successfully");
-        setIsSubmitted(true); // show summary AFTER saving
-      } else {
-        alert("❌ Error saving form");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("❌ Server error");
+  const handleClose = () => {
+    if (
+      confirm("Are you sure you want to close the form? Progress will be lost.")
+    ) {
+      router.push("/");
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7f9] font-sans text-[#333] pb-20 relative">
-      {/* SUMMARY MODAL */}
-      {isSubmitted && (
-        <div className="fixed inset-0 z-200 bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm print:bg-white">
-          <div className="bg-white w-full max-w-3xl rounded-lg shadow-2xl overflow-hidden print:shadow-none">
-            <div className="bg-[#2c8ed3] p-4 text-white flex justify-between items-center print:hidden">
-              <h2 className="font-black text-xl uppercase">
-                Dongle-IQ Summary
-              </h2>
-              <button
-                onClick={() => setIsSubmitted(false)}
-                className="text-2xl hover:opacity-70 transition"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="p-10 space-y-4 bg-white" id="printable-area">
-              <div className="flex justify-between border-b-2 border-[#2c8ed3] pb-4 mb-6">
-                <div className="font-black text-3xl text-[#2c8ed3] italic tracking-tighter">
-                  DONGLE-IQ
-                </div>
-                <div className="text-right font-bold text-gray-500 text-xs">
-                  APPLICATION RECEIPT
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-6 text-sm">
-                <SummaryItem label="Applicant Name" value={formData.panName} />
-                <SummaryItem label="Mobile Number" value={formData.mobile} />
-                <SummaryItem label="PAN Number" value={formData.panNumber} />
-                <SummaryItem label="eKYC ID" value={formData.ekycId} />
-                <SummaryItem label="Address Proof" value={addressFile} />
-                <SummaryItem label="ID Proof" value={idFile} />
-              </div>
-            </div>
-            <div className="p-6 bg-gray-50 flex gap-4 justify-end border-t print:hidden">
-              <button
-                onClick={() => setIsSubmitted(false)}
-                className="px-6 py-2 font-bold text-gray-400 text-xs uppercase"
-              >
-                Back
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="bg-[#2c8ed3] text-white px-10 py-3 rounded font-black shadow-lg uppercase tracking-wide"
-              >
-                Print PDF
-              </button>
-            </div>
+    <div className="min-h-screen bg-[#e9ecef] font-sans text-[#212529]">
+      {/* MERGED HEADER: Logo (Left), Timer (Center), Close (Right) */}
+      <div className="bg-[#2c8ed3] text-white px-6 py-3 flex items-center justify-between shadow-md border-b border-white/10">
+        {/* Left Side: Logo */}
+        <div className="flex items-center gap-2">
+          <div className="bg-white text-[#2c8ed3] w-8 h-8 rounded-full flex items-center justify-center font-black text-xl">
+            D
+          </div>
+          <span className="font-black text-lg tracking-tighter uppercase">
+            Dongle-IQ
+          </span>
+        </div>
+
+        {/* Center: Timer & Title */}
+        <div className="text-center hidden md:block">
+          <div className="text-[11px] font-bold opacity-80 uppercase tracking-widest">
+            DSC PAN BASED
+          </div>
+          <div className="text-sm font-black">
+            Process time: <span className=" tabular-nums">{timeLeft}</span>{" "}
+            (sec)
           </div>
         </div>
-      )}
 
-      {/* HEADER */}
-      <div className="text-center text-sm font-bold text-blue-600 mt-2">
-        Verification Type: {verifyType?.toUpperCase()}
-      </div>
-      <p className="text-center font-bold text-blue-600">{verifyType}</p>
-      <div className="bg-[#2c8ed3] text-white p-3 px-6 flex justify-between items-center shadow-md print:hidden">
-        <span className="font-black text-xl tracking-tight uppercase">
-          Dongle-IQ Portal
-        </span>
-        <span className="text-sm font-bold bg-white/20 px-3 py-1 rounded">
-          PAN BASED DSC
-        </span>
-      </div>
-
-      <div className="max-w-312.5 mx-auto mt-8 px-4 print:hidden">
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white shadow-2xl border border-gray-300 rounded-sm overflow-hidden"
+        {/* Right Side: Close Button */}
+        <button
+          onClick={handleClose}
+          className="hover:bg-red-500 bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-colors group"
+          title="Close Form"
         >
-          {/* TIER 1 SECTION */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 p-6 bg-[#f8fbff] border-b border-gray-200">
+          <span className="text-xl font-light group-hover:font-bold">✕</span>
+        </button>
+      </div>
+
+      <div className="max-w-285 mx-auto p-4 lg:p-6">
+        <form className="bg-white shadow-[0_0.5rem_1rem_rgba(0,0,0,0.15)] rounded-sm overflow-hidden border border-[#dee2e6]">
+          {/* Tier 1: Selection Row */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-5 bg-[#f8fbff] border-b border-[#dee2e6] items-end">
+            <Select label="Certificate Class" options={["Class III"]} />
+            <Select label="Token Type" options={["Not Required", "Required"]} />
             <Select
-              label="Certificate Class"
-              name="certificateClass"
-              options={["Class 3"]}
-              onChange={handleChange}
-              required
+              label="Certificate Type"
+              options={["Signing", "Encryption", "Both"]}
             />
             <Select
-              label="Token Type"
-              name="tokenType"
-              options={["Not Required"]}
-              onChange={handleChange}
-              required
+              label="Certificate Validity"
+              options={["2 Years", "1 Year"]}
             />
-            <Select
-              label="Validity"
-              name="validity"
-              options={["2 Years"]}
-              onChange={handleChange}
-              required
-            />
-            <div className="flex items-end">
-              <span className="bg-[#2c8ed3] text-white px-8 py-3 rounded-md text-xl font-black shadow-md border-b-4 border-blue-700">
-                Price: ₹899
+            <div className="text-right pb-1">
+              <span className="text-[#2c8ed3] font-black text-xl">
+                Price: ₹0
               </span>
             </div>
           </div>
 
-          <div className="p-8 space-y-10">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="p-6 space-y-5 bg-white">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <Input
                 label="Name as per PAN"
-                name="panName"
                 placeholder="ENTER FULL NAME"
                 required
-                onChange={handleChange}
               />
               <Select
                 label="Gender"
-                name="gender"
                 options={["Select Gender", "Male", "Female"]}
                 required
-                onChange={handleChange}
               />
-              <Input
-                label="Date of Birth"
-                name="dob"
-                placeholder="DD-MM-YYYY"
-                required
-                onChange={handleChange}
-              />
+              <Input label="Date of Birth" placeholder="DD-MM-YYYY" required />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <Input
-                label="PAN (Individual)"
-                name="panNumber"
+                label="PAN No (Individual)"
                 placeholder="ABCDE1234F"
                 required
-                onChange={handleChange}
               />
               <Input
                 label="Email ID"
-                name="email"
                 type="email"
-                placeholder="EMAIL@DOMAIN.COM"
+                placeholder="EMAIL ADDRESS"
                 required
-                onChange={handleChange}
               />
               <Input
                 label="Mobile No"
-                name="mobile"
-                value={formData.mobile}
+                defaultValue="7295014037"
+                readOnly
                 required
-                onChange={handleChange}
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Input
-                label="eKYC ID"
-                name="ekycId"
-                placeholder="MOBILE@DONGLE-IQ"
-                required
-                onChange={handleChange}
-              />
-              <Input
-                label="eKYC PIN"
-                name="ekycPin"
-                type={showPin ? "text" : "password"}
-                placeholder="6 DIGIT PIN"
-                required
-                onChange={handleChange}
-                rightIcon={
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <Input label="eKYC ID" placeholder="mobile@dongle-iq" required />
+              <div>
+                <label className="text-[13px] font-black block mb-1 text-black uppercase tracking-tight">
+                  eKYC PIN<span className="text-red-500">*</span>
+                </label>
+                <div className="flex h-9.5">
+                  <input
+                    type={showPin ? "text" : "password"}
+                    className="w-full border border-[#ced4da] px-3 text-[14px] font-semibold rounded-l focus:border-[#80bdff] outline-none"
+                    placeholder="6 DIGIT PIN"
+                  />
                   <button
                     type="button"
                     onClick={() => setShowPin(!showPin)}
-                    className="text-[#2c8ed3]"
+                    className="bg-[#2c8ed3] text-white px-3 rounded-r border border-[#2c8ed3]"
                   >
-                    {showPin ? "🙈" : "👁️"}
+                    {showPin ? "🔓" : "🔒"}
                   </button>
-                }
-              />
-              <div className="flex flex-col">
-                <label className="text-sm font-black block mb-2 text-gray-700 uppercase tracking-tight">
-                  BP Code
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[13px] font-black block mb-1 text-black uppercase tracking-tight">
+                  BP Code<span className="text-red-500">*</span>
                 </label>
-                <div className="flex gap-2">
-                  <input
-                    className="w-full border: 1.5px solid #ced4da; p-[14px_18px] text-[16px] font-bold rounded bg-white border-2 border-gray-200"
-                    placeholder="REF CODE"
-                  />
-                  <div className="flex items-center gap-2 px-3 bg-gray-100 border border-gray-200 rounded">
+                <input
+                  className="w-full border border-[#ced4da] h-9.5 px-3 text-[14px] font-semibold rounded focus:border-[#80bdff] outline-none"
+                  placeholder="REFERENCE CODE"
+                />
+                <div className="flex items-center gap-3 mt-1.5 text-[12px] font-bold text-[#495057]">
+                  <span>Is BPCode Available?</span>
+                  <label className="flex items-center gap-1 cursor-pointer">
                     <input
                       type="radio"
+                      name="bp"
                       defaultChecked
-                      className="accent-[#2c8ed3] w-4 h-4"
-                    />
-                    <span className="text-xs font-bold uppercase">Yes</span>
-                  </div>
+                      className="accent-[#2c8ed3]"
+                    />{" "}
+                    Yes
+                  </label>
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="bp"
+                      className="accent-[#2c8ed3]"
+                    />{" "}
+                    No
+                  </label>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#e9ecef] p-3 px-6 -mx-8 font-black text-sm text-gray-600 border-y border-gray-300 uppercase tracking-widest">
-              Address Details
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Input
-                label="Pincode"
-                name="pincode"
-                placeholder="600001"
+            <div>
+              <label className="text-[13px] font-black block mb-1 text-black uppercase tracking-tight">
+                Address<span className="text-red-500">*</span>
+              </label>
+              <textarea
+                placeholder="Full Address"
                 required
-                onChange={handleChange}
-              />
-              <Input
-                label="City"
-                name="city"
-                placeholder="CITY NAME"
-                required
-                onChange={handleChange}
-              />
-              <Input
-                label="State"
-                name="state"
-                placeholder="STATE NAME"
-                required
-                onChange={handleChange}
+                className="w-full border border-[#ced4da] min-h-20 p-3 text-[14px] font-semibold rounded focus:border-[#2c8ed3] outline-none placeholder:text-[#adb5bd] transition-all shadow-sm resize-none"
               />
             </div>
 
-            <div className="pt-6">
-              <p className="text-xs text-red-500 font-bold italic mb-6 tracking-wide">
-                * Supported formats: PDF, JPEG, JPG, PNG (&lt; 5MB)
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <FileUpload
-                  label="Address Proof"
-                  inputRef={addressRef}
-                  fileName={addressFile}
-                  onChange={(e) => handleDocChange(e, setAddressFile)}
-                />
-                <FileUpload
-                  label="ID Proof (PAN Card)"
-                  inputRef={idProofRef}
-                  fileName={idFile}
-                  onChange={(e) => handleDocChange(e, setIdFile)}
-                />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <Input label="Pincode" placeholder="600001" required />
+              <Input label="City" placeholder="CITY NAME" required />
+              <Input label="State" placeholder="STATE NAME" required />
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
-                <div>
-                  <label className="text-sm font-black block mb-2 uppercase text-gray-700">
-                    Applicant Photo <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="file"
-                    ref={photoRef}
-                    onChange={handlePhotoChange}
-                    className="hidden"
-                    accept="image/*"
-                  />
-                  <div
-                    onClick={() => photoRef.current?.click()}
-                    className="border-2 border-dashed border-blue-200 bg-[#f8fbff] h-52 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 transition-all overflow-hidden group shadow-inner"
-                  >
-                    {previewUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={previewUrl}
-                        alt="Preview"
-                        className="w-full h-full object-contain p-2"
-                      />
-                    ) : (
-                      <>
-                        <span className="text-6xl mb-3">☁️</span>
-                        <p className="text-lg font-black text-gray-700">
-                          Click to Upload Photo
-                        </p>
-                      </>
-                    )}
+            <div className="text-[12px] text-red-600 font-bold border-t border-[#dee2e6] pt-4 italic">
+              Note: Supported File format to upload proofs are PDF, JPEG, JPG,
+              PNG and File size should be less than 5 MB
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <FileComponent
+                label="Address Proof"
+                inputRef={addressRef}
+                fileName={addressFile}
+                setFile={setAddressFile}
+              />
+              <FileComponent
+                label="ID Proof"
+                inputRef={idProofRef}
+                fileName={idFile}
+                setFile={setIdFile}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div>
+                <label className="text-[13px] font-black block mb-2 text-black uppercase">
+                  Upload Applicant Photo<span className="text-red-500">*</span>
+                </label>
+                <div className="border-2 border-dashed border-[#2c8ed3]/40 bg-[#f8fbff] h-37.5 rounded flex flex-col items-center justify-center cursor-pointer hover:bg-[#eef6fc] transition-all group">
+                  <div className="bg-[#2c8ed3] text-white p-3 rounded-full mb-2 shadow-md group-hover:scale-110 transition-transform">
+                    <span className="text-xl">☁️</span>
                   </div>
+                  <p className="text-[#2c8ed3] font-black text-sm uppercase">
+                    Drag & Drop File
+                  </p>
                 </div>
-                <div className="flex flex-col">
-                  <label className="text-sm font-black block mb-2 uppercase text-gray-700">
-                    Internal Remarks
-                  </label>
-                  <textarea
-                    name="remark"
-                    className="w-full border-2 border-gray-200 flex-1 min-h-52 p-4 font-bold resize-none shadow-inner rounded-lg focus:border-[#2c8ed3] outline-none"
-                    placeholder="ANY EXTRA NOTES..."
-                    onChange={handleChange}
-                  ></textarea>
-                </div>
+              </div>
+              <div>
+                <label className="text-[13px] font-black block mb-2 text-black uppercase">
+                  Internal Remarks
+                </label>
+                <textarea
+                  className="w-full border border-[#ced4da] p-3 text-[14px] font-semibold rounded h-37.5 resize-none outline-none shadow-inner"
+                  placeholder="ANY EXTRA NOTES..."
+                ></textarea>
               </div>
             </div>
           </div>
 
-          <div className="p-10 bg-gray-50 border-t border-gray-200 flex justify-center">
+          <div className="p-6 bg-[#f8f9fa] border-t border-[#dee2e6] flex justify-center">
             <button
               type="submit"
-              className="w-full max-w-xl bg-[#28a745] hover:bg-[#218838] text-white py-5 rounded-md font-black text-2xl shadow-xl transition-all hover:-translate-y-0.5 uppercase"
+              className="bg-[#28a745] hover:bg-[#218838] text-white px-20 py-3 rounded font-black text-[16px] transition-all shadow-md uppercase tracking-wide active:scale-95"
             >
-              PROCEED TO SUMMARY
+              Proceed to Summary
             </button>
           </div>
         </form>
-      </div>
-    </div>
-  );
-}
 
-// --- Helper Components with Fixed Types ---
-function SummaryItem({ label, value }: { label: string; value?: string }) {
-  return (
-    <div className="border-b border-gray-100 pb-1">
-      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-        {label}
-      </p>
-      <p className="text-base font-bold text-gray-900 truncate">
-        {value || "---"}
-      </p>
-    </div>
-  );
-}
-
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-  rightIcon?: React.ReactNode;
-}
-
-function Input({
-  label,
-  required,
-  type = "text",
-  rightIcon,
-  ...props
-}: InputProps) {
-  return (
-    <div className="w-full">
-      <label className="text-xs sm:text-sm font-black block mb-1 sm:mb-2 text-gray-700 uppercase tracking-tight">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      <div className="relative group">
-        <input
-          type={type}
-          {...props}
-          className="w-full border-2 border-gray-200 px-4 py-3 sm:py-3.5 pr-12 text-sm sm:text-base font-semibold rounded-lg bg-white transition-all duration-200 focus:border-[#2c8ed3] focus:ring-4 focus:ring-blue-100 outline-none hover:border-[#2c8ed3]/60"
-        />
-        {rightIcon && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center h-9 w-9 sm:h-10 sm:w-10 rounded-md bg-gray-50 border border-gray-200 text-gray-500 group-focus-within:text-[#2c8ed3] transition-all duration-200">
-            {rightIcon}
+        <div className="mt-5 pb-10 flex justify-between text-[11px] text-[#495057] font-bold px-1 border-t border-[#dee2e6] pt-3">
+          <div>
+            All rights reserved by{" "}
+            <span className="text-[#2c8ed3]">Dongle-IQ® Solutions</span>
           </div>
-        )}
+          <div className="flex gap-4">
+            <span>Version : 2.1.0.4</span>
+            <span>Build : 2026.03.26</span>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label: string;
-  options: string[];
-}
+// --- Internal Helper Components ---
 
-function Select({ label, options, required, ...props }: SelectProps) {
+function Input({ label, required, ...props }: any) {
   return (
     <div className="w-full">
-      <label className="text-sm font-black block mb-2 text-gray-700 uppercase tracking-tight">
-        {label} {required && <span className="text-red-500">*</span>}
+      <label className="text-[13px] font-black block mb-1 text-black uppercase tracking-tight">
+        {label}
+        {required && <span className="text-red-500">*</span>}
+      </label>
+      <input
+        {...props}
+        className="w-full border border-[#ced4da] h-9.5 px-3 text-[14px] font-semibold rounded focus:border-[#2c8ed3] outline-none placeholder:text-[#adb5bd] transition-all shadow-sm"
+      />
+    </div>
+  );
+}
+
+function Select({ label, options, required, ...props }: any) {
+  return (
+    <div className="w-full">
+      <label className="text-[13px] font-black block mb-1 text-black uppercase tracking-tight">
+        {label}
+        {required && <span className="text-red-500">*</span>}
       </label>
       <select
         {...props}
-        className="w-full border-2 border-gray-200 px-4 py-3 text-sm font-semibold rounded-lg bg-white transition-all duration-200 focus:border-[#2c8ed3] focus:ring-4 focus:ring-blue-100 outline-none hover:border-[#2c8ed3]/60"
+        className="w-full border border-[#ced4da] h-9.5 px-2 text-[14px] font-semibold rounded focus:border-[#2c8ed3] outline-none bg-white cursor-pointer shadow-sm"
       >
-        {options.map((opt: string) => (
-          <option key={opt} value={opt}>
-            {opt}
+        {options.map((o: string) => (
+          <option key={o} value={o}>
+            {o}
           </option>
         ))}
       </select>
@@ -489,34 +307,30 @@ function Select({ label, options, required, ...props }: SelectProps) {
   );
 }
 
-interface FileUploadProps {
-  label: string;
-  inputRef: React.RefObject<HTMLInputElement | null>; // Fixed ref type
-  fileName: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-function FileUpload({ label, inputRef, fileName, onChange }: FileUploadProps) {
+function FileComponent({ label, inputRef, fileName, setFile }: any) {
   return (
-    <div className="flex flex-col gap-3">
-      <label className="text-sm font-black text-gray-700 uppercase tracking-tight">
-        {label} <span className="text-red-500">*</span>
+    <div>
+      <label className="text-[13px] font-black block mb-2 text-black uppercase">
+        {label}
+        <span className="text-red-500">*</span>
       </label>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <input
           type="file"
           ref={inputRef}
-          onChange={onChange}
           className="hidden"
+          onChange={(e) =>
+            setFile(e.target.files?.[0]?.name || "No file chosen")
+          }
         />
         <button
           type="button"
-          onClick={() => inputRef.current?.click()}
-          className="bg-[#f8f9fa] border-2 border-gray-300 px-6 py-2.5 text-xs font-black rounded hover:border-[#2c8ed3] shadow-sm transition-all active:scale-95"
+          onClick={() => inputRef.current.click()}
+          className="bg-[#f8f9fa] border border-[#ced4da] px-4 py-1.5 text-[12px] font-black rounded text-[#212529] hover:bg-[#e2e6ea] transition-colors shadow-sm uppercase"
         >
-          CHOOSE FILE
+          Choose File
         </button>
-        <span className="text-xs text-gray-400 font-bold italic truncate max-w-37.5">
+        <span className="text-[12px] text-[#6c757d] font-bold italic truncate max-w-45">
           {fileName}
         </span>
       </div>
