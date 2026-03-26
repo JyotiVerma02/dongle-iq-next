@@ -244,7 +244,7 @@ function MenuCard({ title, desc, icon, accent, onClick }: MenuCardProps) {
 
 function AdminDetailBox({ label, value, icon, color = "text-slate-800" }: AdminDetailBoxProps) {
   return (
-    <div className="bg-white/40 border border-white p-6 rounded-[2rem] hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
+    <div className="bg-white/40 border border-white p-6 rounded-4xl hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
       <div className="flex items-center gap-2 mb-3 text-slate-400 group-hover:text-blue-500 transition-colors">
         {icon} <p className="text-[9px] font-black uppercase tracking-[0.2em]">{label}</p>
       </div>
