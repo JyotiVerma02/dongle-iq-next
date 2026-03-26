@@ -1,155 +1,126 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
-import { 
-  Cpu, 
-  Search, 
-  ArrowLeft, 
-  RefreshCw, 
-  ShieldAlert, 
-  Database, 
-  HardDrive, 
-  Activity,
-  ChevronRight,
-  Filter
-} from "lucide-react";
+import { useEffect, useState } from "react";
 
-interface Dongle {
-  id: string;
-  serialNumber: string;
-  model: string;
-  firmware: string;
-  status: "Active" | "Maintenance" | "Revoked";
-  assignedTo: string;
-  lastSync: string;
-}
+type User = {
+  _id: string;
+  name: string;
+  pan: string;
+  email: string;
+  city: string;
+  mobile: string;
+  ekycId: string;
+  addressProof: string;
+  idProof: string;
+  photo: string;
+  price: number;
+  status: string;
+};
 
 export default function UserDongleView({ onBack }: { onBack: () => void }) {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const dongles: Dongle[] = [
-    { id: "1", serialNumber: "DIQ-8829-X1", model: "v4.2 Pro", firmware: "v1.0.8", status: "Active", assignedTo: "Ravi Kaliya", lastSync: "2 mins ago" },
-    { id: "2", serialNumber: "DIQ-1102-B2", model: "v3.0 Std", firmware: "v2.1.0", status: "Maintenance", assignedTo: "Unassigned", lastSync: "14 hrs ago" },
-    { id: "3", serialNumber: "DIQ-4491-Z9", model: "v4.2 Pro", firmware: "v1.0.8", status: "Revoked", assignedTo: "Amit Singh", lastSync: "3 days ago" },
-  ];
+  useEffect(() => {
+    fetch("/api/get-users")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setUsers(data.users);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   return (
-    <div className="max-w-7xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* --- TOP NAVIGATION --- */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <button 
-            onClick={onBack} 
-            className="group flex items-center gap-2 text-slate-400 hover:text-blue-600 mb-4 font-black text-[9px] tracking-[0.2em] transition-all uppercase"
-          >
-            <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" /> Return to Hub
-          </button>
-          <h2 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic">
-            Hardware <span className="text-blue-600 not-italic">Vault</span>
-          </h2>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Dongle Registry & Firmware Management</p>
+    <div className="max-w-6xl mx-auto p-4 lg:p-8 bg-[#f8fbff] min-h-screen">
+      {/* High-Contrast Back Button */}
+      <button 
+        onClick={onBack} 
+        className="mb-8 flex items-center gap-2 text-[#2c8ed3] hover:text-[#1a5f8d] font-black uppercase text-sm tracking-tight transition-all group"
+      >
+        <span className="text-xl group-hover:-translate-x-1 transition-transform">⬅</span> 
+        Back to Dashboard
+      </button>
+
+      <h2 className="text-3xl font-black mb-8 text-black tracking-tighter border-l-6 border-[#2c8ed3] pl-5 uppercase">
+        User Dongle Data
+      </h2>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-[#2c8ed3]"></div>
+          <p className="mt-4 text-black font-black uppercase text-sm tracking-widest">Fetching Data...</p>
         </div>
+      )}
 
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
-            <input 
-              type="text"
-              placeholder="SEARCH SERIAL OR ASSIGNEE..."
-              className="w-full bg-white/80 backdrop-blur-md border border-slate-200 pl-12 pr-4 py-3 rounded-2xl text-[11px] font-bold tracking-wider focus:outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-200 transition-all uppercase"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <button className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-blue-600 hover:border-blue-100 transition-all">
-            <Filter size={18} />
-          </button>
+      {/* Empty State */}
+      {!loading && users.length === 0 && (
+        <div className="bg-white p-10 rounded-xl shadow border border-dashed border-gray-300 text-center">
+          <p className="text-gray-400 font-bold uppercase tracking-widest">No users found in database</p>
         </div>
-      </div>
+      )}
 
-      {/* --- STATS GRID --- */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <StatTile icon={<HardDrive size={14}/>} label="Total Units" value="1,284" />
-        <StatTile icon={<Activity size={14}/>} label="Active Sync" value="942" color="text-emerald-500" />
-        <StatTile icon={<ShieldAlert size={14}/>} label="Revoked" value="12" color="text-rose-500" />
-        <StatTile icon={<RefreshCw size={14}/>} label="Updates Pending" value="48" color="text-amber-500" />
-      </div>
+      {/* Grid View */}
+      <div className="grid md:grid-cols-2 gap-8">
+        {users.map((u) => (
+          <div key={u._id} className="bg-white p-6 rounded-xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.1)] border border-gray-100 hover:border-[#2c8ed3] transition-all group">
+            
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <p className="text-[11px] font-black text-[#2c8ed3] uppercase tracking-widest mb-1">Applicant Name</p>
+                <p className="text-xl font-black text-black uppercase">{u.name || "UNNAMED USER"}</p>
+              </div>
+              <span className="bg-[#2c8ed3] text-white text-[10px] font-black px-2 py-1 rounded">ACTIVE</span>
+            </div>
 
-      {/* --- HARDWARE TABLE --- */}
-      <div className="bg-white/70 backdrop-blur-3xl border border-white rounded-[2.5rem] shadow-[0_40px_100px_rgba(0,0,0,0.02)] overflow-hidden">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-slate-50/50 border-b border-slate-100">
-              <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Hardware Serial</th>
-              <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Model/Firmware</th>
-              <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Current Status</th>
-              <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Assignee</th>
-              <th className="px-8 py-5 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Last Sync</th>
-              <th className="px-8 py-5 text-right"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {dongles.map((dongle) => (
-              <tr key={dongle.id} className="group hover:bg-white transition-colors">
-                <td className="px-8 py-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-blue-400 shadow-lg">
-                      <Cpu size={18} />
-                    </div>
-                    <span className="text-sm font-black text-slate-800 tracking-tight">{dongle.serialNumber}</span>
+            <div className="space-y-3">
+              <div className="flex justify-between border-b border-gray-50 pb-2">
+                <span className="text-gray-500 font-bold text-xs uppercase">eKYC ID</span>
+                <span className="text-black font-black text-sm">{u.ekycId}</span>
+              </div>
+              <div className="flex justify-between border-b border-gray-50 pb-2">
+                <span className="text-gray-500 font-bold text-xs uppercase">Mobile</span>
+                <span className="text-black font-black text-sm">{u.mobile}</span>
+              </div>
+            </div>
+
+            <div className="mt-6 pt-4 border-t-2 border-dashed border-gray-100">
+              <p className="text-[11px] font-black text-[#2c8ed3] uppercase tracking-widest mb-3">Uploaded Documents</p>
+              
+              <div className="grid grid-cols-1 gap-2">
+                <div className="flex items-center gap-3 bg-gray-50 p-2 rounded border border-gray-100">
+                  <span className="text-lg">📄</span>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase leading-none">Address Proof</p>
+                    <p className="text-[12px] font-bold text-black truncate max-w-[200px]">{u.addressProof || "Not Uploaded"}</p>
                   </div>
-                </td>
-                <td className="px-8 py-6">
-                  <p className="text-[11px] font-bold text-slate-700">{dongle.model}</p>
-                  <p className="text-[9px] font-black text-blue-500 uppercase tracking-tighter">Build {dongle.firmware}</p>
-                </td>
-                <td className="px-8 py-6">
-                  <StatusBadge status={dongle.status} />
-                </td>
-                <td className="px-8 py-6 text-[11px] font-bold text-slate-600">{dongle.assignedTo}</td>
-                <td className="px-8 py-6 text-[10px] font-black text-slate-400 uppercase tracking-tighter">{dongle.lastSync}</td>
-                <td className="px-8 py-6 text-right">
-                  <button className="p-2 text-slate-300 hover:text-blue-600 transition-colors">
-                    <ChevronRight size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
 
-        <div className="p-6 bg-slate-50/50 border-t border-slate-100 flex justify-center">
-          <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Hardware Layer Secure — End-to-End Encrypted</p>
-        </div>
+                <div className="flex items-center gap-3 bg-gray-50 p-2 rounded border border-gray-100">
+                  <span className="text-lg">🆔</span>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase leading-none">ID Proof</p>
+                    <p className="text-[12px] font-bold text-black truncate max-w-[200px]">{u.idProof || "Not Uploaded"}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 bg-gray-50 p-2 rounded border border-gray-100">
+                  <span className="text-lg">📸</span>
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase leading-none">Applicant Photo</p>
+                    <p className="text-[12px] font-bold text-black truncate max-w-[200px]">{u.photo || "Not Uploaded"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        ))}
       </div>
     </div>
-  );
-}
-
-// --- SUB-COMPONENTS ---
-
-function StatTile({ icon, label, value, color = "text-slate-800" }: any) {
-  return (
-    <div className="bg-white/60 backdrop-blur-md border border-white p-5 rounded-3xl shadow-sm">
-      <div className="flex items-center gap-2 mb-2 text-slate-400">
-        {icon}
-        <span className="text-[8px] font-black uppercase tracking-widest">{label}</span>
-      </div>
-      <p className={`text-2xl font-black tracking-tighter ${color}`}>{value}</p>
-    </div>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const styles: any = {
-    Active: "bg-emerald-50 text-emerald-600 border-emerald-100",
-    Maintenance: "bg-amber-50 text-amber-600 border-amber-100",
-    Revoked: "bg-rose-50 text-rose-600 border-rose-100",
-  };
-
-  return (
-    <span className={`px-3 py-1 rounded-lg border text-[9px] font-black uppercase tracking-widest ${styles[status]}`}>
-      {status}
-    </span>
   );
 }
