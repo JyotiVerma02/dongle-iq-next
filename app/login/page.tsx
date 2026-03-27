@@ -148,7 +148,7 @@ function Login() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
                 <label className="block text-slate-500 font-black text-[9px] uppercase tracking-[0.2em] ml-1">
-                  Identity (Email/Phone)
+                  Email/Mobile
                 </label>
                 <input
                   type="text"
@@ -161,7 +161,7 @@ function Login() {
 
               <div className="space-y-2">
                 <label className="block text-slate-500 font-black text-[9px] uppercase tracking-[0.2em] ml-1">
-                  Access Key
+                 Password
                 </label>
                 <div className="relative">
                   <input
@@ -186,12 +186,12 @@ function Login() {
                 disabled={loading}
                 className={`${theme.accent} w-full py-4 rounded-xl font-black uppercase text-[11px] tracking-[0.2em] shadow-lg shadow-purple-600/20 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 disabled:opacity-50`}
               >
-                {loading ? "Authenticating..." : "Sign In"} <LogIn size={14} />
+                {loading ? "Authenticating..." : "Log In"} <LogIn size={14} />
               </button>
 
               <div className="flex flex-col items-center gap-4 pt-4">
                 <Link href="/forgot-password">
-                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest hover:text-purple-400 cursor-pointer transition-colors">Recover Key?</span>
+                  <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest hover:text-purple-400 cursor-pointer transition-colors">Forgot Password?</span>
                 </Link>
                 <div className="h-px w-full bg-[#1e2330]" />
               
