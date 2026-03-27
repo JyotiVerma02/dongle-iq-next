@@ -1,139 +1,179 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { 
+  Cpu, ShieldCheck, Lock, Eye, EyeOff, CheckCircle2 
+} from "lucide-react";
 
 export default function ResetPassword() {
-  const [password,setPassword] = useState("");
-const [confirmPassword,setConfirmPassword] = useState("");
-const [message,setMessage] = useState("");
-const [loading,setLoading] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const router = useRouter();
 
- const handleSubmit = async (e:any)=>{
-  e.preventDefault();
+  // --- THEME ---
+  const theme = {
+    bg: "bg-[#080b12]",
+    card: "bg-[#121620]",
+    border: "border-[#1e2330]",
+    accent: "bg-purple-600",
+    textMuted: "text-slate-400"
+  };
 
-  if(!token){
-    setMessage("Invalid or expired reset link");
-    return;
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage("");
 
-  if(password !== confirmPassword){
-    setMessage("Passwords do not match");
-    return;
-  }
+    if (!token) {
+      setMessage("Invalid or expired reset link");
+      return;
+    }
 
-  setLoading(true);
+    if (password !== confirmPassword) {
+      setMessage("Passwords do not match");
+      return;
+    }
 
-  const res = await fetch("/api/reset-password",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json"
-    },
-    body:JSON.stringify({token,password})
-  });
+    setLoading(true);
+    try {
+      const res = await fetch("/api/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password })
+      });
 
-  const data = await res.json();
+      const data = await res.json();
+      setMessage(data.message);
 
-  setMessage(data.message);
-
-  if (res.ok) {
-    setTimeout(() => {
-      router.push("/login");
-    }, 2000);
-  }
-
-  setLoading(false);
-};
+      if (res.ok) {
+        setTimeout(() => {
+          router.push("/login");
+        }, 2000);
+      }
+    } catch (err) {
+      setMessage("Failed to reset password. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div
-      className="min-h-screen flex pt-14 relative overflow-hidden bg-cover bg-center bg-no-repeat bg-linear-to-br from-slate-900 via-slate-900 to-blue-950"
-      style={{ backgroundImage: "url('/bg.jpg')" }}
-    >
-      {/* LEFT SIDE */}
-      <div
-        className="hidden md:flex w-3/5 bg-cover bg-center relative"
-        style={{ backgroundImage: "url('/tech-bg.jpg')" }}
-      >
-        <div className="relative z-10 text-white p-12 md:p-16 flex flex-col justify-center h-full">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight tracking-tight drop-shadow-lg">
-            <span className="block text-white">Smart USB Dongle</span>
-            <span className="block text-emerald-400 text-2xl md:text-4xl mt-2">
-              Management for Agents and Admins
+    <div className={`min-h-screen ${theme.bg} text-white font-sans relative overflow-hidden`}>
+      
+      {/* --- NAVBAR --- */}
+      <nav className={`fixed top-0 w-full z-50 p-6 ${theme.bg}/80 backdrop-blur-md border-b ${theme.border}`}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3">
+            <div className={`w-8 h-8 ${theme.accent} rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/20`}>
+              <Cpu size={18} className="text-white fill-white" />
+            </div>
+            <span className="font-bold text-xl tracking-tight uppercase">
+              Dongle<span className="text-purple-500">IQ</span>
             </span>
-          </h1>
-
-          <p className="text-gray-300 text-lg max-w-2xl leading-relaxed font-medium">
-            Reset your account password securely and continue managing your
-            dongle applications through Dongle IQ.
-          </p>
+          </Link>
         </div>
-      </div>
+      </nav>
 
-      {/* Glow circles */}
-      <div className="absolute w-96 h-96 rounded-full blur-3xl -top-40 -left-40 bg-blue-500/20"></div>
-      <div className="absolute w-96 h-96 rounded-full blur-3xl -bottom-40 -right-40 bg-indigo-500/20"></div>
-
-      {/* RIGHT SIDE */}
-      <div className="flex w-full md:w-1/2 items-center justify-center">
-        <div className="relative bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-2xl w-100 border border-white/20 text-white overflow-hidden">
-          {/* Shine animation */}
-          <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shine_3s_infinite] pointer-events-none"></div>
-
-          <h2 className="text-4xl font-bold mb-3 text-white">Reset Password</h2>
-
-          <p className="text-gray-300 mb-6">
-         Create your new password
-          </p>
-
-          {message && (
-            <div className="mb-4 text-green-400 text-sm font-medium">
-              {message}
+      <div className="flex pt-24 min-h-screen">
+        {/* LEFT PANEL */}
+        <div className="hidden md:flex w-3/5 relative overflow-hidden border-r border-[#1e2330]">
+          <div className="absolute top-1/4 left-1/4 w-125 h-125 bg-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
+          
+          <div className="relative z-10 p-16 flex flex-col justify-center h-full">
+            <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[0.85] tracking-tighter uppercase">
+              Update <br /> 
+              <span className="text-emerald-400 italic">Credentials</span> <br />
+              <span className="text-white/20">Securely.</span>
+            </h1>
+            <p className={`${theme.textMuted} text-lg max-w-xl leading-relaxed font-medium mb-8`}>
+              Create a strong, unique password to ensure your agent profile remains
+              protected. We recommend a mix of symbols, numbers, and capital letters.
+            </p>
+            <div className="flex items-center gap-3 opacity-40">
+               <ShieldCheck size={20} className="text-purple-500" />
+               <span className="text-xs font-black uppercase tracking-[0.3em]">Strong Encryption Active</span>
             </div>
-          )}
+          </div>
+        </div>
 
-          <form onSubmit={handleSubmit} autoComplete="off">
-            {/* New Password */}
-            <div className="mb-4">
-              <label className="block text-gray-300 mb-2 font-medium text-sm">
-                New Password
-              </label>
+        {/* RIGHT PANEL - RESET CARD */}
+        <div className="flex-1 flex items-center justify-center p-6 relative">
+          <div className="absolute bottom-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]" />
 
-              <input
-                type="password"
-                placeholder="Enter new password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 rounded-md bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition"
-              />
-            </div>
-            {/* Confirm Password */}
-<div className="mb-4">
-  <label className="block text-gray-300 mb-2 font-medium text-sm">
-    Confirm Password
-  </label>
+          <div className={`${theme.card} p-8 rounded-4xl shadow-2xl w-full max-w-100 border ${theme.border} relative overflow-hidden`}>
+            <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-purple-500 to-transparent opacity-30" />
 
-  <input
-  type="password"
-  placeholder="Confirm password"
-  value={confirmPassword}
-  onChange={(e)=>setConfirmPassword(e.target.value)}
-  className="w-full p-3 rounded-md bg-white/20 border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-1 focus:ring-emerald-400 transition"
-  />
-</div>
+            <h2 className="text-3xl font-black mb-1 uppercase tracking-tighter italic">New Password</h2>
+            <p className={`${theme.textMuted} text-[10px] mb-8 uppercase tracking-widest font-bold`}>Finalize your recovery</p>
 
-            <button
-type="submit"
-disabled={loading}
-className="w-full bg-green-600 hover:bg-green-700 transition-all duration-300 text-white p-3 rounded-lg font-semibold"
->
-{loading ? "Resetting..." : "Reset Password"}
-</button>
-          </form>
+            {message && (
+              <div className={`mb-6 py-2 border text-[10px] font-black uppercase tracking-widest text-center rounded-lg flex items-center justify-center gap-2 ${
+                message.toLowerCase().includes("success") 
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                : "bg-red-500/10 border-red-500/20 text-red-400"
+              }`}>
+                {message.toLowerCase().includes("success") && <CheckCircle2 size={12} />}
+                {message}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2">
+                <label className="block text-slate-500 font-black text-[9px] uppercase tracking-[0.2em] ml-1">
+                  New Access Key
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPass ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className={`w-full p-4 pl-12 rounded-xl bg-black/40 border ${theme.border} text-white focus:outline-none focus:border-purple-500 transition-all text-sm`}
+                  />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
+                    {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-slate-500 font-black text-[9px] uppercase tracking-[0.2em] ml-1">
+                  Confirm Access Key
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirm ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className={`w-full p-4 pl-12 rounded-xl bg-black/40 border ${theme.border} text-white focus:outline-none focus:border-purple-500 transition-all text-sm`}
+                  />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
+                    {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`${theme.accent} w-full py-4 rounded-xl font-black uppercase text-[11px] tracking-[0.2em] shadow-lg shadow-purple-600/20 hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 disabled:opacity-50`}
+              >
+                {loading ? "Updating..." : "Reset Password"}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

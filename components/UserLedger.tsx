@@ -2,6 +2,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { 
+  ArrowLeft, 
+  Search, 
+  Filter, 
+  Download, 
+  MoreHorizontal, 
+  FileText,
+  UserCheck,
+  Clock,
+  CheckCircle2,
+  AlertCircle
+} from "lucide-react";
 
 type User = {
   _id: string;
@@ -10,19 +22,15 @@ type User = {
   email: string;
   city: string;
   mobile: string;
-  ekycId: string;
-  addressProof: string;
-  idProof: string;
-  photo: string;
-  price: number;
   status: string;
+  price: number;
+  pid?: string; // Added for DSC context
 };
 
 export default function UserLedgerView({ onBack }: any) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch users from API
   useEffect(() => {
     fetch("/api/get-users")
       .then((res) => res.json())
@@ -36,89 +44,160 @@ export default function UserLedgerView({ onBack }: any) {
   }, []);
 
   return (
-    <div className="max-w-7xl mx-auto p-4 lg:p-8 bg-[#f8fbff] min-h-screen">
-      {/* High-Contrast Back Button */}
-      <button 
-        onClick={onBack} 
-        className="mb-8 flex items-center gap-2 text-[#2c8ed3] hover:text-[#1a5f8d] font-black uppercase text-sm tracking-tight transition-all group"
-      >
-        <span className="text-xl group-hover:-translate-x-1 transition-transform">⬅</span> 
-        Back to Dashboard
-      </button>
+    <div className="min-h-screen bg-[#080b12] text-white animate-in fade-in duration-500">
+      
+      {/* --- HEADER --- */}
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <button 
+            onClick={onBack} 
+            className="group flex items-center gap-2 text-slate-500 hover:text-purple-500 font-bold text-xs uppercase tracking-widest transition-all mb-4"
+          >
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
+            Back to Console
+          </button>
+          <h2 className="text-3xl font-bold flex items-center gap-3">
+            <FileText className="text-purple-500" /> DSC User Ledger
+          </h2>
+          <p className="text-slate-400 text-sm mt-1">Manage and track all Digital Signature Certificate applications.</p>
+        </div>
 
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-3xl font-black text-black tracking-tighter border-l-6 border-[#2c8ed3] pl-5 uppercase">
-          User Ledger
-        </h2>
-        <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200">
-          <span className="text-gray-500 font-bold text-xs uppercase mr-2">Total Records:</span>
-          <span className="text-[#2c8ed3] font-black">{users.length}</span>
+        <div className="flex items-center gap-3">
+          <button className="bg-[#121620] border border-[#1e2330] p-2.5 rounded-xl text-slate-400 hover:text-white transition-all">
+            <Filter size={18} />
+          </button>
+          <button className="flex items-center gap-2 bg-[#121620] border border-[#1e2330] px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-[#1e2330] transition-all">
+            <Download size={14} /> Export CSV
+          </button>
         </div>
       </div>
 
-      {/* Loading State */}
-      {loading && (
-        <div className="flex flex-col items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-[#2c8ed3]"></div>
-          <p className="mt-4 text-black font-black uppercase text-sm tracking-widest">Loading Ledger...</p>
-        </div>
-      )}
+      {/* --- TOP SUMMARY CARDS --- */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <MiniStat label="Total Applications" value={users.length} icon={<UserCheck className="text-purple-500" />} />
+        <MiniStat label="Approved DSCs" value={users.filter(u => u.status === 'APPROVED').length} icon={<CheckCircle2 className="text-green-500" />} />
+        <MiniStat label="Pending KYC" value={users.filter(u => u.status !== 'APPROVED').length} icon={<Clock className="text-amber-500" />} />
+      </div>
 
-      {/* Table Container - Stronger Shadow & Border */}
-      {!loading && (
-        <div className="overflow-hidden bg-white rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-gray-200">
-          <table className="w-full text-left border-collapse">
+      {/* --- TABLE CONTAINER --- */}
+      <div className="bg-[#121620] border border-[#1e2330] rounded-2xl overflow-hidden shadow-2xl">
+        
+        {/* Table Search Header */}
+        <div className="p-6 border-b border-[#1e2330] flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="relative w-full sm:w-96">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+            <input 
+              type="text" 
+              placeholder="Search by Name, PAN or Application ID..." 
+              className="w-full bg-[#080b12] border border-[#1e2330] rounded-xl py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:border-purple-500 transition-all"
+            />
+          </div>
+          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+            Showing <span className="text-white">{users.length}</span> Records
+          </div>
+        </div>
+
+        {/* The Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
             <thead>
-              <tr className="bg-[#2c8ed3] text-white">
-                <th className="p-4 text-[12px] font-black uppercase tracking-widest border-b border-blue-600">Name</th>
-                <th className="p-4 text-[12px] font-black uppercase tracking-widest border-b border-blue-600">PAN</th>
-                <th className="p-4 text-[12px] font-black uppercase tracking-widest border-b border-blue-600">Email</th>
-                <th className="p-4 text-[12px] font-black uppercase tracking-widest border-b border-blue-600">City</th>
-                <th className="p-4 text-[12px] font-black uppercase tracking-widest border-b border-blue-600">Status</th>
-                <th className="p-4 text-[12px] font-black uppercase tracking-widest border-b border-blue-600">Price</th>
+              <tr className="bg-[#0d111a] text-slate-500">
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em]">Applicant Details</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em]">Identity (PAN)</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em]">Email Route</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em]">Location</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em]">Status</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em]">Revenue</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em]"></th>
               </tr>
             </thead>
-
-            <tbody className="divide-y divide-gray-100">
-              {users.length > 0 ? (
+            <tbody className="divide-y divide-[#1e2330]">
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="py-20 text-center">
+                    <div className="animate-spin w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Decrypting Ledger...</p>
+                  </td>
+                </tr>
+              ) : users.length > 0 ? (
                 users.map((u) => (
-                  <tr key={u._id} className="hover:bg-blue-50/50 transition-colors group">
-                    <td className="p-4 text-black font-bold text-sm uppercase tracking-tight">
-                      {u.name || "N/A"}
+                  <tr key={u._id} className="hover:bg-white/[0.02] transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 font-bold text-xs">
+                          {u.name.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors">{u.name}</p>
+                          <p className="text-[10px] text-slate-500 font-medium tracking-tight">PID-{u._id.slice(-6).toUpperCase()}</p>
+                        </div>
+                      </div>
                     </td>
-                    <td className="p-4 text-gray-900 font-mono font-bold text-sm">
-                      {u.pan || "-------"}
-                    </td>
-                    <td className="p-4 text-gray-700 font-medium text-sm">
-                      {u.email}
-                    </td>
-                    <td className="p-4 text-gray-800 font-bold text-sm uppercase">
-                      {u.city || "---"}
-                    </td>
-                    <td className="p-4">
-                      <span className="inline-flex items-center px-3 py-1 bg-amber-100 text-amber-900 border border-amber-200 rounded-full text-[11px] font-black uppercase tracking-tighter">
-                        <span className="w-2 h-2 rounded-full bg-amber-500 mr-2 animate-pulse"></span>
-                        {u.status}
+                    <td className="px-6 py-4">
+                      <span className="text-xs font-mono font-bold text-slate-300 bg-[#080b12] px-2 py-1 rounded-md border border-[#1e2330]">
+                        {u.pan || "NOT PROVIDED"}
                       </span>
                     </td>
-                    <td className="p-4">
-                      <span className="text-green-700 font-black text-base">
-                        ₹{u.price}
-                      </span>
+                    <td className="px-6 py-4 text-xs text-slate-400 font-medium italic">{u.email}</td>
+                    <td className="px-6 py-4">
+                      <p className="text-xs font-bold text-slate-300 uppercase">{u.city || "---"}</p>
+                    </td>
+                    <td className="px-6 py-4">
+                      <StatusBadge status={u.status} />
+                    </td>
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-black text-white">₹{u.price}</p>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button className="text-slate-600 hover:text-white transition-colors">
+                        <MoreHorizontal size={18} />
+                      </button>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="p-20 text-center text-gray-400 font-bold uppercase tracking-widest">
-                    No users found in ledger
+                  <td colSpan={7} className="py-20 text-center text-slate-600 font-bold uppercase text-xs tracking-widest">
+                    No DSC Applications Found
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      )}
+      </div>
     </div>
+  );
+}
+
+// --- SUB-COMPONENTS ---
+
+function MiniStat({ label, value, icon }: any) {
+  return (
+    <div className="bg-[#121620] border border-[#1e2330] p-5 rounded-2xl flex items-center gap-4">
+      <div className="p-3 bg-[#080b12] rounded-xl border border-[#1e2330]">
+        {icon}
+      </div>
+      <div>
+        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{label}</p>
+        <p className="text-xl font-bold">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const s = status?.toUpperCase();
+  if (s === "APPROVED") {
+    return (
+      <span className="inline-flex items-center px-2.5 py-1 bg-green-500/10 text-green-500 border border-green-500/20 rounded-lg text-[10px] font-black uppercase tracking-tight">
+        <CheckCircle2 size={10} className="mr-1.5" /> Approved
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center px-2.5 py-1 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-lg text-[10px] font-black uppercase tracking-tight">
+      <AlertCircle size={10} className="mr-1.5" /> {status || "Pending"}
+    </span>
   );
 }

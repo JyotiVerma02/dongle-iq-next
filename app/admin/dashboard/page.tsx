@@ -1,254 +1,270 @@
-/* eslint-disable react-hooks/unsupported-syntax */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Smartphone,
-  Zap,
   Fingerprint,
   ShieldCheck,
   ArrowLeft,
   Mail,
   Cpu,
   Hash,
-  Calendar,
   Users,
   User,
   ChevronRight,
+  LayoutDashboard,
+  Settings,
+  MoreHorizontal,
+  ArrowUpRight,
+  Download,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  Clock
 } from "lucide-react";
+
 import UserLedgerView from "@/components/UserLedger";
 import UserDongleView from "@/components/UserDongle";
 
-// ✅ 1. PROPER TYPES (No more 'any')
-type Admin = {
-  _id: string;
-  name: string;
-  email: string;
-  number: string;
-  role: string;
-  status: string;
-  otp: string;
-  createdAt: string;
-};
-
-type MenuCardProps = {
-  title: string;
-  desc: string;
-  icon: React.ReactNode;
-  accent: "blue" | "green";
-  onClick: () => void;
-};
-
-type AdminDetailBoxProps = {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  color?: string;
-};
-
-// --- SHARED PARTICLE BACKGROUND ---
-const ParticleBackground = () => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let particles: any[] = [];
-    let animationFrameId: number;
-    class Particle {
-      x: number; y: number; vx: number; vy: number; size: number;
-      constructor() {
-        this.x = Math.random() * canvas!.width;
-        this.y = Math.random() * canvas!.height;
-        this.vx = (Math.random() - 0.5) * 0.3;
-        this.vy = (Math.random() - 0.5) * 0.3;
-        this.size = Math.random() * 1.5 + 0.5;
-      }
-      update() {
-        this.x += this.vx; this.y += this.vy;
-        if (this.x < 0 || this.x > canvas!.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas!.height) this.vy *= -1;
-      }
-      draw() {
-        ctx!.beginPath();
-        ctx!.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx!.fillStyle = "rgba(59, 130, 246, 0.2)";
-        ctx!.fill();
-      }
-    }
-    const init = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      particles = [];
-      const count = Math.floor((canvas.width * canvas.height) / 20000);
-      for (let i = 0; i < count; i++) particles.push(new Particle());
-    };
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach((p) => { p.update(); p.draw(); });
-      animationFrameId = requestAnimationFrame(animate);
-    };
-    init(); animate();
-    window.addEventListener("resize", init);
-    return () => { cancelAnimationFrame(animationFrameId); window.removeEventListener("resize", init); };
-  }, []);
-  return <canvas ref={canvasRef} className="fixed top-0 left-0 w-full h-full -z-10 pointer-events-none bg-[#f8fbff]" />;
-};
-
 export default function DongleIQAdminHub() {
-  const [view, setView] = useState<"home" | "admin" | "ledger" | "dongle">("home");
-  
-  // ✅ 2. TYPE-SAFE STATE
-  const [admin, setAdmin] = useState<Admin | null>(null);
-  const [loadingAdmin, setLoadingAdmin] = useState(true);
+  const [view, setView] = useState<"home" | "admin" | "ledger" | "dongle" | "settings">("home");
+  const [admin, setAdmin] = useState<any>(null);
+  const [, setLoadingAdmin] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
 
-  // ✅ 3. ROBUST ASYNC FETCH
   useEffect(() => {
     const fetchAdmin = async () => {
       try {
         const res = await fetch("/api/get-admin");
         const data = await res.json();
-        if (data.success) {
-          setAdmin(data.admin);
-        }
-      } catch (error) {
-        console.error("Error fetching admin:", error);
-      } finally {
-        setLoadingAdmin(false);
-      }
+        if (data.success) setAdmin(data.admin);
+      } catch (e) { console.error(e); } finally { setLoadingAdmin(false); }
     };
     fetchAdmin();
   }, []);
 
-  // ✅ 4. SAFE NAME SPLITTING
-  const firstName = admin?.name?.split(" ")[0] || "Admin";
-  const lastName = admin?.name?.split(" ")[1] || "";
+  const handleExport = () => {
+    setIsExporting(true);
+    setTimeout(() => {
+      const csvContent = "data:text/csv;charset=utf-8,ApplicationID,Name,Status\nIRCTC-101,Vivek Shah,Pending";
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `DongleIQ_User_Report.csv`);
+      document.body.appendChild(link);
+      link.click();
+      setIsExporting(false);
+    }, 1500);
+  };
+
+  const handleCreateReport = () => {
+    alert(`Generating User Compliance Report...`);
+  };
 
   return (
-    <div className="min-h-screen selection:bg-blue-100 selection:text-blue-900 font-sans p-6 md:p-12">
-      <ParticleBackground />
-
-      {/* --- HEADER --- */}
-      <header className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-16 gap-6">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-light text-slate-800 tracking-tight uppercase">
-            Dongle <span className="text-blue-600 font-black">IQ</span> Hub
-          </h1>
-          <p className="text-[10px] md:text-[12px] font-black text-slate-400 uppercase tracking-[0.3em] mt-2">
-            Infrastructure <span className="text-blue-500">Management</span> Terminal
-          </p>
-        </div>
-        <div className="flex items-center gap-4 bg-white/60 backdrop-blur-xl p-2 pr-6 rounded-full border border-white shadow-sm">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-            {firstName.charAt(0)}
+    <div className="min-h-screen bg-[#080b12] text-white font-sans flex overflow-hidden">
+      
+      {/* --- SIDEBAR --- */}
+      <aside className="w-64 border-r border-[#1e2330] bg-[#080b12] hidden lg:flex flex-col p-6 h-screen sticky top-0">
+        <div className="flex items-center gap-3 mb-10 px-2">
+          <div className="w-8 h-8 bg-linear-to-br from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/20">
+            <Cpu size={18} className="text-white" />
           </div>
-          <div className="text-left">
-            <p className="text-xs font-black text-slate-800 uppercase">
-              {admin?.name || "Initializing..."}
-            </p>
-            <p className="text-[9px] font-bold text-blue-500 uppercase tracking-tighter">
-              {admin?.role || "System Access"}
-            </p>
+          <span className="font-bold text-xl tracking-tight">Dongle <span className="text-purple-500">IQ</span></span>
+        </div>
+
+        <nav className="flex-1 space-y-1">
+          <NavItem icon={<LayoutDashboard size={18}/>} label="Dashboard" active={view === "home"} onClick={() => setView("home")} />
+          <div className="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Modules</div>
+          <NavItem icon={<Users size={18}/>} label="User Ledger" active={view === "ledger"} onClick={() => setView("ledger")} />
+          <NavItem icon={<Fingerprint size={18}/>} label="User Dongle" active={view === "dongle"} onClick={() => setView("dongle")} />
+          <NavItem icon={<User size={18}/>} label="Admin Profile" active={view === "admin"} onClick={() => setView("admin")} />
+        </nav>
+
+        <div className="mt-auto pt-6 border-t border-[#1e2330]">
+          <NavItem icon={<Settings size={18}/>} label="Settings" active={view === "settings"} onClick={() => setView("settings")} />
+          <div className="flex items-center gap-3 mt-6 p-2 rounded-xl bg-[#121620] border border-[#1e2330]">
+            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-xs uppercase">
+              {admin?.name?.charAt(0) || "A"}
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-xs font-bold truncate">{admin?.name || "Admin"}</p>
+              <p className="text-[10px] text-slate-500 truncate">{admin?.role || "Manager"}</p>
+            </div>
           </div>
         </div>
-      </header>
+      </aside>
 
-      {/* --- HOME VIEW --- */}
-      {view === "home" && (
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <MenuCard title="Admin Profile" desc="Manage system-wide permissions and credentials." icon={<ShieldCheck size={28} />} accent="blue" onClick={() => setView("admin")} />
-          <MenuCard title="User Ledger" desc="Monitor registered agents and verification statuses." icon={<Users size={24} />} accent="green" onClick={() => setView("ledger")} />
-          <MenuCard title="User Dongle" desc="Technical vault for hardware and firmware versions." icon={<Cpu size={28} />} accent="blue" onClick={() => setView("dongle")} />
-        </div>
-      )}
+      {/* --- MAIN CONTENT --- */}
+      <main className="flex-1 h-screen overflow-y-auto bg-[#080b12]">
+        <header className="px-8 pt-8 flex justify-between items-end mb-8">
+          <div>
+            <h1 className="text-2xl font-bold">Welcome back, {admin?.name?.split(" ")[0] || "Admin"}</h1>
+            <p className="text-sm text-slate-400 mt-1">Manage IRCTC DSC applications and hardware status.</p>
+          </div>
+          <div className="flex gap-3">
+            <button onClick={handleExport} className="flex items-center gap-2 bg-[#121620] border border-[#1e2330] px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#1e2330] transition-all">
+              {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} Export data
+            </button>
+            <button onClick={handleCreateReport} className="bg-purple-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 shadow-lg shadow-purple-500/20 transition-all">
+              Create report
+            </button>
+          </div>
+        </header>
 
-      {/* --- ADMIN PROFILE VIEW --- */}
-      {view === "admin" && (
-        <div className="max-w-5xl mx-auto animate-in fade-in zoom-in duration-500">
-          <button onClick={() => setView("home")} className="group flex items-center gap-2 text-slate-400 hover:text-blue-600 mb-8 font-black text-[10px] tracking-[0.2em] transition-all uppercase">
-            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Return to Hub
-          </button>
+        <div className="px-8 pb-10">
+          {view === "home" && (
+            <>
+              {/* --- UPDATED STAT CARDS --- */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <StatCard label="Total Users" value="2,845" trend="+12.5%" icon={<Users size={14} />} color="green" />
+                <StatCard label="Pending Review" value="142" trend="Action Required" icon={<Clock size={14} />} color="red" />
+                <StatCard label="Active Accounts" value="2,610" trend="Verified" icon={<CheckCircle2 size={14} />} color="green" />
+                <StatCard label="Rejected" value="93" trend="-2.4%" icon={<XCircle size={14} />} color="red" />
+              </div>
 
-          {loadingAdmin ? (
-            <div className="text-center py-20 font-black uppercase text-slate-400 tracking-widest">Initialising Secure Connection...</div>
-          ) : (
-            <div className="bg-white/70 backdrop-blur-3xl border border-white rounded-[3rem] shadow-[0_30px_100px_rgba(0,0,0,0.04)] overflow-hidden">
-              <div className="p-8 md:p-12 border-b border-slate-100/50 flex flex-col md:flex-row items-center gap-8">
-                <div className="relative">
-                  <div className="w-28 h-28 bg-linear-to-tr from-blue-600 to-blue-400 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-blue-500/20 rotate-3">
-                    <User size={50} className="text-white" />
+              {/* --- UPDATED MAIN DATA SECTION --- */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2 bg-[#121620] border border-[#1e2330] rounded-2xl p-6">
+                  <div className="flex justify-between items-center mb-10">
+                    <div>
+                      <p className="text-sm text-slate-400">Total Enrollment History</p>
+                      <h3 className="text-3xl font-bold mt-1">2.8K <span className="text-xs text-green-500 font-normal bg-green-500/10 px-2 py-1 rounded-lg ml-2">+14% Growth</span></h3>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs font-bold">
+                       <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-purple-500" /> Active</span>
+                       <span className="flex items-center gap-2 text-slate-500"><div className="w-2 h-2 rounded-full bg-cyan-400" /> Pending</span>
+                    </div>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 bg-[#16a34a] p-2.5 rounded-2xl border-4 border-white shadow-lg">
-                    <Fingerprint size={18} className="text-white" />
+                  <div className="h-64 w-full bg-linear-to-t from-purple-500/5 to-transparent rounded-xl border-b border-l border-[#1e2330] relative overflow-hidden">
+                     <svg className="absolute bottom-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path d="M0,80 Q25,20 50,60 T100,30 L100,100 L0,100 Z" fill="url(#purpleGrad)" />
+                        <defs>
+                          <linearGradient id="purpleGrad" x1="0" x2="0" y1="0" y2="1">
+                            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.3" />
+                            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
+                          </linearGradient>
+                        </defs>
+                     </svg>
                   </div>
                 </div>
 
-                <div className="text-center md:text-left flex-1">
-                  <h2 className="text-4xl font-black text-slate-800 tracking-tighter mb-2 italic">
-                    {firstName} <span className="text-blue-600 not-italic">{lastName}</span>
-                  </h2>
-                  <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-                    <span className="px-4 py-1.5 bg-blue-50 text-blue-600 text-[10px] font-black uppercase rounded-xl tracking-widest border border-blue-100">
-                      {admin?.role} Account
-                    </span>
-                    <span className="px-4 py-1.5 bg-emerald-50 text-[#16a34a] text-[10px] font-black uppercase rounded-xl tracking-widest border border-emerald-100 flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 bg-[#16a34a] rounded-full animate-pulse" /> Identity Verified
-                    </span>
-                  </div>
+                <div className="bg-[#121620] border border-[#1e2330] rounded-2xl p-6 flex flex-col justify-between">
+                   <div>
+                     <div className="flex justify-between items-start mb-6">
+                        <p className="text-sm text-slate-400">Approval Rate</p>
+                        <MoreHorizontal className="text-slate-500 cursor-pointer" />
+                     </div>
+                     <h3 className="text-3xl font-bold">94.2% <span className="text-xs text-green-500 font-normal bg-green-500/10 px-2 py-1 rounded-lg ml-2">Standard</span></h3>
+                   </div>
+                   
+                   <div className="mt-8 flex items-end gap-1 h-32">
+                      {[40, 70, 45, 90, 65, 80, 50, 95, 60, 85].map((h, i) => (
+                        <div key={i} style={{ height: `${h}%` }} className="flex-1 bg-cyan-400/20 rounded-t-sm hover:bg-cyan-400 transition-all cursor-pointer" />
+                      ))}
+                   </div>
+
+                   <button onClick={() => setView("ledger")} className="w-full text-center text-purple-500 text-xs font-bold mt-8 hover:text-purple-400 transition-colors">
+                     View full ledger
+                   </button>
                 </div>
               </div>
+            </>
+          )}
 
-              <div className="p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <AdminDetailBox label="Registry ID" value={admin?._id || "---"} icon={<Hash size={14} />} />
-                <AdminDetailBox label="Secure Email" value={admin?.email || "---"} icon={<Mail size={14} />} />
-                <AdminDetailBox label="Contact" value={admin?.number || "---"} icon={<Smartphone size={14} />} />
-                <AdminDetailBox label="Auth Status" value={admin?.status || "---"} icon={<ShieldCheck size={14} />} />
-                <AdminDetailBox label="Session OTP" value={admin?.otp || "---"} icon={<Zap size={14} />} color="text-blue-600" />
-                <AdminDetailBox label="Registry Date" value={admin?.createdAt ? new Date(admin.createdAt).toLocaleDateString() : "---"} icon={<Calendar size={14} />} />
-              </div>
-
-              <div className="bg-slate-50/50 p-6 text-center border-t border-slate-100/50">
-                <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">
-                  Secure Encrypted Terminal — Access ID: {admin?._id?.slice(-8) || "--------"}
-                </p>
+          {view === "admin" && (
+            <div className="bg-[#121620] border border-[#1e2330] rounded-3xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <button onClick={() => setView("home")} className="flex items-center gap-2 text-slate-500 hover:text-white mb-8 text-xs font-bold transition-all">
+                <ArrowLeft size={16} /> Back to dashboard
+              </button>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                  <h2 className="text-4xl font-bold mb-2">{admin?.name || "Jyoti Verma"}</h2>
+                  <p className="text-purple-500 font-bold text-sm mb-10">System Administrator — Dongle IQ</p>
+                  <div className="space-y-4">
+                    <DetailItem label="Internal ID" value={admin?._id} icon={<Hash size={16}/>} />
+                    <DetailItem label="Secure Email" value={admin?.email} icon={<Mail size={16}/>} />
+                    <DetailItem label="Contact No." value={admin?.number} icon={<Smartphone size={16}/>} />
+                    <DetailItem label="Access Status" value={admin?.status || "Authorized"} icon={<ShieldCheck size={16}/>} />
+                  </div>
+                </div>
+                <div className="bg-[#080b12] rounded-2xl p-8 border border-[#1e2330] flex flex-col justify-center items-center text-center">
+                  <p className="text-slate-500 text-xs uppercase font-black tracking-[0.2em] mb-4">Active Session Key</p>
+                  <div className="text-6xl font-black text-white tracking-tighter mb-4">{admin?.otp || "----"}</div>
+                  <div className="bg-green-500/10 text-green-500 px-4 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2">
+                    <CheckCircle2 size={12} /> Hardware Authenticated
+                  </div>
+                </div>
               </div>
             </div>
           )}
+
+          {view === "settings" && (
+            <div className="bg-[#121620] border border-[#1e2330] rounded-3xl p-8">
+              <button onClick={() => setView("home")} className="flex items-center gap-2 text-slate-500 hover:text-white mb-8 text-xs font-bold transition-all"><ArrowLeft size={16} /> Back</button>
+              <h2 className="text-2xl font-bold mb-6">System Settings</h2>
+              <div className="max-w-2xl space-y-4">
+                <div className="p-4 bg-[#080b12] rounded-xl border border-[#1e2330] flex justify-between items-center">
+                  <p className="font-bold text-sm">Require Dongle for Login</p>
+                  <div className="w-10 h-5 bg-purple-600 rounded-full relative"><div className="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"/></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {view === "ledger" && <UserLedgerView onBack={() => setView("home")} />}
+          {view === "dongle" && <UserDongleView onBack={() => setView("home")} />}
         </div>
-      )}
-
-      {view === "ledger" && <UserLedgerView onBack={() => setView("home")} />}
-      {view === "dongle" && <UserDongleView onBack={() => setView("home")} />}
+      </main>
     </div>
   );
 }
 
-// --- SUB-COMPONENTS (With Strict Props) ---
+// --- DASHBOARD COMPONENTS ---
 
-function MenuCard({ title, desc, icon, accent, onClick }: MenuCardProps) {
-  const isGreen = accent === "green";
+function NavItem({ icon, label, active, onClick }: any) {
   return (
-    <div onClick={onClick} className="group relative bg-white/70 backdrop-blur-xl border border-white p-10 rounded-[3rem] cursor-pointer transition-all duration-500 hover:-translate-y-3 hover:shadow-[0_40px_80px_-20px_rgba(59,130,246,0.12)]">
-      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-8 transition-all duration-500 ${isGreen ? "bg-emerald-50 text-[#16a34a] group-hover:bg-[#16a34a]" : "bg-blue-50 text-blue-600 group-hover:bg-blue-600"} group-hover:text-white group-hover:rotate-6 group-hover:scale-110 shadow-sm`}>
+    <div 
+      onClick={onClick}
+      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all group ${active ? "bg-purple-500/10 text-purple-500" : "text-slate-400 hover:text-white hover:bg-[#121620]"}`}
+    >
+      <div className="flex items-center gap-3">
         {icon}
+        <span className="text-sm font-bold">{label}</span>
       </div>
-      <h3 className="text-2xl font-black text-slate-800 mb-4 tracking-tighter group-hover:text-blue-600 transition-colors uppercase">{title}</h3>
-      <p className="text-sm text-slate-500 leading-relaxed mb-10 font-medium">{desc}</p>
-      <div className={`flex items-center font-black text-[10px] uppercase tracking-[0.3em] transition-all group-hover:translate-x-3 ${isGreen ? "text-[#16a34a]" : "text-blue-600"}`}>
-        Open Terminal <ChevronRight size={14} className="ml-1" />
+      <ChevronRight size={14} className={`${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-all`} />
+    </div>
+  );
+}
+
+function StatCard({ label, value, trend, icon, color }: any) {
+  const isGreen = color === "green";
+  return (
+    <div className="bg-[#121620] border border-[#1e2330] p-6 rounded-2xl hover:border-slate-700 transition-all">
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+          {icon} {label}
+        </div>
+        <MoreHorizontal size={16} className="text-slate-600 cursor-pointer" />
+      </div>
+      <div className="flex items-end justify-between">
+        <h4 className="text-2xl font-bold">{value}</h4>
+        <span className={`text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 ${isGreen ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}>
+          {trend} <ArrowUpRight size={10} className={!isGreen ? "rotate-90" : ""} />
+        </span>
       </div>
     </div>
   );
 }
 
-function AdminDetailBox({ label, value, icon, color = "text-slate-800" }: AdminDetailBoxProps) {
+function DetailItem({ label, value, icon }: any) {
   return (
-    <div className="bg-white/40 border border-white p-6 rounded-4xl hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
-      <div className="flex items-center gap-2 mb-3 text-slate-400 group-hover:text-blue-500 transition-colors">
-        {icon} <p className="text-[9px] font-black uppercase tracking-[0.2em]">{label}</p>
+    <div className="flex items-center gap-4 bg-[#080b12] border border-[#1e2330] p-4 rounded-xl">
+      <div className="text-slate-500">{icon}</div>
+      <div>
+        <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest leading-none mb-1">{label}</p>
+        <p className="text-sm font-bold truncate">{value || "N/A"}</p>
       </div>
-      <p className={`text-sm font-bold truncate ${color}`}>{value}</p>
     </div>
   );
 }
