@@ -121,7 +121,7 @@ export default function UserLedgerView({ onBack }: any) {
                 </tr>
               ) : users.length > 0 ? (
                 users.map((u) => (
-                  <tr key={u._id} className="hover:bg-white/[0.02] transition-colors group">
+                  <tr key={u._id} className="hover:bg-white/2 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-500 font-bold text-xs">

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -85,7 +86,7 @@ export default function UserDongleView({ onBack }: { onBack: () => void }) {
                     <Fingerprint size={20} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white uppercase truncate max-w-[140px]">
+                    <h3 className="text-sm font-bold text-white uppercase truncate max-w-35">
                       {u.name || "Unknown"}
                     </h3>
                     <div className="flex items-center gap-1.5 mt-0.5">
@@ -159,12 +160,12 @@ function CompactData({ label, value, icon }: any) {
 
 function DocStrip({ label, file, icon }: any) {
   return (
-    <div className="flex items-center justify-between py-1 px-1.5 hover:bg-white/[0.03] rounded transition-colors group/doc">
+    <div className="flex items-center justify-between py-1 px-1.5 hover:bg-white/3 rounded transition-colors group/doc">
       <div className="flex items-center gap-2">
         <span className="text-slate-600 group-hover/doc:text-purple-500 transition-colors">
           {icon}
         </span>
-        <span className="text-[9px] font-bold text-slate-400 truncate max-w-[110px]">
+        <span className="text-[9px] font-bold text-slate-400 truncate max-w-27.5">
           {file || "No Upload"}
         </span>
       </div>
