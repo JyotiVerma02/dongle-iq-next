@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Roboto, Poppins } from "next/font/google";
 import "./globals.css";
 // Import the Provider we discussed in Step 1
 import { ThemeProvider } from "@/app/context/ThemeContext"; 
 
-const geistSans = Geist({
+const geistSans = Roboto({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
+const geistMono = Poppins({
   variable: "--font-geist-mono",
+  weight: ["400", "700"],
   subsets: ["latin"],
 });
 

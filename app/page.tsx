@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import yourPng from "@/public/Device-Macbook-Pro.png"; 
+import yourPng from "@/public/kycimage.jpg"; 
 import {
   Cpu, ArrowRight, Mail, MessageSquare, ChevronDown, ChevronUp,
   UserPlus, LogIn, MousePointerClick, Fingerprint, Download,
