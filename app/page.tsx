@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import yourPng from "@/public/kycimage.jpg"; 
+import yourPng from "@/public/dsc-kyc-verification.webp";
 import {
   Cpu, ArrowRight, Mail, MessageSquare, ChevronDown, ChevronUp,
   UserPlus, LogIn, MousePointerClick, Fingerprint, Download,
@@ -34,7 +34,7 @@ export default function DongleIQLanding() {
 
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.text} font-sans antialiased transition-colors duration-300`}>
-      
+
       {/* --- HEADER --- */}
       <nav className={`fixed top-0 w-full z-50 p-5 ${theme.nav} backdrop-blur-xl border-b ${theme.border}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -54,7 +54,7 @@ export default function DongleIQLanding() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={toggleTheme}
               className={`p-2 rounded-full border ${theme.border} hover:bg-purple-500/10 transition-all shadow-sm`}
             >
@@ -63,7 +63,7 @@ export default function DongleIQLanding() {
             <button onClick={() => router.push("/login")} className="hidden sm:flex text-xs font-bold uppercase gap-2 items-center hover:text-purple-500 transition-colors">
               <LogIn size={14} /> Login
             </button>
-            <button 
+            <button
               onClick={() => router.push("/signup")}
               className={`${theme.accent} px-5 py-2.5 rounded-xl text-xs font-bold uppercase text-white shadow-lg shadow-purple-500/20 hover:scale-105 transition-all`}
             >
@@ -197,7 +197,7 @@ function StepItem({ number, icon, title, desc, theme }: any) {
     <div className="text-center group">
       <div className="w-20 h-20 rounded-3xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center text-purple-500 mx-auto mb-8 relative transition-all group-hover:-translate-y-2">
         {React.cloneElement(icon as React.ReactElement<any>, { size: 32 })}
-        <span 
+        <span
           className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-purple-600 text-white text-[10px] font-black flex items-center justify-center border-4 shadow-sm"
           style={{ borderColor: cardColor }}
         >
