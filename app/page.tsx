@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import yourPng from "@/public/dsc-kyc-verification.webp";
+import yourPng from "@/public/security (2).png";
 import {
   Cpu, ArrowRight, Mail, MessageSquare, ChevronDown, ChevronUp,
   UserPlus, LogIn, MousePointerClick, Fingerprint, Download,
