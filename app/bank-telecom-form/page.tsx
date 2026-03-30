@@ -99,7 +99,7 @@ export default function DongleIQForm() {
         setAddressFile("No file chosen");
         setIdFile("No file chosen");
         setPhotoFile("");
-        router.push("/admin");
+        router.push("/admin/dashboard");
       } else {
         alert("❌ Error: " + (data.message || "Something went wrong!"));
       }
