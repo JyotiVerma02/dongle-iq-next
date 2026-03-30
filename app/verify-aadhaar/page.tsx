@@ -337,7 +337,7 @@ export default function AadhaarVerifyPage() {
               className={`w-full py-3 rounded-lg font-black text-[12px] uppercase tracking-[0.2em] transition-all bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-sm ${isSendingOtp ? "opacity-50 cursor-not-allowed" : ""
                 }`}
             >
-              {isSendingOtp ? "Sending OTP..." : "Send OTP via WhatsApp"}
+              {isSendingOtp ? "Sending OTP..." : "Send OTP"}
             </button>
           ) : (
             <>

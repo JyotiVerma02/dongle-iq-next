@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextResponse } from "next/server";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
@@ -7,38 +6,34 @@ export async function POST(req: Request) {
   try {
     const { mobile, otp } = await req.json();
 
-    // ✅ Validate input
     if (!mobile || !/^\d{10}$/.test(mobile)) {
-      return NextResponse.json({
-        success: false,
-        message: "Invalid mobile number"
-      }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Invalid mobile" }, { status: 400 });
     }
 
     if (!otp || !/^\d{6}$/.test(otp)) {
-      return NextResponse.json({
-        success: false,
-        message: "Invalid OTP format"
-      }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Invalid OTP" }, { status: 400 });
     }
 
     await connectDB();
 
-    // ✅ Find user with valid OTP
     const user = await User.findOne({
       number: mobile,
-      aadhaarOtp: otp,
-      aadhaarOtpExpiry: { $gt: new Date() } // not expired
     });
 
     if (!user) {
-      return NextResponse.json({
-        success: false,
-        message: "Invalid or expired OTP"
-      }, { status: 401 });
+      return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
     }
 
-    // ✅ Update user after successful verification
+    // ✅ Manual OTP check (better debugging)
+    if (user.aadhaarOtp !== otp) {
+      return NextResponse.json({ success: false, message: "Wrong OTP" }, { status: 401 });
+    }
+
+    if (!user.aadhaarOtpExpiry || user.aadhaarOtpExpiry < new Date()) {
+      return NextResponse.json({ success: false, message: "OTP expired" }, { status: 401 });
+    }
+
+    // ✅ Update DB
     user.isVerified = true;
     user.status = "approved";
     user.aadhaarOtp = undefined;
@@ -48,15 +43,12 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Verification Successful"
+      message: "Verification Successful",
+      user
     });
 
   } catch (error) {
-    console.error("Verify API Error:", error);
-
-    return NextResponse.json({
-      success: false,
-      message: "Server Error"
-    }, { status: 500 });
+    console.error(error);
+    return NextResponse.json({ success: false, message: "Server Error" }, { status: 500 });
   }
 }

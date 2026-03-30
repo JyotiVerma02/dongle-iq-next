@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
-import { sendWhatsAppMessage } from "@/app/lib/whatsapp";
 
 export async function POST(req: Request) {
   try {
@@ -38,40 +37,20 @@ export async function POST(req: Request) {
 
     await user.save();
 
-    // ✅ Proper WhatsApp OTP Message
-    const message = `🔐 *DongleIQ Verification*
-
-Your One-Time Password (OTP) is: *${otp}*
-
-⏳ Valid for 5 minutes  
-🔒 Do not share this OTP with anyone  
-
-- Team DongleIQ`;
-
-    const result = await sendWhatsAppMessage(mobile, message);
-
-    if (!result.success) {
-      return NextResponse.json({
-        success: false,
-        message: "Failed to send WhatsApp OTP",
-      });
-    }
+    // 🔥 IMPORTANT: Show OTP in console
+    console.log("📲 OTP for", mobile, "is:", otp);
 
     return NextResponse.json({
       success: true,
-      message:
-        "A verification OTP has been sent to your WhatsApp number. Please enter it within 5 minutes to continue.",
+      message: "OTP generated (check server console)",
     });
 
   } catch (error) {
     console.error("Send OTP Error:", error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Server Error",
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      success: false,
+      message: "Server Error",
+    });
   }
 }
