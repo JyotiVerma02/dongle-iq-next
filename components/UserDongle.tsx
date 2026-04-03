@@ -3,16 +3,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { 
-  ArrowLeft, 
-  Cpu, 
-  Fingerprint, 
-  ShieldCheck, 
-  Smartphone, 
-  FileText, 
+import {
+  ArrowLeft,
+  Cpu,
+  Fingerprint,
+  ShieldCheck,
+  Smartphone,
+  FileText,
   Image as ImageIcon,
   ExternalLink,
-  CheckCircle
+  CheckCircle,
 } from "lucide-react";
 
 type User = {
@@ -28,6 +28,9 @@ type User = {
   photo: string;
   price: number;
   status: string;
+  address?: string;
+  pin_code?: string;
+  ekycPin?: string;
 };
 
 export default function UserDongleView({ onBack }: { onBack: () => void }) {
@@ -48,14 +51,16 @@ export default function UserDongleView({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="min-h-screen bg-[#080b12] text-white animate-in fade-in duration-500">
-      
       {/* HEADER SECTION */}
       <div className="mb-6">
-        <button 
-          onClick={onBack} 
+        <button
+          onClick={onBack}
           className="group flex items-center gap-2 text-slate-500 hover:text-purple-500 font-bold text-[10px] uppercase tracking-[0.2em] transition-all mb-4"
         >
-          <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
+          <ArrowLeft
+            size={14}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
           Back to Terminal
         </button>
         <h2 className="text-2xl font-bold flex items-center gap-2 tracking-tight">
@@ -67,7 +72,9 @@ export default function UserDongleView({ onBack }: { onBack: () => void }) {
       {loading && (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="w-8 h-8 border-2 border-purple-500/20 border-t-purple-500 rounded-full animate-spin mb-3" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Decrypting Records...</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+            Decrypting Records...
+          </p>
         </div>
       )}
 
@@ -75,8 +82,8 @@ export default function UserDongleView({ onBack }: { onBack: () => void }) {
       {!loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {users.map((u) => (
-            <div 
-              key={u._id} 
+            <div
+              key={u._id}
               className="bg-[#121620] border border-[#1e2330] rounded-2xl p-4 hover:border-purple-500/40 transition-all group"
             >
               {/* COMPACT CARD HEADER */}
@@ -104,8 +111,16 @@ export default function UserDongleView({ onBack }: { onBack: () => void }) {
 
               {/* TECHNICAL DATA STRIPS */}
               <div className="space-y-1.5 mb-4">
-                <CompactData label="eKYC ID" value={u.ekycId} icon={<ShieldCheck size={10}/>} />
-                <CompactData label="Mobile" value={u.mobile} icon={<Smartphone size={10}/>} />
+                <CompactData
+                  label="eKYC ID"
+                  value={u.ekycId}
+                  icon={<ShieldCheck size={10} />}
+                />
+                <CompactData
+                  label="Mobile"
+                  value={u.mobile}
+                  icon={<Smartphone size={10} />}
+                />
               </div>
 
               {/* DOCUMENT REPOSITORY - COMPACT */}
@@ -114,9 +129,21 @@ export default function UserDongleView({ onBack }: { onBack: () => void }) {
                   Verified Attachments
                 </p>
                 <div className="grid grid-cols-1 gap-1">
-                  <DocStrip label="Address" file={u.addressProof} icon={<FileText size={12}/>} />
-                  <DocStrip label="ID Proof" file={u.idProof} icon={<ImageIcon size={12}/>} />
-                  <DocStrip label="Photo" file={u.photo} icon={<CheckCircle size={12}/>} />
+                  <DocStrip
+                    label="Address"
+                    file={u.addressProof}
+                    icon={<FileText size={12} />}
+                  />
+                  <DocStrip
+                    label="ID Proof"
+                    file={u.idProof}
+                    icon={<ImageIcon size={12} />}
+                  />
+                  <DocStrip
+                    label="Photo"
+                    file={u.photo}
+                    icon={<CheckCircle size={12} />}
+                  />
                 </div>
               </div>
 
@@ -136,7 +163,9 @@ export default function UserDongleView({ onBack }: { onBack: () => void }) {
       {/* EMPTY STATE */}
       {!loading && users.length === 0 && (
         <div className="bg-[#121620] border border-[#1e2330] border-dashed p-12 rounded-3xl text-center">
-          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">Zero records found in vault</p>
+          <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">
+            Zero records found in vault
+          </p>
         </div>
       )}
     </div>

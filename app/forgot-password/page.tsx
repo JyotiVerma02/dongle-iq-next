@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 
 // --- THEME IMPORTS ---
-import { useTheme } from "@/app/context/ThemeContext";
+
 import { getThemeConfig } from "@/app/utils/themeConfig";
 
 export default function ForgotPassword() {
@@ -17,8 +17,8 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false);
 
   // --- GLOBAL THEME LOGIC ---
-  const { isDarkMode, toggleTheme } = useTheme();
-  const theme = getThemeConfig(isDarkMode);
+  
+  const theme = getThemeConfig(false);
 
   const navLinks = ["Hero", "About", "Services", "FAQs", "Contact"];
 
@@ -66,12 +66,7 @@ export default function ForgotPassword() {
 
           <div className="flex items-center gap-4">
             {/* Theme Toggle for testing on-page */}
-            <button 
-              onClick={toggleTheme}
-              className={`p-2 rounded-full border ${theme.border} hover:bg-purple-500/10 transition-all shadow-sm`}
-            >
-              {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-purple-600" />}
-            </button>
+            
 
             <Link 
               href="/login"
@@ -95,7 +90,7 @@ export default function ForgotPassword() {
             <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[0.85] tracking-tighter uppercase">
               Account <br /> 
               <span className="text-emerald-400 italic">Recovery</span> <br />
-              <span className={isDarkMode ? "text-white/10" : "text-black/10"}>System.</span>
+             <span className="text-slate-200"></span>
             </h1>
             <p className={`${theme.textMuted} text-lg max-w-xl leading-relaxed font-medium mb-8`}>
               Reset your password securely and continue managing your dongle

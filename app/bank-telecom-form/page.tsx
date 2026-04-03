@@ -126,7 +126,7 @@ export default function DongleIQForm() {
         <button type="button" onClick={() => router.push("/")} className="hover:bg-red-500 bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-colors">✕</button>
       </div>
 
-      <div className="max-w-285 mx-auto p-4 lg:p-6">
+      <div className="max-w-285 mx-auto p-4 lg:p-6 ">
         <form onSubmit={handleSubmit} className="bg-white shadow-[0_0.5rem_1rem_rgba(0,0,0,0.15)] rounded-sm overflow-hidden border border-[#dee2e6]">
           
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-5 bg-[#f8fbff] border-b border-[#dee2e6] items-end">

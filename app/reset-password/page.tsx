@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 // --- THEME IMPORTS ---
-import { useTheme } from "@/app/context/ThemeContext";
+
 import { getThemeConfig } from "@/app/utils/themeConfig";
 
 export default function ResetPassword() {
@@ -25,8 +25,8 @@ export default function ResetPassword() {
   const router = useRouter();
 
   // --- GLOBAL THEME LOGIC ---
-  const { isDarkMode, toggleTheme } = useTheme();
-  const theme = getThemeConfig(isDarkMode);
+
+  const theme = getThemeConfig(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,12 +81,7 @@ export default function ResetPassword() {
           </Link>
 
           {/* Theme Toggle Button */}
-          <button 
-            onClick={toggleTheme}
-            className={`p-2 rounded-full border ${theme.border} hover:bg-purple-500/10 transition-all shadow-sm`}
-          >
-            {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-purple-600" />}
-          </button>
+        
         </div>
       </nav>
 
@@ -100,7 +95,7 @@ export default function ResetPassword() {
             <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[0.85] tracking-tighter uppercase">
               Update <br /> 
               <span className="text-emerald-400 italic">Credentials</span> <br />
-              <span className={isDarkMode ? "text-white/10" : "text-black/10"}>Securely.</span>
+              <span className="text-slate-200">Securely.</span>
             </h1>
             <p className={`${theme.textMuted} text-lg max-w-xl leading-relaxed font-medium mb-8`}>
               Create a strong, unique password to ensure your agent profile remains

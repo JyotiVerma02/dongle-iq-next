@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 // 1. Import Global Theme Tools
-import { useTheme } from "@/app/context/ThemeContext";
+
 import { getThemeConfig } from "@/app/utils/themeConfig";
 
 export default function Login() {
@@ -24,8 +24,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   // 2. Pull Global State (No more local useState for theme)
-  const { isDarkMode, toggleTheme } = useTheme();
-  const theme = getThemeConfig(isDarkMode);
+  const theme = getThemeConfig(false);
 
   const navLinks = ["Apply", "Why Us", "Agents", "FAQs"];
 
@@ -85,12 +84,7 @@ export default function Login() {
 
           <div className="flex items-center gap-4">
             {/* 3. Global Toggle Button */}
-            <button 
-              onClick={toggleTheme}
-              className={`p-2 rounded-full border ${theme.border} hover:bg-purple-500/10 transition-all shadow-sm`}
-            >
-              {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-purple-600" />}
-            </button>
+           
             <button 
               onClick={() => router.push("/signup")}
               className={`${theme.accent} px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest text-white shadow-lg shadow-purple-500/20 flex items-center gap-2 hover:scale-105 transition-transform`}
@@ -112,7 +106,7 @@ export default function Login() {
             <h1 className="text-6xl xl:text-8xl font-black mb-8 leading-[0.9] tracking-tighter uppercase italic">
               Secure <br /> 
               <span className="text-purple-500">Access</span> <br />
-              <span className={isDarkMode ? "text-white/10" : "text-slate-200"}>Portal.</span>
+              <span className="text-slate-200"></span>
             </h1>
             <p className={`${theme.textMuted} text-lg max-w-lg leading-relaxed font-medium mb-10`}>
               Enter your credentials to manage your Digital Signature Certificates and IRCTC Agent registrations in our unified dashboard.
@@ -126,7 +120,7 @@ export default function Login() {
 
         {/* RIGHT PANEL - LOGIN FORM */}
         <div className="flex-1 flex items-center justify-center p-8 relative">
-          {!isDarkMode && <div className="absolute inset-0 bg-gradient-to-tr from-purple-50/50 to-transparent pointer-events-none" />}
+         <div className="absolute inset-0 bg-gradient-to-tr from-purple-50/50 to-transparent pointer-events-none" />
 
           <div className={`${theme.card} p-10 rounded-[40px] shadow-2xl w-full max-w-md border ${theme.border} relative overflow-hidden`}>
             {/* Top Accent Line */}

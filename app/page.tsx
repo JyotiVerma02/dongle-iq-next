@@ -18,8 +18,7 @@ export default function DongleIQLanding() {
   const router = useRouter();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const { isDarkMode, toggleTheme } = useTheme();
-  const theme = getThemeConfig(isDarkMode);
+ const theme = getThemeConfig(false);
 
   const faqs = [
     { q: "What is a Digital Signature Certificate (DSC)?", a: "A Digital Signature Certificate is an electronic form of a signature that helps authenticate the identity of an individual or organization in digital communications." },
@@ -54,12 +53,7 @@ export default function DongleIQLanding() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-full border ${theme.border} hover:bg-purple-500/10 transition-all shadow-sm`}
-            >
-              {isDarkMode ? <Sun size={18} className="text-yellow-400" /> : <Moon size={18} className="text-purple-600" />}
-            </button>
+           
             <button onClick={() => router.push("/login")} className="hidden sm:flex text-xs font-bold uppercase gap-2 items-center hover:text-purple-500 transition-colors">
               <LogIn size={14} /> Login
             </button>
@@ -116,7 +110,7 @@ export default function DongleIQLanding() {
       </section>
 
       {/* --- HOW TO APPLY (UPDATED FROM IMAGES) --- */}
-      <section id="apply" className={`py-24 px-6 ${isDarkMode ? "bg-[#0a0e17]" : "bg-white"} border-y ${theme.border}`}>
+      <section id="apply" className={`py-24 px-6  "bg-white"} border-y ${theme.border}`}>
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-4xl font-black uppercase mb-20 tracking-tighter">How To <span className="text-purple-500">Apply?</span></h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
@@ -142,7 +136,7 @@ export default function DongleIQLanding() {
       </section>
 
       {/* --- FAQS --- */}
-      <section id="faqs" className={`py-24 px-6 ${isDarkMode ? "bg-[#0a0e17]" : "bg-white"} border-t ${theme.border}`}>
+      <section id="faqs" className={`py-24 px-6 $ "bg-white"} border-t ${theme.border}`}>
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-black text-center mb-12 uppercase tracking-tighter">Common <span className="text-purple-500">Queries</span></h2>
           <div className="space-y-4">

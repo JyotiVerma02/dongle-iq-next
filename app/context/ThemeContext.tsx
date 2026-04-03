@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 // 1. Define what data our "Theme Brain" will hold
 const ThemeContext = createContext({
-  isDarkMode: true,
+  isDarkMode: false,
   toggleTheme: () => {},
 });
 
@@ -11,9 +11,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== "undefined") {
       const savedTheme = localStorage.getItem("dongle-iq-theme");
-      return savedTheme ? savedTheme === "dark" : true;
+      return savedTheme ? savedTheme === "dark" : false;
     }
-    return true;
+    return false;
   });
 
   // 3. Function to switch themes and save the choice

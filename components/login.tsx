@@ -1,10 +1,21 @@
 /* eslint-disable */
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 
+interface NavigateFunction {
+  (path: string): void;
+}
+
+interface LoginState {
+  username: string;
+  password: string;
+  error: string;
+  rememberMe: boolean;
+}
 
 function Login() {
-  const navigate = useNavigate();
+  const navigate: NavigateFunction = (path: string) => {
+    window.location.href = path;
+  };
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -49,8 +60,8 @@ function Login() {
 
   return (
     <div className="fixed inset-0 flex flex-col bg-black overflow-y-auto animated-bg">
-      <div className="absolute w-[500px] h-[500px] bg-pink-500/20 blur-[180px] rounded-full animate-float top-[-100px] left-[-100px]" />
-      <div className="absolute w-[500px] h-[500px] bg-blue-500/20 blur-[180px] rounded-full animate-float2 bottom-[-100px] right-[-100px]" />
+      <div className="absolute w-125 h-125 bg-pink-500/20 blur-[180px] rounded-full animate-float -top-25 -left-25" />
+      <div className="absolute w-125 h-125 bg-blue-500/20 blur-[180px] rounded-full animate-float2 -bottom-25 -right-25" />
 
       <div className="relative z-10 flex flex-col h-full">
         <div className="absolute top-6 right-6">
