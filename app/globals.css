@@ -1,92 +1,158 @@
 @import "tailwindcss";
 
+/* 🌙 THEME COLORS (MATCH YOUR UI) */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0F0F0F;
+  --foreground: #F9FAFB;
+
+  --card: #1A1A1A;
+  --border: #2A2A2A;
+
+  --accent: #7C3AED;
+  --accent-light: #A78BFA;
+
+  --muted: #9CA3AF;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* 🌍 BASE STYLING */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-/* Add to your globals.css */
 
+/* ============================= */
+/* 🔥 PREMIUM BACKGROUND EFFECT */
+/* ============================= */
 
 @keyframes mesh-move {
-  0% { background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%; }
-  50% { background-position: 20% 20%, 80% 80%, 20% 80%, 80% 20%; }
-  100% { background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0%; }
+  0% { background-position: 0% 0%, 100% 100%; }
+  50% { background-position: 20% 20%, 80% 80%; }
+  100% { background-position: 0% 0%, 100% 100%; }
 }
 
-.job-portal-bg {
-  background-color: #f8faff;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(186, 204, 255, 0.4) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(216, 180, 254, 0.4) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, rgba(199, 210, 254, 0.4) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(165, 243, 252, 0.4) 0px, transparent 50%);
+.app-bg {
+  background-color: #0F0F0F;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.15), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(167, 139, 250, 0.1), transparent 40%);
   background-size: 200% 200%;
   animation: mesh-move 15s ease infinite;
-  background-attachment: fixed;
-  min-height: 100vh;
 }
 
-.glass-nav {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+/* ============================= */
+/* ✨ GLASS EFFECT */
+/* ============================= */
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Optional: Add a subtle grain effect over the background */
-.job-portal-bg::before {
+/* ============================= */
+/* 🔥 GLOBAL HOVER CARD */
+/* ============================= */
+
+.hover-card {
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+.hover-card::before {
   content: "";
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  opacity: 0.03;
-  pointer-events: none;
-  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
-  z-index: 1;
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(124, 58, 237, 0.8),
+    transparent
+  );
+
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
-/* Add these below your background animation in globals.css */
+.hover-card:hover::before {
+  opacity: 1;
+}
+
+.hover-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(124, 58, 237, 0.25);
+}
+
+/* ============================= */
+/* ✨ BUTTON HOVER */
+/* ============================= */
+
+.hover-btn {
+  transition: all 0.3s ease;
+}
+
+.hover-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+}
+
+/* ============================= */
+/* ✨ INPUT FOCUS EFFECT */
+/* ============================= */
 
 .glass-input {
-  background: rgba(255, 255, 255, 0.4); /* Semi-transparent */
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  transition: all 0.3s ease;
 }
 
 .glass-input:focus {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: #3b82f6; /* Modern Blue */
-  box-shadow: 
-    0 0 0 4px rgba(59, 130, 246, 0.1), /* Outer soft halo */
-    0 10px 15px -3px rgba(59, 130, 246, 0.1); /* Bottom shadow */
-  transform: translateY(-1px); /* Slight lift on click */
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 2px rgba(124, 58, 237, 0.2),
+    0 10px 20px rgba(124, 58, 237, 0.15);
   outline: none;
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+/* ============================= */
+/* ✨ SCROLLBAR (PREMIUM LOOK) */
+/* ============================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0F0F0F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7C3AED;
+  border-radius: 10px;
+}
+.cursor-glow {
+  position: fixed;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+
+  background: radial-gradient(
+    circle,
+    rgba(124, 58, 237, 0.25),
+    transparent 70%
+  );
+
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s linear;
 }
