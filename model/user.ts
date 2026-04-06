@@ -44,10 +44,10 @@ export interface IUser extends Document {
 
 const UserSchema: Schema = new Schema(
   {
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    number: { type: String, required: true },
-    password: { type: String, required: true },
+    name: { type: String },
+    email: { type: String, unique: true, sparse: true },
+    password: { type: String },
+    number: { type: String, unique: true, sparse: true },
 
     role: { type: String, default: "user" },
     isVerified: { type: Boolean, default: false },
@@ -89,7 +89,7 @@ const UserSchema: Schema = new Schema(
     internalRemarks: { type: String },
     price: { type: Number },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const User: Model<IUser> =

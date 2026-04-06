@@ -83,27 +83,29 @@ export default function DongleIQLanding() {
   ];
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
-  React.useEffect(() => {
-    const handleMove = (e) => {
-      setPos({ x: e.clientX, y: e.clientY });
-    };
+React.useEffect(() => {
+  const handleMove = (e) => {
+    setPos({ x: e.clientX, y: e.clientY });
+  };
 
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
+  window.addEventListener("mousemove", handleMove);
+  return () => window.removeEventListener("mousemove", handleMove);
+}, []);
 
   return (
+    
     <div
       className="min-h-screen font-sans antialiased transition-colors duration-300"
       style={{ backgroundColor: colors.bg, color: colors.text }}
     >
-      <div
-        className="cursor-glow"
-        style={{
-          left: pos.x,
-          top: pos.y,
-        }}
-      />
+
+          <div
+      className="cursor-glow"
+      style={{
+        left: pos.x,
+        top: pos.y,
+      }}
+    />
       {/* --- HEADER --- */}
       <nav
         className="fixed top-0 w-full z-50 p-5 backdrop-blur-xl border-b"
@@ -193,7 +195,7 @@ export default function DongleIQLanding() {
             </p>
             <button
               onClick={() => router.push("/signup")}
-              className="hover-btn px-8 py-4 rounded-2xl text-sm font-bold uppercase text-white flex items-center gap-3 shadow-xl"
+            className="hover-btn px-8 py-4 rounded-2xl text-sm font-bold uppercase text-white flex items-center gap-3 shadow-xl"
               style={{
                 backgroundColor: colors.accent,
                 boxShadow: `0 20px 25px -5px ${colors.accent}4D`,
@@ -434,7 +436,7 @@ export default function DongleIQLanding() {
             ].map((card, idx) => (
               <div
                 key={idx}
-                className="hover-card p-8 rounded-[35px] border group transition-all"
+               className="hover-card p-8 rounded-[35px] border group transition-all"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -533,7 +535,7 @@ export default function DongleIQLanding() {
             {/* Sidebar Links (Similar to CoderLala sidebar) */}
             <div className="space-y-8">
               <div
-                className="hover-card p-10 rounded-[20px] border relative group transition-all"
+             className="hover-card p-10 rounded-[20px] border relative group transition-all"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -601,6 +603,7 @@ export default function DongleIQLanding() {
         </div>
       </section>
     </div>
+    
   );
 }
 
@@ -610,7 +613,7 @@ export default function DongleIQLanding() {
 function FeatureCard({ icon, title, desc, colors }: any) {
   return (
     <div
-      className="hover-card p-8 rounded-[20px] border transition-all group relative overflow-hidden shadow-xl"
+  className="hover-card p-8 rounded-[20px] border transition-all group relative overflow-hidden shadow-xl"
       style={{
         backgroundColor: colors.card,
         borderColor: "rgba(255,255,255,0.05)",
@@ -674,8 +677,8 @@ function StepItem({ number, icon, title, desc, colors }: any) {
 
 function AgentCard({ icon, label, colors }: any) {
   return (
-    <div
-      className="hover-card p-8 rounded-[28px] border transition-all group flex flex-col items-center shadow-lg"
+   <div
+  className="hover-card p-8 rounded-[28px] border transition-all group flex flex-col items-center shadow-lg"
       style={{
         backgroundColor: colors.card,
         borderColor: "rgba(255,255,255,0.05)",

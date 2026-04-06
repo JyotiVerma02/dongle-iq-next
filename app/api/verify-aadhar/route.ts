@@ -37,10 +37,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Invalid mobile number" }, { status: 400 });
     }
 
-    // ✅ Rate limit
-    if (!checkRateLimit(mobile)) {
-      return NextResponse.json({ success: false, message: "Too many attempts. Try later." }, { status: 429 });
-    }
+    // // ✅ Rate limit
+    // if (!checkRateLimit(mobile)) {
+    //   return NextResponse.json({ success: false, message: "Too many attempts. Try later." }, { status: 429 });
+    // }
 
     // =========================
     // 🔹 SEND OTP
