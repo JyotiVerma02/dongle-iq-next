@@ -133,7 +133,7 @@ export default function DSCRegistrationForm() {
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-6 selection:bg-purple-500/30 selection:text-purple-200">
+    <div className="relative min-h-screen flex items-center justify-center p-6 selection:bg-purple-500/30 selection:text-purple-200 pt-34">
       <ParticleBackground />
       
       <form onSubmit={handleSubmit} className="relative z-10 w-full max-w-6xl flex flex-col gap-8">

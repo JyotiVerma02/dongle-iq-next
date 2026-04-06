@@ -19,15 +19,14 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Configuration based on your specific hex codes
   const colors = {
-    bg: "#0F0F0F",
-    card: "#1A1A1A",
+    bg: "#050505",
+    card: "rgba(20, 20, 20, 0.4)", // Ultra-translucent for glassmorphism
     accent: "#7C3AED",
     accentLight: "#A78BFA",
     text: "#F9FAFB",
     muted: "#9CA3AF",
-    border: "rgba(255,255,255,0.05)"
+    border: "rgba(124, 58, 237, 0.2)" // Purple-tinted border
   };
 
   const navLinks = ["Apply", "Why Us", "Agents", "FAQs" , "Contact"];
@@ -35,12 +34,10 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-
     if (!email || !password) {
       setError("Credentials required to initialize session.");
       return;
     }
-
     try {
       setLoading(true);
       const res = await fetch("/api/login", {
@@ -48,14 +45,12 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
       const data = await res.json();
       if (!res.ok) {
         setError(data.message || "Authentication failed");
         setLoading(false);
         return;
       }
-
       data.role === "admin" ? router.push("/admin/dashboard") : router.push("/user/dashboard");
     } catch (err) {
       setError("System handshake error occurred");
@@ -65,166 +60,140 @@ export default function Login() {
 
   return (
     <div 
-      className="min-h-screen font-sans antialiased tracking-tight relative overflow-hidden transition-colors duration-300"
-      style={{ backgroundColor: colors.bg, color: colors.text }}
+      className="min-h-screen font-sans antialiased tracking-tight relative overflow-hidden bg-transparent"
+style={{ color: colors.text }}
     >
+     
+
       
-      {/* --- NAVBAR --- */}
-      <nav 
-        className="fixed top-0 w-full z-50 p-5 backdrop-blur-xl border-b"
-        style={{ backgroundColor: `${colors.bg}CC`, borderColor: colors.border }}
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div 
-              className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg"
-              style={{ backgroundColor: colors.accent, boxShadow: `0 10px 15px -3px ${colors.accent}33` }}
-            >
-              <Cpu size={18} className="text-white" />
-            </div>
-            <span className="font-bold text-lg uppercase tracking-tighter">
-              Dongle<span style={{ color: colors.accentLight }}>IQ</span>
-            </span>
-          </Link>
-
-          <div className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-widest">
-            {navLinks.map((link) => (
-              <Link 
-                key={link} 
-                href={`/#${link.toLowerCase()}`} 
-                className="hover:text-white transition-colors"
-                style={{ color: colors.muted }}
-              >
-                {link}
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => router.push("/signup")}
-              className="px-5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-widest text-white shadow-lg flex items-center gap-2 hover:scale-105 transition-transform"
-              style={{ backgroundColor: colors.accent, boxShadow: `0 10px 15px -3px ${colors.accent}33` }}
-            >
-              <UserPlus size={14} /> Register
-            </button>
-          </div>
-        </div>
-      </nav>
 
       {/* --- PAGE CONTENT --- */}
-      <div className="flex pt-20 min-h-screen">
+      <div className="relative z-10 flex pt-20 min-h-screen">
         
-        {/* LEFT PANEL - MARKETING */}
-        <div 
-          className="hidden lg:flex w-[55%] relative overflow-hidden border-r"
-          style={{ borderColor: colors.border }}
-        >
-          <div 
-            className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none opacity-10"
-            style={{ backgroundColor: colors.accent }}
-          />
-          
-          <div className="relative z-10 p-20 flex flex-col justify-center h-full">
-            <h1 className="text-6xl xl:text-8xl font-black mb-8 leading-[0.9] tracking-tighter uppercase">
+        {/* LEFT PANEL */}
+        <div className="hidden lg:flex w-[55%] flex-col justify-center px-24 border-r border-white/5">
+          <div className="animate-[fadeInLeft_0.8s_ease-out]">
+            <h1 className="text-7xl xl:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase italic">
               Secure <br /> 
-              <span style={{ color: colors.accent }}>Access</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-purple-300 to-white animate-gradient">Access</span>
             </h1>
-            <p className="text-lg max-w-lg leading-relaxed font-medium mb-10" style={{ color: colors.muted }}>
+            <p className="text-lg max-w-lg leading-relaxed font-medium mb-12 opacity-70" style={{ color: colors.muted }}>
               Enter your credentials to manage your Digital Signature Certificates and IRCTC Agent registrations in our unified dashboard.
             </p>
-            <div className="flex items-center gap-4 opacity-60">
-               <ShieldCheck size={24} style={{ color: colors.accent }} />
+            <div className="flex items-center gap-4 px-6 py-3 rounded-2xl bg-white/5 border border-white/5 w-fit group hover:border-purple-500/30 transition-all">
+               <ShieldCheck size={24} className="text-purple-500 animate-pulse" />
                <span className="text-[10px] font-black uppercase tracking-[0.4em]">Military-Grade Encryption Active</span>
             </div>
           </div>
         </div>
 
-        {/* RIGHT PANEL - LOGIN FORM */}
-        <div className="flex-1 flex items-center justify-center p-8 relative">
-          <div className={`${colors.card} p-10 rounded-[20px] shadow-2xl w-full max-w-md border relative overflow-hidden`}
-               style={{ backgroundColor: colors.card, borderColor: colors.border }}>
+        {/* RIGHT PANEL - PURPLE GLASSMORPHISM */}
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="relative group animate-[fadeIn_1.2s_ease-out]">
+            {/* Animated Glow Border */}
+            <div className="absolute -inset-[1.5px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-[32px] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
             
-            {/* Top Accent Line */}
-            <div className="absolute top-0 left-0 w-full h-1.5 opacity-50" 
-                 style={{ background: `linear-gradient(to right, transparent, ${colors.accent}, transparent)` }} />
+            <div 
+              className="relative p-12 rounded-[30px] backdrop-blur-2xl w-full max-w-md border shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+              style={{ backgroundColor: colors.card, borderColor: colors.border }}
+            >
+              {/* Dynamic Inner Light */}
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
 
-            <div className="mb-10 text-center lg:text-left">
-              <h2 className="text-3xl font-black uppercase tracking-tighter">Welcome Back</h2>
-              <p className="text-[10px] uppercase tracking-[0.3em] font-black mt-2" style={{ color: colors.muted }}>Session Initialization</p>
-            </div>
-
-            {registered && (
-              <div className="mb-8 py-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[11px] font-black uppercase tracking-widest text-center rounded-2xl">
-                Registration Successful. Proceed to Login.
-              </div>
-            )}
-
-            {error && (
-              <div className="mb-8 py-3 bg-red-500/10 border border-red-500/20 text-red-500 text-[11px] font-black uppercase tracking-widest text-center rounded-2xl">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="block font-black text-[10px] uppercase tracking-[0.2em] ml-1" style={{ color: colors.muted }}>
-                  Email/Mobile
-                </label>
-                <input
-                  type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="agent@dongleiq.com"
-                  className="w-full p-4 rounded-2xl border focus:outline-none transition-all text-sm font-medium"
-                  style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}
-                />
+              <div className="mb-10 text-center lg:text-left">
+                <h2 className="text-4xl font-black italic uppercase tracking-tighter">Welcome Back</h2>
+                <p className="text-[10px] uppercase tracking-[0.5em] font-black mt-3 opacity-50">Identity Verification</p>
               </div>
 
-              <div className="space-y-2">
-                <label className="block font-black text-[10px] uppercase tracking-[0.2em] ml-1" style={{ color: colors.muted }}>
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full p-4 rounded-2xl border focus:outline-none transition-all text-sm font-medium"
-                    style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}
-                  />
-                  <button 
-                    type="button" 
-                    className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
-                    style={{ color: colors.muted }}
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
+              {error && (
+                <div className="mb-8 py-3 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest text-center rounded-xl animate-bounce">
+                  {error}
                 </div>
-              </div>
+              )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 rounded-2xl font-black uppercase text-[12px] tracking-widest text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                style={{ backgroundColor: colors.accent, boxShadow: `0 20px 25px -5px ${colors.accent}33` }}
-              >
-                {loading ? "Authenticating..." : "Login "} <LogIn size={18} />
-              </button>
+              <form onSubmit={handleSubmit} className="space-y-7">
+                <div className="space-y-2 group/input">
+                  <label className="block font-black text-[10px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 transition-colors">
+                    Email/Mobile
+                  </label>
+                  <input
+                    type="text"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="agent@dongleiq.com"
+                    className="w-full p-5 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all duration-300 text-sm font-medium focus:ring-4 focus:ring-purple-500/10"
+                    style={{ color: colors.text }}
+                  />
+                </div>
 
-              <div className="flex flex-col items-center gap-6 pt-6">
-                <Link href="/forgot-password">
-                  <span className="text-[11px] font-black uppercase tracking-widest hover:text-white cursor-pointer transition-colors underline underline-offset-4"
-                        style={{ color: colors.muted }}>Forgot Password?</span>
-                </Link>
-                <div className="h-px w-full opacity-50" style={{ backgroundColor: colors.border }} />
-              </div>
-            </form>
+                <div className="space-y-2 group/input">
+                  <label className="block font-black text-[10px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 transition-colors">
+                    Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full p-5 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all duration-300 text-sm font-medium focus:ring-4 focus:ring-purple-500/10"
+                      style={{ color: colors.text }}
+                    />
+                    <button 
+                      type="button" 
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-400 transition-colors"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-5 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] text-white shadow-2xl hover:brightness-125 active:scale-[0.98] transition-all duration-500 flex items-center justify-center gap-3 disabled:opacity-50"
+                  style={{ backgroundColor: colors.accent, boxShadow: `0 15px 35px -10px ${colors.accent}aa` }}
+                >
+                  {loading ? "Decrypting..." : "Login "} <LogIn size={18} />
+                </button>
+
+                <div className="text-center pt-6">
+                  <Link href="/forgot-password">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-purple-400 cursor-pointer transition-all underline underline-offset-8 decoration-purple-500/30">
+                     Forgot Password?
+                    </span>
+                  </Link>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes slideDown {
+          from { transform: translateY(-100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeInLeft {
+          from { transform: translateX(-50px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient {
+          background-size: 200% auto;
+          animation: gradient 4s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }

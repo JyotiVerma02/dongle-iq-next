@@ -126,21 +126,10 @@ export default function DongleIQForm() {
   };
 
   return (
-    <div className="min-h-screen text-slate-200 selection:bg-purple-500/30 pb-10">
+    <div className="min-h-screen text-slate-200 selection:bg-purple-500/30 pb-10 pt-28">
       <ParticleBackground />
       
-      {/* Header - Styled to match your navigation */}
-      <div className="bg-black/40 backdrop-blur-md border-b border-purple-500/20 px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div className="flex items-center gap-3">
-          <div className="bg-purple-600 text-white w-9 h-9 rounded-xl flex items-center justify-center font-black text-xl shadow-[0_0_15px_rgba(168,85,247,0.4)]">D</div>
-          <span className="font-black text-lg tracking-tighter uppercase text-white">Dongle-IQ</span>
-        </div>
-        <div className="text-center hidden md:block">
-          <div className="text-[10px] font-black text-purple-400 uppercase tracking-[0.2em]">DSC PAN BASED</div>
-          <div className="text-sm font-bold text-white">Session: <span className="tabular-nums text-purple-400">{timeLeft}s</span></div>
-        </div>
-        <button type="button" onClick={() => router.push("/")} className="hover:bg-red-500/20 text-white/50 hover:text-red-400 w-8 h-8 rounded-full flex items-center justify-center transition-all border border-white/10">✕</button>
-      </div>
+      
 
       <div className="max-w-6xl mx-auto p-4 lg:p-8">
         <form onSubmit={handleSubmit} className="bg-black/40 backdrop-blur-2xl rounded-[2.5rem] overflow-hidden border border-purple-500/30 shadow-[0_0_50px_rgba(0,0,0,0.5)]">

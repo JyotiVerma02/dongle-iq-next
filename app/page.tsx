@@ -38,7 +38,7 @@ export default function DongleIQLanding() {
 
   // Configuration based on your specific hex codes
   const colors = {
-    bg: "#0F0F0F",
+    bg: "transparent",
     card: "#1A1A1A",
     accent: "#7C3AED",
     accentLight: "#A78BFA",
@@ -83,90 +83,29 @@ export default function DongleIQLanding() {
   ];
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
-React.useEffect(() => {
-  const handleMove = (e) => {
-    setPos({ x: e.clientX, y: e.clientY });
-  };
+  React.useEffect(() => {
+    const handleMove = (e) => {
+      setPos({ x: e.clientX, y: e.clientY });
+    };
 
-  window.addEventListener("mousemove", handleMove);
-  return () => window.removeEventListener("mousemove", handleMove);
-}, []);
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
+  
 
   return (
-    
     <div
-      className="min-h-screen font-sans antialiased transition-colors duration-300"
-      style={{ backgroundColor: colors.bg, color: colors.text }}
+     
+    className="min-h-screen font-sans antialiased  text-white"
     >
-
-          <div
-      className="cursor-glow"
-      style={{
-        left: pos.x,
-        top: pos.y,
-      }}
-    />
-      {/* --- HEADER --- */}
-      <nav
-        className="fixed top-0 w-full z-50 p-5 backdrop-blur-xl border-b"
+      <div
+        className="cursor-glow"
         style={{
-          backgroundColor: `${colors.bg}CC`,
-          borderColor: "rgba(255,255,255,0.05)",
+          left: pos.x,
+          top: pos.y,
         }}
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div
-            className="flex items-center gap-2 cursor-pointer"
-            onClick={() => router.push("/")}
-          >
-            <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg"
-              style={{ backgroundColor: colors.accent }}
-            >
-              <Cpu size={18} className="text-white" />
-            </div>
-            <span className="font-bold text-lg uppercase tracking-tighter">
-              Dongle<span style={{ color: colors.accentLight }}>IQ</span>
-            </span>
-          </div>
-
-          <div
-            className="hidden md:flex items-center gap-8 text-[11px] font-bold uppercase tracking-widest"
-            style={{ color: colors.muted }}
-          >
-            {["Apply", "Why Us", "Agents", "FAQs", "Contact"].map((link) => (
-              <a
-                key={link}
-                href={`#${link.toLowerCase().replace(" ", "")}`}
-                className="hover:text-white transition-colors"
-                style={{ color: colors.muted }}
-              >
-                {link}
-              </a>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push("/login")}
-              className="hidden sm:flex text-xs font-bold uppercase gap-2 items-center transition-colors"
-              style={{ color: colors.text }}
-            >
-              <LogIn size={14} /> Login
-            </button>
-            <button
-              onClick={() => router.push("/signup")}
-              className="px-6 py-2.5 rounded-xl text-xs font-bold uppercase text-white shadow-lg hover:scale-105 transition-all"
-              style={{
-                backgroundColor: colors.accent,
-                boxShadow: `0 10px 15px -3px ${colors.accent}33`,
-              }}
-            >
-              Register
-            </button>
-          </div>
-        </div>
-      </nav>
+      />
+      
 
       {/* --- HERO --- */}
       <section className="pt-48 pb-24 px-6">
@@ -195,7 +134,7 @@ React.useEffect(() => {
             </p>
             <button
               onClick={() => router.push("/signup")}
-            className="hover-btn px-8 py-4 rounded-2xl text-sm font-bold uppercase text-white flex items-center gap-3 shadow-xl"
+              className="hover-btn px-8 py-4 rounded-2xl text-sm font-bold uppercase text-white flex items-center gap-3 shadow-xl"
               style={{
                 backgroundColor: colors.accent,
                 boxShadow: `0 20px 25px -5px ${colors.accent}4D`,
@@ -436,7 +375,7 @@ React.useEffect(() => {
             ].map((card, idx) => (
               <div
                 key={idx}
-               className="hover-card p-8 rounded-[35px] border group transition-all"
+                className="hover-card p-8 rounded-[20px] border group transition-all"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -495,7 +434,7 @@ React.useEffect(() => {
                   </label>
                   <input
                     placeholder="Enter your name"
-                    className="w-full bg-[#0F0F0F] border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
+                    className="w-full bg-transparent border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
                   />
                 </div>
                 <div className="space-y-3">
@@ -507,7 +446,7 @@ React.useEffect(() => {
                   </label>
                   <input
                     placeholder="john@company.com"
-                    className="w-full bg-[#0F0F0F] border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
+                    className="w-full bg-transparent border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
                   />
                 </div>
                 <div className="md:col-span-2 space-y-3">
@@ -520,7 +459,7 @@ React.useEffect(() => {
                   <textarea
                     placeholder="Tell us how you plan to use the Dongle IQ portal for your agency..."
                     rows={5}
-                    className="w-full bg-[#0F0F0F] border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm resize-none"
+                    className="w-full bg-transparent border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm resize-none"
                   />
                 </div>
                 <button
@@ -535,7 +474,7 @@ React.useEffect(() => {
             {/* Sidebar Links (Similar to CoderLala sidebar) */}
             <div className="space-y-8">
               <div
-             className="hover-card p-10 rounded-[20px] border relative group transition-all"
+                className="hover-card p-10 rounded-[20px] border relative group transition-all"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -603,7 +542,6 @@ React.useEffect(() => {
         </div>
       </section>
     </div>
-    
   );
 }
 
@@ -613,7 +551,7 @@ React.useEffect(() => {
 function FeatureCard({ icon, title, desc, colors }: any) {
   return (
     <div
-  className="hover-card p-8 rounded-[20px] border transition-all group relative overflow-hidden shadow-xl"
+      className="hover-card p-8 rounded-[20px] border transition-all group relative overflow-hidden shadow-xl"
       style={{
         backgroundColor: colors.card,
         borderColor: "rgba(255,255,255,0.05)",
@@ -677,8 +615,8 @@ function StepItem({ number, icon, title, desc, colors }: any) {
 
 function AgentCard({ icon, label, colors }: any) {
   return (
-   <div
-  className="hover-card p-8 rounded-[28px] border transition-all group flex flex-col items-center shadow-lg"
+    <div
+      className="hover-card p-8 rounded-[28px] border transition-all group flex flex-col items-center shadow-lg"
       style={{
         backgroundColor: colors.card,
         borderColor: "rgba(255,255,255,0.05)",

@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { 
-  Cpu, ShieldCheck, Mail, ArrowLeft 
+  Cpu, ShieldCheck, Mail, ArrowLeft, Send
 } from "lucide-react";
 
 export default function ForgotPassword() {
@@ -12,179 +12,174 @@ export default function ForgotPassword() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Configuration based on your specific hex codes
+  // Updated to match Login page aesthetics
   const colors = {
-    bg: "#0F0F0F",
-    card: "#1A1A1A",
+    bg: "transparent", // Set to transparent for Particles
+    card: "rgba(20, 20, 20, 0.4)", 
     accent: "#7C3AED",
     accentLight: "#A78BFA",
     text: "#F9FAFB",
     muted: "#9CA3AF",
-    border: "rgba(255,255,255,0.05)"
+    border: "rgba(124, 58, 237, 0.2)"
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage("");
-
     if (!email) {
       setMessage("Please enter your email");
       return;
     }
-
     setLoading(true);
-
     try {
       const res = await fetch("/api/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-
       const data = await res.json();
       setMessage(data.message);
     } catch (err) {
-      setMessage("Something went wrong. Please try again.");
+      setMessage("System handshake error occurred");
     }
-
     setLoading(false);
   };
 
   return (
-    <div 
-      className="min-h-screen font-sans relative overflow-hidden transition-colors duration-300"
-      style={{ backgroundColor: colors.bg, color: colors.text }}
-    >
+    <div className="min-h-screen font-sans antialiased tracking-tight relative overflow-hidden bg-transparent">
       
-      {/* --- NAVBAR --- */}
+      {/* --- NAVBAR (Consistent with Login) --- */}
       <nav 
-        className="fixed top-0 w-full z-50 p-6 backdrop-blur-md border-b"
-        style={{ backgroundColor: `${colors.bg}CC`, borderColor: colors.border }}
+        className="fixed top-0 w-full z-50 p-5 backdrop-blur-xl border-b animate-[slideDown_0.6s_ease-out]"
+        style={{ backgroundColor: `rgba(5, 5, 5, 0.7)`, borderColor: colors.border }}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-2 group">
             <div 
-              className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg"
-              style={{ backgroundColor: colors.accent, boxShadow: `0 10px 15px -3px ${colors.accent}33` }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:rotate-[360deg]"
+              style={{ backgroundColor: colors.accent, boxShadow: `0 0 20px ${colors.accent}44` }}
             >
-              <Cpu size={18} className="text-white fill-white" />
+              <Cpu size={20} className="text-white" />
             </div>
-            <span className="font-bold text-xl tracking-tight uppercase">
+            <span className="font-black text-xl italic uppercase tracking-tighter text-white">
               Dongle<span style={{ color: colors.accentLight }}>IQ</span>
             </span>
           </Link>
-
-          <div className="flex items-center gap-4">
-            <Link 
-              href="/login"
-              className="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-tighter border transition-all flex items-center gap-2 hover:bg-white/5"
-              style={{ borderColor: colors.border, color: colors.text }}
-            >
-              <ArrowLeft size={14} />
-              <span className="hidden sm:inline">Back to Login</span>
-            </Link>
-          </div>
+          <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 hover:text-white transition-colors">
+             Back to Login
+          </Link>
         </div>
       </nav>
 
       {/* --- PAGE CONTENT --- */}
-      <div className="flex pt-24 min-h-screen">
+      <div className="relative z-10 flex pt-20 min-h-screen">
         
-        {/* LEFT PANEL */}
-        <div 
-          className="hidden md:flex w-3/5 relative overflow-hidden border-r"
-          style={{ borderColor: colors.border }}
-        >
-          <div 
-            className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none opacity-10"
-            style={{ backgroundColor: colors.accent }}
-          />
-          
-          <div className="relative z-10 p-16 flex flex-col justify-center h-full">
-            <h1 className="text-5xl md:text-7xl font-black mb-6 leading-[0.85] tracking-tighter uppercase">
+        {/* LEFT PANEL (Apply Login page text style) */}
+        <div className="hidden lg:flex w-[55%] flex-col justify-center px-24 border-r border-white/5">
+          <div className="animate-[fadeInLeft_0.8s_ease-out]">
+            <h1 className="text-7xl xl:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase italic text-white">
               Account <br /> 
-              <span style={{ color: colors.accent }}>Recovery</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-purple-300 to-white animate-gradient">Recovery</span>
             </h1>
-            <p className="text-lg max-w-xl leading-relaxed font-medium mb-8" style={{ color: colors.muted }}>
-              Reset your password securely and continue managing your dongle
-              applications through the Dongle IQ portal.
+            <p className="text-lg max-w-lg leading-relaxed font-medium mb-12 opacity-70" style={{ color: colors.muted }}>
+              Reset your password securely and continue managing your digital signature 
+              applications through the Dongle IQ encrypted portal.
             </p>
-            <div className="flex items-center gap-3 opacity-40">
-               <ShieldCheck size={20} style={{ color: colors.accent }} />
-               <span className="text-xs font-black uppercase tracking-[0.3em]">Secure Recovery Protocol</span>
+            <div className="flex items-center gap-4 px-6 py-3 rounded-2xl bg-white/5 border border-white/5 w-fit group hover:border-purple-500/30 transition-all">
+               <ShieldCheck size={24} className="text-purple-500 animate-pulse" />
+               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Secure Recovery Protocol Active</span>
             </div>
           </div>
         </div>
 
-        {/* RIGHT PANEL - FORM CARD */}
-        <div className="flex-1 flex items-center justify-center p-6 relative">
-          <div 
-            className="absolute bottom-0 right-0 w-64 h-64 rounded-full blur-[80px] opacity-5"
-            style={{ backgroundColor: colors.accent }}
-          />
-
-          <div 
-            className="p-8 rounded-[20px] shadow-2xl w-full max-w-md border relative overflow-hidden"
-            style={{ backgroundColor: colors.card, borderColor: colors.border }}
-          >
-            {/* Top Accent Line */}
+        {/* RIGHT PANEL - FORM CARD (Glassmorphism) */}
+        <div className="flex-1 flex items-center justify-center p-8">
+          <div className="relative group animate-[fadeIn_1.2s_ease-out] w-full max-w-md">
+            {/* Animated Glow Border */}
+            <div className="absolute -inset-[1.5px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-[32px] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+            
             <div 
-              className="absolute top-0 left-0 w-full h-1 opacity-30" 
-              style={{ background: `linear-gradient(to right, transparent, ${colors.accent}, transparent)` }}
-            />
+              className="relative p-12 rounded-[30px] backdrop-blur-2xl w-full border shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+              style={{ backgroundColor: colors.card, borderColor: colors.border }}
+            >
+              {/* Dynamic Inner Light */}
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
 
-            <h2 className="text-3xl font-black mb-1 uppercase tracking-tighter">Forgot Password</h2>
-            <p className="text-[10px] mb-8 uppercase tracking-widest font-bold" style={{ color: colors.muted }}>
-              Enter registered email to reset
-            </p>
-
-            {message && (
-              <div className={`mb-6 py-3 border text-[10px] font-black uppercase tracking-widest text-center rounded-xl ${
-                message.toLowerCase().includes("sent") || message.toLowerCase().includes("successful")
-                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                : "bg-red-500/10 border-red-500/20 text-red-400"
-              }`}>
-                {message}
+              <div className="mb-10 text-center lg:text-left">
+                <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white">Forgot Access?</h2>
+                <p className="text-[10px] uppercase tracking-[0.5em] font-black mt-3 opacity-50 text-white">Verification Required</p>
               </div>
-            )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="block font-black text-[9px] uppercase tracking-[0.2em] ml-1" style={{ color: colors.muted }}>
-                  Email Address
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="agent@dongleiq.com"
-                    className="w-full p-4 pl-12 rounded-xl border focus:outline-none transition-all text-sm font-medium"
-                    style={{ backgroundColor: colors.bg, borderColor: colors.border, color: colors.text }}
-                  />
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2" size={18} style={{ color: colors.muted }} />
+              {message && (
+                <div className={`mb-8 py-3 border text-[10px] font-black uppercase tracking-widest text-center rounded-xl animate-pulse ${
+                  message.toLowerCase().includes("sent") || message.toLowerCase().includes("successful")
+                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                  : "bg-red-500/10 border-red-500/20 text-red-500"
+                }`}>
+                  {message}
                 </div>
-              </div>
+              )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-4 rounded-xl font-black uppercase text-[11px] tracking-[0.2em] text-white shadow-lg hover:scale-[1.02] transition-transform flex items-center justify-center gap-2 disabled:opacity-50"
-                style={{ backgroundColor: colors.accent, boxShadow: `0 15px 20px -5px ${colors.accent}33` }}
-              >
-                {loading ? "Sending..." : "Send Reset Link"}
-              </button>
+              <form onSubmit={handleSubmit} className="space-y-7">
+                <div className="space-y-2 group/input">
+                  <label className="block font-black text-[10px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 transition-colors text-white">
+                    Registered Email
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="agent@dongleiq.com"
+                      className="w-full p-5 pl-14 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all duration-300 text-sm font-medium focus:ring-4 focus:ring-purple-500/10 text-white"
+                    />
+                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
+                  </div>
+                </div>
 
-              <div className="flex flex-col items-center gap-4 pt-2">
-                <div className="h-px w-full opacity-50" style={{ backgroundColor: colors.border }} />
-                <Link href="/login" className="text-[10px] font-bold uppercase tracking-widest hover:text-white transition-colors" style={{ color: colors.muted }}>
-                  Back to Sign In
-                </Link>
-              </div>
-            </form>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-5 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] text-white shadow-2xl hover:brightness-125 active:scale-[0.98] transition-all duration-500 flex items-center justify-center gap-3 disabled:opacity-50"
+                  style={{ backgroundColor: colors.accent, boxShadow: `0 15px 35px -10px ${colors.accent}aa` }}
+                >
+                  {loading ? "Transmitting..." : "Send Reset Link"} <Send size={18} />
+                </button>
+
+                <div className="text-center pt-6">
+                  <Link href="/login">
+                   
+                  </Link>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes slideDown {
+          from { transform: translateY(-100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeInLeft {
+          from { transform: translateX(-50px); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient {
+          background-size: 200% auto;
+          animation: gradient 4s linear infinite;
+        }
+      `}</style>
     </div>
   );
 }
