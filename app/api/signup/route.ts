@@ -5,9 +5,7 @@ import { connectDB } from "@/app/lib/mongodb";
 import { transporter } from "@/app/lib/mailer";
 
 export async function POST(req: NextRequest) {
-
   try {
-
     await connectDB();
 
     const { name, email, number, password } = await req.json();
@@ -15,16 +13,25 @@ export async function POST(req: NextRequest) {
     if (!name || !email || !number || !password) {
       return NextResponse.json(
         { message: "All fields required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({
+      $or: [{ email }, { number }],
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { message: "User already exists with this email or number" },
+        { status: 400 },
+      );
+    }
 
     if (existingUser) {
       return NextResponse.json(
         { message: "Email already registered" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -41,7 +48,7 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       otp,
       otpExpiry,
-      isVerified: false
+      isVerified: false,
     });
 
     await user.save();
@@ -55,20 +62,15 @@ export async function POST(req: NextRequest) {
       <p>Your OTP is:</p>
       <h1>${otp}</h1>
       <p>This OTP expires in 10 minutes.</p>
-      `
+      `,
     });
 
     return NextResponse.json({
-      message: "OTP sent to your email"
+      message: "OTP sent to your email",
     });
-
   } catch (error) {
-
     console.log(error);
 
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }

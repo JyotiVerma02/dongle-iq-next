@@ -33,14 +33,14 @@ export async function POST(req: Request) {
       );
     }
 
-    if (user.aadhaarOtp !== enteredOtp) {
+  if (user.otp !== enteredOtp) {
       return NextResponse.json(
         { success: false, message: "Incorrect OTP" },
         { status: 401 }
       );
     }
 
-    if (!user.aadhaarOtpExpiry || user.aadhaarOtpExpiry < new Date()) {
+   if (!user.otpExpiry || user.otpExpiry < new Date()) {
       return NextResponse.json(
         { success: false, message: "OTP expired" },
         { status: 401 }
@@ -49,8 +49,8 @@ export async function POST(req: Request) {
 
     user.isVerified = true;
     user.status = "approved";
-    user.aadhaarOtp = undefined;
-    user.aadhaarOtpExpiry = undefined;
+    user.otp = undefined;
+user.otpExpiry = undefined;
 
     await user.save();
 

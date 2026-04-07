@@ -47,7 +47,7 @@ const UserSchema: Schema = new Schema(
     name: { type: String },
     email: { type: String, unique: true, sparse: true },
     password: { type: String },
-    number: { type: String, unique: true, sparse: true },
+    number: { type: String, unique: false, sparse: false },
 
     role: { type: String, default: "user" },
     isVerified: { type: Boolean, default: false },

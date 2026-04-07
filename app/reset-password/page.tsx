@@ -115,85 +115,95 @@ export default function ResetPassword() {
         </div>
 
         {/* RIGHT PANEL - RESET CARD */}
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="relative group animate-[fadeIn_1.2s_ease-out] w-full max-w-md">
-            {/* Animated Glow Border */}
-            <div className="absolute -inset-[1.5px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-[32px] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
-            
-            <div 
-              className="relative p-12 rounded-[30px] backdrop-blur-2xl w-full border shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
-              style={{ backgroundColor: colors.card, borderColor: colors.border }}
-            >
-              {/* Dynamic Inner Light */}
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
+       <div className="flex-1 flex items-center justify-center p-6">
+  <div className="relative group animate-[fadeIn_1.2s_ease-out] w-full max-w-sm">
+    
+    {/* Glow Border */}
+    <div className="absolute -inset-[1px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-xl opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
 
-              <div className="mb-10 text-center lg:text-left">
-                <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white">New Access</h2>
-                <p className="text-[10px] uppercase tracking-[0.5em] font-black mt-3 opacity-50 text-white">Protocol Recovery Phase</p>
-              </div>
+    {/* CARD */}
+    <div
+      className="relative p-6 rounded-xl backdrop-blur-2xl w-full shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+      style={{ backgroundColor: colors.card, borderColor: colors.border }}
+    >
+      {/* Top Glow Line */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
 
-              {message && (
-                <div className={`mb-8 py-3 border text-[10px] font-black uppercase tracking-widest text-center rounded-xl flex items-center justify-center gap-2 ${
-                  message.toLowerCase().includes("success") 
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
-                  : "bg-red-500/10 border-red-500/20 text-red-500"
-                }`}>
-                  {message.toLowerCase().includes("success") && <CheckCircle2 size={14} />}
-                  {message}
-                </div>
-              )}
+      {/* Heading */}
+      <div className="mb-6 text-center">
+        <h2 className="text-2xl font-black italic uppercase tracking-tighter text-white">
+          New Access
+        </h2>
+        <p className="text-[9px] uppercase tracking-[0.4em] font-black mt-2 opacity-50 text-white">
+          Protocol Recovery
+        </p>
+      </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2 group/input">
-                  <label className="block font-black text-[10px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 transition-colors text-white">
-                    New Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showPass ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full p-5 pl-14 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all duration-300 text-sm font-medium focus:ring-4 focus:ring-purple-500/10 text-white"
-                    />
-                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                    <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-400 transition-colors">
-                      {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-2 group/input">
-                  <label className="block font-black text-[10px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 transition-colors text-white">
-                    Confirm Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      type={showConfirm ? "text" : "password"}
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full p-5 pl-14 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all duration-300 text-sm font-medium focus:ring-4 focus:ring-purple-500/10 text-white"
-                    />
-                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
-                    <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-400 transition-colors">
-                      {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-5 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] text-white shadow-2xl hover:brightness-125 active:scale-[0.98] transition-all duration-500 flex items-center justify-center gap-3 disabled:opacity-50"
-                  style={{ backgroundColor: colors.accent, boxShadow: `0 15px 35px -10px ${colors.accent}aa` }}
-                >
-                  {loading ? "Re-Encrypting..." : "Reset Password"} <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-                </button>
-              </form>
-            </div>
-          </div>
+      {/* Message */}
+      {message && (
+        <div className={`mb-4 py-2 text-[10px] text-center rounded-lg ${
+          message.toLowerCase().includes("success")
+            ? "bg-emerald-500/10 text-emerald-400"
+            : "bg-red-500/10 text-red-400"
+        }`}>
+          {message}
         </div>
+      )}
+
+      {/* FORM */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+
+        {/* Password */}
+        <div className="relative">
+          <input
+            type={showPass ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="New Password"
+            className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPass(!showPass)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+          >
+            {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+
+        {/* Confirm Password */}
+        <div className="relative">
+          <input
+            type={showConfirm ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="Confirm Password"
+            className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirm(!showConfirm)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+          >
+            {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+          </button>
+        </div>
+
+        {/* BUTTON */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-2.5 rounded-lg text-[11px] font-black uppercase tracking-[0.3em] text-white transition-all"
+          style={{
+            backgroundColor: colors.accent,
+          }}
+        >
+          {loading ? "Processing..." : "Reset Password"}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
       </div>
 
       <style jsx global>{`

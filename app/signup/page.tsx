@@ -51,7 +51,7 @@ export default function Register() {
 
     try {
       setLoading(true);
-      const res = await fetch("/api/register", {
+      const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -116,7 +116,7 @@ export default function Register() {
             <p className="text-lg max-w-lg leading-relaxed font-medium mb-12 opacity-70" style={{ color: colors.muted }}>
               Initialize your professional profile to manage Digital Signature Certificates and IRCTC assets through our encrypted cloud infrastructure.
             </p>
-            <div className="flex items-center gap-4 px-6 py-3 rounded-2xl bg-white/5 border border-white/5 w-fit group hover:border-purple-500/30 transition-all">
+            <div className="flex items-center gap-4 px-6 py-3 rounded-lg bg-white/5 border border-white/5 w-fit group hover:border-purple-500/30 transition-all">
                <ShieldCheck size={24} className="text-purple-500 animate-pulse" />
                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Identity Verification Protocol Active</span>
             </div>
@@ -124,110 +124,129 @@ export default function Register() {
         </div>
 
         {/* RIGHT PANEL - REGISTRATION FORM */}
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="relative group animate-[fadeIn_1.2s_ease-out] w-full max-w-xl">
-            {/* Animated Glow Border */}
-            <div className="absolute -inset-[1.5px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-[32px] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
-            
-            <div 
-              className="relative p-10 rounded-[30px] backdrop-blur-2xl w-full border shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
-              style={{ backgroundColor: colors.card, borderColor: colors.border }}
-            >
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
+        <div className="flex-1 flex items-center justify-center p-6">
+  <div className="relative group animate-[fadeIn_1.2s_ease-out] w-full max-w-md">
 
-              <div className="mb-8 text-center lg:text-left">
-                <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white">Register</h2>
-                <p className="text-[10px] uppercase tracking-[0.5em] font-black mt-3 opacity-50 text-white">Create Professional Node</p>
-              </div>
+    {/* Glow Border */}
+    <div className="absolute -inset-[1.5px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-[30px] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
 
-              {error && (
-                <div className="mb-6 py-3 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest text-center rounded-xl animate-bounce">
-                  {error}
-                </div>
-              )}
+    <div
+      className="relative p-6 rounded-[30px] backdrop-blur-2xl w-full border shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+      style={{ backgroundColor: colors.card, borderColor: colors.border }}
+    >
+      {/* Top line */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
 
-              <form onSubmit={handleRegister} className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div className="space-y-2 group/input">
-                  <label className="block font-black text-[9px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 text-white">First Name</label>
-                  <input
-                    type="text" placeholder="John" value={name} onChange={(e) => setName(e.target.value)}
-                    className="w-full p-4 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all text-sm font-medium text-white"
-                  />
-                </div>
-                <div className="space-y-2 group/input">
-                  <label className="block font-black text-[9px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 text-white">Last Name</label>
-                  <input
-                    type="text" placeholder="Doe" value={lastName} onChange={(e) => setLastName(e.target.value)}
-                    className="w-full p-4 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all text-sm font-medium text-white"
-                  />
-                </div>
+      {/* Heading */}
+      <div className="mb-6 text-center lg:text-left">
+        <h2 className="text-2xl font-black italic uppercase tracking-tighter text-white">
+          Register
+        </h2>
+        <p className="text-[9px] uppercase tracking-[0.5em] font-black mt-2 opacity-50 text-white">
+          Create Account
+        </p>
+      </div>
 
-                <div className="md:col-span-2 space-y-2 group/input">
-                  <label className="block font-black text-[9px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 text-white">Email Address</label>
-                  <div className="relative">
-                    <input
-                      type="email" placeholder="john@company.com" value={email} onChange={(e) => setEmail(e.target.value)}
-                      className="w-full p-4 pl-12 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all text-sm font-medium text-white"
-                    />
-                    <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
-                  </div>
-                </div>
-
-                <div className="md:col-span-2 space-y-2 group/input">
-                  <label className="block font-black text-[9px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 text-white">Phone Number</label>
-                  <div className="relative">
-                    <input
-                      type="tel" placeholder="+91 00000 00000" value={number} onChange={(e) => setNumber(e.target.value)}
-                      className="w-full p-4 pl-12 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all text-sm font-medium text-white"
-                    />
-                    <Smartphone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" />
-                  </div>
-                </div>
-
-                <div className="space-y-2 group/input">
-                  <label className="block font-black text-[9px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 text-white">Password</label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)}
-                      className="w-full p-4 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all text-sm font-medium text-white"
-                    />
-                    <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" onClick={() => setShowPassword(!showPassword)}>
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-2 group/input">
-                  <label className="block font-black text-[9px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 text-white">Confirm</label>
-                  <div className="relative">
-                    <input
-                      type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full p-4 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all text-sm font-medium text-white"
-                    />
-                    <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  disabled={loading}
-                  type="submit"
-                  className="md:col-span-2 w-full py-5 mt-4 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] text-white shadow-2xl hover:brightness-125 active:scale-[0.98] transition-all duration-500 flex items-center justify-center gap-3 disabled:opacity-50"
-                  style={{ backgroundColor: colors.accent, boxShadow: `0 15px 35px -10px ${colors.accent}aa` }}
-                >
-                  {loading ? "Initializing..." : "Create Account"} <UserPlus size={18} />
-                </button>
-              </form>
-
-              <div className="text-center pt-8">
-                <Link href="/login" className="text-[10px] font-black  tracking-widest text-gray-500 hover:text-purple-400 transition-all underline underline-offset-8 decoration-purple-500/30">
-                 Already account? login...
-                </Link>
-              </div>
-            </div>
-          </div>
+      {/* Error */}
+      {error && (
+        <div className="mb-4 py-2 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest text-center rounded-xl">
+          {error}
         </div>
+      )}
+
+      {/* FORM */}
+      <form onSubmit={handleRegister} className="grid grid-cols-2 gap-3">
+
+        {/* First Name */}
+        <input
+          type="text"
+          placeholder="First Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="p-3 rounded-lg text-sm bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none focus:ring-2 focus:ring-purple-500/10 text-white"
+        />
+
+        {/* Last Name */}
+        <input
+          type="text"
+          placeholder="Last Name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
+          className="p-3 rounded-lg text-sm bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none focus:ring-2 focus:ring-purple-500/10 text-white"
+        />
+
+        {/* Email */}
+        <div className="col-span-2 relative">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 pl-10 rounded-lg text-sm bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none focus:ring-2 focus:ring-purple-500/10 text-white"
+          />
+          <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+        </div>
+
+        {/* Phone */}
+        <div className="col-span-2 relative">
+          <input
+            type="tel"
+            placeholder="Phone Number"
+            value={number}
+            onChange={(e) => setNumber(e.target.value)}
+            className="w-full p-3 pl-10 rounded-lg text-sm bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none focus:ring-2 focus:ring-purple-500/10 text-white"
+          />
+          <Smartphone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+        </div>
+
+        {/* Password */}
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-3 rounded-lg text-sm bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none focus:ring-2 focus:ring-purple-500/10 text-white"
+          />
+        </div>
+
+        {/* Confirm */}
+        <div className="relative">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            placeholder="Confirm"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="w-full p-3 rounded-lg text-sm bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none focus:ring-2 focus:ring-purple-500/10 text-white"
+          />
+        </div>
+
+        {/* BUTTON */}
+        <button
+          disabled={loading}
+          type="submit"
+          className="col-span-2 w-full py-3 mt-2 rounded-lg font-black uppercase text-[11px] tracking-[0.3em] text-white shadow-2xl hover:brightness-125 active:scale-[0.98] transition-all duration-500 flex items-center justify-center gap-2 disabled:opacity-50"
+          style={{
+            backgroundColor: colors.accent,
+            boxShadow: `0 15px 35px -10px ${colors.accent}aa`,
+          }}
+        >
+          {loading ? "Processing..." : "Create Account"} <UserPlus size={16} />
+        </button>
+      </form>
+
+      {/* Footer */}
+      <div className="text-center pt-4">
+        <Link
+          href="/login"
+          className="text-[9px] uppercase tracking-widest text-gray-500 hover:text-purple-400 underline underline-offset-4"
+        >
+          Already have account? Login
+        </Link>
+      </div>
+    </div>
+  </div>
+</div>
       </div>
 
       <OtpModal

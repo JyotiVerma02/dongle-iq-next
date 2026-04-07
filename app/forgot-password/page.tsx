@@ -85,7 +85,7 @@ export default function ForgotPassword() {
               Reset your password securely and continue managing your digital signature 
               applications through the Dongle IQ encrypted portal.
             </p>
-            <div className="flex items-center gap-4 px-6 py-3 rounded-2xl bg-white/5 border border-white/5 w-fit group hover:border-purple-500/30 transition-all">
+            <div className="flex items-center gap-4 px-6 py-3 rounded-lg bg-white/5 border border-white/5 w-fit group hover:border-purple-500/30 transition-all">
                <ShieldCheck size={24} className="text-purple-500 animate-pulse" />
                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Secure Recovery Protocol Active</span>
             </div>
@@ -93,68 +93,92 @@ export default function ForgotPassword() {
         </div>
 
         {/* RIGHT PANEL - FORM CARD (Glassmorphism) */}
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="relative group animate-[fadeIn_1.2s_ease-out] w-full max-w-md">
-            {/* Animated Glow Border */}
-            <div className="absolute -inset-[1.5px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-[32px] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
-            
-            <div 
-              className="relative p-12 rounded-[30px] backdrop-blur-2xl w-full border shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
-              style={{ backgroundColor: colors.card, borderColor: colors.border }}
-            >
-              {/* Dynamic Inner Light */}
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
+     <div className="flex-1 flex items-center justify-center p-6">
+  <div className="relative group animate-[fadeIn_1.2s_ease-out] w-full max-w-sm">
 
-              <div className="mb-10 text-center lg:text-left">
-                <h2 className="text-4xl font-black italic uppercase tracking-tighter text-white">Forgot Access?</h2>
-                <p className="text-[10px] uppercase tracking-[0.5em] font-black mt-3 opacity-50 text-white">Verification Required</p>
-              </div>
+    {/* Glow Border */}
+    <div className="absolute -inset-[1.5px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-[30px] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
 
-              {message && (
-                <div className={`mb-8 py-3 border text-[10px] font-black uppercase tracking-widest text-center rounded-xl animate-pulse ${
-                  message.toLowerCase().includes("sent") || message.toLowerCase().includes("successful")
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
-                  : "bg-red-500/10 border-red-500/20 text-red-500"
-                }`}>
-                  {message}
-                </div>
-              )}
+    <div
+      className="relative p-6 rounded-[30px] backdrop-blur-2xl w-full border shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+      style={{ backgroundColor: colors.card, borderColor: colors.border }}
+    >
+      {/* Top Glow Line */}
+      <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
 
-              <form onSubmit={handleSubmit} className="space-y-7">
-                <div className="space-y-2 group/input">
-                  <label className="block font-black text-[10px] uppercase tracking-widest ml-1 opacity-50 group-focus-within/input:text-purple-400 transition-colors text-white">
-                    Registered Email
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="agent@dongleiq.com"
-                      className="w-full p-5 pl-14 rounded-2xl bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all duration-300 text-sm font-medium focus:ring-4 focus:ring-purple-500/10 text-white"
-                    />
-                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500" size={20} />
-                  </div>
-                </div>
+      {/* Heading */}
+      <div className="mb-6 text-center lg:text-left">
+        <h2 className="text-2xl font-black italic uppercase tracking-tighter text-white">
+          Forgot Access?
+        </h2>
+        <p className="text-[9px] uppercase tracking-[0.5em] font-black mt-2 opacity-50 text-white">
+          Verification Required
+        </p>
+      </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-5 rounded-2xl font-black uppercase text-[12px] tracking-[0.3em] text-white shadow-2xl hover:brightness-125 active:scale-[0.98] transition-all duration-500 flex items-center justify-center gap-3 disabled:opacity-50"
-                  style={{ backgroundColor: colors.accent, boxShadow: `0 15px 35px -10px ${colors.accent}aa` }}
-                >
-                  {loading ? "Transmitting..." : "Send Reset Link"} <Send size={18} />
-                </button>
+      {/* Message */}
+      {message && (
+        <div
+          className={`mb-4 py-2 border text-[10px] font-black uppercase tracking-widest text-center rounded-xl ${
+            message.toLowerCase().includes("sent") ||
+            message.toLowerCase().includes("successful")
+              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+              : "bg-red-500/10 border-red-500/20 text-red-500"
+          }`}
+        >
+          {message}
+        </div>
+      )}
 
-                <div className="text-center pt-6">
-                  <Link href="/login">
-                   
-                  </Link>
-                </div>
-              </form>
-            </div>
+      {/* FORM */}
+      <form onSubmit={handleSubmit} className="space-y-4">
+
+        <div className="space-y-1">
+          <label className="text-[9px] uppercase tracking-widest opacity-50 text-white">
+            Registered Email
+          </label>
+
+          <div className="relative">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="agent@dongleiq.com"
+              className="w-full p-3 pl-10 rounded-lg text-sm bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none focus:ring-2 focus:ring-purple-500/10 text-white"
+            />
+            <Mail
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+              size={16}
+            />
           </div>
         </div>
+
+        {/* BUTTON */}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-3 rounded-lg font-black uppercase text-[11px] tracking-[0.3em] text-white shadow-2xl hover:brightness-125 active:scale-[0.98] transition-all duration-500 flex items-center justify-center gap-2 disabled:opacity-50"
+          style={{
+            backgroundColor: colors.accent,
+            boxShadow: `0 15px 35px -10px ${colors.accent}aa`,
+          }}
+        >
+          {loading ? "Processing..." : "Send Reset Link"} <Send size={16} />
+        </button>
+
+        {/* Back to login */}
+        <div className="text-center pt-3">
+          <Link
+            href="/login"
+            className="text-[9px] uppercase tracking-widest text-gray-500 hover:text-purple-400 underline underline-offset-4"
+          >
+            Back to Login
+          </Link>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
       </div>
 
       <style jsx global>{`
