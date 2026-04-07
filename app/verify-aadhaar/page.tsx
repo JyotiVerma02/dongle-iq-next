@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/unsupported-syntax */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
@@ -207,6 +208,7 @@ export default function AadhaarVerifyPage() {
       setIsVerifying(false);
     }
   };
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   return (
     <main className="flex-1 flex items-center justify-center w-full p-4 mt-40">
@@ -255,7 +257,9 @@ export default function AadhaarVerifyPage() {
                   {otp.map((digit, index) => (
                     <input
                       key={index}
-                      ref={(el) => (inputRefs.current[index] = el)}
+                      ref={(el) => {
+                        inputRef.current = el;
+                      }}
                       value={digit}
                       maxLength={1}
                       onChange={(e) => handleOtpChange(index, e.target.value)}

@@ -81,16 +81,9 @@ export default function DongleIQLanding() {
       a: "Yes, if the private key is compromised or the user requests revocation.",
     },
   ];
-  const [pos, setPos] = useState({ x: 0, y: 0 });
+ 
 
-  React.useEffect(() => {
-    const handleMove = (e) => {
-      setPos({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener("mousemove", handleMove);
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
+ 
   
 
   return (
@@ -98,13 +91,7 @@ export default function DongleIQLanding() {
      
     className="min-h-screen font-sans antialiased  text-white"
     >
-      <div
-        className="cursor-glow"
-        style={{
-          left: pos.x,
-          top: pos.y,
-        }}
-      />
+    
       
 
       {/* --- HERO --- */}
@@ -152,6 +139,7 @@ export default function DongleIQLanding() {
               src="/dongleiq-removebg-preview.png"
               alt="Preview"
               fill
+              
               className="object-contain drop-shadow-2xl relative z-10"
               priority
             />

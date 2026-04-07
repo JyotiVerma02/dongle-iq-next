@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/app/context/ThemeContext";
 import ParticleBackground from "@/components/ParticleBackground";
 import CursorEffect from "@/components/CursorEffect";
 
+
 const geistSans = Roboto({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+  <html lang="en" className="dark">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider>
           

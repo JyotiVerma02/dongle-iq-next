@@ -80,8 +80,7 @@ export default function AdminRegister() {
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase italic">
               Admin
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-purple-300 to-white animate-gradient">
-                 Access
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-purple-300 to-white animate-gradient"> Access
               </span>
             </h1>
 

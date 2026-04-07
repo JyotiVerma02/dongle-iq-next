@@ -83,7 +83,7 @@ export default function ResetPassword() {
             >
               <Cpu size={20} className="text-white" />
             </div>
-            <span className="font-black text-xl italic uppercase tracking-tighter text-white">
+            <span className="font-black text-xl  uppercase tracking-tighter text-white">
               Dongle<span style={{ color: colors.accentLight }}>IQ</span>
             </span>
           </Link>
@@ -99,7 +99,7 @@ export default function ResetPassword() {
         {/* LEFT PANEL */}
         <div className="hidden lg:flex w-[55%] flex-col justify-center px-24 border-r border-white/5">
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
-            <h1 className="text-7xl xl:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase italic text-white">
+            <h1 className="text-7xl xl:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase  text-white">
               Update <br /> 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-purple-300 to-white animate-gradient">Credentials</span>
             </h1>
@@ -131,7 +131,7 @@ export default function ResetPassword() {
 
       {/* Heading */}
       <div className="mb-6 text-center">
-        <h2 className="text-2xl font-black italic uppercase tracking-tighter text-white">
+        <h2 className="text-2xl font-black  uppercase tracking-tighter text-white">
           New Access
         </h2>
         <p className="text-[9px] uppercase tracking-[0.4em] font-black mt-2 opacity-50 text-white">
