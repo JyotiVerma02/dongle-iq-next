@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useEffect } from "react";
@@ -15,12 +16,14 @@ import {
   LayoutDashboard,
   Settings,
   MoreHorizontal,
-  ArrowUpRight,
   Download,
   CheckCircle2,
   XCircle,
   Loader2,
-  Clock
+  Clock,
+  Bell,
+  Search,
+  Globe
 } from "lucide-react";
 
 import UserLedgerView from "@/components/UserLedger";
@@ -29,8 +32,10 @@ import UserDongleView from "@/components/UserDongle";
 export default function DongleIQAdminHub() {
   const [view, setView] = useState<"home" | "admin" | "ledger" | "dongle" | "settings">("home");
   const [admin, setAdmin] = useState<any>(null);
-  const [, setLoadingAdmin] = useState(true);
+ 
+  const [loadingAdmin, setLoadingAdmin] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   useEffect(() => {
     const fetchAdmin = async () => {
@@ -38,7 +43,11 @@ export default function DongleIQAdminHub() {
         const res = await fetch("/api/get-admin");
         const data = await res.json();
         if (data.success) setAdmin(data.admin);
-      } catch (e) { console.error(e); } finally { setLoadingAdmin(false); }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoadingAdmin(false);
+      }
     };
     fetchAdmin();
   }, []);
@@ -46,169 +55,161 @@ export default function DongleIQAdminHub() {
   const handleExport = () => {
     setIsExporting(true);
     setTimeout(() => {
-      const csvContent = "data:text/csv;charset=utf-8,ApplicationID,Name,Status\nIRCTC-101,Vivek Shah,Pending";
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `DongleIQ_User_Report.csv`);
-      document.body.appendChild(link);
-      link.click();
       setIsExporting(false);
     }, 1500);
   };
 
-  const handleCreateReport = () => {
-    alert(`Generating User Compliance Report...`);
-  };
-
   return (
-    <div className="min-h-screen bg-[#080b12] text-white font-sans flex overflow-hidden">
+    <div className="flex min-h-screen bg-[#3b475c] bg-linear-to-br from-[#3b475c] via-[#282f3a] to-[#21262f] text-slate-100 font-sans overflow-hidden">
       
       {/* --- SIDEBAR --- */}
-      <aside className="w-64 border-r border-[#1e2330] bg-[#080b12] hidden lg:flex flex-col p-6 h-screen sticky top-0">
-        <div className="flex items-center gap-3 mb-10 px-2">
-          <div className="w-8 h-8 bg-linear-to-br from-purple-500 to-indigo-500 rounded-lg flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <Cpu size={18} className="text-white" />
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#1a1f29]/95 backdrop-blur-xl border-r border-white/5 transition-transform duration-300 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:relative lg:translate-x-0 flex flex-col`}>
+        <div className="p-8">
+          <div className="flex items-center gap-3 mb-12">
+            <div className="w-10 h-10 bg-[#45c3b9] rounded-xl flex items-center justify-center shadow-lg shadow-[#45c3b9]/20">
+              <Globe className="text-[#1a1f29]" size={24} />
+            </div>
+            <h1 className="text-xl font-black tracking-tighter uppercase">Dongle <span className="text-[#45c3b9]">IQ</span></h1>
           </div>
-          <span className="font-bold text-xl tracking-tight">Dongle <span className="text-purple-500">IQ</span></span>
+
+          <nav className="space-y-2">
+            <NavItem icon={<LayoutDashboard size={20} />} label="Dashboard" active={view === "home"} onClick={() => setView("home")} />
+            <div className="pt-6 pb-2 px-6 text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Management</div>
+            <NavItem icon={<Users size={20} />} label="User Ledger" active={view === "ledger"} onClick={() => setView("ledger")} />
+            <NavItem icon={<Fingerprint size={20} />} label="User Dongle" active={view === "dongle"} onClick={() => setView("dongle")} />
+            <NavItem icon={<User size={20} />} label="Admin Profile" active={view === "admin"} onClick={() => setView("admin")} />
+          </nav>
         </div>
 
-        <nav className="flex-1 space-y-1">
-          <NavItem icon={<LayoutDashboard size={18}/>} label="Dashboard" active={view === "home"} onClick={() => setView("home")} />
-          <div className="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Modules</div>
-          <NavItem icon={<Users size={18}/>} label="User Ledger" active={view === "ledger"} onClick={() => setView("ledger")} />
-          <NavItem icon={<Fingerprint size={18}/>} label="User Dongle" active={view === "dongle"} onClick={() => setView("dongle")} />
-          <NavItem icon={<User size={18}/>} label="Admin Profile" active={view === "admin"} onClick={() => setView("admin")} />
-        </nav>
-
-        <div className="mt-auto pt-6 border-t border-[#1e2330]">
-          <NavItem icon={<Settings size={18}/>} label="Settings" active={view === "settings"} onClick={() => setView("settings")} />
-          <div className="flex items-center gap-3 mt-6 p-2 rounded-xl bg-[#121620] border border-[#1e2330]">
-            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center font-bold text-xs uppercase">
+        <div className="mt-auto p-8 space-y-4">
+          <NavItem icon={<Settings size={20} />} label="Settings" active={view === "settings"} onClick={() => setView("settings")} />
+          <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/5 transition-all">
+            <div className="w-10 h-10 rounded-full border-2 border-[#45c3b9] bg-slate-800 flex items-center justify-center font-black text-xs">
               {admin?.name?.charAt(0) || "A"}
             </div>
             <div className="overflow-hidden">
-              <p className="text-xs font-bold truncate">{admin?.name || "Admin"}</p>
-              <p className="text-[10px] text-slate-500 truncate">{admin?.role || "Manager"}</p>
+              <p className="text-xs font-black truncate">{admin?.name || "Admin"}</p>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{admin?.role || "Manager"}</p>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* --- MAIN CONTENT --- */}
-      <main className="flex-1 h-screen overflow-y-auto bg-[#080b12]">
-        <header className="px-8 pt-8 flex justify-between items-end mb-8">
-          <div>
-            <h1 className="text-2xl font-bold">Welcome back, {admin?.name?.split(" ")[0] || "Admin"}</h1>
-            <p className="text-sm text-slate-400 mt-1">Manage IRCTC DSC applications and hardware status.</p>
+      {/* --- MAIN CONTENT AREA --- */}
+      <main className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+        
+        {/* TOP NAV BAR */}
+        <header className="h-24 flex items-center justify-between px-8 bg-transparent border-b border-white/5">
+          <div className="flex items-center gap-4 flex-1">
+             <div className="hidden md:flex items-center gap-3 bg-[#1a1f29] border border-white/5 rounded-full px-5 py-2.5 w-96 shadow-xl">
+                <Search size={16} className="text-slate-500" />
+                <input type="text" placeholder="Search system registry..." className="bg-transparent text-xs outline-none w-full text-white placeholder:text-slate-600 font-medium" />
+             </div>
           </div>
-          <div className="flex gap-3">
-            <button onClick={handleExport} className="flex items-center gap-2 bg-[#121620] border border-[#1e2330] px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#1e2330] transition-all">
-              {isExporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} Export data
-            </button>
-            <button onClick={handleCreateReport} className="bg-purple-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-purple-700 shadow-lg shadow-purple-500/20 transition-all">
-              Create report
+
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> System Online
+            </div>
+            <button className="relative p-3 bg-[#1a1f29] border border-white/5 rounded-xl text-slate-400 hover:text-[#45c3b9] transition-all">
+              <Bell size={20} />
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-[#f4cc4d] rounded-full border-2 border-[#1a1f29]" />
             </button>
           </div>
         </header>
 
-        <div className="px-8 pb-10">
+        {/* VIEWPORT */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 lg:p-12">
           {view === "home" && (
-            <>
-              {/* --- UPDATED STAT CARDS --- */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <StatCard label="Total Users" value="2,845" trend="+12.5%" icon={<Users size={14} />} color="green" />
-                <StatCard label="Pending Review" value="142" trend="Action Required" icon={<Clock size={14} />} color="red" />
-                <StatCard label="Active Accounts" value="2,610" trend="Verified" icon={<CheckCircle2 size={14} />} color="green" />
-                <StatCard label="Rejected" value="93" trend="-2.4%" icon={<XCircle size={14} />} color="red" />
-              </div>
-
-              {/* --- UPDATED MAIN DATA SECTION --- */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-[#121620] border border-[#1e2330] rounded-2xl p-6">
-                  <div className="flex justify-between items-center mb-10">
-                    <div>
-                      <p className="text-sm text-slate-400">Total Enrollment History</p>
-                      <h3 className="text-3xl font-bold mt-1">2.8K <span className="text-xs text-green-500 font-normal bg-green-500/10 px-2 py-1 rounded-lg ml-2">+14% Growth</span></h3>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs font-bold">
-                       <span className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-purple-500" /> Active</span>
-                       <span className="flex items-center gap-2 text-slate-500"><div className="w-2 h-2 rounded-full bg-cyan-400" /> Pending</span>
-                    </div>
-                  </div>
-                  <div className="h-64 w-full bg-linear-to-t from-purple-500/5 to-transparent rounded-xl border-b border-l border-[#1e2330] relative overflow-hidden">
-                     <svg className="absolute bottom-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <path d="M0,80 Q25,20 50,60 T100,30 L100,100 L0,100 Z" fill="url(#purpleGrad)" />
-                        <defs>
-                          <linearGradient id="purpleGrad" x1="0" x2="0" y1="0" y2="1">
-                            <stop offset="0%" stopColor="#7c3aed" stopOpacity="0.3" />
-                            <stop offset="100%" stopColor="#7c3aed" stopOpacity="0" />
-                          </linearGradient>
-                        </defs>
-                     </svg>
-                  </div>
-                </div>
-
-                <div className="bg-[#121620] border border-[#1e2330] rounded-2xl p-6 flex flex-col justify-between">
-                   <div>
-                     <div className="flex justify-between items-start mb-6">
-                        <p className="text-sm text-slate-400">Approval Rate</p>
-                        <MoreHorizontal className="text-slate-500 cursor-pointer" />
-                     </div>
-                     <h3 className="text-3xl font-bold">94.2% <span className="text-xs text-green-500 font-normal bg-green-500/10 px-2 py-1 rounded-lg ml-2">Standard</span></h3>
-                   </div>
-                   
-                   <div className="mt-8 flex items-end gap-1 h-32">
-                      {[40, 70, 45, 90, 65, 80, 50, 95, 60, 85].map((h, i) => (
-                        <div key={i} style={{ height: `${h}%` }} className="flex-1 bg-cyan-400/20 rounded-t-sm hover:bg-cyan-400 transition-all cursor-pointer" />
-                      ))}
-                   </div>
-
-                   <button onClick={() => setView("ledger")} className="w-full text-center text-purple-500 text-xs font-bold mt-8 hover:text-purple-400 transition-colors">
-                     View full ledger
-                   </button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {view === "admin" && (
-            <div className="bg-[#121620] border border-[#1e2330] rounded-3xl p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <button onClick={() => setView("home")} className="flex items-center gap-2 text-slate-500 hover:text-white mb-8 text-xs font-bold transition-all">
-                <ArrowLeft size={16} /> Back to dashboard
-              </button>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-12">
                 <div>
-                  <h2 className="text-4xl font-bold mb-2">{admin?.name || "Jyoti Verma"}</h2>
-                  <p className="text-purple-500 font-bold text-sm mb-10">System Administrator — Dongle IQ</p>
-                  <div className="space-y-4">
-                    <DetailItem label="Internal ID" value={admin?._id} icon={<Hash size={16}/>} />
-                    <DetailItem label="Secure Email" value={admin?.email} icon={<Mail size={16}/>} />
-                    <DetailItem label="Contact No." value={admin?.number} icon={<Smartphone size={16}/>} />
-                    <DetailItem label="Access Status" value={admin?.status || "Authorized"} icon={<ShieldCheck size={16}/>} />
+                  <h2 className="text-4xl font-black text-white tracking-tighter">Admin <span className="font-light text-slate-400">Hub</span></h2>
+                  <p className="text-slate-500 text-sm font-medium mt-1">Manage IRCTC DSC applications and hardware status.</p>
+                </div>
+                <div className="flex gap-4">
+                  <button onClick={handleExport} className="bg-[#1a1f29] border border-white/5 px-6 py-3 rounded-xl font-bold text-xs text-slate-300 hover:bg-[#2c323c] transition-all flex items-center gap-2 shadow-lg">
+                    {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />} 
+                    Export Data
+                  </button>
+                  <button className="bg-[#45c3b9] text-[#1a1f29] px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#3ba39b] shadow-xl shadow-[#45c3b9]/10 transition-all">
+                    Create Report
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+                <StatCard label="Total Users" value="2,845" trend="+12.5%" icon={<Users />} color="teal" />
+                <StatCard label="Pending Review" value="142" trend="Action" icon={<Clock />} color="orange" />
+                <StatCard label="Active Accounts" value="2,610" trend="Verified" icon={<CheckCircle2 />} color="teal" />
+                <StatCard label="Rejected" value="93" trend="-2.4%" icon={<XCircle />} color="red" />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 bg-[#1a1f29] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl">
+                  <div className="flex justify-between items-center mb-12">
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Enrollment History</p>
+                      <h3 className="text-4xl font-black mt-2">2.8K <span className="text-xs text-[#45c3b9] bg-[#45c3b9]/10 px-3 py-1 rounded-full ml-3 font-bold tracking-normal">+14%</span></h3>
+                    </div>
+                  </div>
+                  <div className="h-64 w-full flex items-end justify-between px-2 gap-2">
+                    {[40, 65, 45, 80, 55, 90, 70, 85, 95].map((h, i) => (
+                      <div key={i} className="flex-1 bg-[#45c3b9]/10 rounded-t-xl relative group transition-all" style={{ height: `${h}%` }}>
+                        <div className="absolute inset-0 bg-linear-to-t from-[#45c3b9]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <div className="bg-[#080b12] rounded-2xl p-8 border border-[#1e2330] flex flex-col justify-center items-center text-center">
-                  <p className="text-slate-500 text-xs uppercase font-black tracking-[0.2em] mb-4">Active Session Key</p>
-                  <div className="text-6xl font-black text-white tracking-tighter mb-4">{admin?.otp || "----"}</div>
-                  <div className="bg-green-500/10 text-green-500 px-4 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2">
-                    <CheckCircle2 size={12} /> Hardware Authenticated
+
+                <div className="bg-[#1a1f29] border border-white/5 rounded-[2.5rem] p-10 shadow-2xl flex flex-col">
+                  <h4 className="text-[10px] font-black text-[#f4cc4d] uppercase tracking-[0.2em] mb-10">Compliance Rate</h4>
+                  <div className="flex-1 flex flex-col justify-center items-center">
+                    <div className="relative w-40 h-40 flex items-center justify-center">
+                       <svg className="w-full h-full -rotate-90">
+                          <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
+                          <circle cx="80" cy="80" r="70" stroke="currentColor" strokeWidth="12" fill="transparent" strokeDasharray="440" strokeDashoffset="44" className="text-[#45c3b9]" />
+                       </svg>
+                       <span className="absolute text-3xl font-black">94%</span>
+                    </div>
+                    <p className="text-slate-500 text-xs font-bold mt-8 uppercase tracking-widest text-center leading-relaxed">System Standards<br/>Operating at peak</p>
                   </div>
+                  <button onClick={() => setView("ledger")} className="w-full py-4 mt-8 bg-white/5 hover:bg-white/10 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-[#45c3b9] transition-all">
+                    Open Full Ledger
+                  </button>
                 </div>
               </div>
             </div>
           )}
 
-          {view === "settings" && (
-            <div className="bg-[#121620] border border-[#1e2330] rounded-3xl p-8">
-              <button onClick={() => setView("home")} className="flex items-center gap-2 text-slate-500 hover:text-white mb-8 text-xs font-bold transition-all"><ArrowLeft size={16} /> Back</button>
-              <h2 className="text-2xl font-bold mb-6">System Settings</h2>
-              <div className="max-w-2xl space-y-4">
-                <div className="p-4 bg-[#080b12] rounded-xl border border-[#1e2330] flex justify-between items-center">
-                  <p className="font-bold text-sm">Require Dongle for Login</p>
-                  <div className="w-10 h-5 bg-purple-600 rounded-full relative"><div className="absolute right-1 top-1 w-3 h-3 bg-white rounded-full"/></div>
-                </div>
-              </div>
+          {view === "admin" && (
+            <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <button onClick={() => setView("home")} className="group flex items-center gap-2 text-slate-500 hover:text-white font-bold text-xs transition-all mb-10">
+                 <ArrowLeft size={16} /> Back to Dashboard
+               </button>
+               <div className="bg-[#1a1f29] border border-white/5 rounded-[3rem] p-12 shadow-2xl overflow-hidden relative">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-[#45c3b9]/5 rounded-full blur-[100px] -mr-32 -mt-32" />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 relative z-10">
+                     <div>
+                        <h2 className="text-5xl font-black text-white tracking-tighter mb-2">{admin?.name || "Jyoti Verma"}</h2>
+                        <p className="text-[#45c3b9] font-black text-xs uppercase tracking-[0.3em] mb-12">Security Administrator</p>
+                        <div className="space-y-4">
+                           <DetailItem label="Internal UID" value={admin?._id || "IDX-9920"} icon={<Hash />} />
+                           <DetailItem label="Secure Channel" value={admin?.email || "admin@dongleiq.com"} icon={<Mail />} />
+                           <DetailItem label="Work Endpoint" value={admin?.number || "+91 98XXX XXXXX"} icon={<Smartphone />} />
+                        </div>
+                     </div>
+                     <div className="bg-[#1f232c] border border-white/5 rounded-[2.5rem] p-10 flex flex-col justify-center items-center text-center shadow-inner">
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-6">Live Session Key</p>
+                        <div className="text-7xl font-black text-white tracking-tighter mb-6 font-mono text-glow">
+                           {admin?.otp || "8821"}
+                        </div>
+                        <div className="bg-[#45c3b9]/10 text-[#45c3b9] px-6 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2 border border-[#45c3b9]/20">
+                           <ShieldCheck size={14} /> Identity Verified
+                        </div>
+                     </div>
+                  </div>
+               </div>
             </div>
           )}
 
@@ -220,50 +221,59 @@ export default function DongleIQAdminHub() {
   );
 }
 
-// --- DASHBOARD COMPONENTS ---
+// --- SUB-COMPONENTS ---
 
 function NavItem({ icon, label, active, onClick }: any) {
   return (
-    <div 
+    <button
       onClick={onClick}
-      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all group ${active ? "bg-purple-500/10 text-purple-500" : "text-slate-400 hover:text-white hover:bg-[#121620]"}`}
+      className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all group ${
+        active 
+        ? "bg-white/5 text-[#45c3b9] border border-white/5 shadow-inner" 
+        : "text-slate-500 hover:text-slate-300"
+      }`}
     >
-      <div className="flex items-center gap-3">
-        {icon}
+      <div className="flex items-center gap-4">
+        {React.cloneElement(icon, { size: 20 })}
         <span className="text-sm font-bold">{label}</span>
       </div>
       <ChevronRight size={14} className={`${active ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-all`} />
-    </div>
+    </button>
   );
 }
 
 function StatCard({ label, value, trend, icon, color }: any) {
-  const isGreen = color === "green";
+  const colors = {
+    teal: "text-[#45c3b9] bg-[#45c3b9]/10",
+    orange: "text-[#f4cc4d] bg-[#f4cc4d]/10",
+    red: "text-[#e15967] bg-[#e15967]/10",
+  };
+  
   return (
-    <div className="bg-[#121620] border border-[#1e2330] p-6 rounded-2xl hover:border-slate-700 transition-all">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest">
-          {icon} {label}
+    <div className="bg-[#1a1f29] border border-white/5 p-8 rounded-4xl shadow-xl hover:scale-[1.02] transition-transform group">
+      <div className="flex justify-between items-start mb-6">
+        <div className={`p-4 rounded-2xl ${colors[color as keyof typeof colors]}`}>
+          {React.cloneElement(icon, { size: 20 })}
         </div>
-        <MoreHorizontal size={16} className="text-slate-600 cursor-pointer" />
-      </div>
-      <div className="flex items-end justify-between">
-        <h4 className="text-2xl font-bold">{value}</h4>
-        <span className={`text-[10px] font-bold px-2 py-1 rounded-lg flex items-center gap-1 ${isGreen ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}`}>
-          {trend} <ArrowUpRight size={10} className={!isGreen ? "rotate-90" : ""} />
+        <span className={`text-[10px] font-black px-3 py-1 rounded-full border ${colors[color as keyof typeof colors]} border-white/5`}>
+          {trend}
         </span>
       </div>
+      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{label}</p>
+      <h3 className="text-3xl font-black text-white">{value}</h3>
     </div>
   );
 }
 
 function DetailItem({ label, value, icon }: any) {
   return (
-    <div className="flex items-center gap-4 bg-[#080b12] border border-[#1e2330] p-4 rounded-xl">
-      <div className="text-slate-500">{icon}</div>
-      <div>
-        <p className="text-[10px] text-slate-500 uppercase font-black tracking-widest leading-none mb-1">{label}</p>
-        <p className="text-sm font-bold truncate">{value || "N/A"}</p>
+    <div className="flex items-center gap-5 bg-white/5 border border-white/5 p-5 rounded-2xl hover:bg-white/10 transition-all cursor-default">
+      <div className="w-12 h-12 bg-[#1a1f29] rounded-xl flex items-center justify-center text-slate-500 group-hover:text-[#45c3b9]">
+        {React.cloneElement(icon, { size: 18 })}
+      </div>
+      <div className="overflow-hidden">
+        <p className="text-[9px] text-slate-500 uppercase font-black tracking-[0.2em] mb-1">{label}</p>
+        <p className="text-sm font-bold text-slate-200 truncate">{value || "N/A"}</p>
       </div>
     </div>
   );

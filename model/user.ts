@@ -1,55 +1,38 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import mongoose, { Schema, Document, Model } from "mongoose";
 
-export interface IUser extends Document {
-  name: string;
-  email: string;
-  number: string;
-  password: string;
-  role: string;
-  isVerified: boolean;
-  isAadhaarVerified: boolean;
-  status: string;
 
-  otp?: string;
-  otpExpiry?: Date;
-  aadhaarOtp?: string;
-  aadhaarOtpExpiry?: Date;
-  resetToken?: string;
-  resetTokenExpiry?: Date;
-
-  // ✅ NEW FIELDS
-  gender?: string;
-  dob?: string;
-  pan?: string;
-  ekycId?: string;
-  ekycPin?: string;
-  bpCode?: string;
-  address?: string;
-  pincode?: string;
-  city?: string;
-  state?: string;
-  certificateClass?: string;
-  tokenType?: string;
-  certType?: string;
-  validity?: string;
-  addressProof?: string;
-  idProof?: string;
-  photo?: string;
-  internalRemarks?: string;
-  price?: number;
-
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const UserSchema: Schema = new Schema(
+const UserSchema = new mongoose.Schema(
   {
-    name: { type: String },
-    email: { type: String, unique: true, sparse: true },
-    password: { type: String },
-    number: { type: String, unique: false, sparse: false },
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
+      minlength: 3,
+    },
+
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
+    },
+
+    number: {
+      type: String,
+      required: [true, "Mobile number is required"],
+      unique: true, // 🔥 NOW NO DUPLICATE
+      match: [/^[0-9]{10}$/, "Mobile must be 10 digits"],
+    },
+
+    password: {
+      type: String,
+      required: true,
+    },
 
     role: { type: String, default: "user" },
+
     isVerified: { type: Boolean, default: false },
     isAadhaarVerified: { type: Boolean, default: false },
 
@@ -59,40 +42,60 @@ const UserSchema: Schema = new Schema(
       default: "pending",
     },
 
-    otp: { type: String },
-    otpExpiry: { type: Date },
+    // 🔐 PAN VALIDATION
+    pan: {
+      type: String,
+      uppercase: true,
+      match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"],
+    },
 
-    aadhaarOtp: { type: String },
-    aadhaarOtpExpiry: { type: Date },
-
-    resetToken: { type: String },
-    resetTokenExpiry: { type: Date },
-
-    // ✅ ADD THESE IN SCHEMA (VERY IMPORTANT)
+    // 📍 Basic Info
     gender: { type: String },
     dob: { type: String },
-    pan: { type: String },
+
+    // 📍 KYC
     ekycId: { type: String },
     ekycPin: { type: String },
     bpCode: { type: String },
+
+    // 📍 Address
     address: { type: String },
-    pincode: { type: String },
+    pincode: {
+      type: String,
+      match: [/^[0-9]{6}$/, "Invalid pincode"],
+    },
     city: { type: String },
     state: { type: String },
+
+    // 📄 Certificate
     certificateClass: { type: String },
     tokenType: { type: String },
     certType: { type: String },
     validity: { type: String },
+
+    // 📂 Files
     addressProof: { type: String },
     idProof: { type: String },
     photo: { type: String },
-    internalRemarks: { type: String },
-    price: { type: Number },
-  },
-  { timestamps: true },
-);
 
-const User: Model<IUser> =
-  mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
+    internalRemarks: { type: String },
+
+    price: {
+      type: Number,
+      min: [0, "Price must be positive"],
+    },
+
+    // 🔐 OTP / Tokens
+    otp: String,
+    otpExpiry: Date,
+    aadhaarOtp: String,
+    aadhaarOtpExpiry: Date,
+    resetToken: String,
+    resetTokenExpiry: Date,
+  },
+  { timestamps: true }
+  
+);
+const User = mongoose.models.User || mongoose.model("User", UserSchema);
 
 export default User;

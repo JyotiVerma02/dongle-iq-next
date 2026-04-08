@@ -214,7 +214,7 @@ export default function AadhaarVerifyPage() {
     <main className="flex-1 flex items-center justify-center w-full p-4 mt-40">
       <div className="relative group w-full max-w-sm animate-[fadeIn_0.8s_ease-out]">
         {/* Glow Border */}
-        <div className="absolute -inset-[1px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-xl opacity-30 blur-sm group-hover:opacity-100 transition-opacity" />
+        <div className="absolute -inset-px bg-linear-to-r from-purple-600 via-transparent to-purple-600 rounded-xl opacity-30 blur-sm group-hover:opacity-100 transition-opacity" />
 
         {/* CARD */}
         <div className="relative bg-black/40 backdrop-blur-2xl rounded-xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">

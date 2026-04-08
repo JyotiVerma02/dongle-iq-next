@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   Cpu,
   ArrowRight,
   Mail,
@@ -13,6 +14,7 @@ import {
   ChevronUp,
   ChevronRight,
   UserPlus,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   LogIn,
   MousePointerClick,
   Fingerprint,
@@ -130,7 +132,7 @@ export default function DongleIQLanding() {
               Start Application <ArrowRight size={18} />
             </button>
           </div>
-          <div className="relative h-[350px] md:h-[450px]">
+          <div className="relative h-87.5 md:h-112.5">
             <div
               className="absolute inset-0 rounded-full blur-[120px] opacity-20"
               style={{ backgroundColor: colors.accent }}
@@ -535,7 +537,7 @@ export default function DongleIQLanding() {
 
 // --- SUB-COMPONENTS ---
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 function FeatureCard({ icon, title, desc, colors }: any) {
   return (
     <div
@@ -568,7 +570,7 @@ function FeatureCard({ icon, title, desc, colors }: any) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 function StepItem({ number, icon, title, desc, colors }: any) {
   return (
     <div className="text-center group">

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
@@ -80,7 +81,7 @@ export default function AdminRegister() {
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase italic">
               Admin
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-purple-300 to-white animate-gradient"> Access
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-purple-600 via-purple-300 to-white animate-gradient"> Access
               </span>
             </h1>
 
@@ -104,7 +105,7 @@ export default function AdminRegister() {
           <div className="relative group animate-[fadeIn_1.2s_ease-out]">
             
             {/* Glow Border */}
-            <div className="absolute -inset-[1.5px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 rounded-[32px] opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+            <div className="absolute -inset-[1.5px] bg-linear-to-r from-purple-600 via-transparent to-purple-600 rounded-4xl opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
 
             {/* CARD */}
             <div
@@ -112,7 +113,7 @@ export default function AdminRegister() {
               style={{ backgroundColor: colors.card, borderColor: colors.border }}
             >
               {/* Top Glow Line */}
-              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
+              <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-purple-400 to-transparent opacity-50" />
 
               {/* Heading */}
             <div className="mb-8 text-center lg:text-left">

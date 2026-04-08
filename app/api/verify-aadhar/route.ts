@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextResponse } from "next/server";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
