@@ -9,10 +9,12 @@ import {
   Fingerprint,
   Loader2,
   Mail,
+  Moon,
   PencilLine,
   Phone,
   RefreshCw,
   Settings,
+  SunMedium,
   User,
   Users,
   XCircle,
@@ -35,7 +37,7 @@ interface AdminProfile {
 }
 
 export default function DongleIQAdminHub() {
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const [view, setView] = useState<DashboardView>("home");
   const [admin, setAdmin] = useState<AdminProfile | null>(null);
@@ -248,6 +250,14 @@ export default function DongleIQAdminHub() {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm font-semibold transition"
+              style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel, color: colors.text }}
+            >
+              {isDarkMode ? <SunMedium size={16} /> : <Moon size={16} />}
+              {isDarkMode ? "Light" : "Dark"}
+            </button>
             <button
               onClick={() => setSidebarOpen((current) => !current)}
               className="theme-transition rounded-2xl border px-4 py-2 text-sm font-semibold transition lg:hidden"

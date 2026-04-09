@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
+
 import { connectDB } from "@/app/lib/mongodb";
+import Admin from "@/model/admin";
 import User from "@/model/user";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
+import { migrateLegacyAdminUser } from "@/app/lib/admin";
 
 export async function POST(req: Request) {
   try {
@@ -24,8 +27,9 @@ export async function POST(req: Request) {
     }
 
     await connectDB();
+    await migrateLegacyAdminUser();
 
-    const admin = await User.findOne({ role: "admin" });
+    const admin = await Admin.findOne();
 
     if (!admin) {
       return NextResponse.json(
@@ -34,24 +38,26 @@ export async function POST(req: Request) {
       );
     }
 
-    const emailTaken = await User.findOne({
+    const emailTakenByUser = await User.findOne({ email: normalizedEmail });
+    const emailTakenByOtherAdmin = await Admin.findOne({
       email: normalizedEmail,
       _id: { $ne: admin._id },
     });
 
-    if (emailTaken) {
+    if (emailTakenByUser || emailTakenByOtherAdmin) {
       return NextResponse.json(
         { success: false, message: "Email already exists" },
         { status: 400 }
       );
     }
 
-    const numberTaken = await User.findOne({
+    const numberTakenByUser = await User.findOne({ number: normalizedNumber });
+    const numberTakenByOtherAdmin = await Admin.findOne({
       number: normalizedNumber,
       _id: { $ne: admin._id },
     });
 
-    if (numberTaken) {
+    if (numberTakenByUser || numberTakenByOtherAdmin) {
       return NextResponse.json(
         { success: false, message: "Mobile number already exists" },
         { status: 400 }

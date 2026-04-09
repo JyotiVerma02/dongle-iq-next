@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+
 import User from "@/model/user";
+import Admin from "@/model/admin";
 import { connectDB } from "@/app/lib/mongodb";
+import { migrateLegacyAdminUser } from "@/app/lib/admin";
 
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
+    await migrateLegacyAdminUser();
 
     const { token, password } = await req.json();
 
@@ -14,31 +18,29 @@ export async function POST(req: NextRequest) {
       resetTokenExpiry: { $gt: Date.now() },
     });
 
-    if (!user) {
-      return NextResponse.json(
-        { message: "Invalid or expired token" },
-        { status: 400 }
-      );
+    const admin = user
+      ? null
+      : await Admin.findOne({
+          resetToken: token,
+          resetTokenExpiry: { $gt: Date.now() },
+        });
+
+    const account = user || admin;
+
+    if (!account) {
+      return NextResponse.json({ message: "Invalid or expired token" }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    user.password = hashedPassword;
-    user.resetToken = undefined;
-    user.resetTokenExpiry = undefined;
+    account.password = hashedPassword;
+    account.resetToken = undefined;
+    account.resetTokenExpiry = undefined;
+    await account.save();
 
-    await user.save();
-
-    return NextResponse.json({
-      message: "Password reset successful",
-    });
-
+    return NextResponse.json({ message: "Password reset successful" });
   } catch (error) {
     console.log(error);
-
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }

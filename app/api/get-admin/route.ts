@@ -1,11 +1,13 @@
 import { connectDB } from "@/app/lib/mongodb";
-import User from "@/model/user";
+import Admin from "@/model/admin";
+import { migrateLegacyAdminUser } from "@/app/lib/admin";
 
 export async function GET() {
   try {
     await connectDB();
+    await migrateLegacyAdminUser();
 
-    const admin = await User.findOne({ role: "admin" }).select("-password");
+    const admin = await Admin.findOne().select("-password");
 
     return Response.json({
       success: true,

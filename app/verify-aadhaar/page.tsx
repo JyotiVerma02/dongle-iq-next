@@ -110,7 +110,8 @@ export default function AadhaarVerifyPage() {
       }
 
       setSuccess("Verified successfully.");
-      setTimeout(() => router.push("/bank-telecom-form"), 900);
+      sessionStorage.setItem("verifiedMobile", mobile);
+      setTimeout(() => router.push(`/bank-telecom-form?mobile=${mobile}`), 900);
     } catch {
       setError("Server error");
     } finally {

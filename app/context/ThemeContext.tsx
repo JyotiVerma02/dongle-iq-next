@@ -13,8 +13,8 @@ type ThemeContextValue = {
 };
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "dark",
-  isDarkMode: true,
+  theme: "light",
+  isDarkMode: false,
   mounted: false,
   setTheme: () => {},
   toggleTheme: () => {},
@@ -24,7 +24,7 @@ const STORAGE_KEY = "dongle-iq-theme";
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") {
-    return "dark";
+    return "light";
   }
 
   const savedTheme = window.localStorage.getItem(STORAGE_KEY);
@@ -32,7 +32,7 @@ function getInitialTheme(): Theme {
     return savedTheme;
   }
 
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "light";
 }
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {

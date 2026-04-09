@@ -78,10 +78,6 @@ export default function DongleIQLanding() {
     },
   ];
  
-
- 
-  
-
   return (
     <div
       className="theme-transition min-h-screen font-sans antialiased"
@@ -132,7 +128,7 @@ export default function DongleIQLanding() {
               style={{ backgroundColor: colors.accent }}
             />
             <Image
-              src="/dongleiq-removebg-preview.png"
+              src="/dongle_iq-removebg-preview.png"
               alt="Preview"
               fill
               

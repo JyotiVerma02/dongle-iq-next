@@ -44,7 +44,8 @@ export default function VerifyPage() {
 
   const handleVerify = () => {
     if (!mobile || mobile.length < 10 || !otp || !isChecked) return;
-    router.push(`/bank-telecom-form?type=${activeTab}`);
+    sessionStorage.setItem("verifiedMobile", mobile);
+    router.push(`/bank-telecom-form?type=${activeTab}&mobile=${mobile}`);
   };
 
   return (

@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import streamifier from "streamifier";
 
 import { connectDB } from "@/app/lib/mongodb";
+import { migrateLegacyAdminUser } from "@/app/lib/admin";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import cloudinary from "@/app/lib/cloudinary";
 import User from "@/model/user";
@@ -27,6 +28,7 @@ const uploadToCloudinary = async (file: File, folder: string) => {
 export async function POST(req: Request) {
   try {
     await connectDB();
+    await migrateLegacyAdminUser();
 
     const formData = await req.formData();
 
@@ -78,7 +80,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    const allowedTypes = ["image/jpeg", "application/pdf"];
 
     if (
       (photo && !allowedTypes.includes(photo.type)) ||
@@ -88,7 +90,7 @@ export async function POST(req: Request) {
       return NextResponse.json(
         {
           success: false,
-          message: "Only JPG, PNG, PDF allowed",
+          message: "Only JPG and PDF allowed",
         },
         { status: 400 }
       );
@@ -113,11 +115,12 @@ export async function POST(req: Request) {
       addressProofUrl = res.secure_url;
     }
 
-    const existingUser = await User.findOne({ number: mobile });
+    const existingUser = await User.findOne({ number: mobile, role: { $ne: "admin" } });
 
     if (existingUser) {
       const emailTakenByAnotherUser = await User.findOne({
         email,
+        role: { $ne: "admin" },
         _id: { $ne: existingUser._id },
       });
 
@@ -162,7 +165,7 @@ export async function POST(req: Request) {
       });
     }
 
-    const emailExists = await User.findOne({ email });
+    const emailExists = await User.findOne({ email, role: { $ne: "admin" } });
 
     if (emailExists) {
       return NextResponse.json(

@@ -1,41 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import User from "@/model/user";
+import Admin from "@/model/admin";
 import { connectDB } from "@/app/lib/mongodb";
 import { transporter } from "@/app/lib/mailer";
+import { migrateLegacyAdminUser } from "@/app/lib/admin";
 
 export async function POST(req: NextRequest) {
   try {
-
     await connectDB();
+    await migrateLegacyAdminUser();
 
     const { email } = await req.json();
+    const normalizedEmail = String(email || "").trim().toLowerCase();
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
+    const admin = user ? null : await Admin.findOne({ email: normalizedEmail });
+    const account = user || admin;
 
-    if (!user) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 404 }
-      );
+    if (!account) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    if (user.isVerified) {
-      return NextResponse.json(
-        { message: "User already verified" },
-        { status: 400 }
-      );
+    if (account.isVerified) {
+      return NextResponse.json({ message: "User already verified" }, { status: 400 });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    user.otp = otp;
-    user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-
-    await user.save();
+    account.otp = otp;
+    account.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    await account.save();
 
     await transporter.sendMail({
       from: `"DongleIQ Support" <${process.env.EMAIL_USER}>`,
-      to: email,
+      to: normalizedEmail,
       subject: "Resend OTP",
       html: `
       <h2>DongleIQ Verification</h2>
@@ -45,16 +44,8 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    return NextResponse.json({
-      message: "OTP resent successfully"
-    });
-
-  } catch (error) {
-
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 }
-    );
-
+    return NextResponse.json({ message: "OTP resent successfully" });
+  } catch {
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }

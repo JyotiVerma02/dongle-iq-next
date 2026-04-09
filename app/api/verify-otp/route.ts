@@ -1,67 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import User from "@/model/user";
+import Admin from "@/model/admin";
 import { connectDB } from "@/app/lib/mongodb";
+import { migrateLegacyAdminUser } from "@/app/lib/admin";
 
 export async function POST(req: NextRequest) {
-
   try {
-
     await connectDB();
+    await migrateLegacyAdminUser();
 
     const { email, otp } = await req.json();
+    const normalizedEmail = String(email || "").trim().toLowerCase();
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
+    const admin = user ? null : await Admin.findOne({ email: normalizedEmail });
+    const account = user || admin;
 
-    if (!user) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 404 }
-      );
+    if (!account) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    if (user.isVerified) {
-      return NextResponse.json({
-        message: "Already verified"
-      });
+    if (account.isVerified) {
+      return NextResponse.json({ message: "Already verified" });
     }
 
-    // OTP CHECK
-    if (String(user.otp) !== String(otp)) {
-      return NextResponse.json(
-        { message: "Invalid OTP" },
-        { status: 400 }
-      );
+    if (String(account.otp) !== String(otp)) {
+      return NextResponse.json({ message: "Invalid OTP" }, { status: 400 });
     }
 
-    // EXPIRY CHECK
-    if (!user.otpExpiry || user.otpExpiry < new Date()) {
-      return NextResponse.json(
-        { message: "OTP expired" },
-        { status: 400 }
-      );
+    if (!account.otpExpiry || account.otpExpiry < new Date()) {
+      return NextResponse.json({ message: "OTP expired" }, { status: 400 });
     }
 
-    // VERIFY USER
-    await User.updateOne(
-      { email },
-      {
-        $set: { isVerified: true },
-        $unset: { otp: "", otpExpiry: "" }
-      }
-    );
+    account.isVerified = true;
+    account.otp = undefined;
+    account.otpExpiry = undefined;
+    await account.save();
 
-    return NextResponse.json({
-      message: "Email verified successfully"
-    });
-
+    return NextResponse.json({ message: "Email verified successfully" });
   } catch (error) {
-
     console.log(error);
-
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 }
-    );
-
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }

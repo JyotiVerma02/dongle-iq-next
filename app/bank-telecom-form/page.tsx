@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
 import { useTheme } from "@/app/context/ThemeContext";
@@ -11,6 +11,7 @@ import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function DongleIQForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
 
@@ -24,7 +25,7 @@ export default function DongleIQForm() {
     dob: "",
     pan: "",
     email: "",
-    mobile: "7295014037",
+    mobile: searchParams.get("mobile") || "",
     ekycId: "",
     ekycPin: "",
     bpCode: "",
@@ -52,6 +53,12 @@ export default function DongleIQForm() {
   const [idFile, setIdFile] = useState<File | null>(null);
   const [addressFile, setAddressFile] = useState<File | null>(null);
 
+  useEffect(() => {
+    const mobileFromQuery = searchParams.get("mobile") || sessionStorage.getItem("verifiedMobile") || "";
+    if (!mobileFromQuery) return;
+    setFormData((prev) => ({ ...prev, mobile: mobileFromQuery }));
+  }, [searchParams]);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -68,6 +75,18 @@ export default function DongleIQForm() {
     return () => clearInterval(timer);
   }, [timeLeft, router]);
 
+  const validateUpload = (file: File | null, label: string) => {
+    if (!file) return true;
+
+    const allowedTypes = ["image/jpeg", "application/pdf"];
+    if (!allowedTypes.includes(file.type)) {
+      alert(`${label}: only JPG and PDF files are allowed.`);
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -78,6 +97,14 @@ export default function DongleIQForm() {
 
     if (!photoFile || !idFile || !addressFile) {
       alert("Please upload all required files");
+      return;
+    }
+
+    if (
+      !validateUpload(photoFile, "Applicant Photo") ||
+      !validateUpload(idFile, "Identity Proof") ||
+      !validateUpload(addressFile, "Address Proof")
+    ) {
       return;
     }
 
@@ -253,6 +280,7 @@ export default function DongleIQForm() {
                 fileName={addressFile?.name || "No file chosen"}
                 colors={colors}
                 setFile={(file: File) => {
+                  if (!validateUpload(file, "Address Proof")) return;
                   setAddressFile(file);
                   setFormData((prev) => ({ ...prev, addressProof: file.name }));
                 }}
@@ -263,6 +291,7 @@ export default function DongleIQForm() {
                 fileName={idFile?.name || "No file chosen"}
                 colors={colors}
                 setFile={(file: File) => {
+                  if (!validateUpload(file, "Identity Proof")) return;
                   setIdFile(file);
                   setFormData((prev) => ({ ...prev, idProof: file.name }));
                 }}
@@ -276,8 +305,13 @@ export default function DongleIQForm() {
                   type="file"
                   ref={photoRef}
                   className="hidden"
+                  accept=".jpg,.jpeg,.pdf"
                   onChange={(event) => {
                     const file = event.target.files?.[0] || null;
+                    if (!validateUpload(file, "Applicant Photo")) {
+                      event.target.value = "";
+                      return;
+                    }
                     setPhotoFile(file);
                     setFormData((prev) => ({ ...prev, photo: file?.name || "" }));
                   }}
@@ -295,13 +329,21 @@ export default function DongleIQForm() {
                       src={URL.createObjectURL(photoFile)}
                       alt="preview"
                       className="h-24 w-24 rounded-full border object-cover"
-                      style={{ borderColor: colors.accent }}
+                      style={{
+                        borderColor: colors.accent,
+                        display: photoFile?.type === "application/pdf" ? "none" : "block",
+                      }}
                     />
                   ) : (
                     <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: colors.accent }}>
                       Click to Upload Photo
                     </p>
                   )}
+                  {photoFile?.type === "application/pdf" ? (
+                    <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: colors.accent }}>
+                      PDF selected
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -415,7 +457,7 @@ function FileComponent({ label, inputRef, fileName, setFile, colors }: any) {
         className="theme-transition flex items-center gap-4 rounded-xl border-2 p-2 shadow-inner"
         style={{ backgroundColor: colors.panel, borderColor: colors.inputBorder }}
       >
-        <input type="file" ref={inputRef} className="hidden" onChange={(event) => setFile(event.target.files?.[0] || null)} />
+        <input type="file" accept=".jpg,.jpeg,.pdf" ref={inputRef} className="hidden" onChange={(event) => setFile(event.target.files?.[0] || null)} />
         <button
           type="button"
           onClick={() => inputRef.current.click()}

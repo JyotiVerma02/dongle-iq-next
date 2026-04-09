@@ -56,7 +56,7 @@ export default function Navbar() {
             >
               {link}
               <span
-                className="absolute -bottom-1 left-0 h-[1px] w-0 transition-all group-hover:w-full"
+                className="absolute -bottom-1 left-0 h-px w-0 transition-all group-hover:w-full"
                 style={{ backgroundColor: colors.accent }}
               />
             </a>

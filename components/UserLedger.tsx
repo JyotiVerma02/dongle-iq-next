@@ -154,9 +154,9 @@ export default function UserLedgerView({
         <StatCard label="Rejected" value={users.filter((user) => user.status === "rejected").length} accent="red" icon={<XCircle size={18} />} colors={colors} />
       </div>
 
-      <div className="theme-transition overflow-hidden rounded-[2rem] border shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+      <div className="theme-transition overflow-hidden rounded-4xl border shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[920px] text-left">
+          <table className="w-full min-w-230 text-left">
             <thead style={{ backgroundColor: colors.panel }}>
               <tr className="text-[11px] uppercase tracking-[0.18em]" style={{ color: colors.muted }}>
                 <th className="px-5 py-4">Applicant</th>
@@ -234,8 +234,8 @@ export default function UserLedgerView({
       </div>
 
       {selectedUserFromList ? (
-        <div className="fixed inset-0 z-[80] p-4 backdrop-blur-sm" style={{ backgroundColor: isDarkMode ? "rgba(11,16,21,0.85)" : "rgba(221,232,245,0.74)" }}>
-          <div className="theme-transition mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border shadow-[0_40px_120px_rgba(0,0,0,0.45)]" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+        <div className="fixed inset-0 z-80 p-4 backdrop-blur-sm" style={{ backgroundColor: isDarkMode ? "rgba(11,16,21,0.85)" : "rgba(221,232,245,0.74)" }}>
+          <div className="theme-transition mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-4xl border shadow-[0_40px_120px_rgba(0,0,0,0.45)]" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
             <div className="theme-transition flex items-start justify-between border-b px-6 py-5" style={{ borderColor: colors.borderSoft }}>
               <div>
                 <p className="text-xs uppercase tracking-[0.22em]" style={{ color: colors.subtleText }}>Application review</p>
@@ -389,7 +389,7 @@ function DetailItem({
       <div className="mt-0.5 text-[#45c3b9]">{icon}</div>
       <div className="min-w-0">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: colors.subtleText }}>{label}</p>
-        <p className="mt-1 break-words text-sm leading-6" style={{ color: colors.text }}>{value}</p>
+        <p className="mt-1 wrap-break-word text-sm leading-6" style={{ color: colors.text }}>{value}</p>
       </div>
     </div>
   );

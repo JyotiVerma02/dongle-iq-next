@@ -1,76 +1,59 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+
+import Admin from "@/model/admin";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import { transporter } from "@/app/lib/mailer";
+import { migrateLegacyAdminUser } from "@/app/lib/admin";
 
 export async function POST(req: Request) {
   try {
     await connectDB();
+    await migrateLegacyAdminUser();
 
     const { name, email, number, password } = await req.json();
     const normalizedEmail = String(email || "").trim().toLowerCase();
     const normalizedNumber = normalizeIndianMobile(number);
 
     if (!name || !normalizedEmail || !normalizedNumber || !password) {
-      return NextResponse.json(
-        { error: "All fields are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "All fields are required" }, { status: 400 });
     }
 
     if (!isValidIndianMobile(normalizedNumber)) {
-      return NextResponse.json(
-        { error: "Enter a valid Indian mobile number" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Enter a valid Indian mobile number" }, { status: 400 });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(normalizedEmail)) {
-      return NextResponse.json(
-        { error: "Invalid email format" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
     }
 
     if (password.length < 8) {
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
     }
 
-    const existingAdmin = await User.findOne({ role: "admin" });
+    const existingAdmin = await Admin.findOne();
     if (existingAdmin) {
-      return NextResponse.json(
-        { error: "Admin already exists" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Admin already exists" }, { status: 400 });
     }
 
     const existingUserByEmail = await User.findOne({ email: normalizedEmail });
     if (existingUserByEmail) {
-      return NextResponse.json(
-        { error: "Email already exists" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Email already exists" }, { status: 400 });
     }
 
     const existingUserByNumber = await User.findOne({ number: normalizedNumber });
     if (existingUserByNumber) {
-      return NextResponse.json(
-        { error: "Mobile number already exists" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Mobile number already exists" }, { status: 400 });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-    await User.create({
+    await Admin.create({
       name: String(name).trim(),
       email: normalizedEmail,
       number: normalizedNumber,
@@ -111,9 +94,6 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json(
-      { error: "Server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
