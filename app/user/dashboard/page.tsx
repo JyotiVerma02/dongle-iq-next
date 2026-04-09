@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
+import { APPLICATION_CONFIG_KEY } from "@/app/lib/applicationPreview";
+import { calculatePricing } from "@/app/lib/pricing";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
@@ -40,27 +42,16 @@ export default function DSCRegistrationForm() {
     ekycType: "PAN",
   });
 
-  const pricing = useMemo(() => {
-    let certificate = 0;
-
-    if (formData.certType === "Signing & Encryption") {
-      if (formData.validity === "1 Year") certificate = 1200;
-      if (formData.validity === "2 Years") certificate = 1779;
-      if (formData.validity === "3 Years") certificate = 2400;
-    } else if (formData.certType === "Signature") {
-      certificate = 800;
-    }
-
-    const token = formData.tokenType === "USB Token" ? 500 : 0;
-    const assisted = formData.assistedService === "Required" ? 355 : 0;
-
-    return {
-      certificate,
-      token,
-      assisted,
-      total: certificate + token + assisted,
-    };
-  }, [formData]);
+  const pricing = useMemo(
+    () =>
+      calculatePricing({
+        certType: formData.certType,
+        validity: formData.validity,
+        tokenType: formData.tokenType,
+        assistedService: formData.assistedService,
+      }),
+    [formData],
+  );
 
   const isProductSelected = Boolean(formData.certType && formData.validity);
 
@@ -91,6 +82,21 @@ export default function DSCRegistrationForm() {
         alert("Could not start verification.");
         return;
       }
+
+      sessionStorage.setItem(
+        APPLICATION_CONFIG_KEY,
+        JSON.stringify({
+          certificateClass: formData.classType,
+          certType: formData.certType,
+          validity: formData.validity,
+          tokenType: formData.tokenType,
+          assistedService: formData.assistedService,
+          price: String(pricing.total),
+          name: formData.name,
+          email: formData.email,
+          mobile: formData.mobile,
+        }),
+      );
 
       router.push(formData.ekycType === "Aadhaar" ? "/verify-aadhaar" : "/verify");
     } catch {
@@ -180,13 +186,18 @@ export default function DSCRegistrationForm() {
                     color: colors.text,
                     backgroundColor: colors.input,
                     borderColor: colors.inputBorder,
+                    colorScheme: isDarkMode ? "dark" : "light",
                   }}
                 >
                   {(item.key === "certType" || item.key === "validity") && (
-                    <option value="">{`Select ${item.label}`}</option>
+                    <option value="" style={{ backgroundColor: colors.card, color: colors.text }}>{`Select ${item.label}`}</option>
                   )}
                   {item.options.map((option) => (
-                    <option key={option} value={option}>
+                    <option
+                      key={option}
+                      value={option}
+                      style={{ backgroundColor: colors.card, color: colors.text }}
+                    >
                       {option}
                     </option>
                   ))}

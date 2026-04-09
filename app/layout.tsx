@@ -29,8 +29,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} theme-transition antialiased`}>
+    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
+      <body
+        suppressHydrationWarning
+        className={`${geistSans.variable} ${geistMono.variable} theme-transition antialiased`}
+      >
         <ThemeProvider>
           <ParticleBackground />
           <Navbar />

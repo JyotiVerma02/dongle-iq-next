@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { connectDB } from "@/app/lib/mongodb";
 import mongoose from "mongoose";
 
-// ✅ Create Schema
+import { connectDB } from "@/app/lib/mongodb";
+import { calculatePricing } from "@/app/lib/pricing";
+
 const UserSchema = new mongoose.Schema({
   name: String,
   email: String,
@@ -21,20 +22,29 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-// ✅ Prevent model overwrite error
 const DashboardUser =
   mongoose.models.DashboardUser || mongoose.model("DashboardUser", UserSchema);
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const pricing = calculatePricing({
+      certType: body.certType,
+      validity: body.validity,
+      tokenType: body.tokenType,
+      assistedService: body.assistedService,
+    });
 
-    await connectDB(); // just connect
-    await DashboardUser.create(body); // ✅ mongoose way
+    await connectDB();
+    await DashboardUser.create({
+      ...body,
+      totalAmount: pricing.total,
+    });
 
     return NextResponse.json({
       success: true,
       message: "Data saved successfully",
+      totalAmount: pricing.total,
     });
   } catch (error) {
     console.error("API ERROR:", error);

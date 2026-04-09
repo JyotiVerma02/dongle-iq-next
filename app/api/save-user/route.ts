@@ -6,6 +6,7 @@ import streamifier from "streamifier";
 import { connectDB } from "@/app/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
+import { calculatePricing } from "@/app/lib/pricing";
 import cloudinary from "@/app/lib/cloudinary";
 import User from "@/model/user";
 
@@ -18,7 +19,7 @@ const uploadToCloudinary = async (file: File, folder: string) => {
       (error, result) => {
         if (error) reject(error);
         else resolve(result);
-      }
+      },
     );
 
     streamifier.createReadStream(buffer).pipe(stream);
@@ -33,8 +34,12 @@ export async function POST(req: Request) {
     const formData = await req.formData();
 
     const name = String(formData.get("name") || "").trim();
-    const email = String(formData.get("email") || "").trim().toLowerCase();
-    const pan = String(formData.get("pan") || "").trim().toUpperCase();
+    const email = String(formData.get("email") || "")
+      .trim()
+      .toLowerCase();
+    const pan = String(formData.get("pan") || "")
+      .trim()
+      .toUpperCase();
     const mobile = normalizeIndianMobile(formData.get("mobile"));
 
     const gender = String(formData.get("gender") || "").trim();
@@ -48,17 +53,26 @@ export async function POST(req: Request) {
     const city = String(formData.get("city") || "").trim();
     const state = String(formData.get("state") || "").trim();
 
-    const certificateClass = String(formData.get("certificateClass") || "").trim();
+    const certificateClass = String(
+      formData.get("certificateClass") || "",
+    ).trim();
     const tokenType = String(formData.get("tokenType") || "").trim();
     const certType = String(formData.get("certType") || "").trim();
     const validity = String(formData.get("validity") || "").trim();
 
-    const internalRemarks = String(formData.get("internalRemarks") || "").trim();
-    const price = Number(formData.get("price"));
+    const internalRemarks = String(
+      formData.get("internalRemarks") || "",
+    ).trim();
 
     const photo = formData.get("photo") as File | null;
     const idProof = formData.get("idProofFile") as File | null;
     const addressProof = formData.get("addressProofFile") as File | null;
+    const price = calculatePricing({
+      certType,
+      validity,
+      tokenType,
+      assistedService: String(formData.get("assistedService") || "").trim(),
+    }).total;
 
     if (!name || !pan || !email || !mobile) {
       return NextResponse.json(
@@ -66,7 +80,7 @@ export async function POST(req: Request) {
           success: false,
           message: "Required fields missing",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -76,7 +90,7 @@ export async function POST(req: Request) {
           success: false,
           message: "Enter a valid Indian mobile number",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -92,7 +106,7 @@ export async function POST(req: Request) {
           success: false,
           message: "Only JPG and PDF allowed",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -111,11 +125,17 @@ export async function POST(req: Request) {
     }
 
     if (addressProof) {
-      const res = await uploadToCloudinary(addressProof, "dongleIQ/addressProof");
+      const res = await uploadToCloudinary(
+        addressProof,
+        "dongleIQ/addressProof",
+      );
       addressProofUrl = res.secure_url;
     }
 
-    const existingUser = await User.findOne({ number: mobile, role: { $ne: "admin" } });
+    const existingUser = await User.findOne({
+      $or: [{ number: mobile }, { email }],
+      role: { $ne: "admin" },
+    });
 
     if (existingUser) {
       const emailTakenByAnotherUser = await User.findOne({
@@ -130,7 +150,7 @@ export async function POST(req: Request) {
             success: false,
             message: "Email already exists",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -165,17 +185,7 @@ export async function POST(req: Request) {
       });
     }
 
-    const emailExists = await User.findOne({ email, role: { $ne: "admin" } });
-
-    if (emailExists) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Email already exists",
-        },
-        { status: 400 }
-      );
-    }
+ 
 
     const hashedPassword = await bcrypt.hash("temp123", 10);
 
@@ -223,7 +233,7 @@ export async function POST(req: Request) {
               ? "Mobile number already exists"
               : "Email already exists",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -232,7 +242,7 @@ export async function POST(req: Request) {
         success: false,
         message: error?.message || "Server error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

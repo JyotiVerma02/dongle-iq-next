@@ -6,8 +6,68 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
+import {
+  APPLICATION_CONFIG_KEY,
+  fileToStoredFile,
+  savePreviewDraft,
+} from "@/app/lib/applicationPreview";
+import { calculatePricing } from "@/app/lib/pricing";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
+
+type FormState = {
+  name: string;
+  gender: string;
+  dob: string;
+  pan: string;
+  email: string;
+  mobile: string;
+  ekycId: string;
+  ekycPin: string;
+  bpCode: string;
+  address: string;
+  pincode: string;
+  city: string;
+  state: string;
+  certificateClass: string;
+  tokenType: string;
+  certType: string;
+  validity: string;
+  addressProof: string;
+  idProof: string;
+  bpAvailable: string;
+  internalRemarks: string;
+  photo: string;
+  assistedService: string;
+  price: string;
+};
+
+const createInitialState = (mobile: string): FormState => ({
+  name: "",
+  gender: "",
+  dob: "",
+  pan: "",
+  email: "",
+  mobile,
+  ekycId: "",
+  ekycPin: "",
+  bpCode: "",
+  address: "",
+  pincode: "",
+  city: "",
+  state: "",
+  certificateClass: "Class III",
+  tokenType: "Not Required",
+  certType: "Signature",
+  validity: "2 Years",
+  addressProof: "",
+  idProof: "",
+  bpAvailable: "Yes",
+  internalRemarks: "",
+  photo: "",
+  assistedService: "Not Required",
+  price: "800",
+});
 
 export default function DongleIQForm() {
   const router = useRouter();
@@ -19,33 +79,7 @@ export default function DongleIQForm() {
   const addressRef = useRef<HTMLInputElement>(null);
   const idProofRef = useRef<HTMLInputElement>(null);
 
-  const initialState = {
-    name: "",
-    gender: "",
-    dob: "",
-    pan: "",
-    email: "",
-    mobile: searchParams.get("mobile") || "",
-    ekycId: "",
-    ekycPin: "",
-    bpCode: "",
-    address: "",
-    pincode: "",
-    city: "",
-    state: "",
-    certificateClass: "Class III",
-    tokenType: "Not Required",
-    certType: "Signing",
-    validity: "2 Years",
-    addressProof: "",
-    idProof: "",
-    bpAvailable: "Yes",
-    internalRemarks: "",
-    photo: "",
-    price: 1245,
-  };
-
-  const [formData, setFormData] = useState(initialState);
+  const [formData, setFormData] = useState<FormState>(createInitialState(searchParams.get("mobile") || ""));
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(1200);
   const [showPin, setShowPin] = useState<boolean>(false);
@@ -54,14 +88,61 @@ export default function DongleIQForm() {
   const [addressFile, setAddressFile] = useState<File | null>(null);
 
   useEffect(() => {
-    const mobileFromQuery = searchParams.get("mobile") || sessionStorage.getItem("verifiedMobile") || "";
-    if (!mobileFromQuery) return;
-    setFormData((prev) => ({ ...prev, mobile: mobileFromQuery }));
+    const mobile = searchParams.get("mobile") || sessionStorage.getItem("verifiedMobile") || "";
+    const rawConfig = sessionStorage.getItem(APPLICATION_CONFIG_KEY);
+
+    setFormData((prev) => {
+      let nextState = { ...prev, mobile };
+
+      if (rawConfig) {
+        try {
+          const config = JSON.parse(rawConfig) as Record<string, string>;
+          nextState = {
+            ...nextState,
+            name: config.name || nextState.name,
+            email: config.email || nextState.email,
+            mobile: config.mobile || nextState.mobile,
+            certificateClass: config.certificateClass || nextState.certificateClass,
+            tokenType: config.tokenType || nextState.tokenType,
+            certType: config.certType || nextState.certType,
+            validity: config.validity || nextState.validity,
+            assistedService: config.assistedService || nextState.assistedService,
+          };
+        } catch {
+          // Ignore invalid session data.
+        }
+      }
+
+      const pricing = calculatePricing({
+        certType: nextState.certType,
+        validity: nextState.validity,
+        tokenType: nextState.tokenType,
+        assistedService: nextState.assistedService,
+      });
+
+      return {
+        ...nextState,
+        price: String(pricing.total),
+      };
+    });
   }, [searchParams]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const nextData = { ...prev, [name]: value };
+      const pricing = calculatePricing({
+        certType: nextData.certType,
+        validity: nextData.validity,
+        tokenType: nextData.tokenType,
+        assistedService: nextData.assistedService,
+      });
+
+      return {
+        ...nextData,
+        price: String(pricing.total),
+      };
+    });
   };
 
   useEffect(() => {
@@ -117,39 +198,26 @@ export default function DongleIQForm() {
     setLoading(true);
 
     try {
-      const form = new FormData();
+      const [photo, idProof, addressProof] = await Promise.all([
+        fileToStoredFile(photoFile),
+        fileToStoredFile(idFile),
+        fileToStoredFile(addressFile),
+      ]);
 
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key !== "photo" && key !== "idProof" && key !== "addressProof") {
-          form.append(key, String(value));
-        }
+      savePreviewDraft({
+        formData: Object.fromEntries(
+          Object.entries(formData).map(([key, value]) => [key, String(value)]),
+        ),
+        files: {
+          photo,
+          idProof,
+          addressProof,
+        },
       });
 
-      form.append("photo", photoFile);
-      form.append("idProofFile", idFile);
-      form.append("addressProofFile", addressFile);
-
-      const response = await fetch("/api/save-user", {
-        method: "POST",
-        body: form,
-      });
-
-      const data = await response.json();
-
-      if (!data.success) {
-        alert(`Error: ${data.message}`);
-        setLoading(false);
-        return;
-      }
-
-      alert("Form submitted successfully.");
-      setFormData(initialState);
-      setPhotoFile(null);
-      setIdFile(null);
-      setAddressFile(null);
-      router.push("/admin/dashboard");
+      router.push("/preview");
     } catch {
-      alert("Critical error: could not connect to the server.");
+      alert("Could not prepare preview. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -170,9 +238,9 @@ export default function DongleIQForm() {
             style={{ backgroundColor: `${colors.accent}0d`, borderColor: colors.border }}
           >
             <ThemeSelect name="certificateClass" label="Class" options={["Class III"]} value={formData.certificateClass} onChange={handleChange} colors={colors} />
-            <ThemeSelect name="tokenType" label="Token" options={["Not Required", "Required"]} value={formData.tokenType} onChange={handleChange} colors={colors} />
-            <ThemeSelect name="certType" label="Type" options={["Signing", "Encryption", "Both"]} value={formData.certType} onChange={handleChange} colors={colors} />
-            <ThemeSelect name="validity" label="Validity" options={["2 Years", "1 Year"]} value={formData.validity} onChange={handleChange} colors={colors} />
+            <ThemeSelect name="tokenType" label="Token" options={["Not Required", "USB Token"]} value={formData.tokenType} onChange={handleChange} colors={colors} />
+            <ThemeSelect name="certType" label="Type" options={["Signature", "Encryption", "Signing & Encryption"]} value={formData.certType} onChange={handleChange} colors={colors} />
+            <ThemeSelect name="validity" label="Validity" options={["1 Year", "2 Years", "3 Years"]} value={formData.validity} onChange={handleChange} colors={colors} />
             <div className="pb-1 text-right">
               <span className="text-2xl font-black" style={{ color: colors.accent }}>INR {formData.price}</span>
             </div>
@@ -188,16 +256,7 @@ export default function DongleIQForm() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
               <ThemeInput name="pan" label="PAN No" placeholder="ABCDE1234F" value={formData.pan} onChange={handleChange} required colors={colors} />
               <ThemeInput name="email" label="Email Address" type="email" placeholder="EMAIL@EXAMPLE.COM" value={formData.email} onChange={handleChange} required colors={colors} />
-              <ThemeInput
-                name="mobile"
-                label="Mobile No"
-                readOnly
-                value={formData.mobile}
-                required
-                className=""
-                colors={colors}
-                muted
-              />
+              <ThemeInput name="mobile" label="Mobile No" readOnly value={formData.mobile} required className="" colors={colors} muted />
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -331,7 +390,7 @@ export default function DongleIQForm() {
                       className="h-24 w-24 rounded-full border object-cover"
                       style={{
                         borderColor: colors.accent,
-                        display: photoFile?.type === "application/pdf" ? "none" : "block",
+                        display: photoFile.type === "application/pdf" ? "none" : "block",
                       }}
                     />
                   ) : (
@@ -371,7 +430,7 @@ export default function DongleIQForm() {
               className="theme-transition rounded-xl px-24 py-4 text-[12px] font-black uppercase tracking-[0.3em] text-white disabled:cursor-not-allowed disabled:opacity-50"
               style={{ backgroundColor: colors.accent, boxShadow: `0 18px 35px -18px ${colors.glow}` }}
             >
-              {loading ? "Processing..." : "Proceed to Summary"}
+              {loading ? "Preparing Preview..." : "Preview Before Submit"}
             </button>
             <p className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest" style={{ color: colors.muted }}>
               <span className="h-1 w-1 rounded-full" style={{ backgroundColor: colors.accent }} />
@@ -437,10 +496,18 @@ function ThemeSelect({ label, options, required, colors, ...props }: any) {
           backgroundColor: colors.input,
           borderColor: colors.inputBorder,
           color: colors.text,
+          colorScheme: colors.bg === "#0b1015" ? "dark" : "light",
         }}
       >
         {options.map((option: string) => (
-          <option key={option} value={option}>
+          <option
+            key={option}
+            value={option}
+            style={{
+              backgroundColor: colors.card,
+              color: colors.text,
+            }}
+          >
             {option}
           </option>
         ))}

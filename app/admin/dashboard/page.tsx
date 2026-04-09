@@ -563,7 +563,7 @@ function ProfileCard({ label, value, icon }: { label: string; value: string; ico
         <span className="text-[#45c3b9]">{icon}</span>
         <span className="text-xs uppercase tracking-[0.18em] text-slate-500">{label}</span>
       </div>
-      <p className="mt-3 min-w-0 break-all text-base font-bold" style={{ color: colors.text }}>{value}</p>
+      <p className="mt-3 min-w-0 break-all text-[13px] font-bold" style={{ color: colors.text }}>{value}</p>
     </div>
   );
 }

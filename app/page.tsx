@@ -131,7 +131,7 @@ export default function DongleIQLanding() {
               src="/dongle_iq-removebg-preview.png"
               alt="Preview"
               fill
-              
+              sizes="(max-width: 768px) 100vw, 50vw"
               className="object-contain drop-shadow-2xl relative z-10"
               priority
             />
