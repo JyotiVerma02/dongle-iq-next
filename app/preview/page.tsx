@@ -257,22 +257,13 @@ function DocumentCard({
       className="theme-transition rounded-2xl border p-4"
       style={{ backgroundColor: colors.panel, borderColor: colors.borderSoft }}
     >
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="mb-3">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: colors.muted }}>
             {label}
           </p>
           <p className="mt-1 break-all text-sm font-semibold">{file.name}</p>
         </div>
-        <a
-          href={file.dataUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="rounded-lg px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white"
-          style={{ backgroundColor: colors.accent }}
-        >
-          Open
-        </a>
       </div>
 
       {isPdf ? (

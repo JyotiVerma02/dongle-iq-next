@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Cpu, LogIn, Moon, SunMedium } from "lucide-react";
+import { Cpu, LogIn, LogOut, Moon, SunMedium } from "lucide-react";
 
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
@@ -20,6 +20,17 @@ export default function Navbar() {
   const colors = getThemePalette(isDarkMode);
   const navLinks = ["Apply", "Why Us", "Agents", "FAQs", "Contact"];
   const themeLabel = mounted ? (isDarkMode ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme";
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/logout", { method: "POST" });
+    } catch {
+      // Redirect even if the request fails so the user is not stuck.
+    } finally {
+      router.push("/");
+      router.refresh();
+    }
+  };
 
   return (
     <nav
@@ -95,6 +106,17 @@ export default function Navbar() {
             }}
           >
             Register
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="theme-transition hidden items-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white sm:flex"
+            style={{
+              backgroundColor: "rgba(255,255,255,0.05)",
+              border: "1px solid #2a2a2a",
+            }}
+          >
+            <LogOut size={14} /> Logout
           </button>
         </div>
       </div>

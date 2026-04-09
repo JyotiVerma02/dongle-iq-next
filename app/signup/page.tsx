@@ -9,6 +9,8 @@ import {
   ShieldCheck,
   Smartphone,
   Mail,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import OtpModal from "@/components/OtpModal";
 import { useTheme } from "@/app/context/ThemeContext";
@@ -24,6 +26,8 @@ export default function Register() {
   const [number, setNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { isDarkMode } = useTheme();
@@ -198,23 +202,43 @@ export default function Register() {
                   />
                 </div>
 
-                <input
-                  type="password"
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
-                  style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full rounded-lg border p-3 pr-10 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((current) => !current)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                    style={{ color: colors.muted }}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
 
-                <input
-                  type="password"
-                  placeholder="Confirm"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
-                  style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full rounded-lg border p-3 pr-10 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((current) => !current)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2"
+                    style={{ color: colors.muted }}
+                  >
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
 
                 <button
                   disabled={loading}
