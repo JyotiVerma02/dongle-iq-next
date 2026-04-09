@@ -11,6 +11,8 @@ import {
   Mail,
 } from "lucide-react";
 import OtpModal from "@/components/OtpModal";
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function Register() {
   const router = useRouter();
@@ -24,16 +26,9 @@ export default function Register() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { isDarkMode } = useTheme();
 
-  const colors = {
-    bg: "transparent",
-    card: "rgba(20, 20, 20, 0.4)",
-    accent: "#7C3AED",
-    accentLight: "#A78BFA",
-    text: "#F9FAFB",
-    muted: "#9CA3AF",
-    border: "rgba(124, 58, 237, 0.2)",
-  };
+  const colors = getThemePalette(isDarkMode);
 
   const sanitizeNumber = (value: string) => value.replace(/\D/g, "").slice(0, 10);
 
@@ -80,10 +75,10 @@ export default function Register() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight">
+    <div className="theme-transition relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
       <nav
         className="fixed top-0 z-50 w-full border-b p-5 backdrop-blur-xl animate-[slideDown_0.6s_ease-out]"
-        style={{ backgroundColor: "rgba(5, 5, 5, 0.7)", borderColor: colors.border }}
+        style={{ backgroundColor: colors.overlay, borderColor: colors.border }}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link href="/" className="group flex items-center gap-2">
@@ -93,13 +88,14 @@ export default function Register() {
             >
               <Cpu size={20} className="text-white" />
             </div>
-            <span className="text-xl font-black uppercase tracking-tighter text-white">
+            <span className="text-xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>
               Dongle<span style={{ color: colors.accentLight }}>IQ</span>
             </span>
           </Link>
           <Link
             href="/login"
-            className="rounded-full border border-white/10 px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white transition-all hover:bg-white/5"
+            className="rounded-full border px-6 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all"
+            style={{ borderColor: colors.borderSoft, color: colors.text, backgroundColor: colors.panel }}
           >
             Sign In
           </Link>
@@ -107,20 +103,25 @@ export default function Register() {
       </nav>
 
       <div className="relative z-10 flex min-h-screen pt-20">
-        <div className="hidden w-[55%] flex-col justify-center border-r border-white/5 px-24 lg:flex">
+        <div className="hidden w-[55%] flex-col justify-center px-24 lg:flex" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
-            <h1 className="mb-8 text-7xl font-black uppercase leading-[0.8] tracking-tighter text-white">
+            <h1 className="mb-8 text-7xl font-black uppercase leading-[0.8] tracking-tighter" style={{ color: colors.text }}>
               Agent <br />
-              <span className="animate-gradient bg-gradient-to-r from-purple-600 via-purple-300 to-white bg-clip-text text-transparent">
+              <span
+                className="animate-gradient bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${colors.accent}, ${colors.accentLight}, ${isDarkMode ? "#ffffff" : "#0f172a"})`,
+                }}
+              >
                 Network
               </span>
             </h1>
             <p className="mb-12 max-w-lg text-lg font-medium leading-relaxed opacity-70" style={{ color: colors.muted }}>
               Initialize your professional profile to manage Digital Signature Certificates and IRCTC assets through our encrypted cloud infrastructure.
             </p>
-            <div className="group flex w-fit items-center gap-4 rounded-lg border border-white/5 bg-white/5 px-6 py-3 transition-all hover:border-purple-500/30">
-              <ShieldCheck size={24} className="animate-pulse text-purple-500" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white">
+            <div className="group flex w-fit items-center gap-4 rounded-lg px-6 py-3 transition-all" style={{ border: `1px solid ${colors.borderSoft}`, backgroundColor: colors.panel }}>
+              <ShieldCheck size={24} className="animate-pulse" style={{ color: colors.accent }} />
+              <span className="text-[10px] font-black uppercase tracking-[0.4em]" style={{ color: colors.text }}>
                 Identity Verification Protocol Active
               </span>
             </div>
@@ -135,11 +136,11 @@ export default function Register() {
               className="relative w-full overflow-hidden rounded-[30px] border p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl"
               style={{ backgroundColor: colors.card, borderColor: colors.border }}
             >
-              <div className="absolute left-0 top-0 h-[1px] w-full bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
+              <div className="absolute left-0 top-0 h-[1px] w-full opacity-50" style={{ backgroundImage: `linear-gradient(to right, transparent, ${colors.accentLight}, transparent)` }} />
 
               <div className="mb-6 text-center lg:text-left">
-                <h2 className="text-2xl font-black uppercase tracking-tighter text-white">Register</h2>
-                <p className="mt-2 text-[9px] font-black uppercase tracking-[0.5em] text-white opacity-50">
+                <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>Register</h2>
+                <p className="mt-2 text-[9px] font-black uppercase tracking-[0.5em] opacity-50" style={{ color: colors.muted }}>
                   Create Account
                 </p>
               </div>
@@ -156,7 +157,8 @@ export default function Register() {
                   placeholder="First Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="rounded-lg border border-white/5 bg-black/40 p-3 text-sm text-white outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/10"
+                  className="rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                  style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                 />
 
                 <input
@@ -164,7 +166,8 @@ export default function Register() {
                   placeholder="Last Name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="rounded-lg border border-white/5 bg-black/40 p-3 text-sm text-white outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/10"
+                  className="rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                  style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                 />
 
                 <div className="relative col-span-2">
@@ -173,15 +176,16 @@ export default function Register() {
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-lg border border-white/5 bg-black/40 p-3 pl-10 text-sm text-white outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border p-3 pl-10 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
-                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }} />
                 </div>
 
-                <div className="col-span-2 flex items-center rounded-lg border border-white/5 bg-black/40 focus-within:border-purple-500/50 focus-within:ring-2 focus-within:ring-purple-500/10">
-                  <div className="flex items-center gap-2 pl-3 text-gray-500">
+                <div className="col-span-2 flex items-center rounded-lg border focus-within:ring-2 focus-within:ring-purple-500/10" style={{ backgroundColor: colors.input, borderColor: colors.inputBorder }}>
+                  <div className="flex items-center gap-2 pl-3" style={{ color: colors.muted }}>
                     <Smartphone size={16} />
-                    <span className="text-sm font-semibold text-slate-400">+91</span>
+                    <span className="text-sm font-semibold" style={{ color: colors.muted }}>+91</span>
                   </div>
                   <input
                     type="tel"
@@ -189,7 +193,8 @@ export default function Register() {
                     placeholder="9876543210"
                     value={number}
                     onChange={(e) => setNumber(sanitizeNumber(e.target.value))}
-                    className="w-full bg-transparent p-3 text-sm text-white outline-none"
+                    className="w-full bg-transparent p-3 text-sm outline-none"
+                    style={{ color: colors.text }}
                   />
                 </div>
 
@@ -198,7 +203,8 @@ export default function Register() {
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="rounded-lg border border-white/5 bg-black/40 p-3 text-sm text-white outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/10"
+                  className="rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                  style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                 />
 
                 <input
@@ -206,7 +212,8 @@ export default function Register() {
                   placeholder="Confirm"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="rounded-lg border border-white/5 bg-black/40 p-3 text-sm text-white outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/10"
+                  className="rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                  style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                 />
 
                 <button
@@ -225,7 +232,8 @@ export default function Register() {
               <div className="pt-4 text-center">
                 <Link
                   href="/login"
-                  className="text-[9px] uppercase tracking-widest text-gray-500 underline underline-offset-4 hover:text-purple-400"
+                  className="text-[9px] uppercase tracking-widest underline underline-offset-4"
+                  style={{ color: colors.muted }}
                 >
                   Already have account? Login
                 </Link>

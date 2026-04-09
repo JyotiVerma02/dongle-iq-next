@@ -1,35 +1,36 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+
+import ParticleBackground from "@/components/ParticleBackground";
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function PreviewPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
 
-  const [data, setData] = useState<any>(null);
-
-  useEffect(() => {
-    const name = searchParams.get("name");
-    const email = searchParams.get("email");
-    const number = searchParams.get("number");
-
-    setData({ name, email, number });
-  }, [searchParams]);
+  const data = {
+    name: searchParams.get("name"),
+    email: searchParams.get("email"),
+    number: searchParams.get("number"),
+  };
 
   const handleConfirm = () => {
-    // final submit or API call
     alert("Confirmed!");
     router.push("/success");
   };
 
-  if (!data) return <div className="p-10 text-white">Loading...</div>;
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-transparent text-white">
-      <div className="bg-[#1A1A1A] p-8 rounded-2xl shadow-xl w-full max-w-md border border-white/10">
-        
-        <h2 className="text-2xl font-bold mb-6">Preview Details</h2>
+    <div className="theme-transition relative flex min-h-screen items-center justify-center px-4" style={{ color: colors.text }}>
+      <ParticleBackground />
+      <div
+        className="relative z-10 w-full max-w-md rounded-2xl border p-8 shadow-xl"
+        style={{ backgroundColor: colors.card, borderColor: colors.border }}
+      >
+        <h2 className="mb-6 text-2xl font-bold">Preview Details</h2>
 
         <div className="space-y-3 text-sm">
           <p><strong>Name:</strong> {data.name}</p>
@@ -37,17 +38,19 @@ export default function PreviewPage() {
           <p><strong>Phone:</strong> {data.number}</p>
         </div>
 
-        <div className="flex justify-between mt-8">
+        <div className="mt-8 flex justify-between">
           <button
             onClick={() => router.back()}
-            className="px-5 py-2 rounded-lg bg-gray-700 hover:bg-gray-600"
+            className="rounded-lg px-5 py-2"
+            style={{ backgroundColor: colors.panel, color: colors.text }}
           >
             Back
           </button>
 
           <button
             onClick={handleConfirm}
-            className="px-5 py-2 rounded-lg bg-purple-600 hover:bg-purple-500"
+            className="rounded-lg px-5 py-2 text-white"
+            style={{ backgroundColor: colors.accent }}
           >
             Confirm
           </button>

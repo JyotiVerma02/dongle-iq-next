@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LogIn, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function Login() {
   const router = useRouter();
@@ -15,16 +17,9 @@ export default function Login() {
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { isDarkMode } = useTheme();
 
-  const colors = {
-    bg: "#050505",
-    card: "rgba(20, 20, 20, 0.4)",
-    accent: "#7C3AED",
-    accentLight: "#A78BFA",
-    text: "#F9FAFB",
-    muted: "#9CA3AF",
-    border: "rgba(124, 58, 237, 0.2)",
-  };
+  const colors = getThemePalette(isDarkMode);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,15 +54,20 @@ export default function Login() {
 
   return (
     <div
-      className="relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="theme-transition relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
       <div className="relative z-10 flex min-h-screen pt-20">
-        <div className="hidden w-[55%] flex-col justify-center border-r border-white/5 px-24 lg:flex">
+        <div className="hidden w-[55%] flex-col justify-center px-24 lg:flex" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="mb-8 text-7xl font-black uppercase leading-[0.8] tracking-tighter">
-              Secure
-              <span className="animate-gradient bg-gradient-to-r from-purple-600 via-purple-300 to-white bg-clip-text text-transparent">
+              <span style={{ color: colors.text }}>Secure</span>
+              <span
+                className="animate-gradient bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: `linear-gradient(to right, ${colors.accent}, ${colors.accentLight}, ${isDarkMode ? "#ffffff" : "#0f172a"})`,
+                }}
+              >
                 {" "}
                 Access
               </span>
@@ -75,8 +75,11 @@ export default function Login() {
             <p className="mb-12 max-w-lg text-lg font-medium leading-relaxed opacity-70" style={{ color: colors.muted }}>
               Enter your credentials to manage your Digital Signature Certificates and IRCTC Agent registrations in our unified dashboard.
             </p>
-            <div className="group flex w-fit items-center gap-4 rounded-lg border border-white/5 bg-white/5 px-6 py-3 transition-all hover:border-purple-500/30">
-              <ShieldCheck size={24} className="animate-pulse text-purple-500" />
+            <div
+              className="group flex w-fit items-center gap-4 rounded-lg px-6 py-3 transition-all"
+              style={{ border: `1px solid ${colors.borderSoft}`, backgroundColor: colors.panel }}
+            >
+              <ShieldCheck size={24} className="animate-pulse" style={{ color: colors.accent }} />
               <span className="text-[10px] font-black uppercase tracking-[0.4em]">
                 Military-Grade Encryption Active
               </span>
@@ -93,13 +96,14 @@ export default function Login() {
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border,
+                color: colors.text,
               }}
             >
-              <div className="absolute left-0 top-0 h-[1px] w-full bg-gradient-to-r from-transparent via-purple-400 to-transparent opacity-50" />
+              <div className="absolute left-0 top-0 h-[1px] w-full opacity-50" style={{ backgroundImage: `linear-gradient(to right, transparent, ${colors.accentLight}, transparent)` }} />
 
               <div className="mb-6 text-center lg:text-left">
-                <h2 className="text-2xl font-black uppercase tracking-tighter">Welcome Back</h2>
-                <p className="mt-2 text-[9px] font-black uppercase tracking-[0.5em] opacity-50">
+                <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>Welcome Back</h2>
+                <p className="mt-2 text-[9px] font-black uppercase tracking-[0.5em] opacity-50" style={{ color: colors.muted }}>
                   Identity Verification
                 </p>
               </div>
@@ -118,30 +122,41 @@ export default function Login() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[9px] uppercase tracking-widest opacity-50">Email or Mobile</label>
+                  <label className="text-[9px] uppercase tracking-widest opacity-50" style={{ color: colors.muted }}>Email or Mobile</label>
 
                   <input
                     type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="agent@dongleiq.com or 9876543210"
-                    className="w-full rounded-lg border border-white/5 bg-black/40 p-3 text-sm outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                    style={{
+                      backgroundColor: colors.input,
+                      borderColor: colors.inputBorder,
+                      color: colors.text,
+                    }}
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[9px] uppercase tracking-widest opacity-50">Password</label>
+                  <label className="text-[9px] uppercase tracking-widest opacity-50" style={{ color: colors.muted }}>Password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="w-full rounded-lg border border-white/5 bg-black/40 p-3 text-sm outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/10"
+                      className="w-full rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                      style={{
+                        backgroundColor: colors.input,
+                        borderColor: colors.inputBorder,
+                        color: colors.text,
+                      }}
                     />
                     <button
                       type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-400"
+                      className="absolute right-3 top-1/2 -translate-y-1/2"
+                      style={{ color: colors.muted }}
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -163,7 +178,7 @@ export default function Login() {
 
                 <div className="pt-3 text-center">
                   <Link href="/forgot-password">
-                    <span className="cursor-pointer text-[9px] uppercase tracking-widest text-gray-500 underline underline-offset-4 hover:text-purple-400">
+                    <span className="cursor-pointer text-[9px] uppercase tracking-widest underline underline-offset-4" style={{ color: colors.muted }}>
                       Forgot Password?
                     </span>
                   </Link>

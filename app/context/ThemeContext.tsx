@@ -1,36 +1,71 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState } from "react";
 
-// 1. Define what data our "Theme Brain" will hold
-const ThemeContext = createContext({
-  isDarkMode: false,
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+
+type Theme = "light" | "dark";
+
+type ThemeContextValue = {
+  theme: Theme;
+  isDarkMode: boolean;
+  mounted: boolean;
+  setTheme: (theme: Theme) => void;
+  toggleTheme: () => void;
+};
+
+const ThemeContext = createContext<ThemeContextValue>({
+  theme: "dark",
+  isDarkMode: true,
+  mounted: false,
+  setTheme: () => {},
   toggleTheme: () => {},
 });
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("dongle-iq-theme");
-      return savedTheme ? savedTheme === "dark" : false;
-    }
-    return false;
-  });
+const STORAGE_KEY = "dongle-iq-theme";
 
-  // 3. Function to switch themes and save the choice
-  const toggleTheme = () => {
-    setIsDarkMode((prev) => {
-      const nextTheme = !prev;
-      localStorage.setItem("dongle-iq-theme", nextTheme ? "dark" : "light");
-      return nextTheme;
-    });
+function getInitialTheme(): Theme {
+  if (typeof window === "undefined") {
+    return "dark";
+  }
+
+  const savedTheme = window.localStorage.getItem(STORAGE_KEY);
+  if (savedTheme === "light" || savedTheme === "dark") {
+    return savedTheme;
+  }
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+    root.style.colorScheme = theme;
+    window.localStorage.setItem(STORAGE_KEY, theme);
+  }, [theme]);
+
+  const setTheme = (nextTheme: Theme) => {
+    setThemeState(nextTheme);
   };
 
-  return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
+  const toggleTheme = () => {
+    setThemeState((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
+  };
+
+  const value = useMemo(
+    () => ({
+      theme,
+      isDarkMode: theme === "dark",
+      mounted: true,
+      setTheme,
+      toggleTheme,
+    }),
+    [theme]
   );
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
-// 4. Custom hook to easily use the theme in any component
 export const useTheme = () => useContext(ThemeContext);

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Roboto, Poppins } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/navbar";
-// Import the Provider we discussed in Step 1
 import { ThemeProvider } from "@/app/context/ThemeContext"; 
 import ParticleBackground from "@/components/ParticleBackground";
 import CursorEffect from "@/components/CursorEffect";
@@ -30,24 +29,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-  <html lang="en" className="dark">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} theme-transition antialiased`}>
         <ThemeProvider>
-          
-          {/* Particle background (global & fixed) */}
           <ParticleBackground />
-
-          {/* Navbar above particles */}
           <Navbar />
-
-          {/* Page content above everything */}
           <div className="relative z-10">
             {children}
           </div>
-
-          {/* Cursor effect (global & fixed) */}
           <CursorEffect />
-
         </ThemeProvider>
       </body>
     </html>

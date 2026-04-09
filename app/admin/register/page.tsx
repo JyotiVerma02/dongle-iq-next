@@ -4,18 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import OtpModal from "@/components/OtpModal";
-
-const colors = {
-  bg: "#050505",
-  card: "rgba(20, 20, 20, 0.4)",
-  accent: "#7C3AED",
-  text: "#F9FAFB",
-  muted: "#9CA3AF",
-  border: "rgba(124, 58, 237, 0.2)",
-};
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function AdminRegister() {
   const router = useRouter();
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
 
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -73,11 +68,11 @@ export default function AdminRegister() {
 
   return (
     <div
-      className="relative mt-10 min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="theme-transition relative mt-10 min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
       <div className="relative z-10 flex min-h-screen">
-        <div className="hidden w-[55%] flex-col justify-center border-r border-white/5 px-16 lg:flex">
+        <div className="hidden w-[55%] flex-col justify-center px-16 lg:flex" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="mb-8 text-7xl font-black uppercase italic leading-[0.8] tracking-tighter">
               Admin
@@ -101,7 +96,7 @@ export default function AdminRegister() {
             <div className="absolute -inset-[1.5px] rounded-4xl bg-linear-to-r from-purple-600 via-transparent to-purple-600 opacity-30 blur-sm transition-opacity duration-500 group-hover:opacity-100" />
 
             <div
-              className="relative w-full max-w-sm overflow-hidden rounded-xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl"
+              className="relative w-full max-w-sm overflow-hidden rounded-xl border p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl"
               style={{ backgroundColor: colors.card, borderColor: colors.border }}
             >
               <div className="absolute left-0 top-0 h-px w-full bg-linear-to-r from-transparent via-purple-400 to-transparent opacity-50" />
@@ -128,7 +123,8 @@ export default function AdminRegister() {
                     placeholder="First Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border p-2.5 text-xs outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
 
                   <input
@@ -136,7 +132,8 @@ export default function AdminRegister() {
                     placeholder="Last Name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border p-2.5 text-xs outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                 </div>
 
@@ -146,11 +143,12 @@ export default function AdminRegister() {
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border p-2.5 text-xs outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
 
-                  <div className="flex items-center rounded-lg border border-white/5 bg-black/40 focus-within:border-purple-500/50 focus-within:ring-4 focus-within:ring-purple-500/10">
-                    <span className="px-3 text-xs font-bold text-slate-400">+91</span>
+                  <div className="flex items-center rounded-lg border focus-within:ring-4 focus-within:ring-purple-500/10" style={{ backgroundColor: colors.input, borderColor: colors.inputBorder }}>
+                    <span className="px-3 text-xs font-bold" style={{ color: colors.muted }}>+91</span>
                     <input
                       type="tel"
                       inputMode="numeric"
@@ -158,6 +156,7 @@ export default function AdminRegister() {
                       value={number}
                       onChange={(e) => setNumber(sanitizeNumber(e.target.value))}
                       className="w-full bg-transparent p-2.5 text-xs outline-none"
+                      style={{ color: colors.text }}
                     />
                   </div>
                 </div>
@@ -168,11 +167,13 @@ export default function AdminRegister() {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border p-2.5 text-xs outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                   <button
                     type="button"
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-400"
+                    className="absolute right-5 top-1/2 -translate-y-1/2"
+                    style={{ color: colors.muted }}
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -185,11 +186,13 @@ export default function AdminRegister() {
                     placeholder="Confirm Password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border p-2.5 text-xs outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                   <button
                     type="button"
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-purple-400"
+                    className="absolute right-5 top-1/2 -translate-y-1/2"
+                    style={{ color: colors.muted }}
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}

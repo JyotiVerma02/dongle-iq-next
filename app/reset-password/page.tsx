@@ -7,6 +7,8 @@ import Link from "next/link";
 import { 
   Cpu, ShieldCheck, Lock, Eye, EyeOff, CheckCircle2, RefreshCw 
 } from "lucide-react";
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function ResetPassword() {
   const [password, setPassword] = useState("");
@@ -19,16 +21,9 @@ export default function ResetPassword() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const router = useRouter();
+  const { isDarkMode } = useTheme();
 
-  const colors = {
-    bg: "transparent", 
-    card: "rgba(20, 20, 20, 0.4)", 
-    accent: "#7C3AED",
-    accentLight: "#A78BFA",
-    text: "#F9FAFB",
-    muted: "#9CA3AF",
-    border: "rgba(124, 58, 237, 0.2)"
-  };
+  const colors = getThemePalette(isDarkMode);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,12 +63,12 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen font-sans antialiased tracking-tight relative overflow-hidden bg-transparent">
+    <div className="theme-transition relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
       
       {/* --- NAVBAR --- */}
       <nav 
         className="fixed top-0 w-full z-50 p-5 backdrop-blur-xl border-b animate-[slideDown_0.6s_ease-out]"
-        style={{ backgroundColor: `rgba(5, 5, 5, 0.7)`, borderColor: colors.border }}
+        style={{ backgroundColor: colors.overlay, borderColor: colors.border }}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
@@ -83,7 +78,7 @@ export default function ResetPassword() {
             >
               <Cpu size={20} className="text-white" />
             </div>
-            <span className="font-black text-xl  uppercase tracking-tighter text-white">
+            <span className="font-black text-xl uppercase tracking-tighter" style={{ color: colors.text }}>
               Dongle<span style={{ color: colors.accentLight }}>IQ</span>
             </span>
           </Link>
@@ -97,9 +92,9 @@ export default function ResetPassword() {
       <div className="relative z-10 flex pt-20 min-h-screen">
         
         {/* LEFT PANEL */}
-        <div className="hidden lg:flex w-[55%] flex-col justify-center px-24 border-r border-white/5">
+        <div className="hidden lg:flex w-[55%] flex-col justify-center px-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
-            <h1 className="text-7xl xl:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase  text-white">
+            <h1 className="text-7xl xl:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase" style={{ color: colors.text }}>
               Update <br /> 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-purple-300 to-white animate-gradient">Credentials</span>
             </h1>
@@ -107,9 +102,9 @@ export default function ResetPassword() {
               Finalize your account recovery by establishing a new high-entropy access key. 
               Ensure your profile remains protected within the Dongle IQ infrastructure.
             </p>
-            <div className="flex items-center gap-4 px-6 py-3 rounded-2xl bg-white/5 border border-white/5 w-fit group hover:border-purple-500/30 transition-all">
-               <ShieldCheck size={24} className="text-purple-500 animate-pulse" />
-               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white">End-to-End Encryption Active</span>
+            <div className="flex items-center gap-4 px-6 py-3 rounded-2xl w-fit group transition-all" style={{ backgroundColor: colors.panel, border: `1px solid ${colors.borderSoft}` }}>
+               <ShieldCheck size={24} className="animate-pulse" style={{ color: colors.accent }} />
+               <span className="text-[10px] font-black uppercase tracking-[0.4em]" style={{ color: colors.text }}>End-to-End Encryption Active</span>
             </div>
           </div>
         </div>
@@ -131,10 +126,10 @@ export default function ResetPassword() {
 
       {/* Heading */}
       <div className="mb-6 text-center">
-        <h2 className="text-2xl font-black  uppercase tracking-tighter text-white">
+        <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>
           New Access
         </h2>
-        <p className="text-[9px] uppercase tracking-[0.4em] font-black mt-2 opacity-50 text-white">
+        <p className="mt-2 text-[9px] font-black uppercase tracking-[0.4em] opacity-50" style={{ color: colors.muted }}>
           Protocol Recovery
         </p>
       </div>
@@ -160,12 +155,14 @@ export default function ResetPassword() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="New Password"
-            className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none"
+            className="w-full rounded-lg border p-2.5 text-xs outline-none"
+            style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
           />
           <button
             type="button"
             onClick={() => setShowPass(!showPass)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+            style={{ color: colors.muted }}
           >
             {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
@@ -178,12 +175,14 @@ export default function ResetPassword() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm Password"
-            className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none"
+            className="w-full rounded-lg border p-2.5 text-xs outline-none"
+            style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
           />
           <button
             type="button"
             onClick={() => setShowConfirm(!showConfirm)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+            style={{ color: colors.muted }}
           >
             {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>

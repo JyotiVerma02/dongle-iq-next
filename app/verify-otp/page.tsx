@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import OTPInput from "@/components/OTPInput";
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function VerifyOTP() {
   const router = useRouter();
@@ -14,6 +16,8 @@ export default function VerifyOTP() {
   const [otp, setOtp] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -59,15 +63,18 @@ export default function VerifyOTP() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      className="theme-transition flex min-h-screen items-center justify-center bg-cover bg-center px-4"
       style={{ backgroundImage: "url('/tech-bg.jpg')" }}
     >
-      <div className="bg-black/80 backdrop-blur-md p-10 rounded-xl shadow-xl w-96">
-        <h2 className="text-3xl font-bold text-white text-center mb-6">
+      <div
+        className="w-96 rounded-2xl border p-10 shadow-xl backdrop-blur-md"
+        style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
+      >
+        <h2 className="mb-6 text-center text-3xl font-bold">
           Verify OTP
         </h2>
 
-        <p className="text-gray-400 text-center mb-6">
+        <p className="mb-6 text-center" style={{ color: colors.muted }}>
           Enter the OTP sent to your email
         </p>
 
@@ -75,7 +82,8 @@ export default function VerifyOTP() {
           {/* EMAIL */}
           <input
             type="email"
-            className="w-full p-3 mb-6 rounded bg-gray-800 text-white border border-gray-600"
+            className="mb-6 w-full rounded border p-3"
+            style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -89,7 +97,8 @@ export default function VerifyOTP() {
           {/* VERIFY BUTTON */}
           <button
             type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg"
+            className="w-full rounded-lg py-3 text-white"
+            style={{ backgroundColor: colors.accent }}
           >
             Verify OTP
           </button>
@@ -98,7 +107,8 @@ export default function VerifyOTP() {
           <button
             type="button"
             onClick={handleResendOTP}
-            className="text-blue-400 mt-4 hover:text-blue-300 w-full"
+            className="mt-4 w-full"
+            style={{ color: colors.accent }}
           >
             Resend OTP
           </button>

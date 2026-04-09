@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 type Props = {
   length?: number;
@@ -8,6 +10,8 @@ type Props = {
 };
 
 export default function OTPInput({ length = 6, onComplete }: Props) {
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
 
   const [otp, setOtp] = useState<string[]>(Array(length).fill(""));
 
@@ -42,7 +46,12 @@ export default function OTPInput({ length = 6, onComplete }: Props) {
           maxLength={1}
           value={digit}
           onChange={(e) => handleChange(e.target.value, index)}
-          className="w-12 h-12 text-center text-xl font-bold rounded-md bg-gray-800 text-white border border-gray-600 focus:outline-none focus:border-emerald-400"
+          className="h-12 w-12 rounded-md border text-center text-xl font-bold focus:outline-none"
+          style={{
+            backgroundColor: colors.input,
+            color: colors.text,
+            borderColor: colors.inputBorder,
+          }}
         />
 
       ))}

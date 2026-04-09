@@ -6,22 +6,16 @@ import Link from "next/link";
 import { 
   Cpu, ShieldCheck, Mail, ArrowLeft, Send
 } from "lucide-react";
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const { isDarkMode } = useTheme();
 
-  // Updated to match Login page aesthetics
-  const colors = {
-    bg: "transparent", // Set to transparent for Particles
-    card: "rgba(20, 20, 20, 0.4)", 
-    accent: "#7C3AED",
-    accentLight: "#A78BFA",
-    text: "#F9FAFB",
-    muted: "#9CA3AF",
-    border: "rgba(124, 58, 237, 0.2)"
-  };
+  const colors = getThemePalette(isDarkMode);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -46,12 +40,12 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen font-sans antialiased tracking-tight relative overflow-hidden bg-transparent">
+    <div className="theme-transition relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
       
       {/* --- NAVBAR (Consistent with Login) --- */}
       <nav 
         className="fixed top-0 w-full z-50 p-5 backdrop-blur-xl border-b animate-[slideDown_0.6s_ease-out]"
-        style={{ backgroundColor: `rgba(5, 5, 5, 0.7)`, borderColor: colors.border }}
+        style={{ backgroundColor: colors.overlay, borderColor: colors.border }}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
@@ -61,11 +55,11 @@ export default function ForgotPassword() {
             >
               <Cpu size={20} className="text-white" />
             </div>
-            <span className="font-black text-xl  uppercase tracking-tighter text-white">
+            <span className="font-black text-xl  uppercase tracking-tighter" style={{ color: colors.text }}>
               Dongle<span style={{ color: colors.accentLight }}>IQ</span>
             </span>
           </Link>
-          <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 hover:text-white transition-colors">
+          <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.3em] transition-colors" style={{ color: colors.muted }}>
              Back to Login
           </Link>
         </div>
@@ -75,9 +69,9 @@ export default function ForgotPassword() {
       <div className="relative z-10 flex pt-20 min-h-screen">
         
         {/* LEFT PANEL (Apply Login page text style) */}
-        <div className="hidden lg:flex w-[55%] flex-col justify-center px-24 border-r border-white/5">
+        <div className="hidden lg:flex w-[55%] flex-col justify-center px-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
-            <h1 className="text-7xl xl:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase  text-white">
+            <h1 className="text-7xl xl:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase" style={{ color: colors.text }}>
               Account <br /> 
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-purple-300 to-white animate-gradient">Recovery</span>
             </h1>
@@ -85,9 +79,9 @@ export default function ForgotPassword() {
               Reset your password securely and continue managing your digital signature 
               applications through the Dongle IQ encrypted portal.
             </p>
-            <div className="flex items-center gap-4 px-6 py-3 rounded-lg bg-white/5 border border-white/5 w-fit group hover:border-purple-500/30 transition-all">
-               <ShieldCheck size={24} className="text-purple-500 animate-pulse" />
-               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Secure Recovery Protocol Active</span>
+            <div className="flex items-center gap-4 px-6 py-3 rounded-lg w-fit group transition-all" style={{ backgroundColor: colors.panel, border: `1px solid ${colors.borderSoft}` }}>
+               <ShieldCheck size={24} className="animate-pulse" style={{ color: colors.accent }} />
+               <span className="text-[10px] font-black uppercase tracking-[0.4em]" style={{ color: colors.text }}>Secure Recovery Protocol Active</span>
             </div>
           </div>
         </div>
@@ -108,10 +102,10 @@ export default function ForgotPassword() {
 
       {/* Heading */}
       <div className="mb-6 text-center lg:text-left">
-        <h2 className="text-2xl font-black  uppercase tracking-tighter text-white">
+        <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>
           Forgot Access?
         </h2>
-        <p className="text-[9px] uppercase tracking-[0.5em] font-black mt-2 opacity-50 text-white">
+        <p className="mt-2 text-[9px] font-black uppercase tracking-[0.5em] opacity-50" style={{ color: colors.muted }}>
           Verification Required
         </p>
       </div>
@@ -134,7 +128,7 @@ export default function ForgotPassword() {
       <form onSubmit={handleSubmit} className="space-y-4">
 
         <div className="space-y-1">
-          <label className="text-[9px] uppercase tracking-widest opacity-50 text-white">
+          <label className="text-[9px] uppercase tracking-widest opacity-50" style={{ color: colors.muted }}>
             Registered Email
           </label>
 
@@ -144,12 +138,10 @@ export default function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="agent@dongleiq.com"
-              className="w-full p-3 pl-10 rounded-lg text-sm bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none focus:ring-2 focus:ring-purple-500/10 text-white"
+              className="w-full rounded-lg border p-3 pl-10 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+              style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
             />
-            <Mail
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-              size={16}
-            />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }} size={16} />
           </div>
         </div>
 
@@ -170,7 +162,8 @@ export default function ForgotPassword() {
         <div className="text-center pt-3">
           <Link
             href="/login"
-            className="text-[9px] uppercase tracking-widest text-gray-500 hover:text-purple-400 underline underline-offset-4"
+            className="text-[9px] uppercase tracking-widest underline underline-offset-4"
+            style={{ color: colors.muted }}
           >
             Back to Login
           </Link>

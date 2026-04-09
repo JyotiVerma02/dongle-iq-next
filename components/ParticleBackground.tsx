@@ -2,9 +2,16 @@
 
 import { useEffect, useRef } from "react";
 
+import { useTheme } from "@/app/context/ThemeContext";
+
 class Particle {
-  x: number; y: number; vx: number; vy: number; size: number;
-  canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
 
   constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
     this.canvas = canvas;
@@ -23,18 +30,21 @@ class Particle {
     if (this.y < 0 || this.y > this.canvas.height) this.vy *= -1;
   }
 
-  draw() {
+  draw(dotColor: string) {
     this.ctx.beginPath();
     this.ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    this.ctx.fillStyle = "rgba(168, 85, 247, 0.4)";
+    this.ctx.fillStyle = dotColor;
     this.ctx.fill();
   }
 }
 
 export default function ParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { theme, mounted } = useTheme();
 
   useEffect(() => {
+    if (!mounted) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -42,6 +52,14 @@ export default function ParticleBackground() {
 
     let particles: Particle[] = [];
     let animationFrameId: number;
+
+    const getThemeStyles = () => {
+      const computedStyles = getComputedStyle(document.documentElement);
+      return {
+        dot: computedStyles.getPropertyValue("--particle-dot").trim() || "rgba(168, 85, 247, 0.35)",
+        line: computedStyles.getPropertyValue("--particle-line").trim() || "rgba(168, 85, 247, 0.14)",
+      };
+    };
 
     const init = () => {
       canvas.width = window.innerWidth;
@@ -54,21 +72,23 @@ export default function ParticleBackground() {
     };
 
     const animate = () => {
+      const colors = getThemeStyles();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach((p, index) => {
-        p.update();
-        p.draw();
+
+      particles.forEach((particle, index) => {
+        particle.update();
+        particle.draw(colors.dot);
 
         for (let j = index + 1; j < particles.length; j++) {
-          const dx = p.x - particles[j].x;
-          const dy = p.y - particles[j].y;
+          const dx = particle.x - particles[j].x;
+          const dy = particle.y - particles[j].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < 120) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(168, 85, 247, ${0.15 * (1 - dist / 120)})`;
+            ctx.strokeStyle = colors.line;
             ctx.lineWidth = 0.6;
-            ctx.moveTo(p.x, p.y);
+            ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(particles[j].x, particles[j].y);
             ctx.stroke();
           }
@@ -87,14 +107,13 @@ export default function ParticleBackground() {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", init);
     };
-  }, []);
+  }, [mounted, theme]);
 
-return (
-  <canvas
-    ref={canvasRef}
-    // Added 'fixed inset-0' to ensure it covers the viewport 
-    // and '-z-10' to put it behind the page content
-    className="fixed inset-0 w-full h-full -z-10 pointer-events-none bg-[#0a0a0c]"
-  />
-);
+  return (
+    <canvas
+      ref={canvasRef}
+      className="theme-transition fixed inset-0 -z-10 h-full w-full pointer-events-none"
+      style={{ backgroundColor: "var(--particle-bg)" }}
+    />
+  );
 }

@@ -3,93 +3,99 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Cpu, LogIn } from "lucide-react";
+import { Cpu, LogIn, Moon, SunMedium } from "lucide-react";
+
 import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
+  const { mounted, isDarkMode, toggleTheme } = useTheme();
 
   if (pathname === "/admin/dashboard") {
     return null;
   }
 
-  const colors = {
-    accent: "#7C3AED",
-    accentLight: "#A78BFA",
-    muted: "#9CA3AF",
-    text: "#F9FAFB",
-    border: "rgba(124, 58, 237, 0.2)",
-  };
-
+  const colors = getThemePalette(isDarkMode);
   const navLinks = ["Apply", "Why Us", "Agents", "FAQs", "Contact"];
+  const themeLabel = mounted ? (isDarkMode ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme";
 
   return (
     <nav
-      className="fixed top-0 w-full z-50 p-5 backdrop-blur-2xl border-b bg-white/70 dark:bg-black/70 dark:border-gray-800 transition-all"
+      className="theme-transition fixed top-0 z-50 w-full border-b p-5 backdrop-blur-2xl"
       style={{
-        borderColor: colors.border,
+        backgroundColor: "var(--nav)",
+        borderColor: colors.borderSoft,
       }}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+        <Link href="/" className="group flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:rotate-180"
+            className="flex h-11 w-11 items-center justify-center rounded-2xl shadow-lg transition-all duration-500 group-hover:rotate-180"
             style={{
               backgroundColor: colors.accent,
-              boxShadow: `0 0 20px ${colors.accent}44`,
+              boxShadow: `0 0 24px ${colors.glow}`,
             }}
           >
             <Cpu size={20} className="text-white" />
           </div>
 
-          <span className="font-black text-xl  uppercase tracking-tighter text-black dark:text-white">
-            Dongle<span className="text-purple-500">IQ</span>
+          <span className="text-xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>
+            Dongle<span style={{ color: colors.accentLight }}>IQ</span>
           </span>
         </Link>
 
-        {/* Links */}
-        <div className="hidden md:flex items-center gap-10 text-[10px] font-black uppercase tracking-[0.3em]">
+        <div className="hidden items-center gap-10 text-[10px] font-black uppercase tracking-[0.3em] md:flex">
           {navLinks.map((link) => (
             <a
               key={link}
               href={`/#${link.toLowerCase().replace(" ", "")}`}
-              className="text-gray-500 dark:text-gray-300 hover:text-purple-500 transition-all duration-300 relative group"
+              className="relative group transition-all duration-300"
+              style={{ color: colors.muted }}
             >
               {link}
-              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-purple-500 transition-all group-hover:w-full" />
+              <span
+                className="absolute -bottom-1 left-0 h-[1px] w-0 transition-all group-hover:w-full"
+                style={{ backgroundColor: colors.accent }}
+              />
             </a>
           ))}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-4">
-
-          {/* Theme Toggle */}
+        <div className="flex items-center gap-3">
           <button
             onClick={toggleTheme}
-            className="px-4 py-2 rounded-xl border text-sm font-bold text-black dark:text-white border-gray-300 dark:border-gray-700"
+            aria-label={themeLabel}
+            title={themeLabel}
+            className="theme-transition rounded-2xl border p-3"
+            style={{
+              color: colors.text,
+              backgroundColor: colors.panel,
+              borderColor: colors.borderSoft,
+            }}
           >
-            {theme === "dark" ? "☀️" : "🌙"}
+            {mounted && isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />}
           </button>
 
           <button
             onClick={() => router.push("/login")}
-            className="hidden sm:flex text-[11px] font-black uppercase tracking-widest gap-2 items-center text-gray-600 dark:text-gray-300 hover:text-purple-500 transition-colors"
+            className="hidden items-center gap-2 text-[11px] font-black uppercase tracking-widest transition-colors sm:flex"
+            style={{ color: colors.muted }}
           >
             <LogIn size={14} /> Login
           </button>
 
           <button
             onClick={() => router.push("/signup")}
-            className="px-6 py-2.5 rounded-full text-[11px] font-black uppercase tracking-widest text-white bg-purple-600 hover:bg-purple-700 hover:scale-105 active:scale-95 transition-all"
+            className="theme-transition rounded-full px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white"
+            style={{
+              backgroundColor: colors.accent,
+              boxShadow: `0 16px 36px -18px ${colors.glow}`,
+            }}
           >
             Register
           </button>
-
         </div>
       </div>
     </nav>

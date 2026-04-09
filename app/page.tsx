@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -37,17 +39,9 @@ import {
 export default function DongleIQLanding() {
   const router = useRouter();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { isDarkMode } = useTheme();
 
-  // Configuration based on your specific hex codes
-  const colors = {
-    bg: "transparent",
-    card: "#1A1A1A",
-    accent: "#7C3AED",
-    accentLight: "#A78BFA",
-    text: "#F9FAFB",
-    muted: "#9CA3AF",
-    border: "#2A2A2A",
-  };
+  const colors = getThemePalette(isDarkMode);
 
   const faqs = [
     {
@@ -90,8 +84,8 @@ export default function DongleIQLanding() {
 
   return (
     <div
-     
-    className="min-h-screen font-sans antialiased  text-white"
+      className="theme-transition min-h-screen font-sans antialiased"
+      style={{ color: colors.text }}
     >
     
       
@@ -207,8 +201,8 @@ export default function DongleIQLanding() {
         id="apply"
         className="py-24 px-6 border-y"
         style={{
-          borderColor: "rgba(255,255,255,0.05)",
-          backgroundColor: "rgba(255,255,255,0.01)",
+          borderColor: colors.borderSoft,
+          backgroundColor: colors.panel,
         }}
       >
         <div className="max-w-7xl mx-auto text-center">
@@ -293,7 +287,7 @@ export default function DongleIQLanding() {
       <section
         id="faqs"
         className="py-24 px-6 border-t"
-        style={{ borderColor: "rgba(255,255,255,0.05)" }}
+        style={{ borderColor: colors.borderSoft }}
       >
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl font-black text-center mb-12 uppercase tracking-tighter ">
@@ -425,6 +419,11 @@ export default function DongleIQLanding() {
                   <input
                     placeholder="Enter your name"
                     className="w-full bg-transparent border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
+                    style={{
+                      backgroundColor: colors.input,
+                      borderColor: colors.inputBorder,
+                      color: colors.text,
+                    }}
                   />
                 </div>
                 <div className="space-y-3">
@@ -437,6 +436,11 @@ export default function DongleIQLanding() {
                   <input
                     placeholder="john@company.com"
                     className="w-full bg-transparent border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
+                    style={{
+                      backgroundColor: colors.input,
+                      borderColor: colors.inputBorder,
+                      color: colors.text,
+                    }}
                   />
                 </div>
                 <div className="md:col-span-2 space-y-3">
@@ -450,6 +454,11 @@ export default function DongleIQLanding() {
                     placeholder="Tell us how you plan to use the Dongle IQ portal for your agency..."
                     rows={5}
                     className="w-full bg-transparent border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm resize-none"
+                    style={{
+                      backgroundColor: colors.input,
+                      borderColor: colors.inputBorder,
+                      color: colors.text,
+                    }}
                   />
                 </div>
                 <button

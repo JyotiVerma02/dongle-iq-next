@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
 
 interface Props {
   isOpen: boolean;
@@ -15,31 +17,33 @@ export default function OtpModal({
   onVerify,
   onResend,
 }: Props) {
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
   const [otp, setOtp] = useState(Array(6).fill(""));
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
 
   const [timer, setTimer] = useState(30);
-  const [canResend, setCanResend] = useState(false);
+  const canResend = timer === 0;
 
   useEffect(() => {
-    if (!isOpen) return;
-
-    setTimer(30);
-    setCanResend(false);
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (timer === 0) {
-      setCanResend(true);
-      return;
-    }
+    if (!isOpen || timer === 0) return;
 
     const interval = setInterval(() => {
-      setTimer((prev) => prev - 1);
+      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timer]);
+  }, [isOpen, timer]);
+
+  const resetModalState = () => {
+    setTimer(30);
+    setOtp(Array(6).fill(""));
+  };
+
+  const handleClose = () => {
+    resetModalState();
+    onClose();
+  };
 
   if (!isOpen) return null;
 
@@ -92,21 +96,19 @@ export default function OtpModal({
     if (!canResend) return;
 
     onResend();
-
-    setTimer(30);
-    setCanResend(false);
-
-    setOtp(Array(6).fill(""));
-
+    resetModalState();
     inputs.current[0]?.focus();
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 text-white p-8 rounded-xl w-[400px] shadow-2xl">
-        <h2 className="text-2xl font-bold mb-2">Verify OTP</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}>
+      <div
+        className="w-[400px] rounded-2xl border p-8 shadow-2xl backdrop-blur-2xl"
+        style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}
+      >
+        <h2 className="mb-2 text-2xl font-bold">Verify OTP</h2>
 
-        <p className="text-gray-400 mb-6">
+        <p className="mb-6" style={{ color: colors.muted }}>
           Enter the 6 digit OTP sent to your email
         </p>
 
@@ -120,7 +122,12 @@ export default function OtpModal({
               ref={(el) => {
                 inputs.current[index] = el;
               }}
-              className="w-12 h-12 text-center text-xl bg-gray-800 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-12 h-12 rounded-md border text-center text-xl focus:outline-none focus:ring-2"
+              style={{
+                backgroundColor: colors.input,
+                borderColor: colors.inputBorder,
+                color: colors.text,
+              }}
               onChange={(e) => handleChange(e.target.value, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={handlePaste}
@@ -131,7 +138,8 @@ export default function OtpModal({
 
         <button
           onClick={handleVerify}
-          className="w-full bg-emerald-500 hover:bg-emerald-600 p-3 rounded-lg font-semibold transition"
+          className="w-full rounded-lg p-3 font-semibold text-white transition"
+          style={{ backgroundColor: colors.accent }}
         >
           Verify OTP
         </button>
@@ -140,20 +148,22 @@ export default function OtpModal({
           {canResend ? (
             <button
               onClick={handleResend}
-              className="text-emerald-400 hover:text-emerald-300"
+              className="transition"
+              style={{ color: colors.accent }}
             >
               Resend OTP
             </button>
           ) : (
-            <p className="text-gray-400 text-sm">
+            <p className="text-sm" style={{ color: colors.muted }}>
               Resend OTP in {timer}s
             </p>
           )}
         </div>
 
         <button
-          onClick={onClose}
-          className="w-full mt-4 text-gray-400 hover:text-white"
+          onClick={handleClose}
+          className="mt-4 w-full transition"
+          style={{ color: colors.muted }}
         >
           Cancel
         </button>
