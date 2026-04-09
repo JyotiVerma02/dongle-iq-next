@@ -4,9 +4,8 @@ import User from "@/model/user";
 
 export async function POST(req: Request) {
   try {
-    const { userId, status } = await req.json();
+    const { userId, status, internalRemarks } = await req.json();
 
-    // ❌ validation
     if (!userId || !status) {
       return NextResponse.json(
         { success: false, message: "Missing data" },
@@ -14,14 +13,33 @@ export async function POST(req: Request) {
       );
     }
 
+    const normalizedStatus = String(status).toLowerCase();
+    const remarks = typeof internalRemarks === "string" ? internalRemarks.trim() : "";
+
+    if (!["pending", "approved", "rejected"].includes(normalizedStatus)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid status" },
+        { status: 400 }
+      );
+    }
+
+    if (normalizedStatus === "rejected" && !remarks) {
+      return NextResponse.json(
+        { success: false, message: "Rejection reason is required" },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
 
-    // 🔥 update and return updated user
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { status },
-      { new: true } // VERY IMPORTANT
-    );
+      {
+        status: normalizedStatus,
+        internalRemarks: normalizedStatus === "approved" ? "" : remarks,
+      },
+      { new: true }
+    ).select("-password");
 
     if (!updatedUser) {
       return NextResponse.json(
@@ -35,7 +53,6 @@ export async function POST(req: Request) {
       message: "Status updated successfully",
       user: updatedUser,
     });
-
   } catch (error) {
     console.error("UPDATE ERROR:", error);
 

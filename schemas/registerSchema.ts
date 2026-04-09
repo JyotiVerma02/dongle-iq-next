@@ -11,5 +11,5 @@ export const registerSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/,
       "Password must include uppercase, lowercase, number, and special character"
     ),
-  number: z.string().regex(/^[0-9]{10}$/, "Number must be 10 digits"),
+  number: z.string().regex(/^[6-9][0-9]{9}$/, "Enter a valid 10 digit Indian mobile number"),
 });

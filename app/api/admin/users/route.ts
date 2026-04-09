@@ -6,7 +6,7 @@ export async function GET() {
   try {
     await connectDB();
 
-   const users = await User.find().select("-password").sort({ createdAt: -1 });
+   const users = await User.find({ role: { $ne: "admin" } }).select("-password").sort({ createdAt: -1 });
 
     return NextResponse.json({ users });
 

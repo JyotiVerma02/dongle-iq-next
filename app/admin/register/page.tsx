@@ -1,15 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import OtpModal from "@/components/OtpModal";
 
 const colors = {
   bg: "#050505",
   card: "rgba(20, 20, 20, 0.4)",
   accent: "#7C3AED",
-  accentLight: "#A78BFA",
   text: "#F9FAFB",
   muted: "#9CA3AF",
   border: "rgba(124, 58, 237, 0.2)",
@@ -27,9 +26,13 @@ export default function AdminRegister() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [showOtp, setShowOtp] = useState(false);
+
+  const sanitizeNumber = (value: string) => value.replace(/\D/g, "").slice(0, 10);
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
     if (!name || !lastName || !email || !number || !password || !confirmPassword) {
       setError("All fields are required");
@@ -48,7 +51,7 @@ export default function AdminRegister() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: name + " " + lastName,
+          name: `${name} ${lastName}`,
           email,
           number,
           password,
@@ -58,91 +61,74 @@ export default function AdminRegister() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error);
+        setError(data.error || "Registration failed");
         return;
       }
 
-      alert("Admin registered successfully 🎉");
-      router.push("/login");
-    } catch (err) {
+      setShowOtp(true);
+    } catch {
       setError("Something went wrong");
     }
   };
 
   return (
     <div
-      className="min-h-screen font-sans antialiased tracking-tight relative overflow-hidden bg-transparent mt-10"
+      className="relative mt-10 min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className="relative z-10 flex  min-h-screen">
-        
-        {/* LEFT PANEL */}
-        <div className="hidden lg:flex w-[55%] flex-col justify-center px-16 border-r border-white/5">
+      <div className="relative z-10 flex min-h-screen">
+        <div className="hidden w-[55%] flex-col justify-center border-r border-white/5 px-16 lg:flex">
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
-            <h1 className="text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase italic">
+            <h1 className="mb-8 text-7xl font-black uppercase italic leading-[0.8] tracking-tighter">
               Admin
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-purple-600 via-purple-300 to-white animate-gradient"> Access
+              <span className="bg-linear-to-r from-purple-600 via-purple-300 to-white bg-clip-text text-transparent animate-gradient">
+                {" "}
+                Access
               </span>
             </h1>
 
             <p
-              className="text-lg max-w-lg leading-relaxed font-medium mb-12 opacity-70"
+              className="mb-12 max-w-lg text-lg font-medium leading-relaxed opacity-70"
               style={{ color: colors.muted }}
             >
-              Register new admin securely to manage dashboard access and approvals.
+              Register a single admin account, then verify the email OTP before dashboard access is activated.
             </p>
-
-            <div className="flex items-center gap-2 px-6 py-3  bg-white/5 border border-white/5 w-fit group hover:border-purple-500/30 transition-all">
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]">
-                Secure Registration Enabled
-              </span>
-            </div>
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="relative group animate-[fadeIn_1.2s_ease-out]">
-            
-            {/* Glow Border */}
-            <div className="absolute -inset-[1.5px] bg-linear-to-r from-purple-600 via-transparent to-purple-600 rounded-4xl opacity-30 group-hover:opacity-100 transition-opacity duration-500 blur-sm" />
+        <div className="flex flex-1 items-center justify-center p-6">
+          <div className="group relative animate-[fadeIn_1.2s_ease-out]">
+            <div className="absolute -inset-[1.5px] rounded-4xl bg-linear-to-r from-purple-600 via-transparent to-purple-600 opacity-30 blur-sm transition-opacity duration-500 group-hover:opacity-100" />
 
-            {/* CARD */}
             <div
-              className="relative  p-6 rounded-xl max-w-sm backdrop-blur-2xl w-full  shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+              className="relative w-full max-w-sm overflow-hidden rounded-xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl"
               style={{ backgroundColor: colors.card, borderColor: colors.border }}
             >
-              {/* Top Glow Line */}
-              <div className="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-purple-400 to-transparent opacity-50" />
+              <div className="absolute left-0 top-0 h-px w-full bg-linear-to-r from-transparent via-purple-400 to-transparent opacity-50" />
 
-              {/* Heading */}
-            <div className="mb-8 text-center lg:text-left">
-                <h2 className="text-2xl font-black italic uppercase tracking-tighter">
+              <div className="mb-8 text-center lg:text-left">
+                <h2 className="text-2xl font-black uppercase italic tracking-tighter">
                   Admin <span className="text-purple-500">Register</span>
                 </h2>
-                <p className="text-[9px] uppercase tracking-[0.5em] font-black mt-3 opacity-50">
-                  Secure Access Setup
+                <p className="mt-3 text-[9px] font-black uppercase tracking-[0.5em] opacity-50">
+                  Verify Before Access
                 </p>
               </div>
 
-              {/* Error */}
               {error && (
-                <div className="mb-6 py-3 bg-red-500/10 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-widest text-center rounded-xl">
+                <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/10 py-3 text-center text-[10px] font-black uppercase tracking-widest text-red-500">
                   {error}
                 </div>
               )}
 
-              {/* FORM */}
               <form onSubmit={handleRegister} className="space-y-4">
-
-                {/* Name */}
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
                     placeholder="First Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
                   />
 
                   <input
@@ -150,37 +136,39 @@ export default function AdminRegister() {
                     placeholder="Last Name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
                   />
                 </div>
 
-                {/* Email + Phone */}
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
                   />
 
-                  <input
-                    type="tel"
-                    placeholder="Phone Number"
-                    value={number}
-                    onChange={(e) => setNumber(e.target.value)}
-                    className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
-                  />
+                  <div className="flex items-center rounded-lg border border-white/5 bg-black/40 focus-within:border-purple-500/50 focus-within:ring-4 focus-within:ring-purple-500/10">
+                    <span className="px-3 text-xs font-bold text-slate-400">+91</span>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      placeholder="9876543210"
+                      value={number}
+                      onChange={(e) => setNumber(sanitizeNumber(e.target.value))}
+                      className="w-full bg-transparent p-2.5 text-xs outline-none"
+                    />
+                  </div>
                 </div>
 
-                {/* Password */}
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
                   />
                   <button
                     type="button"
@@ -191,14 +179,13 @@ export default function AdminRegister() {
                   </button>
                 </div>
 
-                {/* Confirm Password */}
                 <div className="relative">
                   <input
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm Password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full p-2.5 rounded-lg text-xs bg-black/40 border border-white/5 focus:border-purple-500/50 outline-none transition-all focus:ring-4 focus:ring-purple-500/10"
+                    className="w-full rounded-lg border border-white/5 bg-black/40 p-2.5 text-xs outline-none transition-all focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10"
                   />
                   <button
                     type="button"
@@ -209,10 +196,9 @@ export default function AdminRegister() {
                   </button>
                 </div>
 
-                {/* BUTTON */}
                 <button
                   type="submit"
-                  className="w-full py-2.5 rounded-lg font-black uppercase text-[12px] tracking-[0.3em] text-white shadow-2xl hover:brightness-125 active:scale-[0.98] transition-all duration-500"
+                  className="w-full rounded-lg py-2.5 text-[12px] font-black uppercase tracking-[0.3em] text-white shadow-2xl transition-all duration-500 hover:brightness-125 active:scale-[0.98]"
                   style={{
                     backgroundColor: colors.accent,
                     boxShadow: `0 15px 35px -10px ${colors.accent}aa`,
@@ -226,7 +212,37 @@ export default function AdminRegister() {
         </div>
       </div>
 
-      {/* Animations */}
+      <OtpModal
+        isOpen={showOtp}
+        onClose={() => setShowOtp(false)}
+        onVerify={async (otp) => {
+          const res = await fetch("/api/verify-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, otp }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            setError(data.message || "OTP verification failed");
+            return;
+          }
+
+          router.push("/login?registered=true");
+        }}
+        onResend={async () => {
+          const res = await fetch("/api/resend-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            setError(data.message || "Could not resend OTP");
+          }
+        }}
+      />
+
       <style jsx global>{`
         @keyframes fadeInLeft {
           from { transform: translateX(-50px); opacity: 0; }

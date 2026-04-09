@@ -3,27 +3,33 @@ import bcrypt from "bcryptjs";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 import jwt from "jsonwebtoken";
+import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 
 export async function POST(req: Request) {
-
   try {
-
     await connectDB();
 
     const { email, password } = await req.json();
+    const identifier = String(email || "").trim();
 
-    if (!email || !password) {
+    if (!identifier || !password) {
       return NextResponse.json(
-        { message: "Email and password required" },
+        { message: "Email/mobile and password required" },
         { status: 400 }
       );
     }
 
-    const user = await User.findOne({ email });
+    const normalizedMobile = normalizeIndianMobile(identifier);
+    const query =
+      isValidIndianMobile(normalizedMobile) && !identifier.includes("@")
+        ? { number: normalizedMobile }
+        : { email: identifier.toLowerCase() };
+
+    const user = await User.findOne(query);
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return NextResponse.json(
-        { message: "Invalid email or password" },
+        { message: "Invalid email/mobile or password" },
         { status: 401 }
       );
     }
@@ -35,40 +41,34 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ CREATE JWT TOKEN
     const token = jwt.sign(
       {
         userId: user._id,
-        role: user.role
+        role: user.role,
       },
       process.env.JWT_SECRET as string,
       {
-        expiresIn: "7d"
+        expiresIn: "7d",
       }
     );
 
-    // ✅ STORE TOKEN IN COOKIE
     const response = NextResponse.json({
       message: "Login successful",
-      role: user.role
+      role: user.role,
     });
 
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: 60 * 60 * 24 * 7,
-      path: "/"
+      path: "/",
     });
 
     return response;
-
-  } catch (error) {
-
+  } catch {
     return NextResponse.json(
       { message: "Server error" },
       { status: 500 }
     );
-
   }
-
 }

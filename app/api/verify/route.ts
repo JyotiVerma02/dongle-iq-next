@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
+import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 
 export async function POST(req: Request) {
   try {
     const { mobile, otp } = await req.json();
-
+    const normalizedMobile = normalizeIndianMobile(mobile);
     const enteredOtp = otp?.toString().trim();
 
-    if (!mobile || !/^\d{10}$/.test(mobile)) {
+    if (!isValidIndianMobile(normalizedMobile)) {
       return NextResponse.json(
         { success: false, message: "Invalid mobile number" },
         { status: 400 }
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
 
     await connectDB();
 
-    const user = await User.findOne({ number: mobile });
+    const user = await User.findOne({ number: normalizedMobile });
 
     if (!user) {
       return NextResponse.json(
@@ -33,14 +34,14 @@ export async function POST(req: Request) {
       );
     }
 
-  if (user.otp !== enteredOtp) {
+    if (user.otp !== enteredOtp) {
       return NextResponse.json(
         { success: false, message: "Incorrect OTP" },
         { status: 401 }
       );
     }
 
-   if (!user.otpExpiry || user.otpExpiry < new Date()) {
+    if (!user.otpExpiry || user.otpExpiry < new Date()) {
       return NextResponse.json(
         { success: false, message: "OTP expired" },
         { status: 401 }
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
     user.isVerified = true;
     user.status = "approved";
     user.otp = undefined;
-user.otpExpiry = undefined;
+    user.otpExpiry = undefined;
 
     await user.save();
 
@@ -58,7 +59,6 @@ user.otpExpiry = undefined;
       success: true,
       message: "Verification Successful",
     });
-
   } catch (error) {
     console.error("Verify API Error:", error);
 

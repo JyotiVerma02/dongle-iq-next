@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
+import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 
 export async function POST(req: Request) {
   try {
     const { mobile } = await req.json();
+    const normalizedMobile = normalizeIndianMobile(mobile);
 
-    // ✅ Validate mobile
-    if (!mobile || !/^\d{10}$/.test(mobile)) {
+    if (!isValidIndianMobile(normalizedMobile)) {
       return NextResponse.json({
         success: false,
         message: "Invalid mobile number",
@@ -16,35 +17,30 @@ export async function POST(req: Request) {
 
     await connectDB();
 
-    // ✅ Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const expiry = new Date(Date.now() + 5 * 60 * 1000);
 
-    // ✅ Find or create user
-    let user = await User.findOne({ number: mobile });
+    let user = await User.findOne({ number: normalizedMobile });
 
     if (!user) {
       user = await User.create({
-        number: mobile,
+        number: normalizedMobile,
         isVerified: false,
         status: "pending",
       });
     }
 
-    // ✅ Save OTP
     user.aadhaarOtp = otp;
     user.aadhaarOtpExpiry = expiry;
 
     await user.save();
 
-    // 🔥 IMPORTANT: Show OTP in console
-    console.log("📲 OTP for", mobile, "is:", otp);
+    console.log("OTP for", normalizedMobile, "is:", otp);
 
     return NextResponse.json({
       success: true,
       message: "OTP generated (check server console)",
     });
-
   } catch (error) {
     console.error("Send OTP Error:", error);
 

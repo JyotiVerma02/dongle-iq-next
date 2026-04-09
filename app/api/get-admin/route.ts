@@ -1,11 +1,11 @@
-import { connectDB } from "@/app/lib/db";
-import AdminModel from "@/model/admin";
+import { connectDB } from "@/app/lib/mongodb";
+import User from "@/model/user";
 
 export async function GET() {
   try {
     await connectDB();
 
-    const admin = await AdminModel.findOne();
+    const admin = await User.findOne({ role: "admin" }).select("-password");
 
     return Response.json({
       success: true,

@@ -3,48 +3,54 @@ import bcrypt from "bcryptjs";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 import { transporter } from "@/app/lib/mailer";
+import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
     const { name, email, number, password } = await req.json();
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const normalizedNumber = normalizeIndianMobile(number);
 
-    if (!name || !email || !number || !password) {
+    if (!name || !normalizedEmail || !normalizedNumber || !password) {
       return NextResponse.json(
         { message: "All fields required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
-    const existingUser = await User.findOne({
-      $or: [{ email }, { number }],
-    });
-
-    if (existingUser) {
+    if (!isValidIndianMobile(normalizedNumber)) {
       return NextResponse.json(
-        { message: "User already exists with this email or number" },
-        { status: 400 },
+        { message: "Enter a valid Indian mobile number" },
+        { status: 400 }
       );
     }
 
-    if (existingUser) {
+    const existingUserByEmail = await User.findOne({ email: normalizedEmail });
+    if (existingUserByEmail) {
       return NextResponse.json(
         { message: "Email already registered" },
-        { status: 400 },
+        { status: 400 }
+      );
+    }
+
+    const existingUserByNumber = await User.findOne({ number: normalizedNumber });
+    if (existingUserByNumber) {
+      return NextResponse.json(
+        { message: "Mobile number already exists" },
+        { status: 400 }
       );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     const user = new User({
-      name,
-      email,
-      number,
+      name: String(name).trim(),
+      email: normalizedEmail,
+      number: normalizedNumber,
       password: hashedPassword,
       otp,
       otpExpiry,
@@ -55,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     await transporter.sendMail({
       from: `"DongleIQ Support" <${process.env.EMAIL_USER}>`,
-      to: email,
+      to: normalizedEmail,
       subject: "Verify Your Email",
       html: `
       <h2>Email Verification</h2>
@@ -68,8 +74,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       message: "OTP sent to your email",
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.log(error);
+
+    if (typeof error === "object" && error !== null && "code" in error && error.code === 11000) {
+      const duplicateError = error as { keyPattern?: Record<string, number> };
+      if (duplicateError.keyPattern?.email) {
+        return NextResponse.json({ message: "Email already registered" }, { status: 400 });
+      }
+      if (duplicateError.keyPattern?.number) {
+        return NextResponse.json({ message: "Mobile number already exists" }, { status: 400 });
+      }
+    }
 
     return NextResponse.json({ message: "Server error" }, { status: 500 });
   }

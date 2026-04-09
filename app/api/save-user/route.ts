@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
-import User from "@/model/user";
-import { connectDB } from "@/app/lib/mongodb";
 import bcrypt from "bcryptjs";
-import cloudinary from "@/app/lib/cloudinary";
 import streamifier from "streamifier";
 
-// 🔥 helper to upload buffer to cloudinary
+import { connectDB } from "@/app/lib/mongodb";
+import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
+import cloudinary from "@/app/lib/cloudinary";
+import User from "@/model/user";
+
 const uploadToCloudinary = async (file: File, folder: string) => {
   const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -27,45 +28,54 @@ export async function POST(req: Request) {
   try {
     await connectDB();
 
-    // ✅ GET FORM DATA
     const formData = await req.formData();
 
-    // ✅ TEXT FIELDS
-    const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const pan = formData.get("pan") as string;
-    const mobile = formData.get("mobile") as string;
+    const name = String(formData.get("name") || "").trim();
+    const email = String(formData.get("email") || "").trim().toLowerCase();
+    const pan = String(formData.get("pan") || "").trim().toUpperCase();
+    const mobile = normalizeIndianMobile(formData.get("mobile"));
 
-    const gender = formData.get("gender") as string;
-    const dob = formData.get("dob") as string;
-    const ekycId = formData.get("ekycId") as string;
-    const ekycPin = formData.get("ekycPin") as string;
-    const bpCode = formData.get("bpCode") as string;
+    const gender = String(formData.get("gender") || "").trim();
+    const dob = String(formData.get("dob") || "").trim();
+    const ekycId = String(formData.get("ekycId") || "").trim();
+    const ekycPin = String(formData.get("ekycPin") || "").trim();
+    const bpCode = String(formData.get("bpCode") || "").trim();
 
-    const address = formData.get("address") as string;
-    const pincode = formData.get("pincode") as string;
-    const city = formData.get("city") as string;
-    const state = formData.get("state") as string;
+    const address = String(formData.get("address") || "").trim();
+    const pincode = String(formData.get("pincode") || "").trim();
+    const city = String(formData.get("city") || "").trim();
+    const state = String(formData.get("state") || "").trim();
 
-    const certificateClass = formData.get("certificateClass") as string;
-    const tokenType = formData.get("tokenType") as string;
-    const certType = formData.get("certType") as string;
-    const validity = formData.get("validity") as string;
+    const certificateClass = String(formData.get("certificateClass") || "").trim();
+    const tokenType = String(formData.get("tokenType") || "").trim();
+    const certType = String(formData.get("certType") || "").trim();
+    const validity = String(formData.get("validity") || "").trim();
 
-    const internalRemarks = formData.get("internalRemarks") as string;
+    const internalRemarks = String(formData.get("internalRemarks") || "").trim();
     const price = Number(formData.get("price"));
 
-    // ✅ FILES
-    const photo = formData.get("photo") as File;
-    const idProof = formData.get("idProofFile") as File;
-    const addressProof = formData.get("addressProofFile") as File;
+    const photo = formData.get("photo") as File | null;
+    const idProof = formData.get("idProofFile") as File | null;
+    const addressProof = formData.get("addressProofFile") as File | null;
 
-    // ✅ VALIDATION
     if (!name || !pan || !email || !mobile) {
-      return NextResponse.json({
-        success: false,
-        message: "Required fields missing",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Required fields missing",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!isValidIndianMobile(mobile)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Enter a valid Indian mobile number",
+        },
+        { status: 400 }
+      );
     }
 
     const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
@@ -75,13 +85,15 @@ export async function POST(req: Request) {
       (idProof && !allowedTypes.includes(idProof.type)) ||
       (addressProof && !allowedTypes.includes(addressProof.type))
     ) {
-      return NextResponse.json({
-        success: false,
-        message: "Only JPG, PNG, PDF allowed",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Only JPG, PNG, PDF allowed",
+        },
+        { status: 400 }
+      );
     }
 
-    // ✅ UPLOAD FILES TO CLOUDINARY
     let photoUrl = "";
     let idProofUrl = "";
     let addressProofUrl = "";
@@ -101,11 +113,24 @@ export async function POST(req: Request) {
       addressProofUrl = res.secure_url;
     }
 
-    // ✅ CHECK EXISTING USER
     const existingUser = await User.findOne({ number: mobile });
 
     if (existingUser) {
-      // 🔄 UPDATE
+      const emailTakenByAnotherUser = await User.findOne({
+        email,
+        _id: { $ne: existingUser._id },
+      });
+
+      if (emailTakenByAnotherUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Email already exists",
+          },
+          { status: 400 }
+        );
+      }
+
       existingUser.name = name;
       existingUser.email = email;
       existingUser.gender = gender;
@@ -137,20 +162,20 @@ export async function POST(req: Request) {
       });
     }
 
-    // ✅ CHECK EMAIL
     const emailExists = await User.findOne({ email });
 
     if (emailExists) {
-      return NextResponse.json({
-        success: false,
-        message: "Email already exists",
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Email already exists",
+        },
+        { status: 400 }
+      );
     }
 
-    // 🔐 PASSWORD
     const hashedPassword = await bcrypt.hash("temp123", 10);
 
-    // ✅ CREATE USER
     await User.create({
       name,
       email,
@@ -181,13 +206,30 @@ export async function POST(req: Request) {
       success: true,
       message: "User created successfully",
     });
-
   } catch (error: any) {
-    console.error("🔥 ERROR:", error);
+    console.error("save-user error:", error);
 
-    return NextResponse.json({
-      success: false,
-      message: error.message,
-    });
+    if (error?.code === 11000) {
+      const duplicateField = Object.keys(error.keyPattern || {})[0];
+
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            duplicateField === "number"
+              ? "Mobile number already exists"
+              : "Email already exists",
+        },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: error?.message || "Server error",
+      },
+      { status: 500 }
+    );
   }
 }

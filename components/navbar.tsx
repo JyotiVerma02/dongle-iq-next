@@ -2,13 +2,18 @@
 
 import React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Cpu, LogIn } from "lucide-react";
 import { useTheme } from "@/app/context/ThemeContext";
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+
+  if (pathname === "/admin/dashboard") {
+    return null;
+  }
 
   const colors = {
     accent: "#7C3AED",
