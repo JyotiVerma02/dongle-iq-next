@@ -110,10 +110,11 @@ export default function Navbar() {
 
           <button
             onClick={handleLogout}
-            className="theme-transition hidden items-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white sm:flex"
+            className="theme-transition hidden items-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-black uppercase tracking-widest sm:flex"
             style={{
-              backgroundColor: "rgba(255,255,255,0.05)",
-              border: "1px solid #2a2a2a",
+              color: colors.text,
+              backgroundColor: colors.panel,
+              border: `1px solid ${colors.borderSoft}`,
             }}
           >
             <LogOut size={14} /> Logout

@@ -6,6 +6,11 @@ export type ThemePalette = {
   panelStrong: string;
   accent: string;
   accentLight: string;
+  accentSoft: string;
+  accentSubtle: string;
+  accentFaint: string;
+  accentStrong: string;
+  accentShadow: string;
   text: string;
   muted: string;
   subtleText: string;
@@ -18,43 +23,27 @@ export type ThemePalette = {
 };
 
 export function getThemePalette(isDarkMode: boolean): ThemePalette {
-  if (isDarkMode) {
-    return {
-      shell: "#0a0a0c",
-      shellAlt: "#111218",
-      card: "rgba(16, 18, 26, 0.72)",
-      panel: "rgba(18, 22, 32, 0.78)",
-      panelStrong: "#10161d",
-      accent: "#7c3aed",
-      accentLight: "#c4b5fd",
-      text: "#f8fafc",
-      muted: "#9ca3af",
-      subtleText: "#64748b",
-      border: "rgba(124, 58, 237, 0.24)",
-      borderSoft: "rgba(255, 255, 255, 0.08)",
-      input: "rgba(255, 255, 255, 0.06)",
-      inputBorder: "rgba(255, 255, 255, 0.08)",
-      overlay: "rgba(5, 5, 10, 0.72)",
-      glow: "rgba(124, 58, 237, 0.34)",
-    };
-  }
-
   return {
-    shell: "#eef3fb",
-    shellAlt: "#f8fbff",
-    card: "rgba(255, 255, 255, 0.78)",
-    panel: "rgba(255, 255, 255, 0.86)",
-    panelStrong: "#ffffff",
-    accent: "#6d28d9",
-    accentLight: "#7c3aed",
-    text: "#142132",
-    muted: "#526277",
-    subtleText: "#7b8ba1",
-    border: "rgba(109, 40, 217, 0.16)",
-    borderSoft: "rgba(20, 33, 50, 0.10)",
-    input: "rgba(255, 255, 255, 0.92)",
-    inputBorder: "rgba(20, 33, 50, 0.10)",
-    overlay: "rgba(255, 255, 255, 0.74)",
-    glow: "rgba(109, 40, 217, 0.18)",
+    shell: "var(--background)",
+    shellAlt: "var(--background-alt)",
+    card: "var(--card)",
+    panel: "var(--card)",
+    panelStrong: "var(--card-strong)",
+    accent: "var(--accent)",
+    accentLight: "var(--accent-light)",
+    accentSoft: "var(--accent-soft)",
+    accentSubtle: "var(--accent-subtle)",
+    accentFaint: "var(--accent-faint)",
+    accentStrong: "var(--accent-strong)",
+    accentShadow: "var(--accent-shadow)",
+    text: "var(--foreground)",
+    muted: "var(--muted)",
+    subtleText: "var(--subtle-text)",
+    border: "var(--border)",
+    borderSoft: "var(--border-soft)",
+    input: "var(--input)",
+    inputBorder: "var(--input-border)",
+    overlay: "var(--overlay)",
+    glow: "var(--accent-glow)",
   };
 }

@@ -1,11 +1,36 @@
 export const APPLICATION_CONFIG_KEY = "dongle-iq-application-config";
 export const PREVIEW_DRAFT_KEY = "dongle-iq-preview-draft";
+export const FORM_STATE_KEY = "dongle-iq-form-state";
 
 export type StoredFile = {
   name: string;
   type: string;
   dataUrl: string;
 };
+
+export type FormStateStorage = Record<string, string>;
+
+export function saveFormState(state: FormStateStorage) {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.setItem(FORM_STATE_KEY, JSON.stringify(state));
+}
+
+export function readFormState(): FormStateStorage | null {
+  if (typeof window === "undefined") return null;
+  const raw = window.sessionStorage.getItem(FORM_STATE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as FormStateStorage;
+  } catch {
+    return null;
+  }
+}
+
+export function clearFormState() {
+  if (typeof window === "undefined") return;
+  window.sessionStorage.removeItem(FORM_STATE_KEY);
+}
+
 
 export type PreviewDraft = {
   formData: Record<string, string>;

@@ -9,7 +9,11 @@ import ParticleBackground from "@/components/ParticleBackground";
 import {
   APPLICATION_CONFIG_KEY,
   fileToStoredFile,
+  readFormState,
+  readPreviewDraft,
+  saveFormState,
   savePreviewDraft,
+  storedFileToFile,
 } from "@/app/lib/applicationPreview";
 import { calculatePricing } from "@/app/lib/pricing";
 import { useTheme } from "@/app/context/ThemeContext";
@@ -91,8 +95,16 @@ export default function DongleIQForm() {
     const mobile = searchParams.get("mobile") || sessionStorage.getItem("verifiedMobile") || "";
     const rawConfig = sessionStorage.getItem(APPLICATION_CONFIG_KEY);
 
-    setFormData((prev) => {
-      let nextState = { ...prev, mobile };
+    const restoreState = async () => {
+      let nextState = createInitialState(mobile);
+      const savedFormState = readFormState();
+
+      if (savedFormState) {
+        nextState = {
+          ...nextState,
+          ...savedFormState,
+        };
+      }
 
       if (rawConfig) {
         try {
@@ -120,11 +132,30 @@ export default function DongleIQForm() {
         assistedService: nextState.assistedService,
       });
 
-      return {
+      setFormData({
         ...nextState,
         price: String(pricing.total),
-      };
-    });
+      });
+
+      const previewDraft = readPreviewDraft();
+      if (previewDraft) {
+        try {
+          const [photo, idProof, addressProof] = await Promise.all([
+            storedFileToFile(previewDraft.files.photo),
+            storedFileToFile(previewDraft.files.idProof),
+            storedFileToFile(previewDraft.files.addressProof),
+          ]);
+
+          setPhotoFile(photo);
+          setIdFile(idProof);
+          setAddressFile(addressProof);
+        } catch {
+          // If file restoration fails, preserve text state and let user reattach.
+        }
+      }
+    };
+
+    restoreState();
   }, [searchParams]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -138,10 +169,13 @@ export default function DongleIQForm() {
         assistedService: nextData.assistedService,
       });
 
-      return {
+      const updatedState = {
         ...nextData,
         price: String(pricing.total),
       };
+
+      saveFormState(updatedState);
+      return updatedState;
     });
   };
 
@@ -235,7 +269,7 @@ export default function DongleIQForm() {
         >
           <div
             className="grid grid-cols-1 items-end gap-4 border-b p-6 md:grid-cols-5"
-            style={{ backgroundColor: `${colors.accent}0d`, borderColor: colors.border }}
+            style={{ backgroundColor: colors.accentSubtle, borderColor: colors.border }}
           >
             <ThemeSelect name="certificateClass" label="Class" options={["Class III"]} value={formData.certificateClass} onChange={handleChange} colors={colors} />
             <ThemeSelect name="tokenType" label="Token" options={["Not Required", "USB Token"]} value={formData.tokenType} onChange={handleChange} colors={colors} />
@@ -278,7 +312,7 @@ export default function DongleIQForm() {
                     type="button"
                     onClick={() => setShowPin((current) => !current)}
                     className="theme-transition rounded-r-xl border-2 border-l-0 px-4"
-                    style={{ backgroundColor: `${colors.accent}20`, borderColor: colors.inputBorder, color: colors.accent }}
+                    style={{ backgroundColor: colors.accentSoft, borderColor: colors.inputBorder, color: colors.accent }}
                   >
                     {showPin ? "Hide" : "Show"}
                   </button>
@@ -372,13 +406,17 @@ export default function DongleIQForm() {
                       return;
                     }
                     setPhotoFile(file);
-                    setFormData((prev) => ({ ...prev, photo: file?.name || "" }));
+                    setFormData((prev) => {
+                      const next = { ...prev, photo: file?.name || "" };
+                      saveFormState(next);
+                      return next;
+                    });
                   }}
                 />
                 <div
                   onClick={() => photoRef.current?.click()}
                   className="theme-transition flex h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed shadow-inner"
-                  style={{ backgroundColor: `${colors.accent}0d`, borderColor: colors.border }}
+                  style={{ backgroundColor: colors.accentSubtle, borderColor: colors.border }}
                 >
                   <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg" style={{ backgroundColor: colors.accent }}>
                     <span className="text-xs font-black">{photoFile ? "Done" : "Add"}</span>
@@ -422,7 +460,7 @@ export default function DongleIQForm() {
 
           <div
             className="flex flex-col items-center gap-4 border-t p-8"
-            style={{ backgroundColor: `${colors.accent}0d`, borderColor: colors.border }}
+            style={{ backgroundColor: colors.accentSubtle, borderColor: colors.border }}
           >
             <button
               type="submit"
@@ -486,6 +524,8 @@ function ThemeInput({
 }
 
 function ThemeSelect({ label, options, required, colors, ...props }: any) {
+  const { isDarkMode } = useTheme();
+
   return (
     <div className="w-full">
       <Label text={label} required={required} colors={colors} />
@@ -496,7 +536,7 @@ function ThemeSelect({ label, options, required, colors, ...props }: any) {
           backgroundColor: colors.input,
           borderColor: colors.inputBorder,
           color: colors.text,
-          colorScheme: colors.bg === "#0b1015" ? "dark" : "light",
+          colorScheme: isDarkMode ? "dark" : "light",
         }}
       >
         {options.map((option: string) => (
@@ -529,7 +569,7 @@ function FileComponent({ label, inputRef, fileName, setFile, colors }: any) {
           type="button"
           onClick={() => inputRef.current.click()}
           className="theme-transition rounded-lg border px-5 py-2 text-[10px] font-black uppercase tracking-widest"
-          style={{ backgroundColor: `${colors.accent}20`, borderColor: colors.border, color: colors.accent }}
+          style={{ backgroundColor: colors.accentSoft, borderColor: colors.border, color: colors.accent }}
         >
           Attach
         </button>

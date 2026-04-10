@@ -27,7 +27,7 @@ function getInitialTheme(): Theme {
     return "light";
   }
 
-  const savedTheme = window.localStorage.getItem(STORAGE_KEY);
+  const savedTheme = window.sessionStorage.getItem(STORAGE_KEY);
   if (savedTheme === "light" || savedTheme === "dark") {
     return savedTheme;
   }
@@ -43,7 +43,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     root.classList.remove("light", "dark");
     root.classList.add(theme);
     root.style.colorScheme = theme;
-    window.localStorage.setItem(STORAGE_KEY, theme);
+    window.sessionStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
   const setTheme = (nextTheme: Theme) => {

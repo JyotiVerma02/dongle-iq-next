@@ -123,18 +123,17 @@ export default function DongleIQLanding() {
             </button>
           </div>
           <div className="relative h-87.5 md:h-112.5">
-            <div
-              className="absolute inset-0 rounded-full blur-[120px] opacity-20"
-              style={{ backgroundColor: colors.accent }}
-            />
-            <Image
-              src="/dongle_iq-removebg-preview.png"
-              alt="Preview"
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-contain drop-shadow-2xl relative z-10"
-              priority
-            />
+            <div className="relative h-full overflow-hidden rounded-[2rem] border border-slate-200/70 bg-white/85 shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-sky-100/60 via-transparent to-white/80" />
+              <Image
+                src="/dongle_iq-removebg-preview.png"
+                alt="Preview"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-contain p-8 relative z-10"
+                priority
+              />
+            </div>
           </div>
         </div>
       </section>

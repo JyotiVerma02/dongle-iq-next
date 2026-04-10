@@ -1,45 +1,59 @@
 @import "tailwindcss";
 
 :root {
-  --background: #eef3fb;
-  --background-alt: #f8fbff;
-  --foreground: #142132;
-  --muted: #526277;
-  --card: rgba(255, 255, 255, 0.82);
-  --card-strong: #ffffff;
-  --border: rgba(20, 33, 50, 0.1);
-  --border-soft: rgba(20, 33, 50, 0.08);
-  --accent: #6d28d9;
-  --accent-light: #7c3aed;
-  --accent-glow: rgba(109, 40, 217, 0.16);
+  --background: #F1F5F9;
+  --background-alt: #FFFFFF;
+  --foreground: #0F172A;
+  --muted: #475569;
+  --subtle-text: #64748B;
+  --card: #FFFFFF;
+  --card-strong: #FFFFFF;
+  --border: #CBD5F5;
+  --border-soft: rgba(203, 213, 245, 0.32);
+  --accent: #1D4ED8;
+  --accent-light: #0EA5E9;
+  --accent-soft: rgba(29, 78, 216, 0.08);
+  --accent-subtle: rgba(29, 78, 216, 0.05);
+  --accent-faint: rgba(29, 78, 216, 0.07);
+  --accent-strong: rgba(29, 78, 216, 0.65);
+  --accent-shadow: rgba(29, 78, 216, 0.27);
+  --accent-glow: rgba(29, 78, 216, 0.18);
   --input: rgba(255, 255, 255, 0.92);
-  --input-border: rgba(20, 33, 50, 0.12);
-  --nav: rgba(255, 255, 255, 0.72);
-  --particle-bg: #eef3fb;
-  --particle-dot: rgba(109, 40, 217, 0.18);
-  --particle-line: rgba(109, 40, 217, 0.08);
-  --cursor-ripple: rgba(109, 40, 217, 0.22);
+  --input-border: rgba(203, 213, 245, 0.60);
+  --overlay: rgba(15, 23, 42, 0.08);
+  --nav: rgba(255, 255, 255, 0.80);
+  --particle-bg: #F1F5F9;
+  --particle-dot: rgba(14, 165, 233, 0.08);
+  --particle-line: rgba(14, 165, 233, 0.04);
+  --cursor-ripple: rgba(29, 78, 216, 0.20);
 }
 
 html.dark {
-  --background: #0a0a0c;
-  --background-alt: #111218;
-  --foreground: #f8fafc;
-  --muted: #9ca3af;
-  --card: rgba(16, 18, 26, 0.76);
-  --card-strong: #10161d;
-  --border: rgba(124, 58, 237, 0.22);
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --accent: #7c3aed;
-  --accent-light: #c4b5fd;
-  --accent-glow: rgba(124, 58, 237, 0.3);
-  --input: rgba(255, 255, 255, 0.06);
-  --input-border: rgba(255, 255, 255, 0.08);
-  --nav: rgba(5, 5, 10, 0.72);
-  --particle-bg: #0a0a0c;
-  --particle-dot: rgba(168, 85, 247, 0.38);
-  --particle-line: rgba(168, 85, 247, 0.16);
-  --cursor-ripple: rgba(168, 85, 247, 0.28);
+  --background: #020617;
+  --background-alt: #020617;
+  --foreground: #E2E8F0;
+  --muted: #94A3B8;
+  --subtle-text: #CBD5E1;
+  --card: #0F172A;
+  --card-strong: #111827;
+  --border: #1E293B;
+  --border-soft: rgba(30, 41, 59, 0.28);
+  --accent: #3B82F6;
+  --accent-light: #38BDF8;
+  --accent-soft: rgba(56, 189, 248, 0.08);
+  --accent-subtle: rgba(56, 189, 248, 0.05);
+  --accent-faint: rgba(56, 189, 248, 0.07);
+  --accent-strong: rgba(56, 189, 248, 0.65);
+  --accent-shadow: rgba(56, 189, 248, 0.27);
+  --accent-glow: rgba(56, 189, 248, 0.22);
+  --input: rgba(226, 232, 240, 0.06);
+  --input-border: rgba(30, 41, 59, 0.36);
+  --overlay: rgba(2, 6, 23, 0.76);
+  --nav: rgba(2, 6, 23, 0.72);
+  --particle-bg: #020617;
+  --particle-dot: rgba(56, 189, 248, 0.18);
+  --particle-line: rgba(56, 189, 248, 0.08);
+  --cursor-ripple: rgba(56, 189, 248, 0.24);
 }
 
 html {
@@ -49,7 +63,7 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(124, 58, 237, 0.1), transparent 32%),
+    radial-gradient(circle at top left, rgba(29, 78, 216, 0.12), transparent 32%),
     radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.08), transparent 26%),
     linear-gradient(180deg, var(--background-alt), var(--background));
   color: var(--foreground);
@@ -61,7 +75,7 @@ body {
 }
 
 ::selection {
-  background: rgba(124, 58, 237, 0.2);
+  background: rgba(59, 130, 246, 0.18);
   color: var(--foreground);
 }
 
@@ -97,7 +111,7 @@ body {
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(120deg, transparent, rgba(124, 58, 237, 0.8), transparent);
+  background: linear-gradient(120deg, transparent, rgba(59, 130, 246, 0.8), transparent);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -122,7 +136,7 @@ body {
 
 .hover-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(124, 58, 237, 0.35);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.35);
 }
 
 .glass-input {
@@ -134,8 +148,8 @@ body {
 .glass-input:focus {
   border-color: var(--accent);
   box-shadow:
-    0 0 0 2px rgba(124, 58, 237, 0.16),
-    0 10px 20px rgba(124, 58, 237, 0.1);
+    0 0 0 2px rgba(59, 130, 246, 0.16),
+    0 10px 20px rgba(59, 130, 246, 0.1);
   outline: none;
 }
 
