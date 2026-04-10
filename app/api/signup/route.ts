@@ -30,8 +30,8 @@ export async function POST(req: NextRequest) {
     const existingUserByEmail = await User.findOne({ email: normalizedEmail });
     if (existingUserByEmail) {
       return NextResponse.json(
-        { message: "Email already registered" },
-        { status: 400 }
+        { success: false, message: "Email already registered" },
+        { status: 409 }
       );
     }
 

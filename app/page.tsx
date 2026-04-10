@@ -77,15 +77,12 @@ export default function DongleIQLanding() {
       a: "Yes, if the private key is compromised or the user requests revocation.",
     },
   ];
- 
+
   return (
     <div
       className="theme-transition min-h-screen font-sans antialiased"
       style={{ color: colors.text }}
     >
-    
-      
-
       {/* --- HERO --- */}
       <section className="pt-48 pb-24 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -122,19 +119,19 @@ export default function DongleIQLanding() {
               Start Application <ArrowRight size={18} />
             </button>
           </div>
-          <div className="relative h-87.5 md:h-112.5">
+          {/* <div className="relative h-87.5 md:h-112.5">
             <div className="relative h-full overflow-hidden rounded-4xl border border-slate-200/70 bg-white/85 shadow-2xl">
               <div className="absolute inset-0 bg-linear-to-br from-sky-100/60 via-transparent to-white/80" />
-              {/* <Image
+              <Image
                 src="/dongle_iq-removebg-preview.png"
                 alt="Preview"
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-contain p-8 relative z-10"
                 priority
-              /> */}
+              />
             </div>
-          </div>
+          </div> */}
         </div>
       </section>
 
@@ -541,7 +538,6 @@ export default function DongleIQLanding() {
 
 // --- SUB-COMPONENTS ---
 
-
 function FeatureCard({ icon, title, desc, colors }: any) {
   return (
     <div
@@ -573,7 +569,6 @@ function FeatureCard({ icon, title, desc, colors }: any) {
     </div>
   );
 }
-
 
 function StepItem({ number, icon, title, desc, colors }: any) {
   return (

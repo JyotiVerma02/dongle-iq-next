@@ -37,10 +37,12 @@ export default function AadhaarVerifyPage() {
 
   const handleSendOtp = async () => {
     if (!/^\d{10}$/.test(mobile)) {
+      console.error("[VERIFY-AADHAAR] Invalid mobile format:", mobile);
       setError("Enter valid 10-digit number");
       return;
     }
 
+    console.log("[VERIFY-AADHAAR] Sending OTP for mobile:", mobile);
     setError("");
     setSuccess("");
     setIsSendingOtp(true);
@@ -53,16 +55,20 @@ export default function AadhaarVerifyPage() {
       });
 
       const data = await response.json();
+      console.log("[VERIFY-AADHAAR] Send OTP response:", response.status, data);
 
       if (!data.success) {
+        console.error("[VERIFY-AADHAAR] Failed to send OTP:", data.message);
         setError(data.message || "Failed to send OTP");
         return;
       }
 
+      console.log("[VERIFY-AADHAAR] OTP sent successfully to", mobile);
       setOtpSent(true);
       setTimer(120);
       setSuccess("OTP sent successfully.");
-    } catch {
+    } catch (error) {
+      console.error("[VERIFY-AADHAAR] Connection error:", error);
       setError("Connection error");
     } finally {
       setIsSendingOtp(false);
@@ -88,8 +94,13 @@ export default function AadhaarVerifyPage() {
   };
 
   const handleVerify = async () => {
-    if (!isChecked || otp.join("").length !== 6) return;
+    if (!isChecked || otp.join("").length !== 6) {
+      console.warn("[VERIFY-AADHAAR] Verification skipped - checkbox:", isChecked, "OTP length:", otp.join("").length);
+      return;
+    }
 
+    console.log("[VERIFY-AADHAAR] Attempting verification for mobile:", mobile);
+    console.log("[VERIFY-AADHAAR] OTP submitted:", otp.join(""));
     setIsVerifying(true);
     setError("");
 
@@ -101,18 +112,22 @@ export default function AadhaarVerifyPage() {
       });
 
       const data = await response.json();
+      console.log("[VERIFY-AADHAAR] Verification response:", response.status, data);
 
       if (!data.success) {
+        console.error("[VERIFY-AADHAAR] Verification failed:", data.message);
         setError(data.message || "Verification failed");
         setOtp(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
         return;
       }
 
+      console.log("[VERIFY-AADHAAR] Verification successful! Redirecting to bank-telecom-form...");
       setSuccess("Verified successfully.");
       sessionStorage.setItem("verifiedMobile", mobile);
       setTimeout(() => router.push(`/bank-telecom-form?mobile=${mobile}`), 900);
-    } catch {
+    } catch (error) {
+      console.error("[VERIFY-AADHAAR] Server error:", error);
       setError("Server error");
     } finally {
       setIsVerifying(false);

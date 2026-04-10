@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     account.otpExpiry = undefined;
     await account.save();
 
-    return NextResponse.json({ message: "Email verified successfully" });
+    return NextResponse.json({ success: true, message: "Email verified successfully" });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });

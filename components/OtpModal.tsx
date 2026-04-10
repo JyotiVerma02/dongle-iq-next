@@ -7,8 +7,8 @@ import { getThemePalette } from "@/app/lib/themePalette";
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onVerify: (otp: string) => void;
-  onResend: () => void;
+  onVerify: (otp: string) => Promise<void>;
+  onResend: () => Promise<void>;
 }
 
 export default function OtpModal({
@@ -21,6 +21,8 @@ export default function OtpModal({
   const colors = getThemePalette(isDarkMode);
   const [otp, setOtp] = useState(Array(6).fill(""));
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState("");
 
   const [timer, setTimer] = useState(30);
   const canResend = timer === 0;
@@ -81,15 +83,25 @@ export default function OtpModal({
     });
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     const finalOtp = otp.join("");
 
     if (finalOtp.length !== 6) {
-      alert("Enter valid 6 digit OTP");
+      setVerifyError("Enter valid 6 digit OTP");
       return;
     }
 
-    onVerify(finalOtp);
+    try {
+      setVerifying(true);
+      setVerifyError("");
+      await onVerify(finalOtp);
+      resetModalState();
+      onClose();
+    } catch (error) {
+      setVerifyError(error instanceof Error ? error.message : "Verification failed");
+    } finally {
+      setVerifying(false);
+    }
   };
 
   const handleResend = () => {
@@ -132,16 +144,24 @@ export default function OtpModal({
               onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={handlePaste}
               value={digit}
+              disabled={verifying}
             />
           ))}
         </div>
 
+        {verifyError && (
+          <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 p-2 text-center text-sm text-red-500">
+            {verifyError}
+          </div>
+        )}
+
         <button
           onClick={handleVerify}
-          className="w-full rounded-lg p-3 font-semibold text-white transition"
+          disabled={verifying}
+          className="w-full rounded-lg p-3 font-semibold text-white transition disabled:opacity-50"
           style={{ backgroundColor: colors.accent }}
         >
-          Verify OTP
+          {verifying ? "Verifying..." : "Verify OTP"}
         </button>
 
         <div className="text-center mt-4">

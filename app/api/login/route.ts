@@ -23,11 +23,12 @@ export async function POST(req: Request) {
       );
     }
 
+    const normalizedEmail = identifier.toLowerCase();
     const normalizedMobile = normalizeIndianMobile(identifier);
     const adminQuery =
       isValidIndianMobile(normalizedMobile) && !identifier.includes("@")
         ? { number: normalizedMobile }
-        : { email: identifier.toLowerCase() };
+        : { email: normalizedEmail };
 
     const admin = await Admin.findOne(adminQuery);
 
@@ -65,9 +66,9 @@ export async function POST(req: Request) {
     }
 
     const userQuery =
-      isValidIndianMobile(normalizedMobile) && !identifier.includes("@")
+      isValidIndianMobile(normalizedMobile) && !normalizedEmail.includes("@")
         ? { number: normalizedMobile }
-        : { email: identifier.toLowerCase() };
+        : { email: normalizedEmail };
 
     const user = await User.findOne(userQuery);
 

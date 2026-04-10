@@ -52,12 +52,13 @@ export default function Register() {
 
     try {
       setLoading(true);
+      const normalizedEmail = email.toLowerCase().trim();
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: `${name} ${lastName}`,
-          email,
+          email: normalizedEmail,
           number,
           password,
         }),
@@ -79,6 +80,7 @@ export default function Register() {
       }
 
       setShowOtp(true);
+      setEmail(normalizedEmail);
       setLoading(false);
     } catch {
       setError("System handshake error occurred.");
@@ -187,7 +189,7 @@ export default function Register() {
                     type="email"
                     placeholder="Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value.toLowerCase())}
                     className="w-full rounded-lg border p-3 pl-10 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
@@ -284,9 +286,28 @@ export default function Register() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email, otp }),
           });
-          if (res.ok) router.push("/login?registered=true");
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.message || "OTP verification failed");
+          }
+
+          router.push("/login?registered=true");
         }}
-        onResend={async () => {}}
+        onResend={async () => {
+          const res = await fetch("/api/resend-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+            throw new Error(data.message || "Failed to resend OTP");
+          }
+        }}
       />
 
       <style jsx global>{`

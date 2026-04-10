@@ -30,10 +30,11 @@ export default function Login() {
     }
     try {
       setLoading(true);
+      const normalizedEmail = email.toLowerCase().trim();
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: normalizedEmail, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -127,7 +128,7 @@ export default function Login() {
                   <input
                     type="text"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value.toLowerCase())}
                     placeholder="agent@dongleiq.com or 9876543210"
                     className="w-full rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
                     style={{

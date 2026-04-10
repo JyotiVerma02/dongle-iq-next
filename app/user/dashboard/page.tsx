@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
+
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
@@ -23,11 +23,22 @@ type FormDataType = {
   ekycType: string;
 };
 
+type UserData = {
+  name: string;
+  email: string;
+  status?: string;
+  internalRemarks?: string;
+  isVerified?: boolean;
+  isAadhaarVerified?: boolean;
+};
+
 export default function DSCRegistrationForm() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
 
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState<FormDataType>({
     name: "",
@@ -41,6 +52,30 @@ export default function DSCRegistrationForm() {
     assistedService: "Not Required",
     ekycType: "PAN",
   });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const res = await fetch("/api/get-user-data");
+        const data = await res.json();
+
+        if (data.success && data.user) {
+          setUserData(data.user);
+          setFormData((prev) => ({
+            ...prev,
+            name: data.user.name || "",
+            email: data.user.email || "",
+          }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch user data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const pricing = useMemo(
     () =>
@@ -108,13 +143,55 @@ export default function DSCRegistrationForm() {
     <div className="theme-transition relative min-h-screen px-6 pb-10 pt-34" style={{ color: colors.text }}>
       <ParticleBackground />
 
+      {loading ? (
+        <div className="relative z-10 mx-auto max-w-6xl">
+          <div className="flex items-center justify-center min-h-[200px]">
+            <p style={{ color: colors.muted }}>Loading your profile...</p>
+          </div>
+        </div>
+      ) : userData ? (
+        <div className="relative z-10 mx-auto mb-8 max-w-6xl">
+          <div className="theme-transition rounded-4xl border p-6 shadow-lg" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold" style={{ color: colors.text }}>
+                  Hello, {userData.name || userData.email.split("@")[0]}!
+                </h2>
+                <p className="text-sm mt-1" style={{ color: colors.muted }}>
+                  {userData.email}
+                </p>
+              </div>
+              <div className="flex flex-col items-start md:items-end gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium" style={{ color: colors.muted }}>Status:</span>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                      userData.status === 'approved' ? 'bg-green-100 text-green-800' :
+                      userData.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {userData.status || 'pending'}
+                  </span>
+                </div>
+                {userData.internalRemarks && (
+                  <div className="text-xs" style={{ color: colors.muted }}>
+                    <strong>Remarks:</strong> {userData.internalRemarks}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       <form onSubmit={handleSubmit} className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8">
         <section
           className="theme-transition grid items-center gap-8 rounded-[2.5rem] border p-10 shadow-[0_24px_80px_rgba(0,0,0,0.16)] md:grid-cols-[0.95fr_1.05fr]"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
         >
           <div className="flex justify-center">
-            <img
+            {/* <img
               src="/dscform-removebg-preview.png"
               alt="DSC enrollment"
               className="h-auto w-full max-w-sm transition-transform duration-700 hover:scale-105"
@@ -124,7 +201,7 @@ export default function DSCRegistrationForm() {
                   : "drop-shadow(0 16px 26px rgba(109,40,217,0.14)) saturate(0.95) contrast(1.03)",
                 opacity: isDarkMode ? 0.84 : 0.96,
               }}
-            />
+            /> */}
           </div>
 
           <div>
@@ -208,7 +285,7 @@ export default function DSCRegistrationForm() {
             <div className="mt-4 md:col-span-2 lg:col-span-3">
               {!isProductSelected ? (
                 <div
-                  className="theme-transition flex min-h-[110px] flex-col items-center justify-center rounded-2xl border border-dashed p-6"
+                  className="theme-transition flex min-h-27.5 flex-col items-center justify-center rounded-2xl border border-dashed p-6"
                   style={{ backgroundColor: colors.panel, borderColor: colors.borderSoft }}
                 >
                   <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: colors.muted }}>

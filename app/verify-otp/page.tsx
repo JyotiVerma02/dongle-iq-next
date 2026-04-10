@@ -22,6 +22,9 @@ export default function VerifyOTP() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    console.log("[VERIFY-OTP] Attempting verification for email:", email);
+    console.log("[VERIFY-OTP] OTP submitted:", otp);
+
     const res = await fetch("/api/verify-otp", {
       method: "POST",
       headers: {
@@ -34,20 +37,26 @@ export default function VerifyOTP() {
     });
 
     const data = await res.json();
+    console.log("[VERIFY-OTP] Response status:", res.status);
+    console.log("[VERIFY-OTP] Response data:", data);
 
     if (res.ok) {
+      console.log("[VERIFY-OTP] Verification successful! Redirecting to login...");
       setMessage("Email verified successfully!");
       setMessageType("success");
       setTimeout(() => {
         router.push("/login");
       }, 2000);
     } else {
+      console.error("[VERIFY-OTP] Verification failed:", data.message);
       setMessage(data.message);
       setMessageType("error");
     }
   };
 
   const handleResendOTP = async () => {
+    console.log("[VERIFY-OTP] Attempting resend OTP for email:", email);
+    
     const res = await fetch("/api/resend-otp", {
       method: "POST",
       headers: {
@@ -57,6 +66,7 @@ export default function VerifyOTP() {
     });
 
     const data = await res.json();
+    console.log("[VERIFY-OTP] Resend response:", res.status, data);
     setMessage(data.message);
     setMessageType(res.ok ? "success" : "error");
   };
