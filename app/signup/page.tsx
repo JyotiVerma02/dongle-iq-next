@@ -65,6 +65,14 @@ export default function Register() {
 
       const data = await res.json();
       if (!res.ok) {
+        if (data.message === "Email already registered") {
+          setError("Email is already registered. Please login instead.");
+          setTimeout(() => {
+            router.push("/login");
+          }, 2000);
+          setLoading(false);
+          return;
+        }
         setError(data.message || "Registration failed");
         setLoading(false);
         return;
