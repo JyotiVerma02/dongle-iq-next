@@ -20,7 +20,13 @@ export default function Navbar() {
   const colors = getThemePalette(isDarkMode);
   const navLinks = ["Apply", "Why Us", "Agents", "FAQs", "Contact"];
   const themeLabel = mounted ? (isDarkMode ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme";
-  const showLogout = pathname === "/user/dashboard";
+  const showLogout = [
+    "/user/dashboard",
+    "/verify",
+    "/verify-aadhaar",
+    "/bank-telecom-form",
+    "/preview",
+  ].includes(pathname);
 
   const handleLogout = async () => {
     try {

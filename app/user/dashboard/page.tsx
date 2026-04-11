@@ -206,8 +206,12 @@ export default function DSCRegistrationForm() {
     setFormData((current) => ({ ...current, [key]: value }));
   };
 
+  const canEditApplication =
+    hasSubmittedApplication &&
+    (applicationStatus === "pending" || applicationStatus === "rejected");
+
   const handleEditApplication = () => {
-    if (!userData || applicationStatus !== "pending") {
+    if (!userData || !canEditApplication) {
       return;
     }
 
@@ -250,7 +254,7 @@ export default function DSCRegistrationForm() {
       addressProof: "",
       idProof: "",
       bpAvailable: "Yes",
-      internalRemarks: userData.internalRemarks || "",
+      internalRemarks: "",
       photo: "",
       assistedService: formData.assistedService,
       price:
@@ -351,7 +355,7 @@ export default function DSCRegistrationForm() {
       ) : userData ? (
         <div className="relative z-10 mx-auto mb-8 max-w-6xl">
           <div
-            className="shine-border theme-transition rounded-[2rem] border p-8 shadow-[0_24px_80px_rgba(0,0,0,0.16)]"
+            className="shine-border theme-transition rounded-4xl border p-8 shadow-[0_24px_80px_rgba(0,0,0,0.16)]"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
@@ -405,7 +409,7 @@ export default function DSCRegistrationForm() {
                   >
                     Submitted: {submittedOn}
                   </p>
-                  {applicationStatus === "pending" ? (
+                  {canEditApplication ? (
                     <button
                       onClick={handleEditApplication}
                       className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-xs font-black uppercase tracking-[0.18em]"
@@ -416,13 +420,15 @@ export default function DSCRegistrationForm() {
                       }}
                     >
                       <PencilLine size={14} />
-                      Edit Application
+                      {applicationStatus === "rejected"
+                        ? "Resubmit Form"
+                        : "Edit Application"}
                     </button>
                   ) : null}
                 </div>
               ) : (
                 <div
-                  className="rounded-[1.5rem] border px-5 py-4"
+                  className="rounded-3xl border px-5 py-4"
                   style={{
                     borderColor: colors.borderSoft,
                     backgroundColor: colors.panelStrong,
@@ -467,7 +473,7 @@ export default function DSCRegistrationForm() {
               ].map((item, index) => (
                 <div
                   key={item.label}
-                  className={`rounded-[1.5rem] border p-5 ${index === 1 ? "float-delay" : "float-slow"}`}
+                  className={`rounded-3xl border p-5 ${index === 1 ? "float-delay" : "float-slow"}`}
                   style={{
                     borderColor: colors.borderSoft,
                     backgroundColor: colors.panelStrong,
@@ -492,7 +498,7 @@ export default function DSCRegistrationForm() {
             {hasSubmittedApplication ? (
               <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
                 <div
-                  className="rounded-[1.5rem] border p-5"
+                  className="rounded-3xl border p-5"
                   style={{
                     borderColor: colors.borderSoft,
                     backgroundColor: colors.panelStrong,
@@ -537,7 +543,7 @@ export default function DSCRegistrationForm() {
                 </div>
 
                 <div
-                  className="rounded-[1.5rem] border p-5"
+                  className="rounded-3xl border p-5"
                   style={{
                     borderColor: colors.borderSoft,
                     backgroundColor: colors.panelStrong,
@@ -603,7 +609,7 @@ export default function DSCRegistrationForm() {
           >
             <div className="flex justify-center">
               <div
-                className="w-full max-w-sm rounded-[2rem] border p-6"
+                className="w-full max-w-sm rounded-4xl border p-6"
                 style={{
                   backgroundColor: colors.panelStrong,
                   borderColor: colors.borderSoft,
@@ -966,7 +972,7 @@ export default function DSCRegistrationForm() {
       {userData && hasSubmittedApplication ? (
         <section className="relative z-10 mx-auto mt-8 grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_1fr]">
           <div
-            className="rounded-[2rem] border p-8"
+            className="rounded-4xl border p-8"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <p
@@ -1026,14 +1032,14 @@ export default function DSCRegistrationForm() {
           </div>
 
           <div
-            className="rounded-[2rem] border p-8"
+            className="rounded-4xl border p-8"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <p
               className="text-[10px] font-black uppercase tracking-[0.24em]"
               style={{ color: colors.muted }}
             >
-              Admin Visible Files
+              Your Uploaded Documents
             </p>
             <div className="mt-5 grid gap-4">
               <DocumentMeta
@@ -1169,15 +1175,34 @@ function DocumentMeta({
         {label}
       </p>
       {value ? (
-        <a
-          href={value}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-2 inline-block text-sm font-semibold underline underline-offset-4"
-          style={{ color: colors.accent }}
-        >
-          View Uploaded File
-        </a>
+        <div className="mt-3 flex flex-wrap gap-3">
+          <a
+            href={value}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center rounded-xl border px-4 py-2 text-sm font-semibold"
+            style={{
+              color: colors.accent,
+              borderColor: colors.borderSoft,
+              backgroundColor: colors.card,
+            }}
+          >
+            View Document
+          </a>
+          <a
+            href={value}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center rounded-xl border px-4 py-2 text-sm font-semibold"
+            style={{
+              color: colors.text,
+              borderColor: colors.borderSoft,
+              backgroundColor: colors.panel,
+            }}
+          >
+            Open Uploaded File
+          </a>
+        </div>
       ) : (
         <p
           className="mt-2 text-sm font-semibold"

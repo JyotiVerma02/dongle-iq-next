@@ -151,10 +151,6 @@ export default function PreviewPage() {
                 colors={colors}
               />
             </div>
-
-            <div className="mt-4">
-              <PreviewItem label="Internal Remarks" value={draft.formData.internalRemarks || "No remarks added"} colors={colors} />
-            </div>
           </section>
 
           <section

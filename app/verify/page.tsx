@@ -86,6 +86,23 @@ export default function VerifyPage() {
     }
   };
 
+  const handleOtpPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedOtp = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pastedOtp) {
+      return;
+    }
+
+    event.preventDefault();
+    const nextOtp = [...otp];
+
+    pastedOtp.split("").forEach((digit, index) => {
+      nextOtp[index] = digit;
+    });
+
+    setOtp(nextOtp);
+    inputRefs.current[Math.min(pastedOtp.length, 6) - 1]?.focus();
+  };
+
   const handleVerify = async () => {
     if (!mobile || mobile.length < 10 || otp.join("").length !== 6 || !isChecked) return;
     setIsVerifying(true);
@@ -146,6 +163,7 @@ export default function VerifyPage() {
               <input
                 type="tel"
                 maxLength={10}
+                inputMode="numeric"
                 placeholder="Mobile Number"
                 value={mobile}
                 disabled={otpSent}
@@ -176,8 +194,11 @@ export default function VerifyPage() {
                       }}
                       value={digit}
                       maxLength={1}
+                      inputMode="numeric"
+                      autoComplete={index === 0 ? "one-time-code" : "off"}
                       onChange={(event) => handleOtpChange(index, event.target.value)}
                       onKeyDown={(event) => handleOtpKeyDown(index, event)}
+                      onPaste={handleOtpPaste}
                       className="glass-input theme-transition h-10 w-10 rounded-lg border text-center text-sm font-bold outline-none"
                       style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
                     />

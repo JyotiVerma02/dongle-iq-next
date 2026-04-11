@@ -30,9 +30,8 @@ import {
   Clock,
   MapPin,
   Phone,
-  Linkedin,
-  Instagram,
 } from "lucide-react";
+import { FaInstagram, FaLinkedinIn } from "react-icons/fa6";
 
 export default function DongleIQLanding() {
   const router = useRouter();
@@ -89,8 +88,14 @@ export default function DongleIQLanding() {
     >
       {/* --- HERO --- */}
       <section className="hero-grid relative overflow-hidden px-6 pb-24 pt-36">
-        <div className="hero-glow left-0 top-20 h-56 w-56" style={{ backgroundColor: colors.accent }} />
-        <div className="hero-glow right-10 top-32 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
+        <div
+          className="hero-glow left-0 top-20 h-56 w-56"
+          style={{ backgroundColor: colors.accent }}
+        />
+        <div
+          className="hero-glow right-10 top-32 h-72 w-72"
+          style={{ backgroundColor: "var(--accent-secondary)" }}
+        />
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
             <div
@@ -136,10 +141,18 @@ export default function DongleIQLanding() {
                     borderColor: colors.borderSoft,
                   }}
                 >
-                  <p className="text-2xl font-black uppercase" style={{ color: index === 1 ? colors.accentLight : colors.accent }}>
+                  <p
+                    className="text-2xl font-black uppercase"
+                    style={{
+                      color: index === 1 ? colors.accentLight : colors.accent,
+                    }}
+                  >
                     {item.value}
                   </p>
-                  <p className="mt-1 text-[11px] font-black uppercase tracking-[0.2em]" style={{ color: colors.muted }}>
+                  <p
+                    className="mt-1 text-[11px] font-black uppercase tracking-[0.2em]"
+                    style={{ color: colors.muted }}
+                  >
                     {item.label}
                   </p>
                 </div>
@@ -164,28 +177,48 @@ export default function DongleIQLanding() {
               <div className="relative z-10 space-y-5">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.32em]" style={{ color: colors.muted }}>
+                    <p
+                      className="text-[10px] font-black uppercase tracking-[0.32em]"
+                      style={{ color: colors.muted }}
+                    >
                       Smart Approval Flow
                     </p>
                     <h3 className="mt-2 text-3xl font-black uppercase tracking-tight">
                       Apply, verify, submit.
                     </h3>
-                    <p className="mt-3 max-w-md text-sm font-semibold leading-relaxed" style={{ color: colors.muted }}>
-                      A cleaner onboarding card with fast checkpoints, clearer status cues, and a more confident application journey.
+                    <p
+                      className="mt-3 max-w-md text-sm font-semibold leading-relaxed"
+                      style={{ color: colors.muted }}
+                    >
+                      A cleaner onboarding card with fast checkpoints, clearer
+                      status cues, and a more confident application journey.
                     </p>
                   </div>
                   <div
                     className="rounded-2xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white"
-                    style={{ background: isDarkMode ? "linear-gradient(135deg, var(--accent-light), var(--accent-secondary))" : colors.accent }}
+                    style={{
+                      background: isDarkMode
+                        ? "linear-gradient(135deg, var(--accent-light), var(--accent-secondary))"
+                        : colors.accent,
+                    }}
                   >
                     Live
                   </div>
                 </div>
 
                 {[
-                  { title: "Profile ready", note: "Email and identity fields auto-guided for clean submission." },
-                  { title: "Verification faster", note: "OTP and Aadhaar flow stay visible, clear, and responsive." },
-                  { title: "Document secure", note: "Drag, drop, preview, and confirm JPG, PNG, or PDF in one flow." },
+                  {
+                    title: "Profile ready",
+                    note: "Email and identity fields auto-guided for clean submission.",
+                  },
+                  {
+                    title: "Verification faster",
+                    note: "OTP and Aadhaar flow stay visible, clear, and responsive.",
+                  },
+                  {
+                    title: "Document secure",
+                    note: "Drag, drop, preview, and confirm JPG, PNG, or PDF in one flow.",
+                  },
                 ].map((item, index) => (
                   <div
                     key={item.title}
@@ -210,8 +243,13 @@ export default function DongleIQLanding() {
                         0{index + 1}
                       </div>
                       <div>
-                        <h4 className="text-sm font-black uppercase tracking-tight">{item.title}</h4>
-                        <p className="mt-1 text-xs font-semibold leading-relaxed" style={{ color: colors.muted }}>
+                        <h4 className="text-sm font-black uppercase tracking-tight">
+                          {item.title}
+                        </h4>
+                        <p
+                          className="mt-1 text-xs font-semibold leading-relaxed"
+                          style={{ color: colors.muted }}
+                        >
                           {item.note}
                         </p>
                       </div>
@@ -391,10 +429,7 @@ export default function DongleIQLanding() {
       </section>
 
       {/* --- CONTACT --- */}
-      <section
-        id="contact"
-        className="py-32 px-6 relative overflow-hidden"
-      >
+      <section id="contact" className="py-32 px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto">
           {/* --- Header Section --- */}
           <div className="text-center mb-24">
@@ -542,9 +577,7 @@ export default function DongleIQLanding() {
                     }}
                   />
                 </div>
-                <button
-                  className="theme-primary-btn md:col-span-2 py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4"
-                >
+                <button className="theme-primary-btn md:col-span-2 py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4">
                   Send Message <Send size={16} />
                 </button>
               </form>
@@ -622,7 +655,7 @@ export default function DongleIQLanding() {
       </section>
 
       <footer
-        className="border-t px-6 py-14"
+        className="border-t px-6 py-8"
         style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
       >
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
@@ -630,7 +663,11 @@ export default function DongleIQLanding() {
             <div className="flex items-center gap-3">
               <div
                 className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
-                style={{ background: isDarkMode ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))" : colors.accent }}
+                style={{
+                  background: isDarkMode
+                    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
+                    : colors.accent,
+                }}
               >
                 <Cpu size={22} />
               </div>
@@ -638,23 +675,41 @@ export default function DongleIQLanding() {
                 <h3 className="text-2xl font-black uppercase tracking-tight">
                   Dongle<span style={{ color: colors.accentLight }}>IQ</span>
                 </h3>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+                <p
+                  className="text-[11px] font-black uppercase tracking-[0.24em]"
+                  style={{ color: colors.muted }}
+                >
                   Secure Digital Identity Partner
                 </p>
               </div>
             </div>
-            <p className="mt-5 max-w-lg text-sm font-semibold leading-relaxed" style={{ color: colors.muted }}>
-              Paperless DSC onboarding, reliable verification support, and a smooth application flow designed for agents and professionals across India.
+            <p
+              className="mt-5 max-w-lg text-sm font-semibold leading-relaxed"
+              style={{ color: colors.muted }}
+            >
+              Paperless DSC onboarding, reliable verification support, and a
+              smooth application flow designed for agents and professionals
+              across India.
             </p>
           </div>
 
           <div>
-            <h4 className="text-sm font-black uppercase tracking-[0.24em]" style={{ color: colors.text }}>
+            <h4
+              className="text-sm font-black uppercase tracking-[0.24em]"
+              style={{ color: colors.text }}
+            >
               Quick Links
             </h4>
-            <div className="mt-5 space-y-3 text-sm font-semibold" style={{ color: colors.muted }}>
+            <div
+              className="mt-5 grid grid-cols-2 gap-x-1 gap-y-3 text-sm font-semibold md:grid-cols-3"
+              style={{ color: colors.muted }}
+            >
               {["Apply", "Why Us", "Agents", "FAQs", "Contact"].map((item) => (
-                <a key={item} href={`/#${item.toLowerCase().replace(" ", "")}`} className="block">
+                <a
+                  key={item}
+                  href={`/#${item.toLowerCase().replace(" ", "")}`}
+                  className="block"
+                >
                   {item}
                 </a>
               ))}
@@ -662,13 +717,27 @@ export default function DongleIQLanding() {
           </div>
 
           <div>
-            <h4 className="text-sm font-black uppercase tracking-[0.24em]" style={{ color: colors.text }}>
+            <h4
+              className="text-sm font-black uppercase tracking-[0.24em]"
+              style={{ color: colors.text }}
+            >
               Follow Us
             </h4>
             <div className="mt-5 flex gap-3">
               {[
-                { label: "LinkedIn", icon: <Linkedin size={18} />, href: "https://linkedin.com" },
-                { label: "Instagram", icon: <Instagram size={18} />, href: "https://instagram.com" },
+                {
+                  label: "LinkedIn",
+                  icon: <FaLinkedinIn size={18} />,
+                  href: "https://linkedin.com",
+                  color: "#0A66C2",
+                },
+                {
+                  label: "Instagram",
+                  icon: <FaInstagram size={18} />,
+                  href: "https://instagram.com",
+                  gradient:
+                    "linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4)",
+                },
               ].map((item) => (
                 <a
                   key={item.label}
@@ -682,12 +751,22 @@ export default function DongleIQLanding() {
                     color: colors.text,
                   }}
                 >
-                  <span style={{ color: colors.accent }}>{item.icon}</span>
+                 <span
+  className="flex h-8 w-8 items-center justify-center rounded-full text-white"
+  style={{
+    background: item.gradient || item.color,
+  }}
+>
+  {item.icon}
+</span>
                   {item.label}
                 </a>
               ))}
             </div>
-            <div className="mt-5 space-y-2 text-sm font-semibold" style={{ color: colors.muted }}>
+            <div
+              className="mt-5 space-y-2 text-sm font-semibold"
+              style={{ color: colors.muted }}
+            >
               <p>support@dongleiq.com</p>
               <p>Mon - Fri, 9:00 AM to 6:00 PM</p>
               <p>Gurugram, Haryana, India</p>
@@ -747,7 +826,10 @@ function StepItem({ number, icon, title, desc, colors }: any) {
         {React.cloneElement(icon as React.ReactElement<any>, { size: 32 })}
         <span
           className="absolute -top-3 -right-3 w-8 h-8 rounded-full text-white text-[10px] font-black flex items-center justify-center border-4 shadow-sm"
-          style={{ backgroundColor: colors.accent, borderColor: colors.shellAlt }}
+          style={{
+            backgroundColor: colors.accent,
+            borderColor: colors.shellAlt,
+          }}
         >
           {number}
         </span>

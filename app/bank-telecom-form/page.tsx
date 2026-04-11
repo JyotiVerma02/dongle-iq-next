@@ -450,15 +450,18 @@ export default function DongleIQForm() {
               </div>
 
               <div>
-                <Label text="Internal Remarks" colors={colors} />
-                <textarea
-                  name="internalRemarks"
-                  value={formData.internalRemarks}
-                  onChange={handleChange}
-                  placeholder="Add any specific notes for processing..."
-                  className="glass-input theme-transition h-40 w-full resize-none rounded-2xl border-2 p-4 text-[14px] font-bold outline-none"
-                  style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
-                />
+                <Label text="Submission Guidance" colors={colors} />
+                <div
+                  className="theme-transition flex h-40 w-full rounded-2xl border-2 p-4"
+                  style={{
+                    backgroundColor: colors.input,
+                    borderColor: colors.inputBorder,
+                  }}
+                >
+                  <p className="text-sm font-semibold leading-relaxed" style={{ color: colors.muted }}>
+                    Please upload your applicant photo, identity proof, and address proof, then review the details before the final submission step.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
