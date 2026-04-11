@@ -31,13 +31,32 @@ export async function GET(req: NextRequest) {
       user: {
         name: user.name,
         email: user.email,
+        number: user.number,
         status: user.status,
         internalRemarks: user.internalRemarks,
         isVerified: user.isVerified,
         isAadhaarVerified: user.isAadhaarVerified,
+        pan: user.pan,
+        gender: user.gender,
+        dob: user.dob,
+        ekycId: user.ekycId,
+        certificateClass: user.certificateClass,
+        certType: user.certType,
+        validity: user.validity,
+        tokenType: user.tokenType,
+        address: user.address,
+        city: user.city,
+        state: user.state,
+        pincode: user.pincode,
+        photo: user.photo,
+        idProof: user.idProof,
+        addressProof: user.addressProof,
+        price: user.price,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       }
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

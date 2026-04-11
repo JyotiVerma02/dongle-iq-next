@@ -70,7 +70,7 @@ export default function PreviewPage() {
 
       clearPreviewDraft();
       alert("Form submitted successfully.");
-      router.push("/admin/dashboard");
+      router.push("/user/dashboard");
     } catch {
       alert("Could not submit the form. Please try again.");
     } finally {
@@ -90,12 +90,14 @@ export default function PreviewPage() {
   });
 
   return (
-    <div className="theme-transition relative min-h-screen px-4 pb-10 pt-28" style={{ color: colors.text }}>
+    <div className="theme-transition hero-grid relative min-h-screen px-4 pb-10 pt-28" style={{ color: colors.text }}>
       <ParticleBackground />
+      <div className="hero-glow left-8 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
+      <div className="hero-glow right-12 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
 
       <div className="relative z-10 mx-auto max-w-6xl space-y-6">
         <div
-          className="theme-transition rounded-[2rem] border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
+          className="theme-transition rounded-4xl border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
         >
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -121,7 +123,7 @@ export default function PreviewPage() {
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <section
-            className="theme-transition rounded-[2rem] border p-6"
+            className="theme-transition rounded-4xl border p-6"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <h2 className="mb-5 text-xs font-black uppercase tracking-[0.22em]" style={{ color: colors.muted }}>
@@ -156,7 +158,7 @@ export default function PreviewPage() {
           </section>
 
           <section
-            className="theme-transition rounded-[2rem] border p-6"
+            className="theme-transition rounded-4xl border p-6"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <h2 className="mb-5 text-xs font-black uppercase tracking-[0.22em]" style={{ color: colors.muted }}>
@@ -199,15 +201,14 @@ export default function PreviewPage() {
           <button
             onClick={() => router.back()}
             className="theme-transition rounded-xl border px-6 py-3 text-sm font-black uppercase tracking-[0.18em]"
-            style={{ backgroundColor: colors.panel, borderColor: colors.border, color: colors.text }}
+            style={{ backgroundColor: colors.panelStrong, borderColor: colors.border, color: colors.text }}
           >
             Back To Edit
           </button>
           <button
             onClick={handleConfirm}
             disabled={loading}
-            className="theme-transition rounded-xl px-6 py-3 text-sm font-black uppercase tracking-[0.18em] text-white disabled:opacity-60"
-            style={{ backgroundColor: colors.accent }}
+            className="theme-primary-btn theme-transition rounded-xl px-6 py-3 text-sm font-black uppercase tracking-[0.18em] text-white disabled:opacity-60"
           >
             {loading ? "Submitting..." : "Final Submit"}
           </button>
@@ -229,7 +230,7 @@ function PreviewItem({
   return (
     <div
       className="theme-transition rounded-2xl border px-4 py-3"
-      style={{ backgroundColor: colors.panel, borderColor: colors.borderSoft }}
+      style={{ backgroundColor: colors.panelStrong, borderColor: colors.borderSoft }}
     >
       <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: colors.muted }}>
         {label}
@@ -255,7 +256,7 @@ function DocumentCard({
   return (
     <div
       className="theme-transition rounded-2xl border p-4"
-      style={{ backgroundColor: colors.panel, borderColor: colors.borderSoft }}
+      style={{ backgroundColor: colors.panelStrong, borderColor: colors.borderSoft }}
     >
       <div className="mb-3">
         <div>
@@ -267,14 +268,19 @@ function DocumentCard({
       </div>
 
       {isPdf ? (
-        <div
-          className="flex h-36 items-center justify-center rounded-xl border text-sm font-bold"
+        <iframe
+          src={file.dataUrl}
+          title={`${label} PDF preview`}
+          className="h-72 w-full rounded-xl border"
           style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
-        >
-          PDF Preview Available
-        </div>
+        />
       ) : (
-        <img src={file.dataUrl} alt={label} className="h-48 w-full rounded-xl object-contain" />
+        <img
+          src={file.dataUrl}
+          alt={label}
+          className="h-48 w-full rounded-xl object-contain"
+          style={{ boxShadow: `0 16px 32px -24px ${colors.accentShadow}` }}
+        />
       )}
     </div>
   );

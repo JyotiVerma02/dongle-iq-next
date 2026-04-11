@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
@@ -13,10 +13,29 @@ export default function VerifyPage() {
   const colors = getThemePalette(isDarkMode);
 
   const [mobile, setMobile] = useState("");
-  const [otp, setOtp] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [activeTab, setActiveTab] = useState<"telecom" | "bank">("telecom");
   const [isChecked, setIsChecked] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [timer, setTimer] = useState(0);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const premiumGradient = isDarkMode
+    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
+    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+
+  useEffect(() => {
+    if (timer <= 0) return;
+    const interval = setInterval(() => setTimer((current) => Math.max(current - 1, 0)), 1000);
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  useEffect(() => {
+    if (otpSent) {
+      inputRefs.current[0]?.focus();
+    }
+  }, [otpSent]);
 
   const handleSendOtp = async () => {
     if (mobile.length !== 10) {
@@ -34,7 +53,14 @@ export default function VerifyPage() {
       });
 
       const data = await response.json();
-      alert(response.ok ? "OTP sent successfully" : data.message || "Failed to send OTP");
+      if (!response.ok) {
+        alert(data.message || "Failed to send OTP");
+        return;
+      }
+
+      setOtpSent(true);
+      setTimer(120);
+      alert("OTP sent successfully");
     } catch {
       alert("Error sending OTP");
     } finally {
@@ -42,24 +68,45 @@ export default function VerifyPage() {
     }
   };
 
-  const handleVerify = () => {
-    if (!mobile || mobile.length < 10 || !otp || !isChecked) return;
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^[0-9]?$/.test(value)) return;
+
+    const nextOtp = [...otp];
+    nextOtp[index] = value;
+    setOtp(nextOtp);
+
+    if (value && index < otp.length - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Backspace" && !otp[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleVerify = async () => {
+    if (!mobile || mobile.length < 10 || otp.join("").length !== 6 || !isChecked) return;
+    setIsVerifying(true);
     sessionStorage.setItem("verifiedMobile", mobile);
     router.push(`/bank-telecom-form?type=${activeTab}&mobile=${mobile}`);
   };
 
   return (
-    <main className="theme-transition relative flex min-h-screen items-center justify-center px-4 pt-28" style={{ color: colors.text }}>
+    <main className="theme-transition hero-grid relative flex min-h-screen items-center justify-center px-4 pt-28" style={{ color: colors.text }}>
       <ParticleBackground />
+      <div className="hero-glow left-8 top-28 h-52 w-52" style={{ backgroundColor: colors.accent }} />
+      <div className="hero-glow right-10 top-24 h-64 w-64" style={{ backgroundColor: "var(--accent-secondary)" }} />
 
       <div className="relative z-10 w-full max-w-sm">
         <div
-          className="pointer-events-none absolute -inset-[1px] rounded-[1.75rem] blur-sm"
-          style={{ background: `linear-gradient(90deg, ${colors.accent}, transparent, ${colors.accent})`, opacity: isDarkMode ? 0.34 : 0.18 }}
+          className="pointer-events-none absolute -inset-px rounded-[1.75rem] blur-sm"
+          style={{ background: premiumGradient, opacity: isDarkMode ? 0.34 : 0.18 }}
         />
 
         <section
-          className="theme-transition relative rounded-[1.75rem] border p-5 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl"
+          className="shine-border theme-transition relative rounded-[1.75rem] border p-6 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
         >
           <div className="mb-4 text-center">
@@ -77,7 +124,7 @@ export default function VerifyPage() {
                   onClick={() => setActiveTab(tab)}
                   className="theme-transition flex-1 rounded-lg py-2 text-[10px] font-black uppercase tracking-widest"
                   style={{
-                    backgroundColor: active ? colors.accent : "transparent",
+                    background: active ? premiumGradient : "transparent",
                     color: active ? "#ffffff" : colors.muted,
                   }}
                 >
@@ -94,58 +141,85 @@ export default function VerifyPage() {
             {activeTab === "telecom" ? "Verify via telecom records" : "Verify via bank identity API"}
           </div>
 
-          <div className="mb-4 space-y-3">
-            <input
-              type="tel"
-              maxLength={10}
-              placeholder="Mobile Number"
-              value={mobile}
-              onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
-              className="theme-transition w-full rounded-xl border px-3 py-3 text-sm outline-none"
-              style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
-            />
+          <div className="space-y-4">
+            <div className="items-stretch gap-3 sm:flex">
+              <input
+                type="tel"
+                maxLength={10}
+                placeholder="Mobile Number"
+                value={mobile}
+                disabled={otpSent}
+                onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
+                className="glass-input theme-transition w-full flex-1 rounded-xl border px-4 py-3.5 text-sm font-semibold outline-none disabled:opacity-70"
+                style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
+              />
 
-            <input
-              type="text"
-              maxLength={6}
-              placeholder="OTP"
-              value={otp}
-              onChange={(event) => setOtp(event.target.value)}
-              className="theme-transition w-full rounded-xl border px-3 py-3 text-sm outline-none"
-              style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
-            />
+              {!otpSent ? (
+                <button
+                  onClick={handleSendOtp}
+                  disabled={isSending}
+                  className="theme-primary-btn theme-transition mt-3 w-full rounded-xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap text-white disabled:opacity-60 sm:mt-0 sm:w-auto"
+                >
+                  {isSending ? "Sending..." : "Send OTP"}
+                </button>
+              ) : null}
+            </div>
+
+            {otpSent ? (
+              <div className="space-y-3 text-center">
+                <div className="flex justify-center gap-1.5">
+                  {otp.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(element) => {
+                        inputRefs.current[index] = element;
+                      }}
+                      value={digit}
+                      maxLength={1}
+                      onChange={(event) => handleOtpChange(index, event.target.value)}
+                      onKeyDown={(event) => handleOtpKeyDown(index, event)}
+                      className="glass-input theme-transition h-10 w-10 rounded-lg border text-center text-sm font-bold outline-none"
+                      style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
+                    />
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => timer === 0 && handleSendOtp()}
+                  className="text-[10px] font-semibold"
+                  style={{ color: colors.accent }}
+                >
+                  {timer > 0 ? `Resend in ${timer}s` : "Resend OTP"}
+                </button>
+              </div>
+            ) : null}
           </div>
 
-          <div className="mb-4 flex cursor-pointer items-center gap-2" onClick={() => setIsChecked((current) => !current)}>
+          <div
+            className="mt-5 mb-5 flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3"
+            style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}
+            onClick={() => setIsChecked((current) => !current)}
+          >
             <div
-              className="theme-transition h-4 w-4 rounded border"
+              className="theme-transition h-4 w-4 shrink-0 rounded border"
               style={{
                 backgroundColor: isChecked ? colors.accent : "transparent",
                 borderColor: isChecked ? colors.accent : colors.inputBorder,
               }}
             />
-            <span className="text-[10px]" style={{ color: colors.muted }}>
+            <span className="text-[11px] leading-none" style={{ color: colors.muted }}>
               I agree to verification
             </span>
           </div>
 
           <div className="space-y-2">
             <button
-              onClick={handleSendOtp}
-              disabled={isSending}
-              className="theme-transition w-full rounded-xl border py-2 text-[10px] font-bold uppercase tracking-[0.2em]"
-              style={{ borderColor: colors.accent, color: colors.accent, backgroundColor: `${colors.accent}08` }}
-            >
-              {isSending ? "Sending..." : "Send OTP"}
-            </button>
-
-            <button
               onClick={handleVerify}
-              disabled={!isChecked}
-              className="theme-transition w-full rounded-xl py-2 text-[11px] font-black uppercase tracking-[0.22em] text-white disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ backgroundColor: isChecked ? colors.accent : colors.subtleText }}
+              disabled={!isChecked || otp.join("").length !== 6 || isVerifying}
+              className="theme-primary-btn theme-transition w-full rounded-xl py-2.5 text-[11px] font-black uppercase tracking-[0.22em] text-white disabled:cursor-not-allowed disabled:opacity-60"
+              style={{ opacity: isChecked && otp.join("").length === 6 ? 1 : 0.55 }}
             >
-              Verify
+              {isVerifying ? "Verifying..." : "Verify"}
             </button>
           </div>
         </section>

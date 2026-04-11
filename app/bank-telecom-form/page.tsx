@@ -78,6 +78,9 @@ export default function DongleIQForm() {
   const searchParams = useSearchParams();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
+  const premiumGradient = isDarkMode
+    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
+    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
 
   const photoRef = useRef<HTMLInputElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
@@ -258,13 +261,15 @@ export default function DongleIQForm() {
   };
 
   return (
-    <div className="theme-transition min-h-screen pb-10 pt-28" style={{ color: colors.text }}>
+    <div className="theme-transition hero-grid relative min-h-screen pb-10 pt-28" style={{ color: colors.text }}>
       <ParticleBackground />
+      <div className="hero-glow left-8 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
+      <div className="hero-glow right-12 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
 
       <div className="relative z-10 mx-auto max-w-6xl p-4 lg:p-8">
         <form
           onSubmit={handleSubmit}
-          className="theme-transition overflow-hidden rounded-[2.5rem] border shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
+          className="shine-border theme-transition overflow-hidden rounded-[2.5rem] border shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
         >
           <div
@@ -305,14 +310,14 @@ export default function DongleIQForm() {
                     onChange={handleChange}
                     placeholder="6 DIGIT PIN"
                     required
-                    className="theme-transition w-full rounded-l-xl border-2 px-4 text-[14px] font-bold outline-none"
+                    className="glass-input theme-transition w-full rounded-l-xl border-2 px-4 text-[14px] font-bold outline-none"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPin((current) => !current)}
-                    className="theme-transition rounded-r-xl border-2 border-l-0 px-4"
-                    style={{ backgroundColor: colors.accentSoft, borderColor: colors.inputBorder, color: colors.accent }}
+                    className="theme-primary-btn theme-transition rounded-r-xl border-2 border-l-0 px-4"
+                    style={{ borderColor: colors.inputBorder }}
                   >
                     {showPin ? "Hide" : "Show"}
                   </button>
@@ -325,7 +330,7 @@ export default function DongleIQForm() {
                   value={formData.bpCode}
                   onChange={handleChange}
                   placeholder="REFERENCE CODE"
-                  className="theme-transition h-12 w-full rounded-xl border-2 px-4 text-[14px] font-bold outline-none"
+                  className="glass-input theme-transition h-12 w-full rounded-xl border-2 px-4 text-[14px] font-bold outline-none"
                   style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                 />
                 <div className="mt-2 flex items-center gap-4 text-[10px] font-black uppercase">
@@ -355,7 +360,7 @@ export default function DongleIQForm() {
                 value={formData.address}
                 onChange={handleChange}
                 required
-                className="theme-transition min-h-25 w-full rounded-2xl border-2 p-4 text-[14px] font-bold outline-none"
+                className="glass-input theme-transition min-h-25 w-full rounded-2xl border-2 p-4 text-[14px] font-bold outline-none"
                 style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
               />
             </div>
@@ -415,10 +420,10 @@ export default function DongleIQForm() {
                 />
                 <div
                   onClick={() => photoRef.current?.click()}
-                  className="theme-transition flex h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed shadow-inner"
+                  className="theme-transition flex h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed"
                   style={{ backgroundColor: colors.accentSubtle, borderColor: colors.border }}
                 >
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg" style={{ backgroundColor: colors.accent }}>
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg" style={{ background: premiumGradient }}>
                     <span className="text-xs font-black">{photoFile ? "Done" : "Add"}</span>
                   </div>
                   {photoFile ? (
@@ -451,7 +456,7 @@ export default function DongleIQForm() {
                   value={formData.internalRemarks}
                   onChange={handleChange}
                   placeholder="Add any specific notes for processing..."
-                  className="theme-transition h-40 w-full resize-none rounded-2xl border-2 p-4 text-[14px] font-bold outline-none"
+                  className="glass-input theme-transition h-40 w-full resize-none rounded-2xl border-2 p-4 text-[14px] font-bold outline-none"
                   style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                 />
               </div>
@@ -465,8 +470,7 @@ export default function DongleIQForm() {
             <button
               type="submit"
               disabled={loading}
-              className="theme-transition rounded-xl px-24 py-4 text-[12px] font-black uppercase tracking-[0.3em] text-white disabled:cursor-not-allowed disabled:opacity-50"
-              style={{ backgroundColor: colors.accent, boxShadow: `0 18px 35px -18px ${colors.glow}` }}
+              className="theme-primary-btn theme-transition rounded-xl px-24 py-4 text-[12px] font-black uppercase tracking-[0.3em] text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Preparing Preview..." : "Preview Before Submit"}
             </button>
@@ -512,7 +516,7 @@ function ThemeInput({
       <Label text={label} required={required} colors={colors} />
       <input
         {...props}
-        className={`theme-transition h-12 w-full rounded-xl border-2 px-4 text-[14px] font-bold outline-none ${className}`}
+        className={`glass-input theme-transition h-12 w-full rounded-xl border-2 px-4 text-[14px] font-bold outline-none ${className}`}
         style={{
           backgroundColor: colors.input,
           borderColor: colors.inputBorder,
@@ -531,7 +535,7 @@ function ThemeSelect({ label, options, required, colors, ...props }: any) {
       <Label text={label} required={required} colors={colors} />
       <select
         {...props}
-        className="theme-transition h-12 w-full cursor-pointer appearance-none rounded-xl border-2 px-3 text-[14px] font-bold outline-none"
+        className="glass-input theme-transition h-12 w-full cursor-pointer appearance-none rounded-xl border-2 px-3 text-[14px] font-bold outline-none"
         style={{
           backgroundColor: colors.input,
           borderColor: colors.inputBorder,
@@ -561,15 +565,15 @@ function FileComponent({ label, inputRef, fileName, setFile, colors }: any) {
     <div className="w-full">
       <Label text={label} required colors={colors} />
       <div
-        className="theme-transition flex items-center gap-4 rounded-xl border-2 p-2 shadow-inner"
-        style={{ backgroundColor: colors.panel, borderColor: colors.inputBorder }}
+        className="theme-transition flex items-center gap-4 rounded-xl border-2 p-2"
+        style={{ backgroundColor: colors.panelStrong, borderColor: colors.inputBorder }}
       >
-        <input type="file" accept=".jpg,.jpeg,.pdf" ref={inputRef} className="hidden" onChange={(event) => setFile(event.target.files?.[0] || null)} />
+        <input type="file" accept=".jpg,.png,.pdf" ref={inputRef} className="hidden" onChange={(event) => setFile(event.target.files?.[0] || null)} />
         <button
           type="button"
           onClick={() => inputRef.current.click()}
-          className="theme-transition rounded-lg border px-5 py-2 text-[10px] font-black uppercase tracking-widest"
-          style={{ backgroundColor: colors.accentSoft, borderColor: colors.border, color: colors.accent }}
+          className="theme-primary-btn theme-transition rounded-lg border px-5 py-2 text-[10px] font-black uppercase tracking-widest"
+          style={{ borderColor: colors.border }}
         >
           Attach
         </button>

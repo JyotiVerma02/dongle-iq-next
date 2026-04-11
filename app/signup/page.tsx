@@ -33,6 +33,9 @@ export default function Register() {
   const { isDarkMode } = useTheme();
 
   const colors = getThemePalette(isDarkMode);
+  const premiumGradient = isDarkMode
+    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
+    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
 
   const sanitizeNumber = (value: string) => value.replace(/\D/g, "").slice(0, 10);
 
@@ -89,7 +92,9 @@ export default function Register() {
   };
 
   return (
-    <div className="theme-transition relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
+    <div className="theme-transition hero-grid relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
+      <div className="hero-glow left-8 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
+      <div className="hero-glow right-12 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
       <nav
         className="fixed top-0 z-50 w-full border-b p-5 backdrop-blur-xl animate-[slideDown_0.6s_ease-out]"
         style={{ backgroundColor: colors.overlay, borderColor: colors.border }}
@@ -97,7 +102,7 @@ export default function Register() {
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link href="/" className="group flex items-center gap-2">
             <div
-              className="flex h-10 w-10 items-center justify-center rounded-xl shadow-lg transition-all duration-500 group-hover:rotate-[360deg]"
+              className="flex h-10 w-10 items-center justify-center rounded-xl shadow-lg transition-all duration-500 group-hover:rotate-360"
               style={{ backgroundColor: colors.accent, boxShadow: `0 0 20px ${colors.accent}44` }}
             >
               <Cpu size={20} className="text-white" />
@@ -109,7 +114,7 @@ export default function Register() {
           <Link
             href="/login"
             className="rounded-full border px-6 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all"
-            style={{ borderColor: colors.borderSoft, color: colors.text, backgroundColor: colors.panel }}
+            style={{ borderColor: colors.borderSoft, color: colors.text, backgroundColor: colors.panelStrong }}
           >
             Sign In
           </Link>
@@ -119,38 +124,55 @@ export default function Register() {
       <div className="relative z-10 flex min-h-screen pt-20">
         <div className="hidden w-[55%] flex-col justify-center px-24 lg:flex" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
+            <div
+              className="shine-border mb-8 inline-flex rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em]"
+              style={{
+                borderColor: colors.borderSoft,
+                backgroundColor: colors.card,
+                color: colors.accentLight,
+              }}
+            >
+              Premium Onboarding
+            </div>
             <h1 className="mb-8 text-7xl font-black uppercase leading-[0.8] tracking-tighter" style={{ color: colors.text }}>
               Agent <br />
-              <span
-                className="animate-gradient bg-clip-text text-transparent"
-                style={{
-                  backgroundImage: `linear-gradient(to right, ${colors.accent}, ${colors.accentLight}, ${isDarkMode ? "#ffffff" : "#0f172a"})`,
-                }}
-              >
-                Network
-              </span>
+              <span className="gradient-text">Network</span>
             </h1>
             <p className="mb-12 max-w-lg text-lg font-medium leading-relaxed opacity-70" style={{ color: colors.muted }}>
               Initialize your professional profile to manage Digital Signature Certificates and IRCTC assets through our encrypted cloud infrastructure.
             </p>
-            <div className="group flex w-fit items-center gap-4 rounded-lg px-6 py-3 transition-all" style={{ border: `1px solid ${colors.borderSoft}`, backgroundColor: colors.panel }}>
-              <ShieldCheck size={24} className="animate-pulse" style={{ color: colors.accent }} />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em]" style={{ color: colors.text }}>
-                Identity Verification Protocol Active
-              </span>
+            <div className="grid max-w-xl grid-cols-2 gap-4">
+              {[
+                { value: "Verified", label: "Email onboarding" },
+                { value: "Secure", label: "Profile creation" },
+              ].map((item, index) => (
+                <div
+                  key={item.label}
+                  className={`rounded-[1.5rem] border p-5 ${index === 0 ? "float-slow" : "float-delay"}`}
+                  style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
+                >
+                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl text-white" style={{ background: premiumGradient }}>
+                    <ShieldCheck size={18} />
+                  </div>
+                  <p className="text-xl font-black uppercase" style={{ color: colors.text }}>{item.value}</p>
+                  <p className="mt-1 text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: colors.muted }}>
+                    {item.label}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         <div className="flex flex-1 items-center justify-center p-6">
           <div className="group relative w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
-            <div className="absolute -inset-[1.5px] rounded-[30px] bg-gradient-to-r from-purple-600 via-transparent to-purple-600 opacity-30 blur-sm transition-opacity duration-500 group-hover:opacity-100" />
+            <div className="absolute -inset-[1.5px] rounded-[34px] opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100" style={{ background: premiumGradient }} />
 
             <div
-              className="relative w-full overflow-hidden rounded-[30px] border p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl"
+              className="shine-border relative w-full overflow-hidden rounded-[34px] border p-8 shadow-[0_20px_50px_rgba(0,0,0,0.22)] backdrop-blur-2xl"
               style={{ backgroundColor: colors.card, borderColor: colors.border }}
             >
-              <div className="absolute left-0 top-0 h-[1px] w-full opacity-50" style={{ backgroundImage: `linear-gradient(to right, transparent, ${colors.accentLight}, transparent)` }} />
+              <div className="absolute left-0 top-0 h-px w-full opacity-50" style={{ backgroundImage: `linear-gradient(to right, transparent, ${colors.accentLight}, transparent)` }} />
 
               <div className="mb-6 text-center lg:text-left">
                 <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>Register</h2>
@@ -171,7 +193,7 @@ export default function Register() {
                   placeholder="First Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                  className="glass-input rounded-2xl border px-4 py-3.5 text-sm font-semibold outline-none"
                   style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                 />
 
@@ -180,7 +202,7 @@ export default function Register() {
                   placeholder="Last Name"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  className="rounded-lg border p-3 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                  className="glass-input rounded-2xl border px-4 py-3.5 text-sm font-semibold outline-none"
                   style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                 />
 
@@ -190,13 +212,13 @@ export default function Register() {
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value.toLowerCase())}
-                    className="w-full rounded-lg border p-3 pl-10 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                    className="glass-input w-full rounded-2xl border py-3.5 pl-10 pr-4 text-sm lowercase font-semibold outline-none"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                   <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }} />
                 </div>
 
-                <div className="col-span-2 flex items-center rounded-lg border focus-within:ring-2 focus-within:ring-purple-500/10" style={{ backgroundColor: colors.input, borderColor: colors.inputBorder }}>
+                <div className="col-span-2 flex items-center rounded-2xl border" style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, boxShadow: "0 0 0 0 transparent" }}>
                   <div className="flex items-center gap-2 pl-3" style={{ color: colors.muted }}>
                     <Smartphone size={16} />
                     <span className="text-sm font-semibold" style={{ color: colors.muted }}>+91</span>
@@ -218,7 +240,7 @@ export default function Register() {
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-lg border p-3 pr-10 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                    className="glass-input w-full rounded-2xl border px-4 py-3.5 pr-10 text-sm font-semibold outline-none"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                   <button
@@ -237,7 +259,7 @@ export default function Register() {
                     placeholder="Confirm"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full rounded-lg border p-3 pr-10 text-sm outline-none focus:ring-2 focus:ring-purple-500/10"
+                    className="glass-input w-full rounded-2xl border px-4 py-3.5 pr-10 text-sm font-semibold outline-none"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                   <button
@@ -253,11 +275,7 @@ export default function Register() {
                 <button
                   disabled={loading}
                   type="submit"
-                  className="col-span-2 mt-2 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-[11px] font-black uppercase tracking-[0.3em] text-white shadow-2xl transition-all duration-500 hover:brightness-125 active:scale-[0.98] disabled:opacity-50"
-                  style={{
-                    backgroundColor: colors.accent,
-                    boxShadow: `0 15px 35px -10px ${colors.accent}aa`,
-                  }}
+                  className="theme-primary-btn col-span-2 mt-2 flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-[11px] font-black uppercase tracking-[0.3em] text-white shadow-2xl transition-all duration-500 hover:brightness-125 active:scale-[0.98] disabled:opacity-50"
                 >
                   {loading ? "Processing..." : "Create Account"} <UserPlus size={16} />
                 </button>
@@ -314,8 +332,6 @@ export default function Register() {
         @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes fadeInLeft { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        @keyframes gradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .animate-gradient { background-size: 200% auto; animation: gradient 4s linear infinite; }
       `}</style>
     </div>
   );

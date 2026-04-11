@@ -36,10 +36,14 @@ export async function POST(req: Request) {
     });
 
     await connectDB();
-    await DashboardUser.create({
-      ...body,
-      totalAmount: pricing.total,
-    });
+   await DashboardUser.findOneAndUpdate(
+  { email: body.email },
+  {
+    ...body,
+    totalAmount: pricing.total,
+  },
+  { upsert: true, new: true }
+);
 
     return NextResponse.json({
       success: true,

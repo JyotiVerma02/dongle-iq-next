@@ -20,6 +20,7 @@ export default function Navbar() {
   const colors = getThemePalette(isDarkMode);
   const navLinks = ["Apply", "Why Us", "Agents", "FAQs", "Contact"];
   const themeLabel = mounted ? (isDarkMode ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme";
+  const showLogout = pathname === "/user/dashboard";
 
   const handleLogout = async () => {
     try {
@@ -76,20 +77,6 @@ export default function Navbar() {
 
         <div className="flex items-center gap-3">
           <button
-            onClick={toggleTheme}
-            aria-label={themeLabel}
-            title={themeLabel}
-            className="theme-transition rounded-2xl border p-3"
-            style={{
-              color: colors.text,
-              backgroundColor: colors.panel,
-              borderColor: colors.borderSoft,
-            }}
-          >
-            {mounted && isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />}
-          </button>
-
-          <button
             onClick={() => router.push("/login")}
             className="hidden items-center gap-2 text-[11px] font-black uppercase tracking-widest transition-colors sm:flex"
             style={{ color: colors.muted }}
@@ -101,23 +88,41 @@ export default function Navbar() {
             onClick={() => router.push("/signup")}
             className="theme-transition rounded-full px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white"
             style={{
-              backgroundColor: colors.accent,
+              background: isDarkMode
+                ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
+                : colors.accent,
               boxShadow: `0 16px 36px -18px ${colors.glow}`,
             }}
           >
             Register
           </button>
 
+          {showLogout ? (
+            <button
+              onClick={handleLogout}
+              className="theme-transition hidden items-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-black uppercase tracking-widest sm:flex"
+              style={{
+                color: colors.text,
+                backgroundColor: colors.panel,
+                border: `1px solid ${colors.borderSoft}`,
+              }}
+            >
+              <LogOut size={14} /> Logout
+            </button>
+          ) : null}
+
           <button
-            onClick={handleLogout}
-            className="theme-transition hidden items-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-black uppercase tracking-widest sm:flex"
+            onClick={toggleTheme}
+            aria-label={themeLabel}
+            title={themeLabel}
+            className="theme-transition rounded-2xl border p-3"
             style={{
               color: colors.text,
               backgroundColor: colors.panel,
-              border: `1px solid ${colors.borderSoft}`,
+              borderColor: colors.borderSoft,
             }}
           >
-            <LogOut size={14} /> Logout
+            {mounted && isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />}
           </button>
         </div>
       </div>

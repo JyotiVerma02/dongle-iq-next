@@ -22,6 +22,9 @@ export default function AadhaarVerifyPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const premiumGradient = isDarkMode
+    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
+    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
 
   useEffect(() => {
     if (timer <= 0) return;
@@ -135,17 +138,19 @@ export default function AadhaarVerifyPage() {
   };
 
   return (
-    <main className="theme-transition relative flex min-h-screen items-center justify-center px-4 pt-28" style={{ color: colors.text }}>
+    <main className="theme-transition hero-grid relative flex min-h-screen items-center justify-center px-4 pt-28" style={{ color: colors.text }}>
       <ParticleBackground />
+      <div className="hero-glow left-8 top-28 h-52 w-52" style={{ backgroundColor: colors.accent }} />
+      <div className="hero-glow right-10 top-24 h-64 w-64" style={{ backgroundColor: "var(--accent-secondary)" }} />
 
       <div className="relative z-10 w-full max-w-sm">
         <div
-          className="pointer-events-none absolute -inset-[1px] rounded-[1.75rem] blur-sm"
-          style={{ background: `linear-gradient(90deg, ${colors.accent}, transparent, ${colors.accent})`, opacity: isDarkMode ? 0.34 : 0.18 }}
+          className="pointer-events-none absolute -inset-px rounded-[1.75rem] blur-sm"
+          style={{ background: premiumGradient, opacity: isDarkMode ? 0.34 : 0.18 }}
         />
 
         <section
-          className="theme-transition relative rounded-[1.75rem] border p-5 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl"
+          className="shine-border theme-transition relative rounded-[1.75rem] border p-6 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
         >
           <div className="mb-4 text-center">
@@ -169,18 +174,29 @@ export default function AadhaarVerifyPage() {
           </div>
 
           <div className="space-y-4">
-            <input
-              type="tel"
-              maxLength={10}
-              value={mobile}
-              disabled={otpSent}
-              placeholder="Mobile Number"
-              onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
-              className="theme-transition w-full rounded-xl border px-3 py-3 text-sm outline-none disabled:opacity-70"
-              style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
-            />
+            <div className="flex gap-2">
+              <input
+                type="tel"
+                maxLength={10}
+                value={mobile}
+                disabled={otpSent}
+                placeholder="Mobile Number"
+                onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
+                className="glass-input theme-transition flex-1 rounded-xl border px-3 py-3 text-sm font-semibold outline-none disabled:opacity-70"
+                style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder, caretColor: colors.text }}
+              />
+              {!otpSent && (
+                <button
+                  onClick={handleSendOtp}
+                  disabled={isSendingOtp}
+                  className="theme-primary-btn theme-transition rounded-xl px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:opacity-60 whitespace-nowrap"
+                >
+                  {isSendingOtp ? "Sending..." : "Send OTP"}
+                </button>
+              )}
+            </div>
 
-            {otpSent ? (
+            {otpSent && (
               <div className="space-y-3 text-center">
                 <div className="flex justify-center gap-1.5">
                   {otp.map((digit, index) => (
@@ -193,8 +209,8 @@ export default function AadhaarVerifyPage() {
                       maxLength={1}
                       onChange={(event) => handleOtpChange(index, event.target.value)}
                       onKeyDown={(event) => handleOtpKeyDown(index, event)}
-                      className="theme-transition h-10 w-10 rounded-lg border text-center text-sm font-bold outline-none"
-                      style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
+                      className="glass-input theme-transition h-10 w-10 rounded-lg border text-center text-sm font-bold outline-none"
+                      style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder, caretColor: colors.text }}
                     />
                   ))}
                 </div>
@@ -203,33 +219,26 @@ export default function AadhaarVerifyPage() {
                   {timer > 0 ? `Resend in ${timer}s` : "Resend OTP"}
                 </button>
               </div>
-            ) : (
-              <button
-                onClick={handleSendOtp}
-                disabled={isSendingOtp}
-                className="theme-transition w-full rounded-xl py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:opacity-60"
-                style={{ backgroundColor: colors.accent }}
-              >
-                {isSendingOtp ? "Sending..." : "Send OTP"}
-              </button>
             )}
 
             <div className="flex cursor-pointer items-center gap-2 text-[10px]" onClick={() => setIsChecked((current) => !current)}>
               <div
-                className="theme-transition h-4 w-4 rounded border"
+                className="theme-transition flex h-5 w-5 items-center justify-center rounded border text-white"
                 style={{
                   backgroundColor: isChecked ? colors.accent : "transparent",
-                  borderColor: isChecked ? colors.accent : colors.inputBorder,
+                  borderColor: colors.accent,
                 }}
-              />
-              <span style={{ color: colors.muted }}>Consent for verification</span>
+              >
+                {isChecked && <span className="text-xs font-bold">✓</span>}
+              </div>
+              <span style={{ color: colors.text }}>Consent for verification</span>
             </div>
 
             <button
               onClick={handleVerify}
               disabled={!isChecked || otp.join("").length !== 6 || isVerifying}
-              className="theme-transition w-full rounded-xl py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:cursor-not-allowed disabled:opacity-60"
-              style={{ backgroundColor: isChecked && otp.join("").length === 6 ? colors.accent : colors.subtleText }}
+              className="theme-primary-btn theme-transition w-full rounded-xl py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:cursor-not-allowed disabled:opacity-60"
+              style={{ opacity: isChecked && otp.join("").length === 6 ? 1 : 0.55 }}
             >
               {isVerifying ? "Verifying..." : "Verify"}
             </button>
