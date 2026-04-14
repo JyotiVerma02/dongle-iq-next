@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import {
-  ArrowUpRight,
+  ArrowLeft,
   Bell,
   CheckCircle2,
   ChevronRight,
@@ -26,6 +26,8 @@ import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import { Menu } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type DashboardView = "home" | "admin" | "ledger";
 
@@ -58,6 +60,7 @@ export default function DongleIQAdminHub() {
     number: "",
     role: "",
   });
+  const router = useRouter();
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminMessage, setAdminMessage] = useState("");
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
@@ -127,6 +130,9 @@ export default function DongleIQAdminHub() {
   }, [users]);
 
   const [search, setSearch] = useState("");
+  const [latestPage, setLatestPage] = useState(1);
+  const itemsPerPage = 10;
+
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
       const searchText = search.toLowerCase();
@@ -140,11 +146,16 @@ export default function DongleIQAdminHub() {
     });
   }, [users, search]);
 
-  const recentUsers = filteredUsers.slice(0, 5);
-  const expandedUser =
-    filteredUsers.find((user) => user._id === expandedUserId) ??
-    recentUsers[0] ??
-    null;
+  const latestUsers = useMemo(() => {
+    const startIndex = (latestPage - 1) * itemsPerPage;
+    return filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredUsers, latestPage]);
+
+  const totalLatestPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
+
+  useEffect(() => {
+    setLatestPage(1);
+  }, [search]);
 
   useEffect(() => {
     if (!filteredUsers.length) {
@@ -167,33 +178,43 @@ export default function DongleIQAdminHub() {
     toast.success("Dashboard refreshed");
   };
 
- const handleStatusChange = async (
-  userId: string,
-  status: "approved" | "rejected",
-  internalRemarks?: string,
-) => {
-  const response = await fetch("/api/admin/update-status", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, status, internalRemarks }),
-  });
+  const handleLogout = () => {
+    // clear auth (examples)
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("admin");
 
-  const data = await response.json();
+    toast.success("Logged out successfully");
 
-  if (!response.ok || !data.success) {
-    toast.error(data.message || "Failed to update status");
-    return;
-  }
+    // redirect to register/login page
+    router.push("/admin/register"); // or "/admin/login"
+  };
+  const handleStatusChange = async (
+    userId: string,
+    status: "approved" | "rejected",
+    internalRemarks?: string,
+  ) => {
+    const response = await fetch("/api/admin/update-status", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, status, internalRemarks }),
+    });
 
-  setUsers((currentUsers) =>
-    currentUsers.map((user) =>
-      user._id === data.user._id ? data.user : user,
-    ),
-  );
+    const data = await response.json();
 
-  // ✅ Add here
-  toast.success(`User ${status} successfully`);
-};
+    if (!response.ok || !data.success) {
+      toast.error(data.message || "Failed to update status");
+      return;
+    }
+
+    setUsers((currentUsers) =>
+      currentUsers.map((user) =>
+        user._id === data.user._id ? data.user : user,
+      ),
+    );
+
+    // ✅ Add here
+    toast.success(`User ${status} successfully`);
+  };
 
   const handleAdminSave = async () => {
     setSavingAdmin(true);
@@ -220,7 +241,7 @@ export default function DongleIQAdminHub() {
       });
       setIsEditingAdmin(false);
       toast.success("Admin updated successfully");
-    } catch (saveError) {
+    } catch {
       toast.error("Failed to update admin");
     } finally {
       setSavingAdmin(false);
@@ -239,7 +260,7 @@ export default function DongleIQAdminHub() {
         color: colors.text,
         background: isDarkMode
           ? "radial-gradient(circle at top, #334155 0%, #1e293b 40%, #0f172a 100%)"
-: "radial-gradient(circle at top, #f8fbff 0%, #eef4ff 45%, #dbeafe 100%)",
+          : "radial-gradient(circle at top, #f8fbff 0%, #eef4ff 45%, #dbeafe 100%)",
       }}
     >
       <aside
@@ -266,7 +287,10 @@ export default function DongleIQAdminHub() {
                   <p className="text-lg font-black uppercase tracking-tight">
                     Dongle <span className="text-[#45c3b9]">IQ</span>
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  <p
+                    className="text-[10px] uppercase tracking-[0.2em]"
+                    style={{ color: colors.subtleText }}
+                  >
                     Admin Panel
                   </p>
                 </div>
@@ -309,16 +333,21 @@ export default function DongleIQAdminHub() {
                 backgroundColor: colors.panel,
               }}
             >
-              <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
+              <p
+                className="text-[11px] uppercase tracking-[0.16em]"
+                style={{ color: colors.subtleText }}
+              >
                 Logged in admin
               </p>
               <p className="mt-3 text-lg font-black text-white">
                 {admin?.name || "Admin"}
               </p>
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-sm" style={{ color: colors.subtleText }}>
                 {admin?.email || "No email found"}
               </p>
-              <div className="mt-4 flex items-center justify-between text-[11px] text-slate-400 ">
+              <div className="mt-4 flex items-center justify-between text-[11px]"
+                style={{ color: colors.subtleText }}
+              >
                 <span>{admin?.role || "admin"}</span>
                 <span>{admin?.status || "active"}</span>
               </div>
@@ -365,7 +394,7 @@ export default function DongleIQAdminHub() {
               {/* 🔥 Left Accent Icon */}
 
               {/* 🔥 Text Content */}
-              <div>
+              {/* <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
                   Admin Workspace
                 </p>
@@ -384,7 +413,7 @@ export default function DongleIQAdminHub() {
                   Monitor users, approvals, and system activity in real-time
                   with full control.
                 </p>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -434,6 +463,20 @@ export default function DongleIQAdminHub() {
             >
               <Bell size={18} />
             </div>
+            <button
+              onClick={handleLogout}
+              className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition hover:bg-rose-500/10 hover:text-rose-300"
+              style={{
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(0,0,0,0.06)",
+                backgroundColor: colors.panel,
+                color: colors.text,
+              }}
+            >
+              <LogOut size={16} />
+              Logout
+            </button>
           </div>
         </header>
 
@@ -487,7 +530,10 @@ export default function DongleIQAdminHub() {
                   >
                     <div className="mb-4 flex items-center justify-between">
                       <div>
-                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                        <p
+                          className="text-[10px] uppercase tracking-[0.2em]"
+                          style={{ color: colors.subtleText }}
+                        >
                           Recent users
                         </p>
                         <h2 className="mt-1 text-xl font-bold tracking-tight">
@@ -535,13 +581,13 @@ export default function DongleIQAdminHub() {
                             />
                           ))}
                         </div>
-                      ) : recentUsers.length === 0 ? (
-                        <div className="text-center py-10 text-slate-400">
+                      ) : filteredUsers.length === 0 ? (
+                        <div className="text-center py-10" style={{ color: colors.subtleText }}>
                           <Users className="mx-auto mb-3 opacity-40" />
                           <p>No applications yet</p>
                         </div>
                       ) : (
-                        recentUsers.map((user, index) => (
+                        latestUsers.map((user, index) => (
                           <div
                             key={user._id}
                             onClick={() =>
@@ -549,7 +595,7 @@ export default function DongleIQAdminHub() {
                                 expandedUserId === user._id ? null : user._id,
                               )
                             }
-                            className="group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 mb-2 transition-all duration-200 "
+                            className="group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 mb-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/10 hover:bg-white/5  "
                             style={{
                               borderColor: isDarkMode
                                 ? "rgba(255,255,255,0.06)"
@@ -563,41 +609,39 @@ export default function DongleIQAdminHub() {
                             }}
                           >
                             <div className="min-w-0 px-2 py-1">
-                              <p className="text-[12px] font-semibold truncate">
+                              <p className="text-[12px] font-semibold truncate" style={{ color: colors.text }}>
                                 {user.name}
                               </p>
 
-                              <p className=" text-[10px] text-slate-400 truncate">
+                              <p className="text-[10px] truncate" style={{ color: colors.subtleText }}>
                                 {user.email} • {user.number}
                               </p>
                             </div>
 
                             <div className="flex items-center gap-2">
                               <StatusChip status={user.status} />
-                              <span
-                                className="text-[11px] text-slate-400"
-                                style={{ color: colors.subtleText }}
-                              >
+                              <span className="text-[11px]" style={{ color: colors.subtleText }}>
                                 {formatDate(user.createdAt)}
                               </span>
                             </div>
-                            {expandedUserId === user._id && (
+                             {expandedUserId === user._id && (
                               <div
-                                className="mb-3 rounded-xl p-3 text-sm"
+                                className="mb-3 rounded-xl border p-3 text-sm"
                                 style={{
-                                  backgroundColor: colors.panel,
+                                  borderColor: colors.borderSoft,
+                                  backgroundColor: colors.panelStrong,
                                 }}
                               >
-                                <p>
+                                <p style={{ color: colors.text }}>
                                   <strong>Name:</strong> {user.name}
                                 </p>
-                                <p>
+                                <p style={{ color: colors.text }}>
                                   <strong>Email:</strong> {user.email}
                                 </p>
-                                <p>
+                                <p style={{ color: colors.text }}>
                                   <strong>Phone:</strong> {user.number}
                                 </p>
-                                <p>
+                                <p style={{ color: colors.text }}>
                                   <strong>Status:</strong> {user.status}
                                 </p>
                               </div>
@@ -606,6 +650,44 @@ export default function DongleIQAdminHub() {
                         ))
                       )}
                     </div>
+
+                    {totalLatestPages > 1 && (
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-sm" style={{ color: colors.subtleText }}>
+                          Showing {Math.min((latestPage - 1) * itemsPerPage + 1, filteredUsers.length)} to{' '}
+                          {Math.min(latestPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} applications
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setLatestPage(Math.max(1, latestPage - 1))}
+                            disabled={latestPage === 1}
+                            className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                            style={{
+                              borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+                              backgroundColor: colors.panel,
+                              color: colors.text,
+                            }}
+                          >
+                            Previous
+                          </button>
+                          <span className="text-sm" style={{ color: colors.text }}>
+                            Page {latestPage} of {totalLatestPages}
+                          </span>
+                          <button
+                            onClick={() => setLatestPage(Math.min(totalLatestPages, latestPage + 1))}
+                            disabled={latestPage === totalLatestPages}
+                            className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                            style={{
+                              borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+                              backgroundColor: colors.panel,
+                              color: colors.text,
+                            }}
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-6">
@@ -619,7 +701,10 @@ export default function DongleIQAdminHub() {
                       backgroundColor: colors.panelStrong,
                     }}
                   >
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+<p
+                    className="text-[10px] uppercase tracking-[0.2em]"
+                    style={{ color: colors.subtleText }}
+                  >
                       Verification
                     </p>
 
@@ -627,7 +712,7 @@ export default function DongleIQAdminHub() {
                       className="mt-1 text-2xl font-black"
                       style={{ color: colors.text }}
                     >
-                     Verification Status
+                      Verification Status
                     </h2>
 
                     <div className="mt-5 space-y-4">
@@ -648,14 +733,14 @@ export default function DongleIQAdminHub() {
 
                   {/* ✅ Pie Chart Card (Separate) */}
                   <div
-                    className="theme-transition rounded-xl border p-4 shadow-xl"
+                    className="theme-transition rounded-xl border p-4 shadow-xl "
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
                         : "rgba(0,0,0,0.06)",
                       backgroundColor: colors.panelStrong,
                     }}
-                  >
+                   >
                     <h3 className="text-lg font-bold mb-4">User Status</h3>
 
                     <div className="h-52">
@@ -668,7 +753,9 @@ export default function DongleIQAdminHub() {
                             innerRadius={40}
                             paddingAngle={4}
                             label
-                          >
+                            stroke="none" 
+  style={{ outline: 'none' }}
+                           >
                             <Cell fill="#10b981" />
                             <Cell fill="#f59e0b" />
                             <Cell fill="#ef4444" />
@@ -688,7 +775,10 @@ export default function DongleIQAdminHub() {
                       backgroundColor: colors.panelStrong,
                     }}
                   >
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                    <p
+                      className="text-[10px] uppercase tracking-[0.2em]"
+                      style={{ color: colors.subtleText }}
+                    >
                       Admin snapshot
                     </p>
 
@@ -711,7 +801,7 @@ export default function DongleIQAdminHub() {
                           {admin?.email || "No email found"}
                         </p>
                         <p
-                          className="mt-2 text-[11px] text-slate-400 uppercase tracking-[0.18em]"
+                          className="mt-2 text-[11px] uppercase tracking-[0.18em]"
                           style={{ color: colors.subtleText }}
                         >
                           {admin?.role || "admin"} •{" "}
@@ -753,6 +843,30 @@ export default function DongleIQAdminHub() {
 
           {view === "admin" && (
             <div className="h-full overflow-y-auto min-h-0">
+              <div className="mb-6">
+                <button
+                  onClick={() => setView("home")}
+                  className="mb-3 inline-flex items-center gap-2 text-xs font-semibold transition hover:opacity-80"
+                  style={{ color: colors.muted }}
+                >
+                  <ArrowLeft size={14} />
+                  Back to overview
+                </button>
+
+                <div className="flex items-center justify-between">
+                  <h1
+                    className="mt-1 text-2xl lg:text-3xl font-black"
+                    style={{ color: colors.text }}
+                  >
+                    Admin Profile
+                  </h1>
+                </div>
+
+                <p className="mt-2 text-sm" style={{ color: colors.muted }}>
+                  Manage admin details, update profile information, and control
+                  system access.
+                </p>
+              </div>
               <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
                 <div
                   className="theme-transition rounded-[2rem] border p-6 shadow-2xl"
@@ -765,7 +879,10 @@ export default function DongleIQAdminHub() {
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                      <p
+                        className="text-[10px] uppercase tracking-[0.2em]"
+                        style={{ color: colors.subtleText }}
+                      >
                         Profile
                       </p>
                       <h2
@@ -850,7 +967,10 @@ export default function DongleIQAdminHub() {
                     backgroundColor: colors.panelStrong,
                   }}
                 >
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  <p
+                    className="text-[10px] uppercase tracking-[0.2em]"
+                    style={{ color: colors.subtleText }}
+                  >
                     Edit details
                   </p>
                   <h3
@@ -998,7 +1118,10 @@ function MetricCard({
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+          <p
+            className="text-[11px] font-semibold uppercase tracking-[0.16em]"
+            style={{ color: colors.subtleText }}
+          >
             {label}
           </p>
           <p
@@ -1035,7 +1158,7 @@ function ProfileCard({
     >
       <div className="flex items-center gap-2" style={{ color: colors.text }}>
         <span className="text-[#45c3b9]">{icon}</span>
-        <span className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+        <span className="text-[11px] uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
           {label}
         </span>
       </div>
@@ -1064,7 +1187,7 @@ function InputField({
   const colors = getThemePalette(isDarkMode);
   return (
     <label className="block">
-      <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-[0.16em] ">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.16em] " style={{ color: colors.subtleText }}>
         {label}
       </span>
       <input
@@ -1083,6 +1206,8 @@ function InputField({
 }
 
 function StatusChip({ status }: { status: DashboardUser["status"] }) {
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
   const styles = {
     pending: "border-yellow-400/30 bg-yellow-400/20 text-yellow-300",
     approved: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
@@ -1091,7 +1216,8 @@ function StatusChip({ status }: { status: DashboardUser["status"] }) {
 
   return (
     <span
-      className={`inline-flex rounded-full border px-3 py-1 text-[11px] text-slate-400 font-bold capitalize ${styles[status]}`}
+      className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-bold capitalize ${styles[status]}`}
+      style={{ color: colors.text }}
     >
       {status}
     </span>

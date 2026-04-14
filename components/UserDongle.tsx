@@ -41,6 +41,8 @@ export default function UserDongleView({
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filteredRecords = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -61,6 +63,19 @@ export default function UserDongleView({
         .some((field) => String(field).toLowerCase().includes(query))
     );
   }, [records, searchQuery]);
+
+  // Reset to first page when search changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const paginatedRecords = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredRecords.slice(startIndex, endIndex);
+  }, [filteredRecords, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
 
   return (
     <div className="space-y-6">
@@ -128,7 +143,7 @@ export default function UserDongleView({
                   </td>
                 </tr>
               ) : (
-                filteredRecords.map((record) => (
+                paginatedRecords.map((record) => (
                   <tr key={record._id} style={{ borderTop: `1px solid ${colors.borderSoft}` }}>
                     <td className="px-5 py-4 align-top">
                       <div>
@@ -175,6 +190,44 @@ export default function UserDongleView({
           </table>
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm" style={{ color: colors.muted }}>
+            Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredRecords.length)} to{' '}
+            {Math.min(currentPage * itemsPerPage, filteredRecords.length)} of {filteredRecords.length} records
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+              style={{
+                borderColor: colors.borderSoft,
+                backgroundColor: colors.panel,
+                color: colors.text,
+              }}
+            >
+              Previous
+            </button>
+            <span className="text-sm" style={{ color: colors.text }}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+              style={{
+                borderColor: colors.borderSoft,
+                backgroundColor: colors.panel,
+                color: colors.text,
+              }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

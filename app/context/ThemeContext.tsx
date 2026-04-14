@@ -22,29 +22,28 @@ const ThemeContext = createContext<ThemeContextValue>({
 
 const STORAGE_KEY = "dongle-iq-theme";
 
-function getInitialTheme(): Theme {
-  if (typeof window === "undefined") {
-    return "light";
-  }
-
-  const savedTheme = window.localStorage.getItem(STORAGE_KEY);
-  if (savedTheme === "light" || savedTheme === "dark") {
-    return savedTheme;
-  }
-
-  return "light";
-}
-
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
+  const [theme, setThemeState] = useState<Theme>("light"); // Start with light theme
+  const [mounted, setMounted] = useState(false);
+
+  // Set mounted and load theme on client
+  useEffect(() => {
+    const savedTheme = window.localStorage.getItem(STORAGE_KEY) as Theme;
+    if (savedTheme === "light" || savedTheme === "dark") {
+      setThemeState(savedTheme);
+    }
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+
     const root = document.documentElement;
     root.classList.remove("light", "dark");
     root.classList.add(theme);
     root.style.colorScheme = theme;
     window.localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
+  }, [theme, mounted]);
 
   const setTheme = (nextTheme: Theme) => {
     setThemeState(nextTheme);
@@ -58,11 +57,11 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       theme,
       isDarkMode: theme === "dark",
-      mounted: true,
+      mounted,
       setTheme,
       toggleTheme,
     }),
-    [theme]
+    [theme, mounted]
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;

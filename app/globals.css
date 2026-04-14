@@ -65,7 +65,7 @@ html {
 body {
   position: relative;
   min-height: 100vh;
- 
+
   background: linear-gradient(180deg, var(--background-alt), var(--background));
 
   color: var(--foreground);
@@ -74,12 +74,13 @@ body {
     background-color 0.35s ease,
     color 0.35s ease,
     border-color 0.35s ease;
-     background-image: none !important;
+  background-image: none !important;
 }
 
 body::before {
   content: "";
-  display: none; /* ✅ removes grid + any dots */
+  display: none;
+  /* ✅ removes grid + any dots */
 }
 
 input,
@@ -136,7 +137,7 @@ select:focus {
 
 .app-bg {
   background-color: var(--background);
- 
+
   background-color: var(--background);
 
   background-size: 200% 200%;
@@ -285,10 +286,6 @@ a,
   cursor: pointer;
 }
 
-div[onclick],
-span[onclick] {
-  cursor: pointer;
-}
 
 
 button,
@@ -305,10 +302,12 @@ a:hover,
   opacity: 0.9;
   box-shadow: 0 8px 20px var(--accent-soft);
 }
+
 /* 🔴 REMOVE ONLY BACKGROUND GLOW */
 .hero-glow {
   display: none !important;
 }
+
 /* 🌟 Modern Custom Scrollbar */
 
 /* width */
@@ -339,6 +338,7 @@ a:hover,
   scrollbar-width: thin;
   scrollbar-color: #45c3b9 transparent;
 }
+
 .theme-transition {
   transition: all 0.25s ease;
 }
@@ -359,11 +359,20 @@ a:hover,
 .hover-border:hover {
   border-color: rgba(69, 195, 185, 0.4);
 }
+
 /* scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #45c3b9;
   border-radius: 10px;
+}
+svg:focus {
+  outline: none !important;
+}
+
+.recharts-wrapper {
+  outline: none !important;
 }
