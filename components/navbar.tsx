@@ -19,6 +19,13 @@ export default function Navbar() {
 
   const colors = getThemePalette(isDarkMode);
   const navLinks = ["Apply", "Why Us", "Agents", "FAQs", "Contact"];
+  const showAuthButtons = [
+  "/",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password"
+].includes(pathname);
   const themeLabel = mounted ? (isDarkMode ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme";
   const showLogout = [
     "/user/dashboard",
@@ -82,26 +89,30 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push("/login")}
-            className="hidden items-center gap-2 text-[11px] font-black uppercase tracking-widest transition-colors sm:flex"
-            style={{ color: colors.muted }}
-          >
-            <LogIn size={14} /> Login
-          </button>
+         {showAuthButtons && (
+  <>
+    <button
+      onClick={() => router.push("/login")}
+      className="hidden items-center gap-2 text-[11px] font-black uppercase tracking-widest transition-colors sm:flex"
+      style={{ color: colors.muted }}
+    >
+      <LogIn size={14} /> Login
+    </button>
 
-          <button
-            onClick={() => router.push("/signup")}
-            className="theme-transition rounded-full px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white"
-            style={{
-              background: isDarkMode
-                ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
-                : colors.accent,
-              boxShadow: `0 16px 36px -18px ${colors.glow}`,
-            }}
-          >
-            Register
-          </button>
+    <button
+      onClick={() => router.push("/signup")}
+      className="theme-transition rounded-full px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white"
+      style={{
+        background: isDarkMode
+          ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
+          : colors.accent,
+        boxShadow: `0 16px 36px -18px ${colors.glow}`,
+      }}
+    >
+      Register
+    </button>
+  </>
+)}
 
           {showLogout ? (
             <button

@@ -5,6 +5,9 @@ import Navbar from "@/components/navbar";
 import { ThemeProvider } from "@/app/context/ThemeContext"; 
 import ParticleBackground from "@/components/ParticleBackground";
 import CursorEffect from "@/components/CursorEffect";
+import { Toaster } from "react-hot-toast";
+
+<Toaster position="top-right" />
 
 
 const geistSans = Roboto({

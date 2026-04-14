@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import {
+  ArrowUpRight,
   Bell,
   CheckCircle2,
   ChevronRight,
@@ -23,6 +25,8 @@ import UserLedgerView, { type DashboardUser } from "@/components/UserLedger";
 import UserDongleView, { type DongleRecord } from "@/components/UserDongle";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
+import { Menu } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 type DashboardView = "home" | "admin" | "ledger" | "dongle";
 
@@ -47,6 +51,7 @@ export default function DongleIQAdminHub() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
   const [adminForm, setAdminForm] = useState({
     name: "",
@@ -56,6 +61,7 @@ export default function DongleIQAdminHub() {
   });
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminMessage, setAdminMessage] = useState("");
+  const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
 
   const fetchDashboardData = async (showLoader = true) => {
     if (showLoader) setLoading(true);
@@ -96,7 +102,11 @@ export default function DongleIQAdminHub() {
       setUsers(usersData.users || []);
       setDongleRecords(dongleData.records || []);
     } catch (fetchError) {
-      setError(fetchError instanceof Error ? fetchError.message : "Failed to load dashboard data");
+      setError(
+        fetchError instanceof Error
+          ? fetchError.message
+          : "Failed to load dashboard data",
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -111,7 +121,9 @@ export default function DongleIQAdminHub() {
     const pending = users.filter((user) => user.status === "pending").length;
     const approved = users.filter((user) => user.status === "approved").length;
     const rejected = users.filter((user) => user.status === "rejected").length;
-    const verified = users.filter((user) => user.isAadhaarVerified).length;
+    const verified = users.filter(
+      (user) => user?.isAadhaarVerified === true,
+    ).length;
 
     return {
       total: users.length,
@@ -122,17 +134,51 @@ export default function DongleIQAdminHub() {
     };
   }, [users]);
 
-  const recentUsers = useMemo(() => users.slice(0, 5), [users]);
+  const [search, setSearch] = useState("");
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const searchText = search.toLowerCase();
+
+      return (
+        user.name?.toLowerCase().includes(searchText) ||
+        user.email?.toLowerCase().includes(searchText) ||
+        user.number?.includes(searchText) ||
+        user.status?.toLowerCase().includes(searchText)
+      );
+    });
+  }, [users, search]);
+
+  const recentUsers = filteredUsers.slice(0, 5);
+  const expandedUser =
+    filteredUsers.find((user) => user._id === expandedUserId) ??
+    recentUsers[0] ??
+    null;
+
+  useEffect(() => {
+    if (!filteredUsers.length) {
+      setExpandedUserId(null);
+      return;
+    }
+
+    setExpandedUserId((current) => {
+      if (current && filteredUsers.some((user) => user._id === current)) {
+        return current;
+      }
+
+      return filteredUsers[0]?._id ?? null;
+    });
+  }, [filteredUsers]);
 
   const handleRefresh = async () => {
     setRefreshing(true);
     await fetchDashboardData(false);
+    toast.success("Dashboard refreshed");
   };
 
   const handleStatusChange = async (
     userId: string,
     status: "approved" | "rejected",
-    internalRemarks?: string
+    internalRemarks?: string,
   ) => {
     const response = await fetch("/api/admin/update-status", {
       method: "POST",
@@ -143,13 +189,15 @@ export default function DongleIQAdminHub() {
     const data = await response.json();
 
     if (!response.ok || !data.success) {
-      throw new Error(data.message || "Failed to update status");
+      toast.error(data.message || "Failed to update status");
+      return;
     }
 
     setUsers((currentUsers) =>
-      currentUsers.map((user) => (user._id === data.user._id ? data.user : user))
+      currentUsers.map((user) =>
+        user._id === data.user._id ? data.user : user,
+      ),
     );
-    await fetchDashboardData(false);
   };
 
   const handleAdminSave = async () => {
@@ -176,17 +224,22 @@ export default function DongleIQAdminHub() {
         role: data.admin?.role || "admin",
       });
       setIsEditingAdmin(false);
-      setAdminMessage("Admin profile updated successfully.");
+      toast.success("Admin updated successfully");
     } catch (saveError) {
-      setAdminMessage(saveError instanceof Error ? saveError.message : "Failed to update admin profile");
+      toast.error("Failed to update admin");
     } finally {
       setSavingAdmin(false);
     }
   };
+  const chartData = [
+    { name: "Approved", value: stats.approved },
+    { name: "Pending", value: stats.pending },
+    { name: "Rejected", value: stats.rejected },
+  ];
 
   return (
     <div
-      className="theme-transition flex min-h-screen"
+      className="theme-transition flex min-h-screen overflow-hidden text-[13px]"
       style={{
         color: colors.text,
         background: isDarkMode
@@ -195,92 +248,207 @@ export default function DongleIQAdminHub() {
       }}
     >
       <aside
-        className={`theme-transition fixed inset-y-0 left-0 z-40 w-72 border-r px-5 py-6 backdrop-blur-xl transition-transform duration-300 ${
+        className={`theme-transition fixed inset-y-0 left-0 z-50 flex transform flex-col border-r px-4 py-5 transition-all duration-300 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:relative lg:translate-x-0`}
-        style={{ borderColor: colors.borderSoft, backgroundColor: colors.overlay }}
+        } ${isCollapsed ? "w-20" : "w-72"} lg:static lg:translate-x-0`}
+        style={{
+          width: isCollapsed ? "5.5rem" : "18rem",
+          borderColor: isDarkMode
+            ? "rgba(255,255,255,0.06)"
+            : "rgba(0,0,0,0.06)",
+          backgroundColor: colors.overlay,
+        }}
       >
         <div className="flex h-full flex-col">
           <div>
-            <div className="mb-10 flex items-center gap-3">
+            <div className="mb-10 flex items-center gap-2">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#45c3b9] text-[#081214]">
                 <Users size={22} />
               </div>
-              <div>
-                <p className="text-lg font-black uppercase tracking-tight">
-                  Dongle <span className="text-[#45c3b9]">IQ</span>
-                </p>
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Admin Panel</p>
-              </div>
+
+              {!isCollapsed && (
+                <div>
+                  <p className="text-lg font-black uppercase tracking-tight">
+                    Dongle <span className="text-[#45c3b9]">IQ</span>
+                  </p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                    Admin Panel
+                  </p>
+                </div>
+              )}
             </div>
 
-            <nav className="space-y-2">
-              <NavItem label="Overview" active={view === "home"} onClick={() => setView("home")} icon={<FileText size={18} />} />
-              <NavItem label="User Ledger" active={view === "ledger"} onClick={() => setView("ledger")} icon={<Users size={18} />} />
-              <NavItem label="Dongle Records" active={view === "dongle"} onClick={() => setView("dongle")} icon={<Fingerprint size={18} />} />
-              <NavItem label="Admin Profile" active={view === "admin"} onClick={() => setView("admin")} icon={<User size={18} />} />
+            <nav className="space-y-1">
+              <NavItem
+                label="Overview"
+                active={view === "home"}
+                onClick={() => setView("home")}
+                icon={<FileText size={18} />}
+                collapsed={isCollapsed}
+              />
+              <NavItem
+                label="User Ledger"
+                active={view === "ledger"}
+                onClick={() => setView("ledger")}
+                icon={<Users size={18} />}
+                collapsed={isCollapsed}
+              />
+              <NavItem
+                label="Dongle Records"
+                active={view === "dongle"}
+                onClick={() => setView("dongle")}
+                icon={<Fingerprint size={18} />}
+                collapsed={isCollapsed}
+              />
+              <NavItem
+                label="Admin Profile"
+                active={view === "admin"}
+                onClick={() => setView("admin")}
+                icon={<User size={18} />}
+                collapsed={isCollapsed}
+              />
             </nav>
           </div>
 
-          <div className="theme-transition mt-auto rounded-[1.75rem] border p-4" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
-            <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">Logged in admin</p>
-            <p className="mt-3 text-lg font-black text-white">{admin?.name || "Admin"}</p>
-            <p className="mt-1 text-sm text-slate-400">{admin?.email || "No email found"}</p>
-            <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
-              <span>{admin?.role || "admin"}</span>
-              <span>{admin?.status || "active"}</span>
+          {!isCollapsed && (
+            <div
+              className="theme-transition mt-auto rounded-[1.75rem] border p-4"
+              style={{
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(0,0,0,0.06)",
+                backgroundColor: colors.panel,
+              }}
+            >
+              <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
+                Logged in admin
+              </p>
+              <p className="mt-3 text-lg font-black text-white">
+                {admin?.name || "Admin"}
+              </p>
+              <p className="mt-1 text-sm text-slate-400">
+                {admin?.email || "No email found"}
+              </p>
+              <div className="mt-4 flex items-center justify-between text-[11px] text-slate-400 ">
+                <span>{admin?.role || "admin"}</span>
+                <span>{admin?.status || "active"}</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </aside>
 
-      <main className="flex min-w-0 flex-1 flex-col">
+      {isSidebarOpen ? (
+        <div
+          className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-sm lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      ) : null}
+
+     <main className="flex min-w-0 flex-1 flex-col h-screen">
         <header
-          className="theme-transition sticky top-0 z-30 flex items-center justify-between border-b px-5 py-4 backdrop-blur-xl lg:px-8"
-          style={{ borderColor: colors.borderSoft, backgroundColor: colors.overlay }}
+          className="theme-transition sticky top-0 z-30 flex flex-wrap items-start justify-between gap-4 border-b px-5 py-4 backdrop-blur-xl lg:px-8"
+          style={{
+            borderColor: isDarkMode
+              ? "rgba(255,255,255,0.06)"
+              : "rgba(0,0,0,0.06)",
+            backgroundColor: colors.overlay,
+          }}
         >
-          <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Admin workspace</p>
-            <h1 className="mt-1 text-2xl font-black tracking-tight text-white">
-              {view === "home" && "Dashboard Overview"}
-              {view === "ledger" && "Application Ledger"}
-              {view === "dongle" && "Dongle Records"}
-              {view === "admin" && "Admin Profile"}
-            </h1>
+          <div className="flex items-start gap-3">
+            <button
+              onClick={() => {
+                setSidebarOpen((current) => !current);
+                setIsCollapsed((current) => !current);
+              }}
+              className="theme-transition flex items-center justify-center h-10 w-10 rounded-full border transition"
+              style={{
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(0,0,0,0.06)",
+                backgroundColor: colors.panel,
+                color: colors.text,
+              }}
+            >
+              <Menu size={18} />
+            </button>
+            <div className="flex items-start gap-4">
+              {/* 🔥 Left Accent Icon */}
+
+              {/* 🔥 Text Content */}
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  Admin Workspace
+                </p>
+
+                <h1
+                  className="mt-1 text-3xl font-black tracking-tight leading-tight"
+                  style={{ color: colors.text }}
+                >
+                  Dashboard Overview
+                </h1>
+
+                <p
+                  className="mt-2 text-sm max-w-xl leading-5"
+                  style={{ color: colors.muted }}
+                >
+                  Monitor users, approvals, and system activity in real-time
+                  with full control.
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center justify-end gap-3 self-center lg:self-auto">
             <button
               onClick={toggleTheme}
-              className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm font-semibold transition"
-              style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel, color: colors.text }}
+              className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition"
+              style={{
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(0,0,0,0.06)",
+                backgroundColor: colors.panel,
+                color: colors.text,
+              }}
             >
               {isDarkMode ? <SunMedium size={16} /> : <Moon size={16} />}
               {isDarkMode ? "Light" : "Dark"}
             </button>
             <button
-              onClick={() => setSidebarOpen((current) => !current)}
-              className="theme-transition rounded-2xl border px-4 py-2 text-sm font-semibold transition lg:hidden"
-              style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel, color: colors.text }}
-            >
-              Menu
-            </button>
-            <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70"
-              style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel, color: colors.text }}
+              className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-70"
+              style={{
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(0,0,0,0.06)",
+                backgroundColor: colors.panel,
+                color: colors.text,
+              }}
             >
-              {refreshing ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
+              {refreshing ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <RefreshCw size={16} />
+              )}
               Refresh
             </button>
-            <div className="theme-transition rounded-2xl border p-2" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel, color: colors.text }}>
+            <div
+              className="theme-transition rounded-2xl border p-2"
+              style={{
+                borderColor: isDarkMode
+                  ? "rgba(255,255,255,0.06)"
+                  : "rgba(0,0,0,0.06)",
+                backgroundColor: colors.panel,
+                color: colors.text,
+              }}
+            >
               <Bell size={18} />
             </div>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-5 py-6 lg:px-8">
+       <div className="flex-1 overflow-y-auto px-5 py-6 lg:px-8 min-h-0">
           {error ? (
             <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
               {error}
@@ -288,68 +456,164 @@ export default function DongleIQAdminHub() {
           ) : null}
 
           {view === "home" && (
-            <div className="space-y-6">
+            <div className="h-full overflow-y-auto space-y-6 pr-2 min-h-0">
               <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <MetricCard label="Total applications" value={stats.total} accent="teal" icon={<Users size={18} />} />
-                <MetricCard label="Pending review" value={stats.pending} accent="amber" icon={<Loader2 size={18} />} />
-                <MetricCard label="Approved" value={stats.approved} accent="green" icon={<CheckCircle2 size={18} />} />
-                <MetricCard label="Rejected" value={stats.rejected} accent="red" icon={<XCircle size={18} />} />
+                <MetricCard
+                  label="Total applications"
+                  value={stats.total}
+                  accent="teal"
+                  icon={<Users size={18} />}
+                />
+                <MetricCard
+                  label="Pending review"
+                  value={stats.pending}
+                  accent="amber"
+                  icon={<Loader2 size={18} />}
+                />
+                <MetricCard
+                  label="Approved"
+                  value={stats.approved}
+                  accent="green"
+                  icon={<CheckCircle2 size={18} />}
+                />
+                <MetricCard
+                  label="Rejected"
+                  value={stats.rejected}
+                  accent="red"
+                  icon={<XCircle size={18} />}
+                />
               </section>
 
-              <section className="grid gap-6 xl:grid-cols-[1.45fr_0.95fr]">
-                <div className="theme-transition rounded-[2rem] border p-5 shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
-                  <div className="mb-5 flex items-center justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Recent users</p>
-                      <h2 className="mt-1 text-2xl font-black" style={{ color: colors.text }}>Latest applications</h2>
+              <section className="grid gap-6 xl:grid-cols-[1.45fr_0.95fr] h-full min-h-0">
+                {" "}
+                <div className="h-full overflow-y-auto pr-2 min-h-0">
+                  <div
+                    className="theme-transition rounded-2xl border p-3 shadow-xl transition-all duration-300 hover:scale-[1.015] hover:shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
+                    style={{
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.06)",
+                      backgroundColor: colors.panelStrong,
+                    }}
+                  >
+                    <div className="mb-4 flex items-center justify-between">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                          Recent users
+                        </p>
+                        <h2 className="mt-1 text-xl font-bold tracking-tight">
+                          Latest applications
+                        </h2>
+                      </div>
+                      <button
+                        onClick={() => setView("ledger")}
+                        className="theme-transition rounded-2xl border px-3 py-1.5 text-xs font-semibold transition"
+                        style={{
+                          borderColor: isDarkMode
+                            ? "rgba(255,255,255,0.06)"
+                            : "rgba(0,0,0,0.06)",
+                          backgroundColor: colors.panel,
+                          color: colors.text,
+                        }}
+                      >
+                        Open ledger
+                      </button>
                     </div>
-                    <button
-                      onClick={() => setView("ledger")}
-                      className="theme-transition rounded-2xl border px-4 py-2 text-sm font-semibold transition"
-                      style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel, color: colors.text }}
-                    >
-                      Open ledger
-                    </button>
-                  </div>
+                    <div className="mb-4">
+                      <input
+                        type="text"
+                        placeholder="Search users..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full rounded-xl border px-3 py-1.5 text-xs outline-none"
+                        style={{
+                          borderColor: isDarkMode
+                            ? "rgba(255,255,255,0.06)"
+                            : "rgba(0,0,0,0.06)",
+                          backgroundColor: colors.panel,
+                          color: colors.text,
+                        }}
+                      />
+                    </div>
 
-                  <div className="space-y-3">
-                    {loading ? (
-                      <p className="text-sm" style={{ color: colors.muted }}>Loading applications...</p>
-                    ) : recentUsers.length === 0 ? (
-                      <p className="text-sm" style={{ color: colors.muted }}>No applications found.</p>
-                    ) : (
-                      recentUsers.map((user) => (
-                        <div
-                          key={user._id}
-                          className="theme-transition flex flex-col gap-3 rounded-[1.5rem] border p-4 md:flex-row md:items-center md:justify-between"
-                          style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
-                        >
-                          <div>
-                            <p className="text-base font-bold" style={{ color: colors.text }}>{user.name}</p>
-                            <p className="mt-1 text-sm" style={{ color: colors.muted }}>
-                              {user.email} • {user.number}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <StatusChip status={user.status} />
-                            <span className="text-xs" style={{ color: colors.subtleText }}>{formatDate(user.createdAt)}</span>
-                          </div>
+                    <div className="divide-y divide-white/5">
+                      {loading ? (
+                        <div className="space-y-4">
+                          {[1, 2, 3].map((i) => (
+                            <div
+                              key={i}
+                              className="h-16 rounded-xl bg-white/10 animate-pulse"
+                            />
+                          ))}
                         </div>
-                      ))
-                    )}
+                      ) : recentUsers.length === 0 ? (
+                        <div className="text-center py-10 text-slate-400">
+                          <Users className="mx-auto mb-3 opacity-40" />
+                          <p>No applications yet</p>
+                        </div>
+                      ) : (
+                        recentUsers.map((user) => (
+                          <div
+                            key={user._id}
+                            className="group flex items-center justify-between rounded-xl px-3 py-2 transition-all duration-200 hover:bg-white/5"
+                            style={{
+                              borderColor: isDarkMode
+                                ? "rgba(255,255,255,0.06)"
+                                : "rgba(0,0,0,0.06)",
+                              backgroundColor: colors.panel,
+                            }}
+                          >
+                           <div className="min-w-0">
+  <p className="text-[13px] font-semibold truncate">
+    {user.name}
+  </p>
+  <p className="text-[11px] text-slate-400 truncate">
+    {user.email} • {user.number}
+  </p>
+</div>
+                            <div className="flex items-center gap-2">
+                              <StatusChip status={user.status} />
+                              <span
+                                className="text-[11px] text-slate-400"
+                                style={{ color: colors.subtleText }}
+                              >
+                                {formatDate(user.createdAt)}
+                              </span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
-
                 <div className="space-y-6">
-                  <div className="theme-transition rounded-[2rem] border p-5 shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Verification</p>
-                    <h2 className="mt-1 text-2xl font-black" style={{ color: colors.text }}>Current health</h2>
+                  {/* ✅ Verification Card */}
+                  <div
+                    className="theme-transition rounded-xl border p-4 shadow-xl"
+                    style={{
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.06)",
+                      backgroundColor: colors.panelStrong,
+                    }}
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                      Verification
+                    </p>
+
+                    <h2
+                      className="mt-1 text-2xl font-black"
+                      style={{ color: colors.text }}
+                    >
+                      Current health
+                    </h2>
+
                     <div className="mt-5 space-y-4">
                       <ProgressRow
                         label="Aadhaar verified"
                         value={stats.verified}
+                        accent="bg-gradient-to-r from-[#45c3b9] to-emerald-400"
                         total={stats.total}
-                        accent="bg-[#45c3b9]"
                       />
                       <ProgressRow
                         label="Approval rate"
@@ -360,24 +624,88 @@ export default function DongleIQAdminHub() {
                     </div>
                   </div>
 
-                  <div className="theme-transition rounded-[2rem] border p-5 shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Admin snapshot</p>
+                  {/* ✅ Pie Chart Card (Separate) */}
+                  <div
+                    className="theme-transition rounded-xl border p-4 shadow-xl"
+                    style={{
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.06)",
+                      backgroundColor: colors.panelStrong,
+                    }}
+                  >
+                    <h3 className="text-lg font-bold mb-4">User Status</h3>
+
+                    <div className="h-52">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={chartData}
+                            dataKey="value"
+                            outerRadius={80}
+                            label
+                          >
+                            <Cell fill="#10b981" />
+                            <Cell fill="#f59e0b" />
+                            <Cell fill="#ef4444" />
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* ✅ Admin Snapshot Card */}
+                  <div
+                    className="theme-transition rounded-xl border p-4 shadow-xl"
+                    style={{
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.06)",
+                      backgroundColor: colors.panelStrong,
+                    }}
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                      Admin snapshot
+                    </p>
+
                     <div className="mt-4 flex items-start gap-4">
                       <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[#45c3b9]/15 text-xl font-black text-[#45c3b9]">
                         {admin?.name?.charAt(0) || "A"}
                       </div>
+
                       <div>
-                        <h3 className="text-xl font-black" style={{ color: colors.text }}>{admin?.name || "Admin"}</h3>
-                        <p className="mt-1 text-sm" style={{ color: colors.muted }}>{admin?.email || "No email found"}</p>
-                        <p className="mt-2 text-xs uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
-                          {admin?.role || "admin"} • {admin?.number || "No mobile"}
+                        <h3
+                          className="text-xl font-black"
+                          style={{ color: colors.text }}
+                        >
+                          {admin?.name || "Admin"}
+                        </h3>
+                        <p
+                          className="mt-1 text-sm"
+                          style={{ color: colors.muted }}
+                        >
+                          {admin?.email || "No email found"}
+                        </p>
+                        <p
+                          className="mt-2 text-[11px] text-slate-400 uppercase tracking-[0.18em]"
+                          style={{ color: colors.subtleText }}
+                        >
+                          {admin?.role || "admin"} •{" "}
+                          {admin?.number || "No mobile"}
                         </p>
                       </div>
                     </div>
+
                     <button
                       onClick={() => setView("admin")}
-                      className="theme-transition mt-5 inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm font-semibold transition"
-                      style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel, color: colors.text }}
+                      className="theme-transition mt-5 inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition"
+                      style={{
+                        borderColor: isDarkMode
+                          ? "rgba(255,255,255,0.06)"
+                          : "rgba(0,0,0,0.06)",
+                        backgroundColor: colors.panel,
+                        color: colors.text,
+                      }}
                     >
                       Edit profile
                       <ChevronRight size={16} />
@@ -389,31 +717,62 @@ export default function DongleIQAdminHub() {
           )}
 
           {view === "ledger" && (
-            <UserLedgerView
-              onBack={() => setView("home")}
-              users={users}
-              loading={loading}
-              onStatusChange={handleStatusChange}
-            />
-          )}
+  <div className="h-full overflow-y-auto min-h-0">
+    <UserLedgerView
+      onBack={() => setView("home")}
+      users={users}
+      loading={loading}
+      onStatusChange={handleStatusChange}
+    />
+  </div>
+)}
 
-          {view === "dongle" && (
-            <UserDongleView
-              onBack={() => setView("home")}
-              records={dongleRecords}
-              loading={loading}
-            />
-          )}
+         {view === "dongle" && (
+  <div className="h-full overflow-y-auto min-h-0">
+    {dongleRecords.length === 0 && !loading ? (
+      <div className="text-center py-10 text-slate-400">
+        <Fingerprint className="mx-auto mb-3 opacity-40" />
+        <p>No dongle records found</p>
+      </div>
+    ) : (
+      <UserDongleView
+        onBack={() => setView("home")}
+        records={dongleRecords}
+        loading={loading}
+      />
+    )}
+  </div>
+)}
 
           {view === "admin" && (
+          <div className="h-full overflow-y-auto min-h-0">
             <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-              <div className="theme-transition rounded-[2rem] border p-6 shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+              <div
+                className="theme-transition rounded-[2rem] border p-6 shadow-2xl"
+                style={{
+                  borderColor: isDarkMode
+                    ? "rgba(255,255,255,0.06)"
+                    : "rgba(0,0,0,0.06)",
+                  backgroundColor: colors.panelStrong,
+                }}
+              >
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Profile</p>
-                    <h2 className="mt-1 text-3xl font-black" style={{ color: colors.text }}>{admin?.name || "Admin"}</h2>
-                    <p className="mt-2 max-w-xl text-sm leading-6" style={{ color: colors.muted }}>
-                      Keep your admin contact details updated so the panel always shows the correct owner and communication channel.
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                      Profile
+                    </p>
+                    <h2
+                      className="mt-1 text-3xl font-black"
+                      style={{ color: colors.text }}
+                    >
+                      {admin?.name || "Admin"}
+                    </h2>
+                    <p
+                      className="mt-2 max-w-xl text-sm leading-6"
+                      style={{ color: colors.muted }}
+                    >
+                      Keep your admin contact details updated so the panel
+                      always shows the correct owner and communication channel.
                     </p>
                   </div>
                   <button
@@ -421,8 +780,14 @@ export default function DongleIQAdminHub() {
                       setIsEditingAdmin((current) => !current);
                       setAdminMessage("");
                     }}
-                    className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm font-semibold transition"
-                    style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel, color: colors.text }}
+                    className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition"
+                    style={{
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.06)",
+                      backgroundColor: colors.panel,
+                      color: colors.text,
+                    }}
                   >
                     <PencilLine size={16} />
                     {isEditingAdmin ? "Close edit" : "Edit"}
@@ -430,46 +795,94 @@ export default function DongleIQAdminHub() {
                 </div>
 
                 <div className="mt-8 grid gap-4 md:grid-cols-2">
-                  <ProfileCard label="Admin name" value={admin?.name || "Not set"} icon={<User size={16} />} />
-                  <ProfileCard label="Email" value={admin?.email || "Not set"} icon={<Mail size={16} />} />
-                  <ProfileCard label="Phone" value={admin?.number || "Not set"} icon={<Phone size={16} />} />
-                  <ProfileCard label="Role" value={admin?.role || "admin"} icon={<Settings size={16} />} />
+                  <ProfileCard
+                    label="Admin name"
+                    value={admin?.name || "Not set"}
+                    icon={<User size={16} />}
+                  />
+                  <ProfileCard
+                    label="Email"
+                    value={admin?.email || "Not set"}
+                    icon={<Mail size={16} />}
+                  />
+                  <ProfileCard
+                    label="Phone"
+                    value={admin?.number || "Not set"}
+                    icon={<Phone size={16} />}
+                  />
+                  <ProfileCard
+                    label="Role"
+                    value={admin?.role || "admin"}
+                    icon={<Settings size={16} />}
+                  />
                 </div>
 
                 {adminMessage ? (
-                  <div className="theme-transition mt-6 rounded-2xl border px-4 py-3 text-sm" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel, color: colors.text }}>
+                  <div
+                    className="theme-transition mt-6 rounded-2xl border px-4 py-3 text-sm"
+                    style={{
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.06)",
+                      backgroundColor: colors.panel,
+                      color: colors.text,
+                    }}
+                  >
                     {adminMessage}
                   </div>
                 ) : null}
               </div>
 
-              <div className="theme-transition rounded-[2rem] border p-6 shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Edit details</p>
-                <h3 className="mt-1 text-2xl font-black" style={{ color: colors.text }}>Admin settings</h3>
+              <div
+                className="theme-transition rounded-[2rem] border p-6 shadow-2xl"
+                style={{
+                  borderColor: isDarkMode
+                    ? "rgba(255,255,255,0.06)"
+                    : "rgba(0,0,0,0.06)",
+                  backgroundColor: colors.panelStrong,
+                }}
+              >
+                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  Edit details
+                </p>
+                <h3
+                  className="mt-1 text-2xl font-black"
+                  style={{ color: colors.text }}
+                >
+                  Admin settings
+                </h3>
 
                 <div className="mt-6 space-y-4">
                   <InputField
                     label="Full name"
                     value={adminForm.name}
-                    onChange={(value) => setAdminForm((current) => ({ ...current, name: value }))}
+                    onChange={(value) =>
+                      setAdminForm((current) => ({ ...current, name: value }))
+                    }
                     disabled={!isEditingAdmin}
                   />
                   <InputField
                     label="Email"
                     value={adminForm.email}
-                    onChange={(value) => setAdminForm((current) => ({ ...current, email: value }))}
+                    onChange={(value) =>
+                      setAdminForm((current) => ({ ...current, email: value }))
+                    }
                     disabled={!isEditingAdmin}
                   />
                   <InputField
                     label="Phone"
                     value={adminForm.number}
-                    onChange={(value) => setAdminForm((current) => ({ ...current, number: value }))}
+                    onChange={(value) =>
+                      setAdminForm((current) => ({ ...current, number: value }))
+                    }
                     disabled={!isEditingAdmin}
                   />
                   <InputField
                     label="Role"
                     value={adminForm.role}
-                    onChange={(value) => setAdminForm((current) => ({ ...current, role: value }))}
+                    onChange={(value) =>
+                      setAdminForm((current) => ({ ...current, role: value }))
+                    }
                     disabled={!isEditingAdmin}
                   />
                 </div>
@@ -483,6 +896,7 @@ export default function DongleIQAdminHub() {
                 </button>
               </div>
             </section>
+            </div>
           )}
         </div>
       </main>
@@ -495,28 +909,47 @@ function NavItem({
   active,
   onClick,
   icon,
+  collapsed,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
+  collapsed?: boolean;
 }) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
+
   return (
     <button
       onClick={onClick}
-      className="theme-transition flex w-full items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition"
+      title={collapsed ? label : ""}
+      className={`flex items-center ${
+        collapsed ? "justify-center" : "justify-between"
+      } w-full px-2 py-2 rounded-xl text-sm font-medium transition-all duration-200`}
       style={{
-        backgroundColor: active ? "rgba(69,195,185,0.12)" : "transparent",
-        color: active ? colors.text : colors.muted,
+        backgroundColor: active ? "rgba(69,195,185,0.15)" : "transparent",
+        color: active ? "#45c3b9" : colors.muted,
+        border: active
+          ? "1px solid rgba(69,195,185,0.3)"
+          : "1px solid transparent",
       }}
     >
-      <span className="flex items-center gap-3">
-        {icon}
-        {label}
-      </span>
-      <ChevronRight size={16} className={active ? "text-[#45c3b9]" : "text-slate-600"} />
+      {/* Left side */}
+      <div className="flex items-center gap-2.5">
+        <span className="flex items-center justify-center">{icon}</span>
+        {!collapsed && <span>{label}</span>}
+      </div>
+
+      {/* Right arrow */}
+      {!collapsed && (
+        <ChevronRight
+          size={12}
+          className={`transition-transform ${
+            active ? "translate-x-1 opacity-100" : "opacity-40"
+          }`}
+        />
+      )}
     </button>
   );
 }
@@ -542,11 +975,24 @@ function MetricCard({
   };
 
   return (
-    <div className="theme-transition rounded-[1.75rem] border p-5 shadow-xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+    <div
+      className="theme-transition rounded-[1.75rem] border p-5 shadow-xl"
+      style={{
+        borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+        backgroundColor: colors.panelStrong,
+      }}
+    >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
-          <p className="mt-3 text-3xl font-black" style={{ color: colors.text }}>{value}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            {label}
+          </p>
+          <p
+            className="mt-3 text-3xl font-black"
+            style={{ color: colors.text }}
+          >
+            {value}
+          </p>
         </div>
         <div className={`rounded-2xl p-3 ${accentStyles[accent]}`}>{icon}</div>
       </div>
@@ -554,16 +1000,37 @@ function MetricCard({
   );
 }
 
-function ProfileCard({ label, value, icon }: { label: string; value: string; icon: React.ReactNode }) {
+function ProfileCard({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+}) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
   return (
-    <div className="theme-transition min-w-0 rounded-[1.5rem] border p-4" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
-      <div className="flex items-center gap-3" style={{ color: colors.text }}>
+    <div
+      className="theme-transition min-w-0 rounded-xl border p-3"
+      style={{
+        borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+        backgroundColor: colors.panel,
+      }}
+    >
+      <div className="flex items-center gap-2" style={{ color: colors.text }}>
         <span className="text-[#45c3b9]">{icon}</span>
-        <span className="text-xs uppercase tracking-[0.18em] text-slate-500">{label}</span>
+        <span className="text-[11px] uppercase tracking-[0.18em] text-slate-400">
+          {label}
+        </span>
       </div>
-      <p className="mt-3 min-w-0 break-all text-[13px] font-bold" style={{ color: colors.text }}>{value}</p>
+      <p
+        className="mt-3 min-w-0 break-all text-[13px] font-bold"
+        style={{ color: colors.text }}
+      >
+        {value}
+      </p>
     </div>
   );
 }
@@ -583,13 +1050,19 @@ function InputField({
   const colors = getThemePalette(isDarkMode);
   return (
     <label className="block">
-      <span className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</span>
+      <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-[0.16em] ">
+        {label}
+      </span>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
         disabled={disabled}
         className="theme-transition mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-60"
-        style={{ borderColor: colors.inputBorder, backgroundColor: colors.input, color: colors.text }}
+        style={{
+          borderColor: colors.inputBorder,
+          backgroundColor: colors.input,
+          color: colors.text,
+        }}
       />
     </label>
   );
@@ -597,13 +1070,15 @@ function InputField({
 
 function StatusChip({ status }: { status: DashboardUser["status"] }) {
   const styles = {
-    pending: "border-amber-400/25 bg-amber-400/10 text-amber-300",
+    pending: "border-yellow-400/30 bg-yellow-400/20 text-yellow-300",
     approved: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
     rejected: "border-rose-400/25 bg-rose-400/10 text-rose-300",
   };
 
   return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold capitalize ${styles[status]}`}>
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-[11px] text-slate-400 font-bold capitalize ${styles[status]}`}
+    >
       {status}
     </span>
   );
@@ -622,7 +1097,7 @@ function ProgressRow({
 }) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
-  const safeTotal = total > 0 ? total : 1;
+  const safeTotal = Math.max(total, 1);
   const percentage = Math.min(100, Math.round((value / safeTotal) * 100));
 
   return (
@@ -631,8 +1106,14 @@ function ProgressRow({
         <span style={{ color: colors.text }}>{label}</span>
         <span style={{ color: colors.subtleText }}>{percentage}%</span>
       </div>
-      <div className="h-2 rounded-full" style={{ backgroundColor: colors.borderSoft }}>
-        <div className={`h-2 rounded-full ${accent}`} style={{ width: `${percentage}%` }} />
+      <div
+        className="h-2 rounded-full"
+        style={{ backgroundColor: colors.borderSoft }}
+      >
+        <div
+          className={`h-2 rounded-full ${accent} transition-all duration-700 ease-out`}
+          style={{ width: `${percentage}%` }}
+        />
       </div>
     </div>
   );
