@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   ChevronRight,
   FileText,
-  Fingerprint,
   Loader2,
   Mail,
   Moon,
@@ -22,13 +21,13 @@ import {
   XCircle,
 } from "lucide-react";
 import UserLedgerView, { type DashboardUser } from "@/components/UserLedger";
-import UserDongleView, { type DongleRecord } from "@/components/UserDongle";
+
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import { Menu } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-type DashboardView = "home" | "admin" | "ledger" | "dongle";
+type DashboardView = "home" | "admin" | "ledger";
 
 interface AdminProfile {
   _id?: string;
@@ -46,7 +45,7 @@ export default function DongleIQAdminHub() {
   const [view, setView] = useState<DashboardView>("home");
   const [admin, setAdmin] = useState<AdminProfile | null>(null);
   const [users, setUsers] = useState<DashboardUser[]>([]);
-  const [dongleRecords, setDongleRecords] = useState<DongleRecord[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -68,16 +67,14 @@ export default function DongleIQAdminHub() {
     setError("");
 
     try {
-      const [adminRes, usersRes, dongleRes] = await Promise.all([
+      const [adminRes, usersRes] = await Promise.all([
         fetch("/api/get-admin", { cache: "no-store" }),
         fetch("/api/get-users", { cache: "no-store" }),
-        fetch("/api/admin/dongle-records", { cache: "no-store" }),
       ]);
 
-      const [adminData, usersData, dongleData] = await Promise.all([
+      const [adminData, usersData] = await Promise.all([
         adminRes.json(),
         usersRes.json(),
-        dongleRes.json(),
       ]);
 
       if (!adminRes.ok || !adminData.success) {
@@ -88,10 +85,6 @@ export default function DongleIQAdminHub() {
         throw new Error(usersData.message || "Failed to load users");
       }
 
-      if (!dongleRes.ok || !dongleData.success) {
-        throw new Error(dongleData.message || "Failed to load dongle records");
-      }
-
       setAdmin(adminData.admin || null);
       setAdminForm({
         name: adminData.admin?.name || "",
@@ -100,7 +93,6 @@ export default function DongleIQAdminHub() {
         role: adminData.admin?.role || "admin",
       });
       setUsers(usersData.users || []);
-      setDongleRecords(dongleData.records || []);
     } catch (fetchError) {
       setError(
         fetchError instanceof Error
@@ -175,30 +167,33 @@ export default function DongleIQAdminHub() {
     toast.success("Dashboard refreshed");
   };
 
-  const handleStatusChange = async (
-    userId: string,
-    status: "approved" | "rejected",
-    internalRemarks?: string,
-  ) => {
-    const response = await fetch("/api/admin/update-status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, status, internalRemarks }),
-    });
+ const handleStatusChange = async (
+  userId: string,
+  status: "approved" | "rejected",
+  internalRemarks?: string,
+) => {
+  const response = await fetch("/api/admin/update-status", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, status, internalRemarks }),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok || !data.success) {
-      toast.error(data.message || "Failed to update status");
-      return;
-    }
+  if (!response.ok || !data.success) {
+    toast.error(data.message || "Failed to update status");
+    return;
+  }
 
-    setUsers((currentUsers) =>
-      currentUsers.map((user) =>
-        user._id === data.user._id ? data.user : user,
-      ),
-    );
-  };
+  setUsers((currentUsers) =>
+    currentUsers.map((user) =>
+      user._id === data.user._id ? data.user : user,
+    ),
+  );
+
+  // ✅ Add here
+  toast.success(`User ${status} successfully`);
+};
 
   const handleAdminSave = async () => {
     setSavingAdmin(true);
@@ -243,14 +238,14 @@ export default function DongleIQAdminHub() {
       style={{
         color: colors.text,
         background: isDarkMode
-          ? "radial-gradient(circle at top, #46556d 0%, #232b37 42%, #121820 100%)"
-          : "radial-gradient(circle at top, #f5f9ff 0%, #e9f0fb 48%, #dbe7f5 100%)",
+          ? "radial-gradient(circle at top, #334155 0%, #1e293b 40%, #0f172a 100%)"
+: "radial-gradient(circle at top, #f8fbff 0%, #eef4ff 45%, #dbeafe 100%)",
       }}
     >
       <aside
         className={`theme-transition fixed inset-y-0 left-0 z-50 flex transform flex-col border-r px-4 py-5 transition-all duration-300 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isCollapsed ? "w-20" : "w-72"} lg:static lg:translate-x-0`}
+        } ${isCollapsed ? "w-20" : "w-64 xl:w-72"} lg:static lg:translate-x-0`}
         style={{
           width: isCollapsed ? "5.5rem" : "18rem",
           borderColor: isDarkMode
@@ -293,13 +288,7 @@ export default function DongleIQAdminHub() {
                 icon={<Users size={18} />}
                 collapsed={isCollapsed}
               />
-              <NavItem
-                label="Dongle Records"
-                active={view === "dongle"}
-                onClick={() => setView("dongle")}
-                icon={<Fingerprint size={18} />}
-                collapsed={isCollapsed}
-              />
+
               <NavItem
                 label="Admin Profile"
                 active={view === "admin"}
@@ -345,7 +334,7 @@ export default function DongleIQAdminHub() {
         />
       ) : null}
 
-     <main className="flex min-w-0 flex-1 flex-col h-screen">
+      <main className="flex min-w-0 flex-1 flex-col h-screen">
         <header
           className="theme-transition sticky top-0 z-30 flex flex-wrap items-start justify-between gap-4 border-b px-5 py-4 backdrop-blur-xl lg:px-8"
           style={{
@@ -448,7 +437,7 @@ export default function DongleIQAdminHub() {
           </div>
         </header>
 
-       <div className="flex-1 overflow-y-auto px-5 py-6 lg:px-8 min-h-0">
+        <div className="flex-1 overflow-y-auto px-5 py-6 lg:px-8 min-h-0">
           {error ? (
             <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
               {error}
@@ -457,9 +446,9 @@ export default function DongleIQAdminHub() {
 
           {view === "home" && (
             <div className="h-full overflow-y-auto space-y-6 pr-2 min-h-0">
-              <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
                 <MetricCard
-                  label="Total applications"
+                  label=" Applications"
                   value={stats.total}
                   accent="teal"
                   icon={<Users size={18} />}
@@ -488,7 +477,7 @@ export default function DongleIQAdminHub() {
                 {" "}
                 <div className="h-full overflow-y-auto pr-2 min-h-0">
                   <div
-                    className="theme-transition rounded-2xl border p-3 shadow-xl transition-all duration-300 hover:scale-[1.015] hover:shadow-[0_10px_40px_rgba(0,0,0,0.25)]"
+                    className="theme-transition rounded-2xl border p-3 shadow-xl transition-all duration-300 "
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -552,25 +541,37 @@ export default function DongleIQAdminHub() {
                           <p>No applications yet</p>
                         </div>
                       ) : (
-                        recentUsers.map((user) => (
+                        recentUsers.map((user, index) => (
                           <div
                             key={user._id}
-                            className="group flex items-center justify-between rounded-xl px-3 py-2 transition-all duration-200 hover:bg-white/5"
+                            onClick={() =>
+                              setExpandedUserId(
+                                expandedUserId === user._id ? null : user._id,
+                              )
+                            }
+                            className="group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 mb-2 transition-all duration-200 "
                             style={{
                               borderColor: isDarkMode
                                 ? "rgba(255,255,255,0.06)"
                                 : "rgba(0,0,0,0.06)",
-                              backgroundColor: colors.panel,
+                              backgroundColor:
+                                index % 2 === 0
+                                  ? colors.panel
+                                  : isDarkMode
+                                    ? "rgba(255,255,255,0.03)"
+                                    : "rgba(0,0,0,0.03)",
                             }}
                           >
-                           <div className="min-w-0">
-  <p className="text-[13px] font-semibold truncate">
-    {user.name}
-  </p>
-  <p className="text-[11px] text-slate-400 truncate">
-    {user.email} • {user.number}
-  </p>
-</div>
+                            <div className="min-w-0 px-2 py-1">
+                              <p className="text-[12px] font-semibold truncate">
+                                {user.name}
+                              </p>
+
+                              <p className=" text-[10px] text-slate-400 truncate">
+                                {user.email} • {user.number}
+                              </p>
+                            </div>
+
                             <div className="flex items-center gap-2">
                               <StatusChip status={user.status} />
                               <span
@@ -580,6 +581,27 @@ export default function DongleIQAdminHub() {
                                 {formatDate(user.createdAt)}
                               </span>
                             </div>
+                            {expandedUserId === user._id && (
+                              <div
+                                className="mb-3 rounded-xl p-3 text-sm"
+                                style={{
+                                  backgroundColor: colors.panel,
+                                }}
+                              >
+                                <p>
+                                  <strong>Name:</strong> {user.name}
+                                </p>
+                                <p>
+                                  <strong>Email:</strong> {user.email}
+                                </p>
+                                <p>
+                                  <strong>Phone:</strong> {user.number}
+                                </p>
+                                <p>
+                                  <strong>Status:</strong> {user.status}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         ))
                       )}
@@ -605,7 +627,7 @@ export default function DongleIQAdminHub() {
                       className="mt-1 text-2xl font-black"
                       style={{ color: colors.text }}
                     >
-                      Current health
+                     Verification Status
                     </h2>
 
                     <div className="mt-5 space-y-4">
@@ -642,7 +664,9 @@ export default function DongleIQAdminHub() {
                           <Pie
                             data={chartData}
                             dataKey="value"
-                            outerRadius={80}
+                            outerRadius={70}
+                            innerRadius={40}
+                            paddingAngle={4}
                             label
                           >
                             <Cell fill="#10b981" />
@@ -698,7 +722,7 @@ export default function DongleIQAdminHub() {
 
                     <button
                       onClick={() => setView("admin")}
-                      className="theme-transition mt-5 inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition"
+                      className="theme-transition mt-5 inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-sm font-semibold transition"
                       style={{
                         borderColor: isDarkMode
                           ? "rgba(255,255,255,0.06)"
@@ -717,185 +741,175 @@ export default function DongleIQAdminHub() {
           )}
 
           {view === "ledger" && (
-  <div className="h-full overflow-y-auto min-h-0">
-    <UserLedgerView
-      onBack={() => setView("home")}
-      users={users}
-      loading={loading}
-      onStatusChange={handleStatusChange}
-    />
-  </div>
-)}
-
-         {view === "dongle" && (
-  <div className="h-full overflow-y-auto min-h-0">
-    {dongleRecords.length === 0 && !loading ? (
-      <div className="text-center py-10 text-slate-400">
-        <Fingerprint className="mx-auto mb-3 opacity-40" />
-        <p>No dongle records found</p>
-      </div>
-    ) : (
-      <UserDongleView
-        onBack={() => setView("home")}
-        records={dongleRecords}
-        loading={loading}
-      />
-    )}
-  </div>
-)}
+            <div className="h-full overflow-y-auto min-h-0">
+              <UserLedgerView
+                onBack={() => setView("home")}
+                users={users}
+                loading={loading}
+                onStatusChange={handleStatusChange}
+              />
+            </div>
+          )}
 
           {view === "admin" && (
-          <div className="h-full overflow-y-auto min-h-0">
-            <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-              <div
-                className="theme-transition rounded-[2rem] border p-6 shadow-2xl"
-                style={{
-                  borderColor: isDarkMode
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(0,0,0,0.06)",
-                  backgroundColor: colors.panelStrong,
-                }}
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                      Profile
-                    </p>
-                    <h2
-                      className="mt-1 text-3xl font-black"
-                      style={{ color: colors.text }}
+            <div className="h-full overflow-y-auto min-h-0">
+              <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+                <div
+                  className="theme-transition rounded-[2rem] border p-6 shadow-2xl"
+                  style={{
+                    borderColor: isDarkMode
+                      ? "rgba(255,255,255,0.06)"
+                      : "rgba(0,0,0,0.06)",
+                    backgroundColor: colors.panelStrong,
+                  }}
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                        Profile
+                      </p>
+                      <h2
+                        className="mt-1 text-2xl lg:text-3xl font-black"
+                        style={{ color: colors.text }}
+                      >
+                        {admin?.name || "Admin"}
+                      </h2>
+                      <p
+                        className="mt-2 max-w-xl text-sm leading-6"
+                        style={{ color: colors.muted }}
+                      >
+                        Keep your admin contact details updated so the panel
+                        always shows the correct owner and communication
+                        channel.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsEditingAdmin((current) => !current);
+                        setAdminMessage("");
+                      }}
+                      className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-2.5 text-xs font-semibold transition"
+                      style={{
+                        borderColor: isDarkMode
+                          ? "rgba(255,255,255,0.06)"
+                          : "rgba(0,0,0,0.06)",
+                        backgroundColor: colors.panel,
+                        color: colors.text,
+                      }}
                     >
-                      {admin?.name || "Admin"}
-                    </h2>
-                    <p
-                      className="mt-2 max-w-xl text-sm leading-6"
-                      style={{ color: colors.muted }}
-                    >
-                      Keep your admin contact details updated so the panel
-                      always shows the correct owner and communication channel.
-                    </p>
+                      <PencilLine size={16} />
+                      {isEditingAdmin ? "Close edit" : "Edit"}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      setIsEditingAdmin((current) => !current);
-                      setAdminMessage("");
-                    }}
-                    className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition"
-                    style={{
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(0,0,0,0.06)",
-                      backgroundColor: colors.panel,
-                      color: colors.text,
-                    }}
+
+                  <div className="mt-8 grid gap-4 md:grid-cols-2">
+                    <ProfileCard
+                      label="Admin name"
+                      value={admin?.name || "Not set"}
+                      icon={<User size={16} />}
+                    />
+                    <ProfileCard
+                      label="Email"
+                      value={admin?.email || "Not set"}
+                      icon={<Mail size={16} />}
+                    />
+                    <ProfileCard
+                      label="Phone"
+                      value={admin?.number || "Not set"}
+                      icon={<Phone size={16} />}
+                    />
+                    <ProfileCard
+                      label="Role"
+                      value={admin?.role || "admin"}
+                      icon={<Settings size={16} />}
+                    />
+                  </div>
+
+                  {adminMessage ? (
+                    <div
+                      className="theme-transition mt-6 rounded-2xl border px-4 py-3 text-sm"
+                      style={{
+                        borderColor: isDarkMode
+                          ? "rgba(255,255,255,0.06)"
+                          : "rgba(0,0,0,0.06)",
+                        backgroundColor: colors.panel,
+                        color: colors.text,
+                      }}
+                    >
+                      {adminMessage}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div
+                  className="theme-transition rounded-[2rem] border p-6 shadow-2xl"
+                  style={{
+                    borderColor: isDarkMode
+                      ? "rgba(255,255,255,0.06)"
+                      : "rgba(0,0,0,0.06)",
+                    backgroundColor: colors.panelStrong,
+                  }}
+                >
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                    Edit details
+                  </p>
+                  <h3
+                    className="mt-1 text-2xl font-black"
+                    style={{ color: colors.text }}
                   >
-                    <PencilLine size={16} />
-                    {isEditingAdmin ? "Close edit" : "Edit"}
+                    Admin settings
+                  </h3>
+
+                  <div className="mt-6 space-y-4">
+                    <InputField
+                      label="Full name"
+                      value={adminForm.name}
+                      onChange={(value) =>
+                        setAdminForm((current) => ({ ...current, name: value }))
+                      }
+                      disabled={!isEditingAdmin}
+                    />
+                    <InputField
+                      label="Email"
+                      value={adminForm.email}
+                      onChange={(value) =>
+                        setAdminForm((current) => ({
+                          ...current,
+                          email: value,
+                        }))
+                      }
+                      disabled={!isEditingAdmin}
+                    />
+                    <InputField
+                      label="Phone"
+                      value={adminForm.number}
+                      onChange={(value) =>
+                        setAdminForm((current) => ({
+                          ...current,
+                          number: value,
+                        }))
+                      }
+                      disabled={!isEditingAdmin}
+                    />
+                    <InputField
+                      label="Role"
+                      value={adminForm.role}
+                      onChange={(value) =>
+                        setAdminForm((current) => ({ ...current, role: value }))
+                      }
+                      disabled={!isEditingAdmin}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleAdminSave}
+                    disabled={!isEditingAdmin || savingAdmin}
+                    className="mt-6 w-full rounded-2xl bg-[#45c3b9] px-4 py-3 text-sm font-black text-[#091315] transition hover:bg-[#3db5ab] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {savingAdmin ? "Saving..." : "Save admin profile"}
                   </button>
                 </div>
-
-                <div className="mt-8 grid gap-4 md:grid-cols-2">
-                  <ProfileCard
-                    label="Admin name"
-                    value={admin?.name || "Not set"}
-                    icon={<User size={16} />}
-                  />
-                  <ProfileCard
-                    label="Email"
-                    value={admin?.email || "Not set"}
-                    icon={<Mail size={16} />}
-                  />
-                  <ProfileCard
-                    label="Phone"
-                    value={admin?.number || "Not set"}
-                    icon={<Phone size={16} />}
-                  />
-                  <ProfileCard
-                    label="Role"
-                    value={admin?.role || "admin"}
-                    icon={<Settings size={16} />}
-                  />
-                </div>
-
-                {adminMessage ? (
-                  <div
-                    className="theme-transition mt-6 rounded-2xl border px-4 py-3 text-sm"
-                    style={{
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(0,0,0,0.06)",
-                      backgroundColor: colors.panel,
-                      color: colors.text,
-                    }}
-                  >
-                    {adminMessage}
-                  </div>
-                ) : null}
-              </div>
-
-              <div
-                className="theme-transition rounded-[2rem] border p-6 shadow-2xl"
-                style={{
-                  borderColor: isDarkMode
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(0,0,0,0.06)",
-                  backgroundColor: colors.panelStrong,
-                }}
-              >
-                <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                  Edit details
-                </p>
-                <h3
-                  className="mt-1 text-2xl font-black"
-                  style={{ color: colors.text }}
-                >
-                  Admin settings
-                </h3>
-
-                <div className="mt-6 space-y-4">
-                  <InputField
-                    label="Full name"
-                    value={adminForm.name}
-                    onChange={(value) =>
-                      setAdminForm((current) => ({ ...current, name: value }))
-                    }
-                    disabled={!isEditingAdmin}
-                  />
-                  <InputField
-                    label="Email"
-                    value={adminForm.email}
-                    onChange={(value) =>
-                      setAdminForm((current) => ({ ...current, email: value }))
-                    }
-                    disabled={!isEditingAdmin}
-                  />
-                  <InputField
-                    label="Phone"
-                    value={adminForm.number}
-                    onChange={(value) =>
-                      setAdminForm((current) => ({ ...current, number: value }))
-                    }
-                    disabled={!isEditingAdmin}
-                  />
-                  <InputField
-                    label="Role"
-                    value={adminForm.role}
-                    onChange={(value) =>
-                      setAdminForm((current) => ({ ...current, role: value }))
-                    }
-                    disabled={!isEditingAdmin}
-                  />
-                </div>
-
-                <button
-                  onClick={handleAdminSave}
-                  disabled={!isEditingAdmin || savingAdmin}
-                  className="mt-6 w-full rounded-2xl bg-[#45c3b9] px-4 py-3 text-sm font-black text-[#091315] transition hover:bg-[#3db5ab] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {savingAdmin ? "Saving..." : "Save admin profile"}
-                </button>
-              </div>
-            </section>
+              </section>
             </div>
           )}
         </div>
@@ -976,7 +990,7 @@ function MetricCard({
 
   return (
     <div
-      className="theme-transition rounded-[1.75rem] border p-5 shadow-xl"
+      className="theme-transition rounded-[1.75rem] border p-4 lg:p-5 shadow-xl"
       style={{
         borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
         backgroundColor: colors.panelStrong,
