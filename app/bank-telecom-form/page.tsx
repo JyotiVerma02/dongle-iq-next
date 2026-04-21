@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
@@ -86,7 +86,7 @@ export default function DongleIQForm() {
   const addressRef = useRef<HTMLInputElement>(null);
   const idProofRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState<FormState>(createInitialState(searchParams.get("mobile") || ""));
+  const [formData, setFormData] = useState<FormState>(createInitialState("")); // searchParams.get("mobile") || ""
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number>(1200);
   const [showPin, setShowPin] = useState<boolean>(false);
@@ -95,7 +95,7 @@ export default function DongleIQForm() {
   const [addressFile, setAddressFile] = useState<File | null>(null);
 
   useEffect(() => {
-    const mobile = searchParams.get("mobile") || sessionStorage.getItem("verifiedMobile") || "";
+    const mobile = "" ; // searchParams.get("mobile") || sessionStorage.getItem("verifiedMobile") || "";
     const rawConfig = sessionStorage.getItem(APPLICATION_CONFIG_KEY);
 
     const restoreState = async () => {
@@ -159,7 +159,7 @@ export default function DongleIQForm() {
     };
 
     restoreState();
-  }, [searchParams]);
+  }, []); // [searchParams]
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
@@ -587,3 +587,9 @@ function FileComponent({ label, inputRef, fileName, setFile, colors }: any) {
     </div>
   );
 }
+e x p o r t   d e f a u l t   f u n c t i o n   D o n g l e I Q F o r m ( )   {   r e t u r n   ( < S u s p e n s e   f a l l b a c k = { < d i v > L o a d i n g . . . < / d i v > } > < D o n g l e I Q F o r m C o n t e n t   / > < / S u s p e n s e > ) ;   } 
+ 
+ 
+
+
+export default DongleIQForm;

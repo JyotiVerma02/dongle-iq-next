@@ -94,15 +94,9 @@ export default function ResetPassword() {
       <div className="relative z-10 flex pt-20 min-h-screen">
         <div className="hidden lg:flex w-[55%] flex-col justify-center px-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
-            <div
-              className="mb-8 inline-flex rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em]"
-              style={{ borderColor: colors.borderSoft, backgroundColor: colors.card, color: colors.accentLight }}
-            >
-              Premium Reset
-            </div>
-            <h1 className="text-7xl xl:text-7xl font-black mb-8 leading-[0.8] tracking-tighter uppercase" style={{ color: colors.text }}>
-              Update <br /> 
-              <span className="gradient-text">Credentials</span>
+            <h1 className="text-6xl xl:text-6xl font-black mb-8 leading-[0.9] tracking-tight uppercase" style={{ color: colors.text }}>
+              Update <br />
+              <span style={{ color: colors.accent }}>Credentials</span>
             </h1>
             <p className="text-lg max-w-lg leading-relaxed font-medium mb-12 opacity-70" style={{ color: colors.muted }}>
               Finalize your account recovery by establishing a new high-entropy access key. 
@@ -115,7 +109,7 @@ export default function ResetPassword() {
               ].map((item, index) => (
                 <div
                   key={item.label}
-                  className={`rounded-[1.5rem] border p-5 ${index === 0 ? "float-slow" : "float-delay"}`}
+                  className={`rounded-3xl border p-5 ${index === 0 ? "float-slow" : "float-delay"}`}
                   style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
                 >
                   <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl text-white" style={{ background: premiumGradient }}>

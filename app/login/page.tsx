@@ -66,19 +66,9 @@ export default function Login() {
       <div className="relative z-10 flex min-h-screen pt-20">
         <div className="hidden w-[55%] flex-col justify-center px-24 lg:flex" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
-            <div
-              className="shine-border mb-8 inline-flex rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em]"
-              style={{
-                borderColor: colors.borderSoft,
-                backgroundColor: colors.card,
-                color: colors.accentLight,
-              }}
-            >
-              Premium Agent Portal
-            </div>
-            <h1 className="mb-8 text-7xl font-black uppercase leading-[0.8] tracking-tighter">
+            <h1 className="mb-8 text-6xl font-black uppercase leading-[0.9] tracking-tight">
               <span style={{ color: colors.text }}>Secure</span>{" "}
-              <span className="gradient-text">Access</span>
+              <span style={{ color: colors.accent }}>Access</span>
             </h1>
             <p className="mb-12 max-w-lg text-lg font-medium leading-relaxed opacity-70" style={{ color: colors.muted }}>
               Enter your credentials to manage your Digital Signature Certificates and IRCTC Agent registrations in our unified dashboard.
@@ -90,10 +80,10 @@ export default function Login() {
               ].map((item, index) => (
                 <div
                   key={item.label}
-                  className={`rounded-[1.5rem] border p-5 ${index === 0 ? "float-slow" : "float-delay"}`}
+                  className={`rounded-lg border p-5 ${index === 0 ? "float-slow" : "float-delay"}`}
                   style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
                 >
-                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl text-white" style={{ background: premiumGradient }}>
+                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-md text-white" style={{ backgroundColor: colors.accent }}>
                     <ShieldCheck size={18} />
                   </div>
                   <p className="text-xl font-black uppercase" style={{ color: colors.text }}>{item.value}</p>
@@ -108,10 +98,10 @@ export default function Login() {
 
         <div className="flex flex-1 items-center justify-center p-6">
           <div className="group relative w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
-            <div className="absolute -inset-[1.5px] rounded-[34px] opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100" style={{ background: premiumGradient }} />
+            <div className="absolute -inset-[1.5px] rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100" style={{ background: premiumGradient }} />
 
             <div
-              className="shine-border relative w-full overflow-hidden rounded-[34px] border p-8 shadow-[0_20px_50px_rgba(0,0,0,0.22)] backdrop-blur-2xl"
+              className="shine-border relative w-full overflow-hidden rounded-lg border p-8 shadow-[0_20px_50px_rgba(0,0,0,0.22)] backdrop-blur-2xl"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border,
@@ -128,13 +118,13 @@ export default function Login() {
               </div>
 
               {registered ? (
-                <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 py-2 text-center text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                <div className="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 py-2 text-center text-[10px] font-black uppercase tracking-widest text-emerald-300">
                   Registration complete. Please log in.
                 </div>
               ) : null}
 
               {error && (
-                <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 py-2 text-center text-[10px] font-black uppercase tracking-widest text-red-500">
+                <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 py-2 text-center text-[10px] font-black uppercase tracking-widest text-red-500">
                   {error}
                 </div>
               )}
@@ -148,7 +138,7 @@ export default function Login() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value.toLowerCase())}
                     placeholder="agent@dongleiq.com or 9876543210"
-                    className="glass-input w-full rounded-2xl border px-4 py-3.5 text-sm lowercase font-semibold outline-none"
+                    className="glass-input w-full rounded-md border px-4 py-3.5 text-sm lowercase font-semibold outline-none"
                     style={{
                       backgroundColor: colors.input,
                       borderColor: colors.inputBorder,
@@ -165,7 +155,7 @@ export default function Login() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Enter your password"
-                      className="glass-input w-full rounded-2xl border px-4 py-3.5 text-sm font-semibold outline-none"
+                      className="glass-input w-full rounded-md border px-4 py-3.5 text-sm font-semibold outline-none"
                       style={{
                         backgroundColor: colors.input,
                         borderColor: colors.inputBorder,
@@ -186,7 +176,8 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="theme-primary-btn flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-[11px] font-black uppercase tracking-[0.3em] text-white shadow-2xl transition-all duration-500 hover:brightness-125 active:scale-[0.98] disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-md py-3.5 text-[11px] font-black uppercase tracking-[0.3em] text-white shadow-2xl transition-all duration-500 hover:brightness-125 active:scale-[0.98] disabled:opacity-50"
+                  style={{ backgroundColor: colors.accent }}
                 >
                   {loading ? "Processing..." : "Login"} <LogIn size={16} />
                 </button>

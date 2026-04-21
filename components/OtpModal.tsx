@@ -115,7 +115,7 @@ export default function OtpModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}>
       <div
-        className="w-100 rounded-2xl border p-8 shadow-2xl backdrop-blur-2xl"
+        className="w-100 rounded-lg border p-8 shadow-2xl backdrop-blur-2xl"
         style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}
       >
         <h2 className="mb-2 text-2xl font-bold">Verify OTP</h2>

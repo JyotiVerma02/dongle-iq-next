@@ -57,7 +57,7 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
         <Link href="/" className="group flex items-center gap-3">
           <div
-            className="flex h-11 w-11 items-center justify-center rounded-2xl shadow-lg transition-all duration-500 group-hover:rotate-180"
+            className="flex h-11 w-11 items-center justify-center rounded-md shadow-lg transition-all duration-500 group-hover:rotate-180"
             style={{
               backgroundColor: colors.accent,
               boxShadow: `0 0 24px ${colors.glow}`,
@@ -101,12 +101,10 @@ export default function Navbar() {
 
     <button
       onClick={() => router.push("/signup")}
-      className="theme-transition rounded-full px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white"
+      className="theme-transition rounded-md px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white"
       style={{
-        background: isDarkMode
-          ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
-          : colors.accent,
-        boxShadow: `0 16px 36px -18px ${colors.glow}`,
+        backgroundColor: colors.accent,
+        boxShadow: `0 4px 12px ${colors.accentShadow}`,
       }}
     >
       Register
@@ -117,14 +115,14 @@ export default function Navbar() {
           {showLogout ? (
             <button
               onClick={handleLogout}
-              className="theme-transition hidden items-center gap-2 rounded-full px-4 py-2.5 text-[11px] font-black uppercase tracking-widest sm:flex"
+              className="theme-transition hidden items-center gap-2 rounded-md px-4 py-2.5 text-[11px] font-black uppercase tracking-widest sm:flex"
               style={{
                 color: colors.text,
                 backgroundColor: colors.panel,
                 border: `1px solid ${colors.borderSoft}`,
               }}
             >
-              <LogOut size={14} /> Logout
+              Logout
             </button>
           ) : null}
 
@@ -132,7 +130,7 @@ export default function Navbar() {
             onClick={toggleTheme}
             aria-label={themeLabel}
             title={themeLabel}
-            className="theme-transition rounded-2xl border p-3"
+            className="theme-transition rounded-md border p-3"
             style={{
               color: colors.text,
               backgroundColor: colors.panel,

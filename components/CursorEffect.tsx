@@ -36,7 +36,7 @@ const SonarClickEffect = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let ripples: { x: number; y: number; r: number; opacity: number }[] = [];
+    let ripples: Ripple[] = [];
 
     const getRippleColor = () =>
       getComputedStyle(document.documentElement).getPropertyValue("--cursor-ripple").trim() ||

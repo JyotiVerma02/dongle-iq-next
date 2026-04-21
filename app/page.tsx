@@ -31,7 +31,7 @@ import {
   MapPin,
   Phone,
 } from "lucide-react";
-import { FaInstagram, FaLinkedinIn } from "react-icons/fa6";
+import { FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
 
 export default function DongleIQLanding() {
   const router = useRouter();
@@ -98,34 +98,26 @@ export default function DongleIQLanding() {
         />
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <div
-              className="shine-border inline-block rounded-full border px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest mb-8"
-              style={{
-                borderColor: `${colors.accent}33`,
-                backgroundColor: `${colors.accent}1A`,
-                color: colors.accentLight,
-              }}
-            >
-              Certified DSC Partner
-            </div>
-            <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9] mb-8 uppercase">
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-[1.05] mb-8 uppercase">
               Faster digital <br />
-              <span className="gradient-text">trust for agents.</span>
+              <span style={{ color: colors.accent }}>trust for agents.</span>
             </h1>
             <p
-              className="mb-10 max-w-xl text-lg leading-relaxed font-medium"
+              className="mb-8 max-w-xl text-base leading-relaxed font-medium"
               style={{ color: colors.muted }}
             >
-              Launch your DSC and IRCTC workflow with a brighter, guided,
-              paperless experience built for professionals who want speed,
-              clarity, and dependable support.
+              Launch your DSC and IRCTC agent ID workflow with a guided,
+              paperless application experience built for certified agents who
+              need fast digital signature issuance, secure verification, and
+              IRCTC-ready onboarding.
             </p>
             <div className="flex flex-col gap-4 sm:flex-row">
               <button
                 onClick={() => router.push("/signup")}
-                className="theme-primary-btn hover-btn rounded-2xl px-8 py-4 text-sm font-bold uppercase text-white flex items-center justify-center gap-3 shadow-xl"
+                className="theme-primary-btn hover-btn rounded-lg px-8 py-4 text-sm font-bold uppercase text-white flex items-center justify-center gap-3"
                 style={{
-                  boxShadow: `0 20px 25px -5px ${colors.accent}4D`,
+                  backgroundColor: "#2563eb",
+                  boxShadow: `0 12px 24px rgba(30, 64, 175, 0.18)`,
                 }}
               >
                 Start Application <ArrowRight size={18} />
@@ -135,7 +127,7 @@ export default function DongleIQLanding() {
               {highlights.map((item, index) => (
                 <div
                   key={item.label}
-                  className={`rounded-[1.75rem] border p-4 ${index % 2 === 0 ? "float-slow" : "float-delay"}`}
+                  className={`rounded-lg border p-4 ${index % 2 === 0 ? "float-slow" : "float-delay"}`}
                   style={{
                     backgroundColor: colors.card,
                     borderColor: colors.borderSoft,
@@ -161,7 +153,7 @@ export default function DongleIQLanding() {
           </div>
           <div className="relative">
             <div
-              className="shine-border relative overflow-hidden rounded-[2rem] border p-7 shadow-2xl"
+              className="shine-border relative overflow-hidden rounded-lg border p-6 shadow-xl"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.borderSoft,
@@ -197,9 +189,7 @@ export default function DongleIQLanding() {
                   <div
                     className="rounded-2xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white"
                     style={{
-                      background: isDarkMode
-                        ? "linear-gradient(135deg, var(--accent-light), var(--accent-secondary))"
-                        : colors.accent,
+                      background: "#10b981",
                     }}
                   >
                     Live
@@ -222,7 +212,7 @@ export default function DongleIQLanding() {
                 ].map((item, index) => (
                   <div
                     key={item.title}
-                    className="rounded-[1.5rem] border p-5"
+                    className="rounded-lg border p-4"
                     style={{
                       backgroundColor: colors.panelStrong,
                       borderColor: colors.borderSoft,
@@ -475,7 +465,7 @@ export default function DongleIQLanding() {
             ].map((card, idx) => (
               <div
                 key={idx}
-                className="hover-card p-8 rounded-[20px] border group transition-all"
+                className="hover-card p-6 rounded-lg border group transition-all"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -505,7 +495,7 @@ export default function DongleIQLanding() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Form Area */}
             <div
-              className="lg:col-span-2 p-10 md:p-16 rounded-[48px] border relative overflow-hidden shadow-2xl"
+              className="lg:col-span-2 p-6 md:p-8 rounded-xl border relative overflow-hidden shadow-lg"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border,
@@ -534,7 +524,7 @@ export default function DongleIQLanding() {
                   </label>
                   <input
                     placeholder="Enter your name"
-                    className="w-full bg-transparent border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
+                    className="w-full bg-transparent border border-white/10 p-4 rounded-xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
                     style={{
                       backgroundColor: colors.input,
                       borderColor: colors.inputBorder,
@@ -551,7 +541,7 @@ export default function DongleIQLanding() {
                   </label>
                   <input
                     placeholder="john@company.com"
-                    className="w-full bg-transparent border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
+                    className="w-full bg-transparent border border-white/10 p-4 rounded-xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
                     style={{
                       backgroundColor: colors.input,
                       borderColor: colors.inputBorder,
@@ -567,9 +557,9 @@ export default function DongleIQLanding() {
                     Message / Requirements
                   </label>
                   <textarea
-                    placeholder="Tell us how you plan to use the Dongle IQ portal for your agency..."
-                    rows={5}
-                    className="w-full bg-transparent border border-white/10 p-5 rounded-2xl outline-none focus:border-purple-500 transition-all font-bold text-sm resize-none"
+                    placeholder="Tell us how you plan to use the Dongle IQ portal for your agency... or contact us on WhatsApp for quick quotes."
+                    rows={4}
+                    className="w-full bg-transparent border border-white/10 p-4 rounded-xl outline-none focus:border-purple-500 transition-all font-bold text-sm resize-none"
                     style={{
                       backgroundColor: colors.input,
                       borderColor: colors.inputBorder,
@@ -577,7 +567,8 @@ export default function DongleIQLanding() {
                     }}
                   />
                 </div>
-                <button className="theme-primary-btn md:col-span-2 py-5 rounded-2xl text-[12px] font-black uppercase tracking-[0.3em] text-white shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4">
+                <button className="md:col-span-2 py-4 rounded-xl text-[12px] font-semibold uppercase tracking-[0.25em] text-white shadow-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-3"
+                  style={{ backgroundColor: '#111827', border: '1px solid rgba(255,255,255,0.08)' }}>
                   Send Message <Send size={16} />
                 </button>
               </form>
@@ -586,7 +577,7 @@ export default function DongleIQLanding() {
             {/* Sidebar Links (Similar to CoderLala sidebar) */}
             <div className="space-y-8">
               <div
-                className="hover-card p-10 rounded-[20px] border relative group transition-all"
+                className="hover-card p-6 rounded-lg border relative group transition-all"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -632,8 +623,8 @@ export default function DongleIQLanding() {
 
               {/* Branding/Support Card */}
               <div
-                className="p-10 rounded-[20px] border border-purple-500/20"
-                style={{ backgroundColor: `${colors.accent}0A` }}
+                className="p-6 rounded-lg border border-blue-500/20"
+                style={{ backgroundColor: `${colors.accent}14` }}
               >
                 <div
                   className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
@@ -642,11 +633,11 @@ export default function DongleIQLanding() {
                   <MessageSquare className="text-white" size={20} />
                 </div>
                 <h3 className="text-xl font-black uppercase mb-4 tracking-tighter">
-                  Live Chat
+                  AI Live Chat
                 </h3>
                 <p className="text-xs font-bold leading-relaxed opacity-60">
-                  For urgent matters regarding your agent registration, please
-                  use our live support line.
+                  For urgent matters or instant assistance with registration,
+                  chat directly with our AI support assistant.
                 </p>
               </div>
             </div>
@@ -664,16 +655,14 @@ export default function DongleIQLanding() {
               <div
                 className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
                 style={{
-                  background: isDarkMode
-                    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
-                    : colors.accent,
+                  background: colors.accent,
                 }}
               >
                 <Cpu size={22} />
               </div>
               <div>
                 <h3 className="text-2xl font-black uppercase tracking-tight">
-                  Dongle<span style={{ color: colors.accentLight }}>IQ</span>
+                  Dongle<span style={{ color: colors.accent }}>IQ</span>
                 </h3>
                 <p
                   className="text-[11px] font-black uppercase tracking-[0.24em]"
@@ -701,14 +690,14 @@ export default function DongleIQLanding() {
               Quick Links
             </h4>
             <div
-              className="mt-5 grid grid-cols-2 gap-x-1 gap-y-3 text-sm font-semibold md:grid-cols-3"
+              className="mt-5 grid grid-cols-2 gap-2 text-sm font-semibold md:grid-cols-3"
               style={{ color: colors.muted }}
             >
               {["Apply", "Why Us", "Agents", "FAQs", "Contact"].map((item) => (
                 <a
                   key={item}
                   href={`/#${item.toLowerCase().replace(" ", "")}`}
-                  className="block"
+                  className="block py-1"
                 >
                   {item}
                 </a>
@@ -735,8 +724,13 @@ export default function DongleIQLanding() {
                   label: "Instagram",
                   icon: <FaInstagram size={18} />,
                   href: "https://instagram.com",
-                  gradient:
-                    "linear-gradient(45deg, #f58529, #dd2a7b, #8134af, #515bd4)",
+                  color: "#E1306C",
+                },
+                {
+                  label: "WhatsApp",
+                  icon: <FaWhatsapp size={18} />,
+                  href: "https://wa.me/918564345678",
+                  color: "#25D366",
                 },
               ].map((item) => (
                 <a
@@ -744,22 +738,16 @@ export default function DongleIQLanding() {
                   href={item.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-bold"
+                  aria-label={item.label}
+                  title={item.label}
+                  className="flex h-10 w-10 items-center justify-center rounded-md border text-xl"
                   style={{
                     borderColor: colors.borderSoft,
                     backgroundColor: colors.panelStrong,
-                    color: colors.text,
+                    color: item.color,
                   }}
                 >
-                 <span
-  className="flex h-8 w-8 items-center justify-center rounded-full text-white"
-  style={{
-    background: item.gradient || item.color,
-  }}
->
-  {item.icon}
-</span>
-                  {item.label}
+                  {item.icon}
                 </a>
               ))}
             </div>
@@ -783,7 +771,7 @@ export default function DongleIQLanding() {
 function FeatureCard({ icon, title, desc, colors }: any) {
   return (
     <div
-      className="hover-card p-8 rounded-[20px] border transition-all group relative overflow-hidden shadow-xl"
+      className="hover-card p-6 rounded-lg border transition-all group relative overflow-hidden shadow-xl"
       style={{
         backgroundColor: colors.card,
         borderColor: "rgba(255,255,255,0.05)",
@@ -816,7 +804,7 @@ function StepItem({ number, icon, title, desc, colors }: any) {
   return (
     <div className="text-center group">
       <div
-        className="w-20 h-20 rounded-[28px] border flex items-center justify-center mx-auto mb-8 relative transition-all group-hover:-translate-y-2 shadow-lg"
+        className="w-20 h-20 rounded-2xl border flex items-center justify-center mx-auto mb-8 relative transition-all group-hover:-translate-y-2 shadow-lg"
         style={{
           backgroundColor: `${colors.accent}1A`,
           borderColor: `${colors.accent}33`,
@@ -850,7 +838,7 @@ function StepItem({ number, icon, title, desc, colors }: any) {
 function AgentCard({ icon, label, colors }: any) {
   return (
     <div
-      className="hover-card p-8 rounded-[28px] border transition-all group flex flex-col items-center shadow-lg"
+      className="hover-card p-6 rounded-xl border transition-all group flex flex-col items-center shadow-lg"
       style={{
         backgroundColor: colors.card,
         borderColor: "rgba(255,255,255,0.05)",
