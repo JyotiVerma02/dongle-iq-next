@@ -92,14 +92,17 @@ export default function Navbar() {
          {showAuthButtons && (
   <>
     <button
-      onClick={() => router.push("/login")}
-      className="hidden items-center gap-2 text-[11px] font-black uppercase tracking-widest transition-colors sm:flex"
-      style={{ color: colors.muted }}
-    >
-      <LogIn size={14} /> Login
-    </button>
+  onClick={() => router.push("/login")}
+  className="theme-transition hidden items-center gap-2 rounded-md px-5 py-2 text-[11px] font-black uppercase tracking-widest text-white sm:flex"
+  style={{
+    backgroundColor: colors.accent,
+    boxShadow: `0 4px 12px ${colors.accentShadow}`,
+  }}
+>
+  <LogIn size={14} /> Login
+</button>
 
-    <button
+    {/* <button
       onClick={() => router.push("/signup")}
       className="theme-transition rounded-md px-5 py-2 text-[11px] font-black uppercase tracking-widest text-white"
       style={{
@@ -108,7 +111,7 @@ export default function Navbar() {
       }}
     >
       Register
-    </button>
+    </button> */}
   </>
 )}
 

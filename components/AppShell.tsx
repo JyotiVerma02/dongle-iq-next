@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 
 import Navbar from "@/components/navbar";
-import ParticleBackground from "@/components/ParticleBackground";
 import CursorEffect from "@/components/CursorEffect";
 
 const EFFECTS_DISABLED_PATHS = new Set([
@@ -26,7 +25,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {showEffects ? <ParticleBackground /> : null}
       <Navbar />
       <div className="relative z-10">{children}</div>
       {showEffects ? <CursorEffect /> : null}

@@ -14,19 +14,17 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
-      return (sessionStorage.getItem("theme") as Theme) || "dark";
+      return (sessionStorage.getItem("theme") as Theme) || "light"; // ✅ changed
     }
-    return "dark";
+    return "light"; // ✅ changed
   });
 
   const [mounted, setMounted] = useState(false);
 
-  // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Apply theme to HTML
   useEffect(() => {
     const root = document.documentElement;
 
@@ -45,7 +43,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   if (!mounted) {
     return (
-      <ThemeContext.Provider value={{ theme: "dark", toggleTheme }}>
+      <ThemeContext.Provider value={{ theme: "light", toggleTheme }}>
         {children}
       </ThemeContext.Provider>
     );
