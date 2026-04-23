@@ -121,7 +121,7 @@ export default function Register() {
         </div>
       </nav>
 
-      <div className="relative z-10 flex min-h-screen pt-20">
+      <div className="relative z-10 flex min-h-screen pt-[4.5rem]">
         <div className="hidden w-[55%] flex-col justify-center px-24 lg:flex" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="mb-8 text-6xl font-black uppercase leading-[0.9] tracking-tight" style={{ color: colors.text }}>

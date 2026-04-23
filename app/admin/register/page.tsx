@@ -68,7 +68,7 @@ export default function AdminRegister() {
 
   return (
     <div
-      className="theme-transition hero-grid relative min-h-screen pt-20 overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="theme-transition hero-grid relative min-h-screen overflow-hidden bg-transparent pt-[4.5rem] font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
       {/* Background Glows */}
@@ -99,10 +99,10 @@ export default function AdminRegister() {
             
             <div className="grid max-w-sm grid-cols-2 gap-3">
               <div
-                className="float-slow rounded-[1.2rem] border p-4"
+                className="float-slow rounded-lg border p-4"
                 style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
               >
-                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl text-white" style={{ background: premiumGradient }}>
+                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg text-white" style={{ background: premiumGradient }}>
                   <ShieldCheck size={16} />
                 </div>
                 <p className="text-lg font-black uppercase" style={{ color: colors.text }}>Verify</p>
@@ -115,10 +115,10 @@ export default function AdminRegister() {
         {/* Right Section - Form */}
         <div className="flex flex-1 items-center justify-center p-4">
           <div className="group relative w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
-            <div className="absolute -inset-[1px] rounded-[15px] opacity-30 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
+            <div className="absolute -inset-[1px] rounded-lg opacity-30 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
 
             <div
-              className="shine-border relative w-full overflow-hidden rounded-[15px] border p-6 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-2xl"
+              className="shine-border relative w-full overflow-hidden rounded-lg border p-6 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-2xl"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border,
@@ -149,7 +149,7 @@ export default function AdminRegister() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="First"
-                      className="glass-input w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none"
+                      className="glass-input w-full rounded-lg border px-3.5 py-2.5 text-xs font-semibold outline-none"
                       style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                     />
                   </div>
@@ -160,7 +160,7 @@ export default function AdminRegister() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Last"
-                      className="glass-input w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none"
+                      className="glass-input w-full rounded-lg border px-3.5 py-2.5 text-xs font-semibold outline-none"
                       style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                     />
                   </div>
@@ -173,7 +173,7 @@ export default function AdminRegister() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@dongleiq.com"
-                    className="glass-input w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none"
+                    className="glass-input w-full rounded-lg border px-3.5 py-2.5 text-xs font-semibold outline-none"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                 </div>
@@ -186,7 +186,7 @@ export default function AdminRegister() {
                     value={number}
                     onChange={(e) => setNumber(sanitizeNumber(e.target.value))}
                     placeholder="9876543210"
-                    className="glass-input w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none"
+                    className="glass-input w-full rounded-lg border px-3.5 py-2.5 text-xs font-semibold outline-none"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                 </div>
@@ -200,7 +200,7 @@ export default function AdminRegister() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••"
-                            className="glass-input w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none"
+                            className="glass-input w-full rounded-lg border px-3.5 py-2.5 text-xs font-semibold outline-none"
                             style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                             />
                             <button
@@ -222,7 +222,7 @@ export default function AdminRegister() {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             placeholder="••••"
-                            className="glass-input w-full rounded-xl border px-3.5 py-2.5 text-xs font-semibold outline-none"
+                            className="glass-input w-full rounded-lg border px-3.5 py-2.5 text-xs font-semibold outline-none"
                             style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                             />
                             <button
@@ -239,7 +239,7 @@ export default function AdminRegister() {
 
                 <button
                   type="submit"
-                  className="theme-primary-btn mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-[10px] font-black uppercase tracking-[0.25em] text-white shadow-xl transition-all duration-500 hover:brightness-110 active:scale-[0.98]"
+                  className="theme-primary-btn mt-3 flex w-full items-center justify-center gap-2 rounded-lg py-3 text-[10px] font-black uppercase tracking-[0.25em] text-white shadow-xl transition-all duration-500 hover:brightness-110 active:scale-[0.98]"
                 >
                   Register Admin
                 </button>

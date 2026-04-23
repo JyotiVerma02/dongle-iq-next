@@ -93,7 +93,7 @@ export default function UserDongleView({
         </div>
 
         <label
-          className="theme-transition flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-sm lg:max-w-md"
+          className="theme-transition flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-sm lg:max-w-md"
           style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
         >
           <Search size={16} style={{ color: colors.muted }} />
@@ -114,7 +114,7 @@ export default function UserDongleView({
         <SummaryCard label="Approved" value={records.filter((record) => record.status === "approved").length} colors={colors} />
       </div>
 
-      <div className="theme-transition overflow-hidden rounded-[2rem] border shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+      <div className="theme-transition overflow-hidden rounded-lg border shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1380px] text-left">
             <thead style={{ backgroundColor: colors.panel }}>
@@ -201,7 +201,7 @@ export default function UserDongleView({
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+              className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
               style={{
                 borderColor: colors.borderSoft,
                 backgroundColor: colors.panel,
@@ -216,7 +216,7 @@ export default function UserDongleView({
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+              className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
               style={{
                 borderColor: colors.borderSoft,
                 backgroundColor: colors.panel,
@@ -234,7 +234,7 @@ export default function UserDongleView({
 
 function SummaryCard({ label, value, colors }: { label: string; value: number; colors: ReturnType<typeof getThemePalette> }) {
   return (
-    <div className="theme-transition rounded-[1.5rem] border p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+    <div className="theme-transition rounded-lg border p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
       <p className="text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: colors.muted }}>{label}</p>
       <p className="mt-3 text-3xl font-black" style={{ color: colors.text }}>{value}</p>
     </div>

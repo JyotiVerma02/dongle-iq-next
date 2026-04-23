@@ -48,13 +48,13 @@ export default function Navbar() {
 
   return (
     <nav
-      className="theme-transition fixed top-0 z-50 w-full border-b p-5 backdrop-blur-2xl"
+      className="theme-transition fixed top-0 z-50 w-full border-b px-5 py-3.5 backdrop-blur-2xl"
       style={{
         backgroundColor: "var(--nav)",
         borderColor: colors.borderSoft,
       }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
         <Link href="/" className="group flex items-center gap-3">
           <div
             className="flex h-11 w-11 items-center justify-center rounded-md shadow-lg transition-all duration-500 group-hover:rotate-180"
@@ -101,7 +101,7 @@ export default function Navbar() {
 
     <button
       onClick={() => router.push("/signup")}
-      className="theme-transition rounded-md px-6 py-2.5 text-[11px] font-black uppercase tracking-widest text-white"
+      className="theme-transition rounded-md px-5 py-2 text-[11px] font-black uppercase tracking-widest text-white"
       style={{
         backgroundColor: colors.accent,
         boxShadow: `0 4px 12px ${colors.accentShadow}`,
@@ -115,7 +115,7 @@ export default function Navbar() {
           {showLogout ? (
             <button
               onClick={handleLogout}
-              className="theme-transition hidden items-center gap-2 rounded-md px-4 py-2.5 text-[11px] font-black uppercase tracking-widest sm:flex"
+              className="theme-transition hidden items-center gap-2 rounded-md px-4 py-2 text-[11px] font-black uppercase tracking-widest sm:flex"
               style={{
                 color: colors.text,
                 backgroundColor: colors.panel,
@@ -130,7 +130,7 @@ export default function Navbar() {
             onClick={toggleTheme}
             aria-label={themeLabel}
             title={themeLabel}
-            className="theme-transition rounded-md border p-3"
+            className="theme-transition rounded-md border p-2.5"
             style={{
               color: colors.text,
               backgroundColor: colors.panel,

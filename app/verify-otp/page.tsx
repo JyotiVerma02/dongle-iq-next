@@ -77,7 +77,7 @@ export default function VerifyOTP() {
       style={{ backgroundImage: "url('/tech-bg.jpg')" }}
     >
       <div
-        className="w-96 rounded-2xl border p-10 shadow-xl backdrop-blur-md"
+        className="w-96 rounded-lg border p-10 shadow-xl backdrop-blur-md"
         style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
       >
         <h2 className="mb-6 text-center text-3xl font-bold">

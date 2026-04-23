@@ -172,7 +172,7 @@ const itemsPerPage = 10;
         </div>
 
       <label
-  className="theme-transition flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-sm lg:max-w-sm outline-none focus-within:ring-0 focus-within:outline-none"
+  className="theme-transition flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-sm lg:max-w-sm outline-none focus-within:ring-0 focus-within:outline-none"
   style={{
     borderColor: colors.borderSoft,
     backgroundColor: colors.panel,
@@ -228,7 +228,7 @@ const itemsPerPage = 10;
       </div>
 
       <div
-        className="theme-transition overflow-hidden rounded-4xl border shadow-2xl"
+        className="theme-transition overflow-hidden rounded-lg border shadow-2xl"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
@@ -288,7 +288,7 @@ const itemsPerPage = 10;
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <div
-                          className="flex h-10 w-10 items-center justify-center rounded-2xl text-sm font-bold"
+                          className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-bold"
                           style={{
                             backgroundColor: `${colors.accent}15`,
                             color: colors.accent,
@@ -353,7 +353,7 @@ const itemsPerPage = 10;
                           setRejectReason(user.internalRemarks || "");
                           setActionError("");
                         }}
-                        className="theme-transition rounded-xl border px-4 py-2 text-xs font-semibold"
+                        className="theme-transition rounded-lg border px-4 py-2 text-xs font-semibold"
                         style={{
                           borderColor: colors.borderSoft,
                           backgroundColor: colors.panel,
@@ -382,7 +382,7 @@ const itemsPerPage = 10;
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                 style={{
                   borderColor: colors.borderSoft,
                   backgroundColor: colors.panel,
@@ -397,7 +397,7 @@ const itemsPerPage = 10;
               <button
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                 style={{
                   borderColor: colors.borderSoft,
                   backgroundColor: colors.panel,
@@ -421,7 +421,7 @@ const itemsPerPage = 10;
           }}
         >
           <div
-            className="theme-transition mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-4xl border shadow-[0_40px_120px_rgba(0,0,0,0.45)]"
+            className="theme-transition mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-lg border shadow-[0_40px_120px_rgba(0,0,0,0.45)]"
             style={{
               borderColor: colors.borderSoft,
               backgroundColor: colors.panelStrong,
@@ -451,7 +451,7 @@ const itemsPerPage = 10;
 
               <button
                 onClick={() => setSelectedUser(null)}
-                className="theme-transition rounded-2xl border px-4 py-2 text-xs font-semibold"
+                className="theme-transition rounded-lg border px-4 py-2 text-xs font-semibold"
                 style={{
                   borderColor: colors.borderSoft,
                   backgroundColor: colors.panel,
@@ -608,7 +608,7 @@ const itemsPerPage = 10;
                     onChange={(event) => setRejectReason(event.target.value)}
                     rows={4}
                     placeholder="Tell the user what is missing or incorrect"
-                    className="theme-transition mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none"
+                    className="theme-transition mt-2 w-full rounded-lg border px-4 py-3 text-sm outline-none"
                     style={{
                       borderColor: colors.inputBorder,
                       backgroundColor: colors.input,
@@ -622,7 +622,7 @@ const itemsPerPage = 10;
                     <button
                       onClick={handleApprove}
                       disabled={actionLoading !== null}
-                      className="flex-1 rounded-2xl px-4 py-3 text-sm font-black text-[#0d171a] disabled:opacity-70"
+                      className="flex-1 rounded-lg px-4 py-3 text-sm font-black text-[#0d171a] disabled:opacity-70"
                       style={{ backgroundColor: "#45c3b9" }}
                     >
                       {actionLoading === "approved"
@@ -632,7 +632,7 @@ const itemsPerPage = 10;
                     <button
                       onClick={handleReject}
                       disabled={actionLoading !== null}
-                      className="flex-1 rounded-2xl border px-4 py-3 text-sm font-black disabled:opacity-70"
+                      className="flex-1 rounded-lg border px-4 py-3 text-sm font-black disabled:opacity-70"
                       style={{
                         borderColor: "#f87171",
                         backgroundColor: isDarkMode
@@ -676,7 +676,7 @@ function StatCard({
 
   return (
     <div
-      className="theme-transition rounded-[1.75rem] border p-5"
+      className="theme-transition rounded-lg border p-5"
       style={{
         borderColor: colors.borderSoft,
         backgroundColor: colors.panelStrong,
@@ -697,7 +697,7 @@ function StatCard({
             {value}
           </p>
         </div>
-        <div className={`rounded-2xl p-3 ${accentMap[accent]}`}>{icon}</div>
+        <div className={`rounded-lg p-3 ${accentMap[accent]}`}>{icon}</div>
       </div>
     </div>
   );
@@ -714,7 +714,7 @@ function SectionCard({
 }) {
   return (
     <section
-      className="theme-transition rounded-[1.75rem] border p-5"
+      className="theme-transition rounded-lg border p-5"
       style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
     >
       <h4
@@ -741,7 +741,7 @@ function DetailItem({
 }) {
   return (
     <div
-      className="theme-transition flex items-start gap-3 rounded-2xl border px-4 py-3"
+      className="theme-transition flex items-start gap-3 rounded-lg border px-4 py-3"
       style={{
         borderColor: colors.borderSoft,
         backgroundColor: colors.panelStrong,
@@ -777,7 +777,7 @@ function DocLink({
 }) {
   return (
     <div
-      className="theme-transition flex items-center justify-between rounded-2xl border px-4 py-3"
+      className="theme-transition flex items-center justify-between rounded-lg border px-4 py-3"
       style={{
         borderColor: colors.borderSoft,
         backgroundColor: colors.panelStrong,
@@ -799,7 +799,7 @@ function DocLink({
           href={href}
           target="_blank"
           rel="noreferrer"
-          className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold"
+          className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold"
           style={{
             borderColor: colors.borderSoft,
             backgroundColor: colors.panel,

@@ -87,7 +87,7 @@ export default function DongleIQLanding() {
       style={{ color: colors.text }}
     >
       {/* --- HERO --- */}
-      <section className="hero-grid relative overflow-hidden px-6 pb-24 pt-36">
+      <section className="hero-grid relative overflow-hidden px-6 pb-24 pt-32">
         <div
           className="hero-glow left-0 top-20 h-56 w-56"
           style={{ backgroundColor: colors.accent }}
@@ -114,7 +114,7 @@ export default function DongleIQLanding() {
             <div className="flex flex-col gap-4 sm:flex-row">
               <button
                 onClick={() => router.push("/signup")}
-                className="theme-primary-btn hover-btn rounded-lg px-8 py-4 text-sm font-bold uppercase text-white flex items-center justify-center gap-3"
+                className="theme-primary-btn hover-btn rounded-md px-4 py-3 text-sm font-bold uppercase text-white flex items-center justify-center gap-3"
                 style={{
                   backgroundColor: "#2563eb",
                   boxShadow: `0 12px 24px rgba(30, 64, 175, 0.18)`,
@@ -166,7 +166,7 @@ export default function DongleIQLanding() {
                     "radial-gradient(circle at top right, var(--accent-subtle), transparent 30%), radial-gradient(circle at bottom left, var(--accent-faint), transparent 38%)",
                 }}
               />
-              <div className="relative z-10 space-y-5">
+              <div className="relative z-10 space-y-4">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p
@@ -186,14 +186,14 @@ export default function DongleIQLanding() {
                       status cues, and a more confident application journey.
                     </p>
                   </div>
-                  <div
-                    className="rounded-2xl px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white"
+                  {/* <div
+                    className="rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-[0.24em] text-white"
                     style={{
                       background: "#10b981",
                     }}
                   >
                     Live
-                  </div>
+                  </div> */}
                 </div>
 
                 {[
@@ -220,7 +220,7 @@ export default function DongleIQLanding() {
                   >
                     <div className="flex items-center gap-4">
                       <div
-                        className="flex h-11 w-11 items-center justify-center rounded-2xl text-sm font-black text-white"
+                        className="flex h-11 w-11 items-center justify-center rounded-lg text-sm font-black text-white"
                         style={{
                           background:
                             index === 0
@@ -495,7 +495,7 @@ export default function DongleIQLanding() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Form Area */}
             <div
-              className="lg:col-span-2 p-6 md:p-8 rounded-xl border relative overflow-hidden shadow-lg"
+              className="lg:col-span-2 p-6 md:p-8 rounded-lg border relative overflow-hidden shadow-lg"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border,
@@ -524,7 +524,7 @@ export default function DongleIQLanding() {
                   </label>
                   <input
                     placeholder="Enter your name"
-                    className="w-full bg-transparent border border-white/10 p-4 rounded-xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
+                    className="w-full bg-transparent border border-white/10 p-4 rounded-lg outline-none focus:border-purple-500 transition-all font-bold text-sm"
                     style={{
                       backgroundColor: colors.input,
                       borderColor: colors.inputBorder,
@@ -541,7 +541,7 @@ export default function DongleIQLanding() {
                   </label>
                   <input
                     placeholder="john@company.com"
-                    className="w-full bg-transparent border border-white/10 p-4 rounded-xl outline-none focus:border-purple-500 transition-all font-bold text-sm"
+                    className="w-full bg-transparent border border-white/10 p-4 rounded-lg outline-none focus:border-purple-500 transition-all font-bold text-sm"
                     style={{
                       backgroundColor: colors.input,
                       borderColor: colors.inputBorder,
@@ -559,7 +559,7 @@ export default function DongleIQLanding() {
                   <textarea
                     placeholder="Tell us how you plan to use the Dongle IQ portal for your agency... or contact us on WhatsApp for quick quotes."
                     rows={4}
-                    className="w-full bg-transparent border border-white/10 p-4 rounded-xl outline-none focus:border-purple-500 transition-all font-bold text-sm resize-none"
+                    className="w-full bg-transparent border border-white/10 p-4 rounded-lg outline-none focus:border-purple-500 transition-all font-bold text-sm resize-none"
                     style={{
                       backgroundColor: colors.input,
                       borderColor: colors.inputBorder,
@@ -567,8 +567,13 @@ export default function DongleIQLanding() {
                     }}
                   />
                 </div>
-                <button className="md:col-span-2 py-4 rounded-xl text-[12px] font-semibold uppercase tracking-[0.25em] text-white shadow-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-3"
-                  style={{ backgroundColor: '#111827', border: '1px solid rgba(255,255,255,0.08)' }}>
+                <button
+                  className="md:col-span-2 py-4 rounded-lg text-[12px] font-semibold uppercase tracking-[0.25em] text-white shadow-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-3"
+                  style={{
+                    backgroundColor: "#111827",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
+                >
                   Send Message <Send size={16} />
                 </button>
               </form>
@@ -597,7 +602,7 @@ export default function DongleIQLanding() {
                       className="flex gap-4 group/item cursor-pointer"
                     >
                       <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors"
+                        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors"
                         style={{
                           backgroundColor: `${colors.accent}15`,
                           color: colors.accent,
@@ -627,7 +632,7 @@ export default function DongleIQLanding() {
                 style={{ backgroundColor: `${colors.accent}14` }}
               >
                 <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
+                  className="w-12 h-12 rounded-lg flex items-center justify-center mb-6"
                   style={{ backgroundColor: colors.accent }}
                 >
                   <MessageSquare className="text-white" size={20} />
@@ -653,7 +658,7 @@ export default function DongleIQLanding() {
           <div>
             <div className="flex items-center gap-3">
               <div
-                className="flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-lg"
+                className="flex h-12 w-12 items-center justify-center rounded-lg text-white shadow-lg"
                 style={{
                   background: colors.accent,
                 }}
@@ -804,7 +809,7 @@ function StepItem({ number, icon, title, desc, colors }: any) {
   return (
     <div className="text-center group">
       <div
-        className="w-20 h-20 rounded-2xl border flex items-center justify-center mx-auto mb-8 relative transition-all group-hover:-translate-y-2 shadow-lg"
+        className="w-20 h-20 rounded-lg border flex items-center justify-center mx-auto mb-8 relative transition-all group-hover:-translate-y-2 shadow-lg"
         style={{
           backgroundColor: `${colors.accent}1A`,
           borderColor: `${colors.accent}33`,
@@ -838,7 +843,7 @@ function StepItem({ number, icon, title, desc, colors }: any) {
 function AgentCard({ icon, label, colors }: any) {
   return (
     <div
-      className="hover-card p-6 rounded-xl border transition-all group flex flex-col items-center shadow-lg"
+      className="hover-card p-6 rounded-lg border transition-all group flex flex-col items-center shadow-lg"
       style={{
         backgroundColor: colors.card,
         borderColor: "rgba(255,255,255,0.05)",
@@ -861,7 +866,7 @@ function FaqItem({ q, a, index, active, setActive, colors }: any) {
   const isOpen = active === index;
   return (
     <div
-      className="rounded-2xl overflow-hidden shadow-md transition-all border"
+      className="rounded-lg overflow-hidden shadow-md transition-all border"
       style={{
         backgroundColor: colors.card,
         borderColor: isOpen ? colors.accent : "rgba(255,255,255,0.05)",

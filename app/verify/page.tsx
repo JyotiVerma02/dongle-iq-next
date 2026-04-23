@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import ParticleBackground from "@/components/ParticleBackground";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
@@ -111,19 +110,18 @@ export default function VerifyPage() {
   };
 
   return (
-    <main className="theme-transition hero-grid relative flex min-h-screen items-center justify-center px-4 pt-28" style={{ color: colors.text }}>
-      <ParticleBackground />
+    <main className="theme-transition hero-grid relative flex min-h-screen items-center justify-center px-4 pt-24" style={{ color: colors.text }}>
       <div className="hero-glow left-8 top-28 h-52 w-52" style={{ backgroundColor: colors.accent }} />
       <div className="hero-glow right-10 top-24 h-64 w-64" style={{ backgroundColor: "var(--accent-secondary)" }} />
 
       <div className="relative z-10 w-full max-w-sm">
         <div
-          className="pointer-events-none absolute -inset-px rounded-[1.75rem] blur-sm"
+          className="pointer-events-none absolute -inset-px rounded-lg blur-sm"
           style={{ background: premiumGradient, opacity: isDarkMode ? 0.34 : 0.18 }}
         />
 
         <section
-          className="shine-border theme-transition relative rounded-[1.75rem] border p-6 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl"
+          className="shine-border theme-transition relative rounded-lg border p-6 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
         >
           <div className="mb-4 text-center">
@@ -132,7 +130,7 @@ export default function VerifyPage() {
             </h1>
           </div>
 
-          <div className="mb-4 flex rounded-xl p-1" style={{ backgroundColor: colors.panel }}>
+          <div className="mb-4 flex rounded-lg p-1" style={{ backgroundColor: colors.panel }}>
             {(["telecom", "bank"] as const).map((tab) => {
               const active = activeTab === tab;
               return (
@@ -152,7 +150,7 @@ export default function VerifyPage() {
           </div>
 
           <div
-            className="mb-4 rounded-xl px-3 py-2 text-center text-[11px]"
+            className="mb-4 rounded-lg px-3 py-2 text-center text-[11px]"
             style={{ backgroundColor: `${colors.accent}12`, color: colors.muted }}
           >
             {activeTab === "telecom" ? "Verify via telecom records" : "Verify via bank identity API"}
@@ -168,7 +166,7 @@ export default function VerifyPage() {
                 value={mobile}
                 disabled={otpSent}
                 onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
-                className="glass-input theme-transition w-full flex-1 rounded-xl border px-4 py-3.5 text-sm font-semibold outline-none disabled:opacity-70"
+                className="glass-input theme-transition w-full flex-1 rounded-lg border px-4 py-3.5 text-sm font-semibold outline-none disabled:opacity-70"
                 style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
               />
 
@@ -176,7 +174,7 @@ export default function VerifyPage() {
                 <button
                   onClick={handleSendOtp}
                   disabled={isSending}
-                  className="theme-primary-btn theme-transition mt-3 w-full rounded-xl px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap text-white disabled:opacity-60 sm:mt-0 sm:w-auto"
+                  className="theme-primary-btn theme-transition mt-3 w-full rounded-lg px-5 py-3 text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap text-white disabled:opacity-60 sm:mt-0 sm:w-auto"
                 >
                   {isSending ? "Sending..." : "Send OTP"}
                 </button>
@@ -217,7 +215,7 @@ export default function VerifyPage() {
           </div>
 
           <div
-            className="mt-5 mb-5 flex cursor-pointer items-center gap-3 rounded-xl border px-3 py-3"
+            className="mt-5 mb-5 flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-3"
             style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}
             onClick={() => setIsChecked((current) => !current)}
           >
@@ -237,7 +235,7 @@ export default function VerifyPage() {
             <button
               onClick={handleVerify}
               disabled={!isChecked || otp.join("").length !== 6 || isVerifying}
-              className="theme-primary-btn theme-transition w-full rounded-xl py-2.5 text-[11px] font-black uppercase tracking-[0.22em] text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="theme-primary-btn theme-transition w-full rounded-lg py-2.5 text-[11px] font-black uppercase tracking-[0.22em] text-white disabled:cursor-not-allowed disabled:opacity-60"
               style={{ opacity: isChecked && otp.join("").length === 6 ? 1 : 0.55 }}
             >
               {isVerifying ? "Verifying..." : "Verify"}

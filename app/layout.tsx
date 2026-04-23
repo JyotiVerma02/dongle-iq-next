@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
 import { Roboto, Poppins } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
-import Navbar from "@/components/navbar";
-import { ThemeProvider } from "@/app/context/ThemeContext"; 
-import ParticleBackground from "@/components/ParticleBackground";
-import CursorEffect from "@/components/CursorEffect";
-import { Toaster } from "react-hot-toast";
-
-<Toaster position="top-right" />
+import { ThemeProvider } from "@/app/context/ThemeContext";
+import AppShell from "@/components/AppShell";
 
 
 const geistSans = Roboto({
@@ -48,19 +44,18 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        />
       </head>
       <body
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} theme-transition antialiased`}
       >
         <ThemeProvider>
-          <ParticleBackground />
-          <Navbar />
-          <div className="relative z-10">
-            {children}
-          </div>
-          <CursorEffect />
+          <AppShell>{children}</AppShell>
         </ThemeProvider>
       </body>
     </html>

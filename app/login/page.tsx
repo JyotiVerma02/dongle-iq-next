@@ -63,7 +63,7 @@ export default function Login() {
     >
       <div className="hero-glow left-0 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
       <div className="hero-glow right-16 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
-      <div className="relative z-10 flex min-h-screen pt-20">
+      <div className="relative z-10 flex min-h-screen pt-[4.5rem]">
         <div className="hidden w-[55%] flex-col justify-center px-24 lg:flex" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="mb-8 text-6xl font-black uppercase leading-[0.9] tracking-tight">

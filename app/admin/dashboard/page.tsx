@@ -278,7 +278,7 @@ export default function DongleIQAdminHub() {
         <div className="flex h-full flex-col">
           <div>
             <div className="mb-10 flex items-center gap-2">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#45c3b9] text-[#081214]">
+              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#45c3b9] text-[#081214]">
                 <Users size={22} />
               </div>
 
@@ -325,7 +325,7 @@ export default function DongleIQAdminHub() {
 
           {!isCollapsed && (
             <div
-              className="theme-transition mt-auto rounded-[1.75rem] border p-4"
+              className="theme-transition mt-auto rounded-lg border p-4"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -420,7 +420,7 @@ export default function DongleIQAdminHub() {
           <div className="flex flex-wrap items-center justify-end gap-3 self-center lg:self-auto">
             <button
               onClick={toggleTheme}
-              className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition"
+              className="theme-transition inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold transition"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -435,7 +435,7 @@ export default function DongleIQAdminHub() {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-70"
+              className="theme-transition inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-70"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -452,7 +452,7 @@ export default function DongleIQAdminHub() {
               Refresh
             </button>
             <div
-              className="theme-transition rounded-2xl border p-2"
+              className="theme-transition rounded-lg border p-2"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -465,7 +465,7 @@ export default function DongleIQAdminHub() {
             </div>
             <button
               onClick={handleLogout}
-              className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-xs font-semibold transition hover:bg-rose-500/10 hover:text-rose-300"
+              className="theme-transition inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold transition hover:bg-rose-500/10 hover:text-rose-300"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -482,7 +482,7 @@ export default function DongleIQAdminHub() {
 
         <div className="flex-1 overflow-y-auto px-5 py-6 lg:px-8 min-h-0">
           {error ? (
-            <div className="mb-6 rounded-2xl border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            <div className="mb-6 rounded-lg border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
               {error}
             </div>
           ) : null}
@@ -520,7 +520,7 @@ export default function DongleIQAdminHub() {
                 {" "}
                 <div className="h-full overflow-y-auto pr-2 min-h-0">
                   <div
-                    className="theme-transition rounded-2xl border p-3 shadow-xl transition-all duration-300 "
+                    className="theme-transition rounded-lg border p-3 shadow-xl transition-all duration-300 "
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -542,7 +542,7 @@ export default function DongleIQAdminHub() {
                       </div>
                       <button
                         onClick={() => setView("ledger")}
-                        className="theme-transition rounded-2xl border px-3 py-1.5 text-xs font-semibold transition"
+                        className="theme-transition rounded-lg border px-3 py-1.5 text-xs font-semibold transition"
                         style={{
                           borderColor: isDarkMode
                             ? "rgba(255,255,255,0.06)"
@@ -560,7 +560,7 @@ export default function DongleIQAdminHub() {
                         placeholder="Search users..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full rounded-xl border px-3 py-1.5 text-xs outline-none"
+                        className="w-full rounded-lg border px-3 py-1.5 text-xs outline-none"
                         style={{
                           borderColor: isDarkMode
                             ? "rgba(255,255,255,0.06)"
@@ -577,7 +577,7 @@ export default function DongleIQAdminHub() {
                           {[1, 2, 3].map((i) => (
                             <div
                               key={i}
-                              className="h-16 rounded-xl bg-white/10 animate-pulse"
+                              className="h-16 rounded-lg bg-white/10 animate-pulse"
                             />
                           ))}
                         </div>
@@ -595,7 +595,7 @@ export default function DongleIQAdminHub() {
                                 expandedUserId === user._id ? null : user._id,
                               )
                             }
-                            className="group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2 mb-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/10 hover:bg-white/5  "
+                            className="group flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 mb-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/10 hover:bg-white/5  "
                             style={{
                               borderColor: isDarkMode
                                 ? "rgba(255,255,255,0.06)"
@@ -626,7 +626,7 @@ export default function DongleIQAdminHub() {
                             </div>
                              {expandedUserId === user._id && (
                               <div
-                                className="mb-3 rounded-xl border p-3 text-sm"
+                                className="mb-3 rounded-lg border p-3 text-sm"
                                 style={{
                                   borderColor: colors.borderSoft,
                                   backgroundColor: colors.panelStrong,
@@ -661,7 +661,7 @@ export default function DongleIQAdminHub() {
                           <button
                             onClick={() => setLatestPage(Math.max(1, latestPage - 1))}
                             disabled={latestPage === 1}
-                            className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                            className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                             style={{
                               borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
                               backgroundColor: colors.panel,
@@ -676,7 +676,7 @@ export default function DongleIQAdminHub() {
                           <button
                             onClick={() => setLatestPage(Math.min(totalLatestPages, latestPage + 1))}
                             disabled={latestPage === totalLatestPages}
-                            className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                            className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                             style={{
                               borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
                               backgroundColor: colors.panel,
@@ -693,7 +693,7 @@ export default function DongleIQAdminHub() {
                 <div className="space-y-6">
                   {/* ✅ Verification Card */}
                   <div
-                    className="theme-transition rounded-xl border p-4 shadow-xl"
+                    className="theme-transition rounded-lg border p-4 shadow-xl"
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -733,7 +733,7 @@ export default function DongleIQAdminHub() {
 
                   {/* ✅ Pie Chart Card (Separate) */}
                   <div
-                    className="theme-transition rounded-xl border p-4 shadow-xl "
+                    className="theme-transition rounded-lg border p-4 shadow-xl "
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -767,7 +767,7 @@ export default function DongleIQAdminHub() {
 
                   {/* ✅ Admin Snapshot Card */}
                   <div
-                    className="theme-transition rounded-xl border p-4 shadow-xl"
+                    className="theme-transition rounded-lg border p-4 shadow-xl"
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -783,7 +783,7 @@ export default function DongleIQAdminHub() {
                     </p>
 
                     <div className="mt-4 flex items-start gap-4">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[#45c3b9]/15 text-xl font-black text-[#45c3b9]">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#45c3b9]/15 text-xl font-black text-[#45c3b9]">
                         {admin?.name?.charAt(0) || "A"}
                       </div>
 
@@ -812,7 +812,7 @@ export default function DongleIQAdminHub() {
 
                     <button
                       onClick={() => setView("admin")}
-                      className="theme-transition mt-5 inline-flex items-center gap-2 rounded-2xl border px-3 py-1.5 text-sm font-semibold transition"
+                      className="theme-transition mt-5 inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-semibold transition"
                       style={{
                         borderColor: isDarkMode
                           ? "rgba(255,255,255,0.06)"
@@ -869,7 +869,7 @@ export default function DongleIQAdminHub() {
               </div>
               <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
                 <div
-                  className="theme-transition rounded-[2rem] border p-6 shadow-2xl"
+                  className="theme-transition rounded-lg border p-6 shadow-2xl"
                   style={{
                     borderColor: isDarkMode
                       ? "rgba(255,255,255,0.06)"
@@ -905,7 +905,7 @@ export default function DongleIQAdminHub() {
                         setIsEditingAdmin((current) => !current);
                         setAdminMessage("");
                       }}
-                      className="theme-transition inline-flex items-center gap-2 rounded-2xl border px-3 py-2.5 text-xs font-semibold transition"
+                      className="theme-transition inline-flex items-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold transition"
                       style={{
                         borderColor: isDarkMode
                           ? "rgba(255,255,255,0.06)"
@@ -944,7 +944,7 @@ export default function DongleIQAdminHub() {
 
                   {adminMessage ? (
                     <div
-                      className="theme-transition mt-6 rounded-2xl border px-4 py-3 text-sm"
+                      className="theme-transition mt-6 rounded-lg border px-4 py-3 text-sm"
                       style={{
                         borderColor: isDarkMode
                           ? "rgba(255,255,255,0.06)"
@@ -959,7 +959,7 @@ export default function DongleIQAdminHub() {
                 </div>
 
                 <div
-                  className="theme-transition rounded-[2rem] border p-6 shadow-2xl"
+                  className="theme-transition rounded-lg border p-6 shadow-2xl"
                   style={{
                     borderColor: isDarkMode
                       ? "rgba(255,255,255,0.06)"
@@ -1024,7 +1024,7 @@ export default function DongleIQAdminHub() {
                   <button
                     onClick={handleAdminSave}
                     disabled={!isEditingAdmin || savingAdmin}
-                    className="mt-6 w-full rounded-2xl bg-[#45c3b9] px-4 py-3 text-sm font-black text-[#091315] transition hover:bg-[#3db5ab] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-6 w-full rounded-lg bg-[#45c3b9] px-4 py-3 text-sm font-black text-[#091315] transition hover:bg-[#3db5ab] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {savingAdmin ? "Saving..." : "Save admin profile"}
                   </button>
@@ -1060,7 +1060,7 @@ function NavItem({
       title={collapsed ? label : ""}
       className={`flex items-center ${
         collapsed ? "justify-center" : "justify-between"
-      } w-full px-2 py-2 rounded-xl text-sm font-medium transition-all duration-200`}
+      } w-full px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
       style={{
         backgroundColor: active ? "rgba(69,195,185,0.15)" : "transparent",
         color: active ? "#45c3b9" : colors.muted,
@@ -1110,7 +1110,7 @@ function MetricCard({
 
   return (
     <div
-      className="theme-transition rounded-[1.75rem] border p-4 lg:p-5 shadow-xl"
+      className="theme-transition rounded-lg border p-4 lg:p-5 shadow-xl"
       style={{
         borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
         backgroundColor: colors.panelStrong,
@@ -1131,7 +1131,7 @@ function MetricCard({
             {value}
           </p>
         </div>
-        <div className={`rounded-2xl p-3 ${accentStyles[accent]}`}>{icon}</div>
+        <div className={`rounded-lg p-3 ${accentStyles[accent]}`}>{icon}</div>
       </div>
     </div>
   );
@@ -1150,7 +1150,7 @@ function ProfileCard({
   const colors = getThemePalette(isDarkMode);
   return (
     <div
-      className="theme-transition min-w-0 rounded-xl border p-3"
+      className="theme-transition min-w-0 rounded-lg border p-3"
       style={{
         borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
         backgroundColor: colors.panel,
@@ -1194,7 +1194,7 @@ function InputField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         disabled={disabled}
-        className="theme-transition mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-60"
+        className="theme-transition mt-2 w-full rounded-lg border px-4 py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-60"
         style={{
           borderColor: colors.inputBorder,
           backgroundColor: colors.input,

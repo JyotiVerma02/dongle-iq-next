@@ -4,7 +4,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import ParticleBackground from "@/components/ParticleBackground";
 import {
   clearPreviewDraft,
   readPreviewDraft,
@@ -90,14 +89,13 @@ export default function PreviewPage() {
   });
 
   return (
-    <div className="theme-transition hero-grid relative min-h-screen px-4 pb-10 pt-28" style={{ color: colors.text }}>
-      <ParticleBackground />
+    <div className="theme-transition hero-grid relative min-h-screen px-4 pb-10 pt-24" style={{ color: colors.text }}>
       <div className="hero-glow left-8 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
       <div className="hero-glow right-12 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
 
       <div className="relative z-10 mx-auto max-w-6xl space-y-6">
         <div
-          className="theme-transition rounded-4xl border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
+          className="theme-transition rounded-lg border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
         >
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -123,7 +121,7 @@ export default function PreviewPage() {
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <section
-            className="theme-transition rounded-4xl border p-6"
+            className="theme-transition rounded-lg border p-6"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <h2 className="mb-5 text-xs font-black uppercase tracking-[0.22em]" style={{ color: colors.muted }}>
@@ -154,7 +152,7 @@ export default function PreviewPage() {
           </section>
 
           <section
-            className="theme-transition rounded-4xl border p-6"
+            className="theme-transition rounded-lg border p-6"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <h2 className="mb-5 text-xs font-black uppercase tracking-[0.22em]" style={{ color: colors.muted }}>
@@ -168,7 +166,7 @@ export default function PreviewPage() {
             </div>
 
             <div
-              className="mt-6 rounded-2xl border p-4"
+              className="mt-6 rounded-lg border p-4"
               style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
             >
               <div className="flex items-center justify-between text-sm">
@@ -196,7 +194,7 @@ export default function PreviewPage() {
         <div className="flex flex-col gap-3 md:flex-row md:justify-end">
           <button
             onClick={() => router.back()}
-            className="theme-transition rounded-xl border px-6 py-3 text-sm font-black uppercase tracking-[0.18em]"
+            className="theme-transition rounded-lg border px-6 py-3 text-sm font-black uppercase tracking-[0.18em]"
             style={{ backgroundColor: colors.panelStrong, borderColor: colors.border, color: colors.text }}
           >
             Back To Edit
@@ -204,7 +202,7 @@ export default function PreviewPage() {
           <button
             onClick={handleConfirm}
             disabled={loading}
-            className="theme-primary-btn theme-transition rounded-xl px-6 py-3 text-sm font-black uppercase tracking-[0.18em] text-white disabled:opacity-60"
+            className="theme-primary-btn theme-transition rounded-lg px-6 py-3 text-sm font-black uppercase tracking-[0.18em] text-white disabled:opacity-60"
           >
             {loading ? "Submitting..." : "Final Submit"}
           </button>
@@ -225,7 +223,7 @@ function PreviewItem({
 }) {
   return (
     <div
-      className="theme-transition rounded-2xl border px-4 py-3"
+      className="theme-transition rounded-lg border px-4 py-3"
       style={{ backgroundColor: colors.panelStrong, borderColor: colors.borderSoft }}
     >
       <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: colors.muted }}>
@@ -251,7 +249,7 @@ function DocumentCard({
 
   return (
     <div
-      className="theme-transition rounded-2xl border p-4"
+      className="theme-transition rounded-lg border p-4"
       style={{ backgroundColor: colors.panelStrong, borderColor: colors.borderSoft }}
     >
       <div className="mb-3">
@@ -267,14 +265,14 @@ function DocumentCard({
         <iframe
           src={file.dataUrl}
           title={`${label} PDF preview`}
-          className="h-72 w-full rounded-xl border"
+          className="h-72 w-full rounded-lg border"
           style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
         />
       ) : (
         <img
           src={file.dataUrl}
           alt={label}
-          className="h-48 w-full rounded-xl object-contain"
+          className="h-48 w-full rounded-lg object-contain"
           style={{ boxShadow: `0 16px 32px -24px ${colors.accentShadow}` }}
         />
       )}

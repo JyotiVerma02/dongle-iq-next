@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { Suspense } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
@@ -261,7 +261,7 @@ export default function DongleIQForm() {
   };
 
   return (
-    <div className="theme-transition hero-grid relative min-h-screen pb-10 pt-28" style={{ color: colors.text }}>
+    <div className="theme-transition hero-grid relative min-h-screen pb-10 pt-24" style={{ color: colors.text }}>
       <ParticleBackground />
       <div className="hero-glow left-8 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
       <div className="hero-glow right-12 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
@@ -269,7 +269,7 @@ export default function DongleIQForm() {
       <div className="relative z-10 mx-auto max-w-6xl p-4 lg:p-8">
         <form
           onSubmit={handleSubmit}
-          className="shine-border theme-transition overflow-hidden rounded-[2.5rem] border shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
+          className="shine-border theme-transition overflow-hidden rounded-lg border shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
         >
           <div
@@ -330,7 +330,7 @@ export default function DongleIQForm() {
                   value={formData.bpCode}
                   onChange={handleChange}
                   placeholder="REFERENCE CODE"
-                  className="glass-input theme-transition h-12 w-full rounded-xl border-2 px-4 text-[14px] font-bold outline-none"
+                  className="glass-input theme-transition h-12 w-full rounded-lg border-2 px-4 text-[14px] font-bold outline-none"
                   style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                 />
                 <div className="mt-2 flex items-center gap-4 text-[10px] font-black uppercase">
@@ -360,7 +360,7 @@ export default function DongleIQForm() {
                 value={formData.address}
                 onChange={handleChange}
                 required
-                className="glass-input theme-transition min-h-25 w-full rounded-2xl border-2 p-4 text-[14px] font-bold outline-none"
+                className="glass-input theme-transition min-h-25 w-full rounded-lg border-2 p-4 text-[14px] font-bold outline-none"
                 style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
               />
             </div>
@@ -420,7 +420,7 @@ export default function DongleIQForm() {
                 />
                 <div
                   onClick={() => photoRef.current?.click()}
-                  className="theme-transition flex h-40 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed"
+                  className="theme-transition flex h-40 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed"
                   style={{ backgroundColor: colors.accentSubtle, borderColor: colors.border }}
                 >
                   <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg" style={{ background: premiumGradient }}>
@@ -452,7 +452,7 @@ export default function DongleIQForm() {
               <div>
                 <Label text="Submission Guidance" colors={colors} />
                 <div
-                  className="theme-transition flex h-40 w-full rounded-2xl border-2 p-4"
+                  className="theme-transition flex h-40 w-full rounded-lg border-2 p-4"
                   style={{
                     backgroundColor: colors.input,
                     borderColor: colors.inputBorder,
@@ -473,7 +473,7 @@ export default function DongleIQForm() {
             <button
               type="submit"
               disabled={loading}
-              className="theme-primary-btn theme-transition rounded-xl px-24 py-4 text-[12px] font-black uppercase tracking-[0.3em] text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="theme-primary-btn theme-transition rounded-lg px-24 py-4 text-[12px] font-black uppercase tracking-[0.3em] text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "Preparing Preview..." : "Preview Before Submit"}
             </button>
@@ -519,7 +519,7 @@ function ThemeInput({
       <Label text={label} required={required} colors={colors} />
       <input
         {...props}
-        className={`glass-input theme-transition h-12 w-full rounded-xl border-2 px-4 text-[14px] font-bold outline-none ${className}`}
+        className={`glass-input theme-transition h-12 w-full rounded-lg border-2 px-4 text-[14px] font-bold outline-none ${className}`}
         style={{
           backgroundColor: colors.input,
           borderColor: colors.inputBorder,
@@ -538,7 +538,7 @@ function ThemeSelect({ label, options, required, colors, ...props }: any) {
       <Label text={label} required={required} colors={colors} />
       <select
         {...props}
-        className="glass-input theme-transition h-12 w-full cursor-pointer appearance-none rounded-xl border-2 px-3 text-[14px] font-bold outline-none"
+        className="glass-input theme-transition h-12 w-full cursor-pointer appearance-none rounded-lg border-2 px-3 text-[14px] font-bold outline-none"
         style={{
           backgroundColor: colors.input,
           borderColor: colors.inputBorder,
@@ -587,9 +587,3 @@ function FileComponent({ label, inputRef, fileName, setFile, colors }: any) {
     </div>
   );
 }
-e x p o r t   d e f a u l t   f u n c t i o n   D o n g l e I Q F o r m ( )   {   r e t u r n   ( < S u s p e n s e   f a l l b a c k = { < d i v > L o a d i n g . . . < / d i v > } > < D o n g l e I Q F o r m C o n t e n t   / > < / S u s p e n s e > ) ;   } 
- 
- 
-
-
-export default DongleIQForm;

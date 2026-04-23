@@ -76,7 +76,7 @@ export default function ResetPassword() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
             <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-all duration-500 group-hover:rotate-360"
+              className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg transition-all duration-500 group-hover:rotate-360"
               style={{ backgroundColor: colors.accent, boxShadow: `0 0 20px ${colors.accent}44` }}
             >
               <Cpu size={20} className="text-white" />
@@ -91,7 +91,7 @@ export default function ResetPassword() {
         </div>
       </nav>
 
-      <div className="relative z-10 flex pt-20 min-h-screen">
+      <div className="relative z-10 flex min-h-screen pt-[4.5rem]">
         <div className="hidden lg:flex w-[55%] flex-col justify-center px-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="text-6xl xl:text-6xl font-black mb-8 leading-[0.9] tracking-tight uppercase" style={{ color: colors.text }}>
@@ -109,10 +109,10 @@ export default function ResetPassword() {
               ].map((item, index) => (
                 <div
                   key={item.label}
-                  className={`rounded-3xl border p-5 ${index === 0 ? "float-slow" : "float-delay"}`}
+                  className={`rounded-lg border p-5 ${index === 0 ? "float-slow" : "float-delay"}`}
                   style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
                 >
-                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl text-white" style={{ background: premiumGradient }}>
+                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg text-white" style={{ background: premiumGradient }}>
                     <ShieldCheck size={18} />
                   </div>
                   <p className="text-xl font-black uppercase">{item.value}</p>
@@ -125,10 +125,10 @@ export default function ResetPassword() {
 
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="relative group animate-[fadeIn_1.2s_ease-out] w-full max-w-sm">
-            <div className="absolute -inset-[1.5px] rounded-[34px] opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
+            <div className="absolute -inset-[1.5px] rounded-lg opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
 
             <div
-              className="relative p-8 rounded-[34px] backdrop-blur-2xl w-full border shadow-[0_20px_50px_rgba(0,0,0,0.22)]"
+              className="relative p-8 rounded-lg backdrop-blur-2xl w-full border shadow-[0_20px_50px_rgba(0,0,0,0.22)]"
               style={{ backgroundColor: colors.card, borderColor: colors.border }}
             >
               <div className="mb-6 text-center">
@@ -157,7 +157,7 @@ export default function ResetPassword() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="New Password"
-                    className="glass-input w-full rounded-2xl border px-4 py-3.5 pr-10 text-sm font-semibold outline-none"
+                    className="glass-input w-full rounded-lg border px-4 py-3.5 pr-10 text-sm font-semibold outline-none"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                   <button
@@ -176,7 +176,7 @@ export default function ResetPassword() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm Password"
-                    className="glass-input w-full rounded-2xl border px-4 py-3.5 pr-10 text-sm font-semibold outline-none"
+                    className="glass-input w-full rounded-lg border px-4 py-3.5 pr-10 text-sm font-semibold outline-none"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                   />
                   <button
@@ -192,7 +192,7 @@ export default function ResetPassword() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="theme-primary-btn w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] text-white transition-all"
+                  className="theme-primary-btn w-full py-3.5 rounded-lg text-[11px] font-black uppercase tracking-[0.3em] text-white transition-all"
                 >
                   {loading ? "Processing..." : "Reset Password"}
                 </button>
