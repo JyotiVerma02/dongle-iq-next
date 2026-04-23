@@ -131,12 +131,13 @@ export default function Login() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[9px] uppercase tracking-widest opacity-50" style={{ color: colors.muted }}>Email or Mobile</label>
+                  <label className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: colors.subtleText }}>Email or Mobile</label>
 
                   <input
                     type="text"
                     value={email}
                     onChange={(e) => setEmail(e.target.value.toLowerCase())}
+                    autoComplete="username"
                     placeholder="agent@dongleiq.com or 9876543210"
                     className="glass-input w-full rounded-md border px-4 py-3.5 text-sm lowercase font-semibold outline-none"
                     style={{
@@ -148,14 +149,15 @@ export default function Login() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[9px] uppercase tracking-widest opacity-50" style={{ color: colors.muted }}>Password</label>
+                  <label className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: colors.subtleText }}>Password</label>
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="current-password"
                       placeholder="Enter your password"
-                      className="glass-input w-full rounded-md border px-4 py-3.5 text-sm font-semibold outline-none"
+                      className="glass-input w-full rounded-md border px-4 py-3.5 pr-12 text-sm font-semibold outline-none"
                       style={{
                         backgroundColor: colors.input,
                         borderColor: colors.inputBorder,
@@ -164,9 +166,10 @@ export default function Login() {
                     />
                     <button
                       type="button"
-                      className="absolute right-3 top-1/2 -translate-y-1/2"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1"
                       style={{ color: colors.muted }}
                       onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>

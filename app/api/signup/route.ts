@@ -1,24 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 import { transporter } from "@/app/lib/mailer";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 
+const signupSchema = z.object({
+  name: z.string().trim().min(3, "Name must be at least 3 characters"),
+  email: z.string().trim().email("Please enter a valid email address"),
+  number: z.string().trim().min(10, "Please enter a valid mobile number"),
+  password: z.string().min(6, "Password must be at least 6 characters long"),
+});
+
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
-    const { name, email, number, password } = await req.json();
-    const normalizedEmail = String(email || "").trim().toLowerCase();
-    const normalizedNumber = normalizeIndianMobile(number);
+    const body = await req.json();
+    const validation = signupSchema.safeParse(body);
 
-    if (!name || !normalizedEmail || !normalizedNumber || !password) {
+    if (!validation.success) {
       return NextResponse.json(
-        { message: "All fields required" },
+        { message: validation.error.issues[0]?.message || "All fields are required" },
         { status: 400 }
       );
     }
+
+    const { name, email, number, password } = validation.data;
+    const normalizedEmail = email.toLowerCase();
+    const normalizedNumber = normalizeIndianMobile(number);
 
     if (!isValidIndianMobile(normalizedNumber)) {
       return NextResponse.json(
@@ -87,6 +98,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+    return NextResponse.json({ message: "Unable to create account right now. Please try again." }, { status: 500 });
   }
 }

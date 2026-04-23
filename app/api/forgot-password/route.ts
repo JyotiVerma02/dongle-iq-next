@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+import { z } from "zod";
 
 import { transporter } from "@/app/lib/mailer";
 import User from "@/model/user";
@@ -7,20 +8,33 @@ import Admin from "@/model/admin";
 import { connectDB } from "@/app/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
 
+const forgotPasswordSchema = z.object({
+  email: z.string().trim().email("Please enter a valid email address"),
+});
+
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
     await migrateLegacyAdminUser();
 
-    const { email } = await req.json();
-    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const body = await req.json();
+    const validation = forgotPasswordSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        { message: validation.error.issues[0]?.message || "Invalid email" },
+        { status: 400 }
+      );
+    }
+
+    const normalizedEmail = validation.data.email.toLowerCase();
 
     const user = await User.findOne({ email: normalizedEmail });
     const admin = user ? null : await Admin.findOne({ email: normalizedEmail });
     const account = user || admin;
 
     if (!account) {
-      return NextResponse.json({ message: "Email not registered" }, { status: 404 });
+      return NextResponse.json({ message: "No account found with this email address" }, { status: 404 });
     }
 
     const token = crypto.randomBytes(32).toString("hex");
@@ -49,6 +63,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Reset link sent to your email" });
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ message: "Error sending email" }, { status: 500 });
+    return NextResponse.json({ message: "Unable to send reset email right now. Please try again." }, { status: 500 });
   }
 }

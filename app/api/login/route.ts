@@ -15,7 +15,7 @@ const loginSchema = z.object({
     (val) => val.includes("@") || /^\d{10}$/.test(val),
     "Must be a valid email or 10-digit mobile number"
   ),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export async function POST(req: Request) {
@@ -28,7 +28,10 @@ export async function POST(req: Request) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { message: "Invalid input", errors: validation.error.issues },
+        {
+          message: validation.error.issues[0]?.message || "Invalid input",
+          errors: validation.error.issues,
+        },
         { status: 400 }
       );
     }
@@ -49,10 +52,17 @@ export async function POST(req: Request) {
       const isValidPassword = await bcrypt.compare(password, admin.password);
       const isVerified = admin.isVerified;
 
-      if (!isValidPassword || !isVerified) {
-        // Log failed attempt
+      if (!isValidPassword) {
         logger.warn(`Failed admin login attempt for: ${identifier}`);
-        return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+        return NextResponse.json({ message: "Incorrect password" }, { status: 401 });
+      }
+
+      if (!isVerified) {
+        logger.warn(`Unverified admin login attempt for: ${identifier}`);
+        return NextResponse.json(
+          { message: "Account not verified. Please verify your email first." },
+          { status: 403 }
+        );
       }
 
       const token = jwt.sign(
@@ -89,15 +99,23 @@ export async function POST(req: Request) {
 
     if (!user) {
       logger.warn(`User not found: ${identifier}`);
-      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json({ message: "No account found with this email or mobile number" }, { status: 404 });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     const isVerified = user.isVerified;
 
-    if (!isValidPassword || !isVerified) {
+    if (!isValidPassword) {
       logger.warn(`Failed user login attempt for: ${identifier}`);
-      return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
+      return NextResponse.json({ message: "Incorrect password" }, { status: 401 });
+    }
+
+    if (!isVerified) {
+      logger.warn(`Unverified user login attempt for: ${identifier}`);
+      return NextResponse.json(
+        { message: "Account not verified. Please complete OTP verification first." },
+        { status: 403 }
+      );
     }
 
     const token = jwt.sign(

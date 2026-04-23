@@ -36,6 +36,16 @@ export default function ResetPassword() {
       return;
     }
 
+    if (!password || !confirmPassword) {
+      setMessage("Please fill in both password fields");
+      return;
+    }
+
+    if (password.length < 6) {
+      setMessage("Password must be at least 6 characters long");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setMessage("Passwords do not match");
       return;

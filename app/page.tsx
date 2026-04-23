@@ -113,7 +113,7 @@ export default function DongleIQLanding() {
               <span style={{ color: colors.accent }}>trust for agents.</span>
             </h1>
             <p
-              className="mb-10 max-w-lg text-[15px] font-medium leading-8 md:text-base"
+              className="mb-10 max-w-lg text-[10px] font-small leading-8 md:text-base"
               style={{ color: colors.muted }}
             >
               Launch your DSC and IRCTC agent ID workflow with a guided,
