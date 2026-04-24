@@ -1,17 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import OTPInput from "@/components/OTPInput";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function VerifyOTP() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const emailFromUrl = searchParams.get("email") || "";
-
+  const emailFromUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("email") || "" : "";
   const [email, setEmail] = useState<string>(emailFromUrl);
   const [otp, setOtp] = useState<string>("");
   const [message, setMessage] = useState<string>("");

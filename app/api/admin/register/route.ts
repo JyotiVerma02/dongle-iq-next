@@ -8,6 +8,32 @@ import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import { transporter } from "@/app/lib/mailer";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
 
+export async function GET() {
+  try {
+    await connectDB();
+    await migrateLegacyAdminUser();
+
+    const existingAdmin = await Admin.findOne().select("_id email isVerified");
+
+    return NextResponse.json({
+      success: true,
+      exists: Boolean(existingAdmin),
+      admin: existingAdmin
+        ? {
+            email: existingAdmin.email,
+            isVerified: existingAdmin.isVerified,
+          }
+        : null,
+    });
+  } catch (error) {
+    console.error("Admin Register Status Error:", error);
+    return NextResponse.json(
+      { success: false, error: "Unable to check admin registration status" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(req: Request) {
   try {
     await connectDB();

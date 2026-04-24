@@ -166,6 +166,10 @@ function isUserPath(pathname: string): boolean {
   return USER_PATHS.some(path => pathname.startsWith(path));
 }
 
+function isApiPath(pathname: string): boolean {
+  return pathname.startsWith("/api/");
+}
+
 function getClientIp(request: NextRequest): string {
   return (
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
@@ -213,19 +217,27 @@ export async function proxy(request: NextRequest) {
   // 🛡️ Role-based access control
   if (isAdminPath(pathname)) {
     if (decodedToken.role !== "admin") {
-      return NextResponse.json(
-        { message: "Unauthorized: Admin access required" },
-        { status: 403 }
-      );
+      if (isApiPath(pathname)) {
+        return NextResponse.json(
+          { message: "Unauthorized: Admin access required" },
+          { status: 403 }
+        );
+      }
+
+      return NextResponse.redirect(new URL("/admin/register", request.url));
     }
   }
 
   if (isUserPath(pathname)) {
     if (decodedToken.role !== "user" && decodedToken.role !== "admin") {
-      return NextResponse.json(
-        { message: "Unauthorized: User access required" },
-        { status: 403 }
-      );
+      if (isApiPath(pathname)) {
+        return NextResponse.json(
+          { message: "Unauthorized: User access required" },
+          { status: 403 }
+        );
+      }
+
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
 

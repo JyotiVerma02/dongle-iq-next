@@ -1,21 +1,8 @@
 import type { Metadata } from "next";
-import { Roboto, Poppins } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/app/context/ThemeContext";
 import AppShell from "@/components/AppShell";
-
-
-const geistSans = Roboto({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Poppins({
-  variable: "--font-geist-mono",
-  weight: ["400", "700"],
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Dongle IQ | Secure DSC Portal",
@@ -52,7 +39,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${geistSans.variable} ${geistMono.variable} theme-transition antialiased`}
+        className="theme-transition antialiased"
       >
         <ThemeProvider>
           <AppShell>{children}</AppShell>

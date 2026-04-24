@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { 
   Cpu, ShieldCheck, Eye, EyeOff 
@@ -16,9 +16,7 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token");
+  const token = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("token") : null;
   const router = useRouter();
   const { isDarkMode } = useTheme();
 

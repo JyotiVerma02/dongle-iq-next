@@ -26,7 +26,7 @@ export default function Navbar() {
   "/forgot-password",
   "/reset-password"
 ].includes(pathname);
-  const themeLabel = mounted ? (isDarkMode ? "Switch to light mode" : "Switch to dark mode") : "Toggle theme";
+  const themeLabel = "Toggle theme";
   const showLogout = [
     "/user/dashboard",
     "/verify",

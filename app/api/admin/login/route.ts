@@ -60,11 +60,12 @@ export async function POST(req: Request) {
 
     return response;
 
-  } catch (error: any) {
-    console.error("ADMIN LOGIN ERROR:", error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown server error";
+    console.error("ADMIN LOGIN ERROR:", message);
 
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: message },
       { status: 500 }
     );
   }

@@ -96,7 +96,7 @@ export default function DongleIQLanding() {
           className="hero-glow right-10 top-32 h-72 w-72"
           style={{ backgroundColor: "var(--accent-secondary)" }}
         />
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.82fr)] lg:gap-20">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.82fr)] lg:gap-5">
           <div className="max-w-2xl">
             <div
               className="mb-6 inline-flex rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em]"
@@ -561,11 +561,7 @@ export default function DongleIQLanding() {
                   />
                 </div>
                 <button
-                  className="md:col-span-2 py-4 rounded-lg text-[12px] font-semibold uppercase tracking-[0.25em] text-white shadow-lg hover:bg-slate-800 active:scale-95 transition-all flex items-center justify-center gap-3"
-                  style={{
-                    backgroundColor: "#111827",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                  }}
+                  className="theme-primary-btn md:col-span-2 py-4 rounded-lg text-[12px] font-semibold uppercase tracking-[0.25em] text-white shadow-lg active:scale-95 transition-all flex items-center justify-center gap-3"
                 >
                   Send Message <Send size={16} />
                 </button>

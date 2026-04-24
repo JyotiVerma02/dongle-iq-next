@@ -163,7 +163,7 @@ export default function AIChat() {
               <button
                 onClick={() => void sendMessage()}
                 disabled={loading || !input.trim()}
-                className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 disabled:opacity-50"
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white transition hover:bg-blue-500 disabled:opacity-50"
               >
                 <Send size={16} />
               </button>
@@ -176,7 +176,7 @@ export default function AIChat() {
                   type="button"
                   onClick={() => void sendMessage(question)}
                   disabled={loading}
-                  className="rounded-full border border-white/10 bg-slate-800 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white disabled:opacity-50"
+                  className="rounded-full border border-blue-400/40 bg-blue-600 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition hover:bg-blue-500 disabled:opacity-50"
                 >
                   <span className="flex items-center gap-2">
                     <Sparkles size={12} />

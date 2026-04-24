@@ -16,6 +16,7 @@ const loginSchema = z.object({
     "Must be a valid email or 10-digit mobile number"
   ),
   password: z.string().min(1, "Password is required"),
+  remember: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { email, password } = validation.data;
+    const { email, password, remember = false } = validation.data;
     const identifier = String(email).trim();
 
     const normalizedEmail = identifier.toLowerCase();
@@ -71,7 +72,7 @@ export async function POST(req: Request) {
           role: "admin",
         },
         process.env.JWT_SECRET as string,
-        { expiresIn: "1h" } // Shorter expiry
+        { expiresIn: remember ? "7d" : "1h" }
       );
 
       const response = NextResponse.json({
@@ -82,7 +83,7 @@ export async function POST(req: Request) {
       response.cookies.set("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        maxAge: 60 * 60, // 1 hour
+        maxAge: remember ? 7 * 24 * 60 * 60 : 60 * 60,
         path: "/",
         sameSite: "strict",
       });
@@ -125,7 +126,7 @@ export async function POST(req: Request) {
       },
       process.env.JWT_SECRET as string,
       {
-        expiresIn: "1h",
+        expiresIn: remember ? "7d" : "1h",
       }
     );
 
@@ -137,7 +138,7 @@ export async function POST(req: Request) {
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60,
+      maxAge: remember ? 7 * 24 * 60 * 60 : 60 * 60,
       path: "/",
       sameSite: "strict",
     });

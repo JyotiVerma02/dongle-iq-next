@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
 import {
@@ -75,7 +75,6 @@ const createInitialState = (mobile: string): FormState => ({
 
 export default function DongleIQForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const premiumGradient = isDarkMode
