@@ -47,7 +47,7 @@ export default function ForgotPassword() {
       <div className="hero-glow right-12 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
 
       <nav 
-        className="fixed top-0 w-full z-50 p-5 backdrop-blur-xl border-b animate-[slideDown_0.6s_ease-out]"
+        className="fixed top-0 z-50 w-full border-b p-4 backdrop-blur-xl animate-[slideDown_0.6s_ease-out] sm:p-5"
         style={{ backgroundColor: colors.overlay, borderColor: colors.border }}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -62,16 +62,16 @@ export default function ForgotPassword() {
               Dongle<span style={{ color: colors.accentLight }}>IQ</span>
             </span>
           </Link>
-          <Link href="/login" className="text-[10px] font-black uppercase tracking-[0.3em] transition-colors" style={{ color: colors.muted }}>
+          <Link href="/login" className="text-right text-[9px] font-black uppercase tracking-[0.22em] transition-colors sm:text-[10px] sm:tracking-[0.3em]" style={{ color: colors.muted }}>
              Back to Login
           </Link>
         </div>
       </nav>
 
       <div className="relative z-10 flex min-h-screen pt-[4.5rem]">
-        <div className="hidden lg:flex w-[55%] flex-col justify-center px-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
+        <div className="hidden lg:flex lg:min-w-0 lg:flex-[1.05] lg:flex-col lg:justify-center lg:px-12 xl:px-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
-            <h1 className="text-6xl xl:text-6xl font-black mb-8 leading-[0.9] tracking-tight uppercase" style={{ color: colors.text }}>
+            <h1 className="mb-8 text-5xl font-black uppercase leading-[0.9] tracking-tight xl:text-6xl" style={{ color: colors.text }}>
               Account <br />
               <span style={{ color: colors.accent }}>Recovery</span>
             </h1>
@@ -100,12 +100,12 @@ export default function ForgotPassword() {
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="relative group animate-[fadeIn_1.2s_ease-out] w-full max-w-sm">
+        <div className="flex flex-1 items-start justify-center px-4 pb-6 pt-4 sm:px-6 lg:flex-[0.95] lg:items-center">
+          <div className="relative group w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
             <div className="absolute -inset-[1.5px] rounded-lg opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
 
             <div
-              className="relative p-8 rounded-lg backdrop-blur-2xl w-full border shadow-[0_20px_50px_rgba(0,0,0,0.22)]"
+              className="relative w-full rounded-lg border p-6 shadow-[0_20px_50px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:p-8"
               style={{ backgroundColor: colors.card, borderColor: colors.border }}
             >
               <div className="mb-6 text-center lg:text-left">

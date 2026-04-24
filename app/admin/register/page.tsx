@@ -113,7 +113,7 @@ export default function AdminRegister() {
 
       <div className={`relative z-10 flex min-h-[100dvh] items-stretch ${navOffsetClass}`}>
         <div
-          className="hidden w-[45%] flex-col justify-center px-10 lg:flex"
+          className="hidden lg:flex lg:min-w-0 lg:flex-[0.95] lg:flex-col lg:justify-center lg:px-10 xl:px-14"
           style={{ borderRight: `1px solid ${colors.borderSoft}` }}
         >
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
@@ -128,7 +128,7 @@ export default function AdminRegister() {
               System administrator
             </div>
             <h1
-              className="mb-5 text-5xl font-black uppercase leading-tight tracking-tight"
+              className="mb-5 text-4xl font-black uppercase leading-tight tracking-tight xl:text-5xl"
               style={{ color: colors.text }}
             >
               <span>Admin </span>
@@ -178,8 +178,8 @@ export default function AdminRegister() {
           </div>
         </div>
 
-        <div className="flex flex-1 items-start justify-center overflow-y-auto px-4 pb-4 md:px-6 md:pb-6 lg:items-center">
-          <div className="group relative w-full max-w-[380px] animate-[fadeIn_1.2s_ease-out] lg:max-w-[390px]">
+        <div className="flex flex-1 items-start justify-center overflow-y-auto px-4 pb-6 pt-2 sm:px-6 lg:flex-[1.05] lg:items-center lg:px-8">
+          <div className="group relative w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
             <div
               className="absolute -inset-[1px] rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100"
               style={{ background: premiumGradient }}
@@ -277,7 +277,7 @@ export default function AdminRegister() {
                 </div>
               ) : (
                 <form onSubmit={handleRegister} className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                     <div>
                       <input
                         type="text"
@@ -339,7 +339,7 @@ export default function AdminRegister() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                     <div>
                       <div className="relative">
                         <input

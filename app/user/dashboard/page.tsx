@@ -90,6 +90,10 @@ export default function DSCRegistrationForm() {
   const premiumGradient = isDarkMode
     ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
     : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+  const shellBackground = isDarkMode ? colors.panelStrong : colors.card;
+  const cardBackground = isDarkMode ? colors.card : colors.panelStrong;
+  const strongBorderColor = isDarkMode ? colors.inputBorder : colors.border;
+  const cardBorderColor = isDarkMode ? colors.border : colors.borderSoft;
 
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -202,7 +206,36 @@ export default function DSCRegistrationForm() {
     : "Awaiting update";
 
   const updateField = (key: keyof FormDataType, value: string) => {
-    setFormData((current) => ({ ...current, [key]: value }));
+    setFormData((current) => {
+      const next = { ...current, [key]: value };
+      const nextPricing = calculatePricing({
+        certType: next.certType,
+        validity: next.validity,
+        tokenType: next.tokenType,
+        assistedService: next.assistedService,
+      });
+
+      sessionStorage.setItem(
+        APPLICATION_CONFIG_KEY,
+        JSON.stringify({
+          certificateClass: next.classType,
+          certType: next.certType,
+          validity: next.validity,
+          tokenType: next.tokenType,
+          assistedService: next.assistedService,
+          price: String(nextPricing.total),
+          name: next.name,
+          email: next.email,
+          mobile: next.mobile,
+        }),
+      );
+
+      if (next.mobile) {
+        sessionStorage.setItem("verifiedMobile", next.mobile);
+      }
+
+      return next;
+    });
   };
 
   const canEditApplication =
@@ -332,7 +365,7 @@ export default function DSCRegistrationForm() {
 
   return (
     <div
-      className="theme-transition hero-grid relative min-h-screen px-6 pb-10 pt-28"
+      className="theme-transition hero-grid relative min-h-screen px-4 pb-10 pt-28 sm:px-6"
       style={{ color: colors.text }}
     >
       <div
@@ -353,23 +386,23 @@ export default function DSCRegistrationForm() {
       ) : userData ? (
         <div className="relative z-10 mx-auto mb-8 max-w-6xl">
           <div
-            className="shine-border theme-transition rounded-lg border p-8 shadow-[0_24px_80px_rgba(0,0,0,0.16)]"
-            style={{ backgroundColor: colors.card, borderColor: colors.border }}
+            className="shine-border theme-transition rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8"
+            style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
           >
             <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
               <div>
                 <div
                   className="mb-4 inline-flex rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em]"
                   style={{
-                    borderColor: colors.borderSoft,
-                    backgroundColor: colors.panelStrong,
+                    borderColor: cardBorderColor,
+                    backgroundColor: cardBackground,
                     color: colors.accentLight,
                   }}
                 >
                   Review Center
                 </div>
                 <h2
-                  className="text-3xl font-black uppercase tracking-tight"
+                  className="text-2xl font-black uppercase tracking-tight sm:text-3xl"
                   style={{ color: colors.text }}
                 >
                   Hello, {userData.name || userData.email.split("@")[0]}!
@@ -388,7 +421,7 @@ export default function DSCRegistrationForm() {
               </div>
               {hasSubmittedApplication ? (
                 <div className="flex flex-col items-start gap-2 md:items-end">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <span
                       className="text-sm font-medium"
                       style={{ color: colors.muted }}
@@ -410,10 +443,10 @@ export default function DSCRegistrationForm() {
                   {canEditApplication ? (
                     <button
                       onClick={handleEditApplication}
-                      className="theme-transition inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-xs font-black uppercase tracking-[0.18em]"
+                      className="theme-transition inline-flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2 text-center text-xs font-black uppercase tracking-[0.18em] sm:w-auto"
                       style={{
-                        borderColor: colors.borderSoft,
-                        backgroundColor: colors.panelStrong,
+                        borderColor: cardBorderColor,
+                        backgroundColor: cardBackground,
                         color: colors.text,
                       }}
                     >
@@ -428,8 +461,8 @@ export default function DSCRegistrationForm() {
                 <div
                   className="rounded-lg border px-5 py-4"
                   style={{
-                    borderColor: colors.borderSoft,
-                    backgroundColor: colors.panelStrong,
+                    borderColor: cardBorderColor,
+                    backgroundColor: cardBackground,
                   }}
                 >
                   <p
@@ -473,8 +506,8 @@ export default function DSCRegistrationForm() {
                   key={item.label}
                   className={`rounded-lg border p-5 ${index === 1 ? "float-delay" : "float-slow"}`}
                   style={{
-                    borderColor: colors.borderSoft,
-                    backgroundColor: colors.panelStrong,
+                    borderColor: cardBorderColor,
+                    backgroundColor: cardBackground,
                   }}
                 >
                   <div
@@ -498,8 +531,8 @@ export default function DSCRegistrationForm() {
                 <div
                   className="rounded-lg border p-5"
                   style={{
-                    borderColor: colors.borderSoft,
-                    backgroundColor: colors.panelStrong,
+                    borderColor: cardBorderColor,
+                    backgroundColor: cardBackground,
                   }}
                 >
                   <p
@@ -602,15 +635,15 @@ export default function DSCRegistrationForm() {
           className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8"
         >
           <section
-            className="shine-border theme-transition grid items-center gap-8 rounded-lg border p-10 shadow-[0_24px_80px_rgba(0,0,0,0.16)] md:grid-cols-[0.95fr_1.05fr]"
-            style={{ backgroundColor: colors.card, borderColor: colors.border }}
+            className="shine-border theme-transition grid items-center gap-8 rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8 md:grid-cols-[0.95fr_1.05fr] lg:p-10"
+            style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
           >
             <div className="flex justify-center">
               <div
                 className="w-full max-w-sm rounded-lg border p-6"
                 style={{
-                  backgroundColor: colors.panelStrong,
-                  borderColor: colors.borderSoft,
+                  backgroundColor: cardBackground,
+                  borderColor: cardBorderColor,
                 }}
               >
                 <div className="mb-5 flex items-center justify-between">
@@ -642,8 +675,8 @@ export default function DSCRegistrationForm() {
                       key={item}
                       className="flex items-center gap-3 rounded-lg border px-4 py-4"
                       style={{
-                        borderColor: colors.borderSoft,
-                        backgroundColor: colors.card,
+                        borderColor: cardBorderColor,
+                        backgroundColor: isDarkMode ? colors.panel : colors.card,
                       }}
                     >
                       <div
@@ -671,7 +704,7 @@ export default function DSCRegistrationForm() {
                   style={{ backgroundColor: colors.accent }}
                 />
                 <h1
-                  className="text-4xl font-light uppercase tracking-tight"
+                  className="text-3xl font-light uppercase tracking-tight sm:text-4xl"
                   style={{ color: colors.text }}
                 >
                   DSC{" "}
@@ -717,8 +750,8 @@ export default function DSCRegistrationForm() {
           </section>
 
           <section
-            className="shine-border theme-transition rounded-lg border p-10 shadow-[0_24px_80px_rgba(0,0,0,0.16)] md:p-14"
-            style={{ backgroundColor: colors.card, borderColor: colors.border }}
+            className="shine-border theme-transition rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8 md:p-10 lg:p-14"
+            style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
           >
             <h2
               className="mb-10 text-center text-xs font-black uppercase tracking-[0.4em]"
@@ -831,7 +864,7 @@ export default function DSCRegistrationForm() {
                   </div>
                 ) : (
                   <div
-                    className="theme-transition flex flex-col items-center justify-between gap-8 rounded-lg border p-8 md:flex-row"
+                    className="theme-transition flex flex-col items-center justify-between gap-6 rounded-lg border p-6 sm:p-8 md:flex-row"
                     style={{
                       backgroundColor: `${colors.accent}12`,
                       borderColor: colors.borderSoft,
@@ -853,7 +886,7 @@ export default function DSCRegistrationForm() {
                     </div>
 
                     <div
-                      className="flex gap-6 text-center"
+                      className="flex flex-wrap justify-center gap-4 text-center sm:gap-6"
                       style={{ color: colors.text }}
                     >
                       <PriceUnit
@@ -882,11 +915,11 @@ export default function DSCRegistrationForm() {
             </div>
 
             <div
-              className="mt-10 flex flex-col items-center justify-between gap-8 border-t pt-12 md:flex-row"
+              className="mt-10 flex flex-col items-stretch justify-between gap-8 border-t pt-12 md:flex-row md:items-center"
               style={{ borderColor: colors.borderSoft }}
             >
               <div
-                className="theme-transition flex flex-col gap-4 rounded-lg border px-6 py-4 md:flex-row md:items-center md:gap-6"
+                className="theme-transition flex flex-col gap-4 rounded-lg border px-4 py-4 sm:px-6 md:flex-row md:items-center md:gap-6"
                 style={{
                   backgroundColor: colors.panel,
                   borderColor: colors.borderSoft,
@@ -898,7 +931,7 @@ export default function DSCRegistrationForm() {
                 >
                   eKYC Mode:
                 </span>
-                <div className="flex gap-6">
+                <div className="flex flex-wrap gap-4 sm:gap-6">
                   {["PAN", "Aadhaar"].map((type) => (
                     <label
                       key={type}
@@ -948,7 +981,7 @@ export default function DSCRegistrationForm() {
                 </div>
               </div>
 
-              <div className="flex flex-col items-center gap-3 md:items-end">
+              <div className="flex flex-col items-stretch gap-3 md:items-end">
                 {error ? (
                   <p className="text-[11px] font-black uppercase text-rose-500">
                     {error}
@@ -956,7 +989,7 @@ export default function DSCRegistrationForm() {
                 ) : null}
                 <button
                   type="submit"
-                  className="theme-primary-btn theme-transition rounded-lg px-14 py-5 text-xs font-black uppercase tracking-[0.2em] text-white shadow-2xl"
+                  className="theme-primary-btn theme-transition w-full rounded-lg px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white shadow-2xl sm:w-auto sm:px-14 sm:py-5"
                 >
                   Generate Application{" "}
                   <ArrowRight className="ml-2 inline" size={16} />
@@ -970,7 +1003,7 @@ export default function DSCRegistrationForm() {
       {userData && hasSubmittedApplication ? (
         <section className="relative z-10 mx-auto mt-8 grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_1fr]">
           <div
-            className="rounded-lg border p-8"
+            className="rounded-lg border p-5 sm:p-8"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <p
@@ -1030,7 +1063,7 @@ export default function DSCRegistrationForm() {
           </div>
 
           <div
-            className="rounded-lg border p-8"
+            className="rounded-lg border p-5 sm:p-8"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <p
@@ -1102,7 +1135,7 @@ function PriceUnit({
   last?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex items-center gap-4 sm:gap-6">
       <div>
         <div
           className="text-[9px] font-bold uppercase"
@@ -1112,9 +1145,7 @@ function PriceUnit({
         </div>
         <div className="font-bold">INR {value}</div>
       </div>
-      {!last ? (
-        <div className="h-8 w-px" style={{ backgroundColor: divider }} />
-      ) : null}
+      {!last ? <div className="hidden h-8 w-px sm:block" style={{ backgroundColor: divider }} /> : null}
     </div>
   );
 }
@@ -1131,7 +1162,10 @@ function StatusMeta({
   return (
     <div
       className="rounded-lg border px-4 py-3"
-      style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
+      style={{
+        borderColor: colors.inputBorder,
+        backgroundColor: colors.panelStrong,
+      }}
     >
       <p
         className="text-[10px] font-black uppercase tracking-[0.18em]"
@@ -1162,7 +1196,7 @@ function DocumentMeta({
     <div
       className="rounded-lg border px-4 py-4"
       style={{
-        borderColor: colors.borderSoft,
+        borderColor: colors.inputBorder,
         backgroundColor: colors.panelStrong,
       }}
     >
@@ -1181,7 +1215,7 @@ function DocumentMeta({
             className="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold"
             style={{
               color: colors.accent,
-              borderColor: colors.borderSoft,
+              borderColor: colors.inputBorder,
               backgroundColor: colors.card,
             }}
           >
@@ -1194,7 +1228,7 @@ function DocumentMeta({
             className="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold"
             style={{
               color: colors.text,
-              borderColor: colors.borderSoft,
+              borderColor: colors.inputBorder,
               backgroundColor: colors.panel,
             }}
           >

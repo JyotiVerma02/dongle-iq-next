@@ -31,7 +31,7 @@ import {
   MapPin,
   Phone,
 } from "lucide-react";
-import { FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa6";
+import { FaInstagram, FaLinkedinIn } from "react-icons/fa6";
 
 export default function DongleIQLanding() {
   const router = useRouter();
@@ -87,7 +87,7 @@ export default function DongleIQLanding() {
       style={{ color: colors.text }}
     >
       {/* --- HERO --- */}
-      <section className="hero-grid relative overflow-hidden px-6 pb-28 pt-36 md:pb-32 md:pt-40">
+      <section className="hero-grid relative overflow-hidden px-4 pb-24 pt-32 sm:px-6 md:pb-32 md:pt-40">
         <div
           className="hero-glow left-0 top-20 h-56 w-56"
           style={{ backgroundColor: colors.accent }}
@@ -108,12 +108,12 @@ export default function DongleIQLanding() {
             >
               Trusted digital onboarding
             </div>
-            <h1 className="mb-6 text-4xl font-black uppercase leading-[0.96] tracking-tight md:text-6xl xl:text-[4.4rem]">
+            <h1 className="mb-6 text-3xl font-black uppercase leading-[0.96] tracking-tight sm:text-4xl md:text-6xl xl:text-[4.4rem]">
               Faster digital <br />
               <span style={{ color: colors.accent }}>trust for agents.</span>
             </h1>
             <p
-              className="mb-10 max-w-lg text-[10px] font-small leading-8 md:text-base"
+              className="mb-10 max-w-lg text-xs leading-7 sm:text-sm md:text-base"
               style={{ color: colors.muted }}
             >
               Launch your DSC and IRCTC agent ID workflow with a guided,
@@ -123,8 +123,11 @@ export default function DongleIQLanding() {
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <button
-                onClick={() => router.push("/signup")}
-                className="theme-primary-btn hover-btn flex items-center justify-center gap-3 rounded-md px-5 py-3.5 text-sm font-bold uppercase text-white sm:w-fit"
+                onClick={() => {
+                  console.log("Start Application clicked");
+                  router.push("/signup");
+                }}
+                className="theme-primary-btn hover-btn flex w-full items-center justify-center gap-3 rounded-md px-5 py-3.5 text-sm font-bold uppercase text-white transition-all duration-300 sm:w-fit"
                 style={{
                   backgroundColor: "#2563eb",
                   boxShadow: `0 12px 24px rgba(30, 64, 175, 0.18)`,
@@ -132,7 +135,6 @@ export default function DongleIQLanding() {
               >
                 Start Application <ArrowRight size={18} />
               </button>
-             
             </div>
             <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-3">
               {highlights.map((item, index) => (
@@ -246,10 +248,10 @@ export default function DongleIQLanding() {
       </section>
 
       {/* --- WHY CHOOSE US --- */}
-      <section id="whyus" className="py-24 px-6 relative overflow-hidden">
+      <section id="whyus" className="relative overflow-hidden px-4 py-20 sm:px-6 md:py-24">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl font-black uppercase tracking-tighter mb-4 ">
+          <div className="mb-16 text-center md:mb-20">
+            <h2 className="mb-4 text-3xl font-black uppercase tracking-tighter sm:text-4xl">
               Why Choose <span style={{ color: colors.accent }}>Us?</span>
             </h2>
             <div
@@ -257,7 +259,7 @@ export default function DongleIQLanding() {
               style={{ backgroundColor: colors.accent }}
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8">
             <FeatureCard
               colors={colors}
               icon={<Zap size={32} />}
@@ -301,17 +303,17 @@ export default function DongleIQLanding() {
       {/* --- HOW TO APPLY --- */}
       <section
         id="apply"
-        className="py-24 px-6 border-y"
+        className="border-y px-4 py-20 sm:px-6 md:py-24"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panel,
         }}
       >
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-black uppercase mb-20 tracking-tighter ">
+          <h2 className="mb-16 text-3xl font-black uppercase tracking-tighter sm:text-4xl md:mb-20">
             How To <span style={{ color: colors.accent }}>Apply?</span>
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
+          <div className="grid grid-cols-1 gap-12 md:grid-cols-3 md:gap-16">
             <StepItem
               number="01"
               colors={colors}
@@ -338,20 +340,21 @@ export default function DongleIQLanding() {
       </section>
 
       {/* --- AGENTS SECTION --- */}
-      <section id="agents" className="py-24 px-6">
+      <section id="agents" className="px-4 py-20 sm:px-6 md:py-24">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-4xl font-black uppercase mb-16 tracking-tighter">
+          <h2 className="mb-12 text-3xl font-black uppercase tracking-tighter sm:text-4xl md:mb-16">
             Who can become an{" "}
             <span style={{ color: colors.accent }}>Agent?</span>
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-8  ">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-6 md:gap-8">
             {/* Row 1 - 3 cards */}
             <div className="md:col-span-2">
               <AgentCard
                 colors={colors}
                 icon={<Briefcase />}
                 label="Self-Employed"
+                desc="Build income from trusted services."
               />
             </div>
 
@@ -360,17 +363,28 @@ export default function DongleIQLanding() {
                 colors={colors}
                 icon={<Coffee />}
                 label="Freelancers"
+                desc="Offer digital onboarding with flexibility."
               />
             </div>
 
             <div className="md:col-span-2">
-              <AgentCard colors={colors} icon={<UserCheck />} label="Retired" />
+              <AgentCard
+                colors={colors}
+                icon={<UserCheck />}
+                label="Retired"
+                desc="Stay active with reliable earnings."
+              />
             </div>
 
             {/* Row 2 - 2 cards */}
-            <div className="md:col-span-6 flex justify-center gap-8">
+            <div className="flex flex-col gap-6 sm:col-span-2 sm:flex-row sm:justify-center md:col-span-6 md:gap-8">
               <div className="w-full sm:w-[45%] md:w-[28%]">
-                <AgentCard colors={colors} icon={<Store />} label="Retailer" />
+                <AgentCard
+                  colors={colors}
+                  icon={<Store />}
+                  label="Retailer"
+                  desc="Add a high-demand service counter."
+                />
               </div>
 
               <div className="w-full sm:w-[45%] md:w-[28%]">
@@ -378,6 +392,7 @@ export default function DongleIQLanding() {
                   colors={colors}
                   icon={<GraduationCap />}
                   label="Student"
+                  desc="Start learning while earning smartly."
                 />
               </div>
             </div>
@@ -388,11 +403,11 @@ export default function DongleIQLanding() {
       {/* --- FAQS --- */}
       <section
         id="faqs"
-        className="py-24 px-6 border-t"
+        className="border-t px-4 py-20 sm:px-6 md:py-24"
         style={{ borderColor: colors.borderSoft }}
       >
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl font-black text-center mb-12 uppercase tracking-tighter ">
+          <h2 className="mb-12 text-center text-3xl font-black uppercase tracking-tighter">
             Common <span style={{ color: colors.accent }}>Queries</span>
           </h2>
           <div className="space-y-4">
@@ -412,16 +427,16 @@ export default function DongleIQLanding() {
       </section>
 
       {/* --- CONTACT --- */}
-      <section id="contact" className="py-32 px-6 relative overflow-hidden">
+      <section id="contact" className="relative overflow-hidden px-4 py-20 sm:px-6 md:py-32">
         <div className="max-w-7xl mx-auto">
           {/* --- Header Section --- */}
-          <div className="text-center mb-24">
-            <h2 className="text-5xl md:text-6xl font-black uppercase tracking-tighter mb-6">
+          <div className="mb-16 text-center md:mb-24">
+            <h2 className="mb-6 text-4xl font-black uppercase tracking-tighter sm:text-5xl md:text-6xl">
               Get In <span style={{ color: colors.accent }}>Touch.</span>
             </h2>
             <p
               style={{ color: colors.muted }}
-              className="max-w-2xl mx-auto font-bold text-lg leading-relaxed"
+              className="mx-auto max-w-2xl text-base font-bold leading-relaxed sm:text-lg"
             >
               Our support team is here to help you navigate your digital
               identity needs.
@@ -429,7 +444,7 @@ export default function DongleIQLanding() {
           </div>
 
           {/* --- Top Info Cards (Similar to video layout) --- */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="mb-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {[
               {
                 icon: <Phone size={24} />,
@@ -485,10 +500,10 @@ export default function DongleIQLanding() {
           </div>
 
           {/* --- Main Action Section (Form + Sidebar) --- */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-12">
             {/* Form Area */}
             <div
-              className="lg:col-span-2 p-6 md:p-8 rounded-lg border relative overflow-hidden shadow-lg"
+              className="relative overflow-hidden rounded-lg border p-5 shadow-lg sm:p-6 md:p-8 lg:col-span-2"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border,
@@ -502,12 +517,12 @@ export default function DongleIQLanding() {
                 }}
               />
 
-              <h3 className="text-3xl font-black uppercase mb-10 tracking-tight">
+              <h3 className="mb-8 text-2xl font-black uppercase tracking-tight sm:text-3xl sm:mb-10">
                 Request a{" "}
                 <span style={{ color: colors.accent }}>Custom Quote</span>
               </h3>
 
-              <form className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <form className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
                 <div className="space-y-3">
                   <label
                     className="text-[10px] font-black uppercase tracking-[0.2em] ml-2"
@@ -617,7 +632,7 @@ export default function DongleIQLanding() {
 
               {/* Branding/Support Card */}
               <div
-                className="p-6 rounded-lg border border-blue-500/20"
+                className="rounded-lg border border-blue-500/20 p-5 sm:p-6"
                 style={{ backgroundColor: `${colors.accent}14` }}
               >
                 <div
@@ -642,7 +657,7 @@ export default function DongleIQLanding() {
       {/* 🔥 Replace your footer classes with this smaller + thinner typography version */}
 
 <footer
-  className="border-t px-6 md:px-10 pt-14 pb-5"
+  className="border-t px-4 pb-5 pt-14 sm:px-6 md:px-10"
   style={{
     borderColor: colors.borderSoft,
     backgroundColor: colors.card,
@@ -893,24 +908,37 @@ function StepItem({ number, icon, title, desc, colors }: any) {
   );
 }
 
-function AgentCard({ icon, label, colors }: any) {
+function AgentCard({ icon, label, desc, colors }: any) {
   return (
     <div
-      className="hover-card p-6 rounded-lg border transition-all group flex flex-col items-center shadow-lg"
-      style={{
-        backgroundColor: colors.card,
-        borderColor: "rgba(255,255,255,0.05)",
-      }}
+      className="agent-card hover-card relative overflow-hidden rounded-xl border transition-all group flex flex-col items-center shadow-lg"
     >
       <div
-        className="mb-4 group-hover:scale-110 transition-transform"
-        style={{ color: colors.accent }}
+        className="absolute inset-x-0 top-0 h-0.75"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${colors.accent}, transparent)`,
+        }}
+      />
+      <div
+        className="agent-card__orb absolute -right-7 -top-7 h-24 w-24 rounded-full opacity-20"
+      />
+      <div
+        className="agent-card__icon mb-3 flex h-18 w-18 items-center justify-center rounded-full border transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-110"
       >
-        {React.cloneElement(icon as React.ReactElement<any>, { size: 40 })}
+        {React.cloneElement(icon as React.ReactElement<any>, {
+          size: 30,
+          className: "agent-card__icon-svg",
+        })}
       </div>
-      <span className="text-[10px] font-black uppercase tracking-widest text-center opacity-80">
+      <span className="agent-card__badge rounded-full px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.24em] text-center">
+        Eligible Profile
+      </span>
+      <span className="agent-card__title mt-4 text-sm font-black uppercase tracking-[0.2em] text-center">
         {label}
       </span>
+      <p className="agent-card__desc mt-4 max-w-60 text-center text-[12px] font-semibold leading-6">
+        {desc}
+      </p>
     </div>
   );
 }

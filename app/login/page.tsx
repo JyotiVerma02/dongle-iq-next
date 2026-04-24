@@ -1,10 +1,10 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LogIn, ShieldCheck, Eye, EyeOff } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
+import { useSession } from "next-auth/react";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
@@ -13,6 +13,8 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const navOffsetClass = "pt-24 md:pt-28";
   const registered = searchParams.get("registered") === "true";
+  const { data: session, status } = useSession();
+  const exchangeStartedRef = useRef(false);
 
   const [password, setPassword] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -26,6 +28,42 @@ function LoginContent() {
   const premiumGradient = isDarkMode
     ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
     : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+
+  useEffect(() => {
+    const completeGoogleLogin = async () => {
+      if (status !== "authenticated" || !session?.user?.email || exchangeStartedRef.current) {
+        return;
+      }
+
+      exchangeStartedRef.current = true;
+      setLoading(true);
+      setError("");
+
+      try {
+        const res = await fetch("/api/auth/google-exchange", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        });
+        const data = await res.json();
+
+        if (!res.ok || !data.redirectTo) {
+          throw new Error(data.message || "Google login failed");
+        }
+
+        router.push(data.redirectTo);
+      } catch (exchangeError) {
+        exchangeStartedRef.current = false;
+        setLoading(false);
+        setError(
+          exchangeError instanceof Error
+            ? exchangeError.message
+            : "Google login failed",
+        );
+      }
+    };
+
+    void completeGoogleLogin();
+  }, [session, status, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,10 +105,10 @@ function LoginContent() {
     >
       <div className="hero-glow left-0 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
       <div className="hero-glow right-16 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
-      <div className={`relative z-10 flex min-h-[100dvh] items-stretch ${navOffsetClass}`}>
-        <div className="hidden w-[45%] flex-col justify-center px-10 lg:flex" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
+      <div className={`relative z-10 flex min-h-screen items-stretch ${navOffsetClass}`}>
+        <div className="hidden lg:flex lg:min-w-0 lg:flex-[0.95] lg:flex-col lg:justify-center lg:px-10 xl:px-14" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
-            <h1 className="mb-5 text-5xl font-black uppercase leading-tight tracking-tight">
+            <h1 className="mb-5 text-4xl font-black uppercase leading-tight tracking-tight xl:text-5xl">
               <span style={{ color: colors.text }}>Secure</span>{" "}
               <span style={{ color: colors.accent }}>Access</span>
             </h1>
@@ -100,12 +138,12 @@ function LoginContent() {
           </div>
         </div>
 
-        <div className="flex flex-1 items-start justify-center overflow-y-auto px-4 pb-4 md:px-6 md:pb-6 lg:items-center">
-          <div className="group relative w-full max-w-[380px] animate-[fadeIn_1.2s_ease-out] lg:max-w-[390px]">
+        <div className="no-scrollbar flex flex-1 items-start justify-center overflow-y-auto px-4 pb-6 pt-2 sm:px-6 lg:flex-[1.05] lg:items-center lg:px-8">
+          <div className="group relative w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
             <div className="absolute -inset-[1px] rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100" style={{ background: premiumGradient }} />
 
             <div
-              className="shine-border relative max-h-[calc(100dvh-7rem)] w-full overflow-y-auto rounded-lg border p-4 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-2xl md:p-5"
+              className="shine-border relative w-full overflow-hidden rounded-lg border p-4 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-2xl md:p-5"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border,
@@ -134,9 +172,9 @@ function LoginContent() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-2.5">
-                <button
+                {/* <button
                   type="button"
-                  onClick={() => router.push("/api/auth/google")}
+                  onClick={() => signIn("google", { callbackUrl: "/login" })}
                   className="flex w-full items-center justify-center gap-2 rounded-md border px-3 py-2 text-sm font-semibold transition hover:bg-slate-50"
                   style={{
                     backgroundColor: colors.input,
@@ -144,13 +182,13 @@ function LoginContent() {
                     color: colors.text,
                   }}
                 >
-                  <FcGoogle size={18} /> Sign in with Google
-                </button>
+                  <FcGoogle size={18} /> Continue with Google
+                </button> */}
 
-                <div
-                  className="flex items-center gap-3 text-[10px] uppercase tracking-[0.3em]"
+                {/* <div
+                  className="flex items-center gap-3 text-[8px] uppercase tracking-[0.3em]"
                   style={{ color: colors.muted }}
-                >
+                 >
                   <span
                     className="flex-1 border-t"
                     style={{
@@ -168,7 +206,7 @@ function LoginContent() {
                         : "rgba(0,0,0,0.35)",
                     }}
                   />
-                </div>
+                </div> */}
 
                 <div className="space-y-0.5">
                   <label className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: colors.subtleText }}>Email or Mobile</label>
@@ -216,7 +254,7 @@ function LoginContent() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <label className="flex items-center gap-2 text-xs font-semibold" style={{ color: colors.subtleText }}>
                     <input
                       type="checkbox"
@@ -227,7 +265,7 @@ function LoginContent() {
                     />
                     Remember me
                   </label>
-                  <Link href="/forgot-password">
+                  <Link href="/forgot-password" className="self-start sm:self-auto">
                     <span className="cursor-pointer text-[9px] uppercase tracking-widest underline underline-offset-4" style={{ color: colors.muted }}>
                       Forgot Password?
                     </span>

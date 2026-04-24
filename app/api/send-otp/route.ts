@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    console.log("OTP for", normalizedMobile, "is:", otp);
+    console.log(`[SEND-OTP] OTP for ${normalizedMobile}: ${otp}`);
 
     return NextResponse.json({
       success: true,

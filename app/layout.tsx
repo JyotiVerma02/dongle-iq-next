@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+
 import "./globals.css";
 import { ThemeProvider } from "@/app/context/ThemeContext";
 import AppShell from "@/components/AppShell";
+import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "Dongle IQ | Secure DSC Portal",
-  description: "Simplifying IRCTC Agent IDs and Digital Signature Certificates.",
+  description:
+    "Simplifying IRCTC Agent IDs and Digital Signature Certificates.",
 };
 
 export default function RootLayout({
@@ -31,18 +33,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: themeInitScript }}
-        />
+     <script
+  dangerouslySetInnerHTML={{ __html: themeInitScript }}
+/>
       </head>
-      <body
-        suppressHydrationWarning
-        className="theme-transition antialiased"
-      >
+      <body suppressHydrationWarning className="theme-transition antialiased">
         <ThemeProvider>
-          <AppShell>{children}</AppShell>
+          <Providers>
+            <AppShell>{children}</AppShell>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

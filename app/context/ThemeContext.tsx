@@ -23,22 +23,34 @@ const ThemeContext = createContext<ThemeContextValue>({
 const STORAGE_KEY = "dongle-iq-theme";
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === "undefined") {
-      return "light";
-    }
-    const savedTheme = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
-    return savedTheme === "light" || savedTheme === "dark" ? savedTheme : "light";
-  });
-  const [mounted, setMounted] = useState(() => typeof window !== "undefined");
+  const [theme, setThemeState] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const root = document.documentElement;
-    root.classList.remove("light", "dark");
-    root.classList.add(theme);
-    root.style.colorScheme = theme;
-    window.localStorage.setItem(STORAGE_KEY, theme);
-  }, [theme]);
+    // Set mounted state and restore theme from localStorage
+    setMounted(true);
+    if (typeof window !== "undefined") {
+      const savedTheme = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
+      const initialTheme = savedTheme === "light" || savedTheme === "dark" ? savedTheme : "light";
+      setThemeState(initialTheme);
+      
+      // Apply theme immediately
+      const root = document.documentElement;
+      root.classList.remove("light", "dark");
+      root.classList.add(initialTheme);
+      root.style.colorScheme = initialTheme;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      const root = document.documentElement;
+      root.classList.remove("light", "dark");
+      root.classList.add(theme);
+      root.style.colorScheme = theme;
+      window.localStorage.setItem(STORAGE_KEY, theme);
+    }
+  }, [theme, mounted]);
 
   const setTheme = (nextTheme: Theme) => {
     setThemeState(nextTheme);

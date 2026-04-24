@@ -165,8 +165,8 @@ export default function AadhaarVerifyPage() {
         />
 
         <section
-          className="shine-border theme-transition relative rounded-lg border p-6 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl"
-          style={{ backgroundColor: colors.card, borderColor: colors.border }}
+          className="shine-border theme-transition relative rounded-lg border p-5 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl"
+          style={{ backgroundColor: colors.panelStrong, borderColor: colors.border }}
         >
           <div className="mb-4 text-center">
             <h1 className="text-xl font-black uppercase tracking-tighter">
@@ -183,7 +183,7 @@ export default function AadhaarVerifyPage() {
 
           <div
             className="mb-4 rounded-lg px-3 py-2 text-center text-[11px]"
-            style={{ backgroundColor: `${colors.accent}12`, color: colors.muted }}
+            style={{ backgroundColor: colors.accentSoft, color: colors.text }}
           >
             Enter Aadhaar linked mobile number
           </div>
@@ -198,14 +198,14 @@ export default function AadhaarVerifyPage() {
                 disabled={otpSent}
                 placeholder="Mobile Number"
                 onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
-                className="glass-input theme-transition flex-1 rounded-lg border px-3 py-3 text-sm font-semibold outline-none disabled:opacity-70"
+                className="glass-input theme-transition flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none disabled:opacity-70"
                 style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder, caretColor: colors.text }}
               />
               {!otpSent && (
                 <button
                   onClick={handleSendOtp}
                   disabled={isSendingOtp}
-                  className="theme-primary-btn theme-transition rounded-lg px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:opacity-60 whitespace-nowrap"
+                  className="theme-primary-btn theme-transition rounded-lg px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:opacity-60 whitespace-nowrap"
                 >
                   {isSendingOtp ? "Sending..." : "Send OTP"}
                 </button>
@@ -228,7 +228,7 @@ export default function AadhaarVerifyPage() {
                       onChange={(event) => handleOtpChange(index, event.target.value)}
                       onKeyDown={(event) => handleOtpKeyDown(index, event)}
                       onPaste={handleOtpPaste}
-                      className="glass-input theme-transition h-10 w-10 rounded-lg border text-center text-sm font-bold outline-none"
+                      className="glass-input theme-transition h-9 w-9 rounded-lg border text-center text-sm font-bold outline-none"
                       style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder, caretColor: colors.text }}
                     />
                   ))}

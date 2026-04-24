@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextResponse } from "next/server";
+
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 
-// Rate limit (same as yours)
 const rateLimit = new Map<string, { count: number; timestamp: number }>();
 
 function checkRateLimit(identifier: string): boolean {
@@ -33,19 +32,16 @@ export async function POST(req: Request) {
 
     await connectDB();
 
-    // ✅ Validate mobile
     if (!mobile || !/^\d{10}$/.test(mobile)) {
-      return NextResponse.json({ success: false, message: "Invalid mobile number" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Invalid mobile number" },
+        { status: 400 },
+      );
     }
 
-    // // ✅ Rate limit
-    // if (!checkRateLimit(mobile)) {
-    //   return NextResponse.json({ success: false, message: "Too many attempts. Try later." }, { status: 429 });
-    // }
+    // Keep helper for future tightening if needed.
+    void checkRateLimit;
 
-    // =========================
-    // 🔹 SEND OTP
-    // =========================
     if (action === "send-otp") {
       const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
       const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
@@ -68,8 +64,7 @@ export async function POST(req: Request) {
       user.aadhaarOtpExpiry = otpExpiry;
       await user.save();
 
-      // 🔥 Show OTP in console (VERY IMPORTANT)
-      console.log("📲 Aadhaar OTP for", mobile, "is:", generatedOtp);
+      console.log(`[VERIFY-AADHAAR] OTP for ${mobile}: ${generatedOtp}`);
 
       return NextResponse.json({
         success: true,
@@ -77,30 +72,37 @@ export async function POST(req: Request) {
       });
     }
 
-    // =========================
-    // 🔹 VERIFY OTP
-    // =========================
     if (action === "verify") {
       if (!otp || !/^\d{6}$/.test(otp)) {
-        return NextResponse.json({ success: false, message: "Invalid OTP" }, { status: 400 });
+        return NextResponse.json(
+          { success: false, message: "Invalid OTP" },
+          { status: 400 },
+        );
       }
 
       const user = await User.findOne({ number: mobile });
 
       if (!user) {
-        return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
+        return NextResponse.json(
+          { success: false, message: "User not found" },
+          { status: 404 },
+        );
       }
 
-      // ✅ Check OTP
       if (user.aadhaarOtp !== otp) {
-        return NextResponse.json({ success: false, message: "Wrong OTP" }, { status: 401 });
+        return NextResponse.json(
+          { success: false, message: "Wrong OTP" },
+          { status: 401 },
+        );
       }
 
       if (!user.aadhaarOtpExpiry || user.aadhaarOtpExpiry < new Date()) {
-        return NextResponse.json({ success: false, message: "OTP expired" }, { status: 401 });
+        return NextResponse.json(
+          { success: false, message: "OTP expired" },
+          { status: 401 },
+        );
       }
 
-      // ✅ Update user
       user.isAadhaarVerified = true;
       user.status = "approved";
       user.aadhaarOtp = undefined;
@@ -118,10 +120,15 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({ success: false, message: "Invalid action" }, { status: 400 });
-
+    return NextResponse.json(
+      { success: false, message: "Invalid action" },
+      { status: 400 },
+    );
   } catch (error) {
     console.error("Aadhaar API Error:", error);
-    return NextResponse.json({ success: false, message: "Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: "Server Error" },
+      { status: 500 },
+    );
   }
 }

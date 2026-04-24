@@ -3,7 +3,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
 import {
@@ -75,11 +75,15 @@ const createInitialState = (mobile: string): FormState => ({
 
 export default function DongleIQForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const premiumGradient = isDarkMode
     ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
     : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+  const shellBackground = isDarkMode ? colors.panelStrong : colors.card;
+  const sectionBackground = isDarkMode ? colors.panel : colors.accentSubtle;
+  const strongBorderColor = isDarkMode ? colors.inputBorder : colors.border;
 
   const photoRef = useRef<HTMLInputElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
@@ -94,7 +98,10 @@ export default function DongleIQForm() {
   const [addressFile, setAddressFile] = useState<File | null>(null);
 
   useEffect(() => {
-    const mobile = "" ; // searchParams.get("mobile") || sessionStorage.getItem("verifiedMobile") || "";
+    const mobile =
+      searchParams.get("mobile") ||
+      sessionStorage.getItem("verifiedMobile") ||
+      "";
     const rawConfig = sessionStorage.getItem(APPLICATION_CONFIG_KEY);
 
     const restoreState = async () => {
@@ -121,6 +128,7 @@ export default function DongleIQForm() {
             certType: config.certType || nextState.certType,
             validity: config.validity || nextState.validity,
             assistedService: config.assistedService || nextState.assistedService,
+            price: config.price || nextState.price,
           };
         } catch {
           // Ignore invalid session data.
@@ -136,7 +144,7 @@ export default function DongleIQForm() {
 
       setFormData({
         ...nextState,
-        price: String(pricing.total),
+        price: nextState.price || String(pricing.total),
       });
 
       const previewDraft = readPreviewDraft();
@@ -158,7 +166,7 @@ export default function DongleIQForm() {
     };
 
     restoreState();
-  }, []); // [searchParams]
+  }, [searchParams]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = event.target;
@@ -269,11 +277,11 @@ export default function DongleIQForm() {
         <form
           onSubmit={handleSubmit}
           className="shine-border theme-transition overflow-hidden rounded-lg border shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
-          style={{ backgroundColor: colors.card, borderColor: colors.border }}
+          style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
         >
           <div
             className="grid grid-cols-1 items-end gap-4 border-b p-6 md:grid-cols-5"
-            style={{ backgroundColor: colors.accentSubtle, borderColor: colors.border }}
+            style={{ backgroundColor: sectionBackground, borderColor: strongBorderColor }}
           >
             <ThemeSelect name="certificateClass" label="Class" options={["Class III"]} value={formData.certificateClass} onChange={handleChange} colors={colors} />
             <ThemeSelect name="tokenType" label="Token" options={["Not Required", "USB Token"]} value={formData.tokenType} onChange={handleChange} colors={colors} />
@@ -420,7 +428,7 @@ export default function DongleIQForm() {
                 <div
                   onClick={() => photoRef.current?.click()}
                   className="theme-transition flex h-40 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed"
-                  style={{ backgroundColor: colors.accentSubtle, borderColor: colors.border }}
+                  style={{ backgroundColor: sectionBackground, borderColor: strongBorderColor }}
                 >
                   <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg" style={{ background: premiumGradient }}>
                     <span className="text-xs font-black">{photoFile ? "Done" : "Add"}</span>
@@ -467,7 +475,7 @@ export default function DongleIQForm() {
 
           <div
             className="flex flex-col items-center gap-4 border-t p-8"
-            style={{ backgroundColor: colors.accentSubtle, borderColor: colors.border }}
+            style={{ backgroundColor: sectionBackground, borderColor: strongBorderColor }}
           >
             <button
               type="submit"
@@ -550,7 +558,7 @@ function ThemeSelect({ label, options, required, colors, ...props }: any) {
             key={option}
             value={option}
             style={{
-              backgroundColor: colors.card,
+              backgroundColor: isDarkMode ? colors.panelStrong : colors.card,
               color: colors.text,
             }}
           >
@@ -563,19 +571,23 @@ function ThemeSelect({ label, options, required, colors, ...props }: any) {
 }
 
 function FileComponent({ label, inputRef, fileName, setFile, colors }: any) {
+  const { isDarkMode } = useTheme();
+  const fileSurfaceColor = isDarkMode ? colors.card : colors.panelStrong;
+  const fileBorderColor = isDarkMode ? colors.inputBorder : colors.border;
+
   return (
     <div className="w-full">
       <Label text={label} required colors={colors} />
       <div
         className="theme-transition flex items-center gap-4 rounded-xl border-2 p-2"
-        style={{ backgroundColor: colors.panelStrong, borderColor: colors.inputBorder }}
+        style={{ backgroundColor: fileSurfaceColor, borderColor: fileBorderColor }}
       >
         <input type="file" accept=".jpg,.png,.pdf" ref={inputRef} className="hidden" onChange={(event) => setFile(event.target.files?.[0] || null)} />
         <button
           type="button"
           onClick={() => inputRef.current.click()}
           className="theme-primary-btn theme-transition rounded-lg border px-5 py-2 text-[10px] font-black uppercase tracking-widest"
-          style={{ borderColor: colors.border }}
+          style={{ borderColor: fileBorderColor }}
         >
           Attach
         </button>

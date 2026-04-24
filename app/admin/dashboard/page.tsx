@@ -51,7 +51,7 @@ export default function DongleIQAdminHub() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
   const [adminForm, setAdminForm] = useState({
@@ -110,6 +110,30 @@ export default function DongleIQAdminHub() {
 
   useEffect(() => {
     fetchDashboardData();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const syncSidebarState = (matches: boolean) => {
+      setSidebarOpen(matches);
+      if (!matches) {
+        setIsCollapsed(false);
+      }
+    };
+
+    syncSidebarState(mediaQuery.matches);
+    const listener = (event: MediaQueryListEvent) => {
+      syncSidebarState(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", listener);
+    return () => {
+      mediaQuery.removeEventListener("change", listener);
+    };
   }, []);
 
   const stats = useMemo(() => {
@@ -176,6 +200,16 @@ export default function DongleIQAdminHub() {
     setRefreshing(true);
     await fetchDashboardData(false);
     toast.success("Dashboard refreshed");
+  };
+
+  const handleSidebarToggle = () => {
+    if (typeof window !== "undefined" && window.innerWidth >= 1024) {
+      setIsCollapsed((current) => !current);
+      setSidebarOpen(true);
+      return;
+    }
+
+    setSidebarOpen((current) => !current);
   };
 
   const handleLogout = () => {
@@ -266,7 +300,7 @@ export default function DongleIQAdminHub() {
       <aside
         className={`theme-transition fixed inset-y-0 left-0 z-50 flex transform flex-col border-r px-4 py-5 transition-all duration-300 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isCollapsed ? "w-20" : "w-64 xl:w-72"} lg:static lg:translate-x-0`}
+        } ${isCollapsed ? "w-20" : "w-[88vw] max-w-72 lg:w-64 xl:w-72"} lg:static lg:translate-x-0`}
         style={{
           width: isCollapsed ? "5.5rem" : "18rem",
           borderColor: isDarkMode
@@ -363,7 +397,7 @@ export default function DongleIQAdminHub() {
         />
       ) : null}
 
-      <main className="flex min-w-0 flex-1 flex-col h-screen">
+      <main className="flex min-h-screen min-w-0 flex-1 flex-col lg:h-screen">
         <header
           className="theme-transition sticky top-0 z-30 flex flex-wrap items-start justify-between gap-4 border-b px-5 py-4 backdrop-blur-xl lg:px-8"
           style={{
@@ -375,10 +409,7 @@ export default function DongleIQAdminHub() {
         >
           <div className="flex items-start gap-3">
             <button
-              onClick={() => {
-                setSidebarOpen((current) => !current);
-                setIsCollapsed((current) => !current);
-              }}
+              onClick={handleSidebarToggle}
               className="theme-transition flex items-center justify-center h-10 w-10 rounded-full border transition"
               style={{
                 borderColor: isDarkMode
@@ -480,7 +511,7 @@ export default function DongleIQAdminHub() {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto px-5 py-6 lg:px-8 min-h-0">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-5 lg:px-8">
           {error ? (
             <div className="mb-6 rounded-lg border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
               {error}
@@ -488,8 +519,8 @@ export default function DongleIQAdminHub() {
           ) : null}
 
           {view === "home" && (
-            <div className="h-full overflow-y-auto space-y-6 pr-2 min-h-0">
-              <section className="grid gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="min-h-0 h-full space-y-6 overflow-y-auto pr-0 lg:pr-2">
+              <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <MetricCard
                   label=" Applications"
                   value={stats.total}
@@ -516,9 +547,8 @@ export default function DongleIQAdminHub() {
                 />
               </section>
 
-              <section className="grid gap-6 xl:grid-cols-[1.45fr_0.95fr] h-full min-h-0">
-                {" "}
-                <div className="h-full overflow-y-auto pr-2 min-h-0">
+              <section className="grid min-h-0 h-full gap-6 xl:grid-cols-[1.45fr_0.95fr]">
+                <div className="min-h-0 h-full overflow-y-auto pr-0 lg:pr-2">
                   <div
                     className="theme-transition rounded-lg border p-3 shadow-xl transition-all duration-300 "
                     style={{
@@ -528,7 +558,7 @@ export default function DongleIQAdminHub() {
                       backgroundColor: colors.panelStrong,
                     }}
                   >
-                    <div className="mb-4 flex items-center justify-between">
+                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p
                           className="text-[10px] uppercase tracking-[0.2em]"
@@ -595,7 +625,7 @@ export default function DongleIQAdminHub() {
                                 expandedUserId === user._id ? null : user._id,
                               )
                             }
-                            className="group flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 mb-2 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg hover:shadow-black/10 hover:bg-white/5  "
+                            className="group mb-2 cursor-pointer rounded-lg px-3 py-2 transition-all duration-200 hover:bg-white/5 hover:shadow-lg hover:shadow-black/10"
                             style={{
                               borderColor: isDarkMode
                                 ? "rgba(255,255,255,0.06)"
@@ -608,6 +638,7 @@ export default function DongleIQAdminHub() {
                                     : "rgba(0,0,0,0.03)",
                             }}
                           >
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                             <div className="min-w-0 px-2 py-1">
                               <p className="text-[12px] font-semibold truncate" style={{ color: colors.text }}>
                                 {user.name}
@@ -618,15 +649,16 @@ export default function DongleIQAdminHub() {
                               </p>
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                               <StatusChip status={user.status} />
                               <span className="text-[11px]" style={{ color: colors.subtleText }}>
                                 {formatDate(user.createdAt)}
                               </span>
                             </div>
+                            </div>
                              {expandedUserId === user._id && (
                               <div
-                                className="mb-3 rounded-lg border p-3 text-sm"
+                                className="mt-3 rounded-lg border p-3 text-sm"
                                 style={{
                                   borderColor: colors.borderSoft,
                                   backgroundColor: colors.panelStrong,

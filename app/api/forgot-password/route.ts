@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     if (!validation.success) {
       return NextResponse.json(
         { message: validation.error.issues[0]?.message || "Invalid email" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -34,7 +34,10 @@ export async function POST(req: NextRequest) {
     const account = user || admin;
 
     if (!account) {
-      return NextResponse.json({ message: "No account found with this email address" }, { status: 404 });
+      return NextResponse.json(
+        { message: "No account found with this email address" },
+        { status: 404 },
+      );
     }
 
     const token = crypto.randomBytes(32).toString("hex");
@@ -43,7 +46,7 @@ export async function POST(req: NextRequest) {
     account.resetTokenExpiry = new Date(Date.now() + 3600000);
     await account.save();
 
-    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+    const resetLink = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
 
     await transporter.sendMail({
       from: `"DongleIQ Support" <${process.env.EMAIL_USER}>`,
@@ -63,6 +66,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "Reset link sent to your email" });
   } catch (error) {
     console.log(error);
-    return NextResponse.json({ message: "Unable to send reset email right now. Please try again." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Unable to send reset email right now. Please try again." },
+      { status: 500 },
+    );
   }
 }
