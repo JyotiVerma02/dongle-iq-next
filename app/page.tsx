@@ -205,7 +205,7 @@ export default function DongleIQLanding() {
       className="page-shell min-h-screen"
       style={{ color: colors.text }}
     >
-      <section className="section hero-section pt-32 sm:pt-36 lg:pt-40">
+      <section className="section hero-section pt-32 sm:pt-36 lg:pt-40 mt-5">
         <div className="container-shell">
           <div className="hero-panel grid items-center gap-10 overflow-hidden rounded-[32px] px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] lg:px-12 lg:py-12">
             <div className="relative z-10 max-w-2xl">
