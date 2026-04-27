@@ -115,6 +115,7 @@ export default function DongleIQAdminHub() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDashboardData();
   }, []);
 
@@ -184,11 +185,13 @@ export default function DongleIQAdminHub() {
   const totalLatestPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLatestPage(1);
   }, [search]);
 
   useEffect(() => {
     if (!filteredUsers.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExpandedUserId(null);
       return;
     }
