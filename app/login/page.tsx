@@ -86,9 +86,9 @@ function LoginContent() {
                 <div
                   key={item.label}
                   className={`rounded-lg border p-4 ${index === 0 ? "float-slow" : "float-delay"}`}
-                  style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
+                  style={{ borderColor: colors.borderSoft, backgroundColor: premiumGradient }}
                 >
-                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-md text-white" style={{ backgroundColor: colors.accent }}>
+                  <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-md text-white" style={{ background: premiumGradient }}>
                     <ShieldCheck size={18} />
                   </div>
                   <p className="text-xl font-black uppercase" style={{ color: colors.text }}>{item.value}</p>

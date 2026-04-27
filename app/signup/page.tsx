@@ -155,7 +155,7 @@ function RegisterContent() {
                 >
                   <div
                     className="mb-3 flex h-11 w-11 items-center justify-center rounded-md text-white"
-                    style={{ backgroundColor: colors.accent }}
+                    style={{ background: premiumGradient }}
                   >
                     <ShieldCheck size={18} />
                   </div>
