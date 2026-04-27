@@ -11,7 +11,7 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
+
 import OtpModal from "@/components/OtpModal";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
@@ -23,8 +23,7 @@ function RegisterContent() {
   const googleEmail = (searchParams.get("email") || "").toLowerCase();
   const googleName = searchParams.get("name") || "";
   const isGooglePrefill = searchParams.get("google") === "1";
-  const { data: session, status } = useSession();
-  const exchangeStartedRef = useRef(false);
+  
   const [prefillFirstName, ...prefillLastNameParts] = googleName.split(" ");
   const prefillLastName = prefillLastNameParts.join(" ");
 
@@ -46,46 +45,7 @@ function RegisterContent() {
     ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
     : "linear-gradient(135deg, #2563eb, #0ea5e9)";
 
-  useEffect(() => {
-    const completeGoogleLogin = async () => {
-      if (
-        status !== "authenticated" ||
-        !session?.user?.email ||
-        isGooglePrefill ||
-        exchangeStartedRef.current
-      ) {
-        return;
-      }
 
-      exchangeStartedRef.current = true;
-      setLoading(true);
-      setError("");
-
-      try {
-        const res = await fetch("/api/auth/google-exchange", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });
-        const data = await res.json();
-
-        if (!res.ok || !data.redirectTo) {
-          throw new Error(data.message || "Google signup failed");
-        }
-
-        router.push(data.redirectTo);
-      } catch (exchangeError) {
-        exchangeStartedRef.current = false;
-        setLoading(false);
-        setError(
-          exchangeError instanceof Error
-            ? exchangeError.message
-            : "Google signup failed",
-        );
-      }
-    };
-
-    void completeGoogleLogin();
-  }, [session, status, router, isGooglePrefill]);
 
   const sanitizeNumber = (value: string) =>
     value.replace(/\D/g, "").slice(0, 10);

@@ -4,7 +4,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LogIn, ShieldCheck, Eye, EyeOff } from "lucide-react";
-import { useSession } from "next-auth/react";
+
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
@@ -13,8 +13,7 @@ function LoginContent() {
   const searchParams = useSearchParams();
   const navOffsetClass = "pt-24 md:pt-28";
   const registered = searchParams.get("registered") === "true";
-  const { data: session, status } = useSession();
-  const exchangeStartedRef = useRef(false);
+ 
 
   const [password, setPassword] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -29,41 +28,7 @@ function LoginContent() {
     ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
     : "linear-gradient(135deg, #2563eb, #0ea5e9)";
 
-  useEffect(() => {
-    const completeGoogleLogin = async () => {
-      if (status !== "authenticated" || !session?.user?.email || exchangeStartedRef.current) {
-        return;
-      }
 
-      exchangeStartedRef.current = true;
-      setLoading(true);
-      setError("");
-
-      try {
-        const res = await fetch("/api/auth/google-exchange", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });
-        const data = await res.json();
-
-        if (!res.ok || !data.redirectTo) {
-          throw new Error(data.message || "Google login failed");
-        }
-
-        router.push(data.redirectTo);
-      } catch (exchangeError) {
-        exchangeStartedRef.current = false;
-        setLoading(false);
-        setError(
-          exchangeError instanceof Error
-            ? exchangeError.message
-            : "Google login failed",
-        );
-      }
-    };
-
-    void completeGoogleLogin();
-  }, [session, status, router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

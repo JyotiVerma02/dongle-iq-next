@@ -112,7 +112,7 @@ export default function Navbar() {
           {showAuthButtons ? (
             <button
               onClick={() => router.push("/login")}
-              className="hidden min-h-11 items-center gap-2 rounded-full px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
+              className="hidden min-h-11 items-center gap-2 rounded-md px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
               style={{
                 background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
                 boxShadow: `0 16px 28px -20px ${colors.accentShadow}`,

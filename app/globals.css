@@ -46,8 +46,8 @@ html.dark {
   --border: rgba(157, 177, 200, 0.16);
   --border-soft: rgba(157, 177, 200, 0.09);
 
-  --accent: #2dd4bf;
-  --accent-light: #67e8f9;
+  --accent: #12a390;
+  --accent-light: #067180;
   --accent-secondary: #38bdf8;
   --accent-soft: rgba(45, 212, 191, 0.12);
   --accent-subtle: rgba(103, 232, 249, 0.14);
@@ -334,33 +334,49 @@ html.dark .split-band {
   gap: 0.7rem;
   min-height: 3.4rem;
   padding: 0.9rem 1.35rem;
-  border-radius: 1rem;
+  border-radius: 0.5rem;
   font-size: 0.96rem;
   font-weight: 700;
 }
-
 .button-primary {
-  color: #effaf9;
-  background: linear-gradient(135deg, var(--accent), var(--accent-light));
-  box-shadow:
-    0 18px 40px -20px var(--accent-shadow),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-}
+  color: #ffffff;
 
+  /* ✅ consistent soft gradient */
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-light)
+  );
+
+  box-shadow: 0 10px 30px -12px var(--accent-shadow);
+
+
+
+  font-weight: 600;
+  letter-spacing: 0.2px;
+
+  transition: all 0.2s ease;
+  
+}
 html:not(.dark) .button-primary,
 html:not(.dark) .theme-primary-btn {
+  background: linear-gradient(
+    135deg,
+    var(--accent),
+    var(--accent-light)
+  );
+
   color: #ffffff;
-  background: linear-gradient(135deg, #0f766e, #1d7fd0);
-  box-shadow:
-    0 18px 40px -22px rgba(29, 127, 208, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+
+  box-shadow: 0 10px 25px -12px var(--accent-shadow);
 }
 
 .button-primary:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 24px 48px -24px var(--accent-shadow),
-    0 0 0 6px var(--accent-soft);
+  transform: translateY(-1px);
+
+  box-shadow: 0 14px 35px -12px var(--accent-shadow);
+
+  filter: brightness(1.06);
 }
 
 .button-secondary {
@@ -636,6 +652,11 @@ html.dark .metric-card {
   border-radius: 1rem;
   background: var(--accent-soft);
   color: var(--accent);
+
+  display: flex;              /* ✅ center fix */
+  align-items: center;        /* ✅ vertical center */
+  justify-content: center;    /* ✅ horizontal center */
+  flex-shrink: 0;             /* ✅ prevent shrinking */
 }
 
 .premium-card-icon {

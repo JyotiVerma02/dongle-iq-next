@@ -1,22 +1,22 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import type { AuthOptions } from "next-auth";
+
 import jwt from "jsonwebtoken";
 
 import Admin from "@/model/admin";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
-import { authOptions } from "../[...nextauth]/route";
 
-export async function POST() {
+
+export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions as AuthOptions);
-    const email = String(session?.user?.email || "").toLowerCase().trim();
-    const name = String(session?.user?.name || "").trim();
+   const body = await req.json();
+
+const email = String(body.email || "").toLowerCase().trim();
+const name = String(body.name || "").trim();
 
     if (!email) {
       return NextResponse.json(
-        { success: false, message: "No Google session found" },
+        { success: false, message: "Email is required" },
         { status: 401 },
       );
     }
@@ -81,7 +81,7 @@ export async function POST() {
       return response;
     }
 
-    const signupUrl = new URL("/signup", "http://localhost");
+const signupUrl = new URL("/signup", process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
     signupUrl.searchParams.set("email", email);
     if (name) {
       signupUrl.searchParams.set("name", name);
