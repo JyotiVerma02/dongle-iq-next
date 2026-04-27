@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import type { AuthOptions } from "next-auth";
 import jwt from "jsonwebtoken";
 
 import Admin from "@/model/admin";
@@ -9,7 +10,7 @@ import { authOptions } from "../[...nextauth]/route";
 
 export async function POST() {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions as AuthOptions);
     const email = String(session?.user?.email || "").toLowerCase().trim();
     const name = String(session?.user?.name || "").trim();
 

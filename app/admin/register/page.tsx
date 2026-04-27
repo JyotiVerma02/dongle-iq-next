@@ -102,15 +102,6 @@ export default function AdminRegister() {
       className="theme-transition hero-grid relative min-h-[100dvh] overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div
-        className="hero-glow left-8 top-24 h-56 w-56"
-        style={{ backgroundColor: colors.accent }}
-      />
-      <div
-        className="hero-glow right-12 top-28 h-72 w-72"
-        style={{ backgroundColor: "var(--accent-secondary)" }}
-      />
-
       <div className={`relative z-10 flex min-h-[100dvh] items-stretch ${navOffsetClass}`}>
         <div
           className="hidden lg:flex lg:min-w-0 lg:flex-[0.95] lg:flex-col lg:justify-center lg:px-10 xl:px-14"
@@ -181,7 +172,7 @@ export default function AdminRegister() {
         <div className="flex flex-1 items-start justify-center overflow-y-auto px-4 pb-6 pt-2 sm:px-6 lg:flex-[1.05] lg:items-center lg:px-8">
           <div className="group relative w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
             <div
-              className="absolute -inset-[1px] rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100"
+              className="absolute -inset-[1px] rounded-lg opacity-20 blur-sm transition-opacity duration-500 group-hover:opacity-35 dark:opacity-40 dark:group-hover:opacity-100"
               style={{ background: premiumGradient }}
             />
 

@@ -5,12 +5,17 @@ import toast from "react-hot-toast";
 import {
   ArrowLeft,
   Bell,
+  Building2,
   CheckCircle2,
   ChevronRight,
+  Download,
   FileText,
+  IndianRupee,
   Loader2,
   Mail,
+  MapPinned,
   Moon,
+  Package,
   PencilLine,
   Phone,
   RefreshCw,
@@ -18,6 +23,7 @@ import {
   SunMedium,
   User,
   Users,
+  Wallet,
   XCircle,
 } from "lucide-react";
 import UserLedgerView, { type DashboardUser } from "@/components/UserLedger";
@@ -286,6 +292,61 @@ export default function DongleIQAdminHub() {
     { name: "Pending", value: stats.pending },
     { name: "Rejected", value: stats.rejected },
   ];
+  const financeStats = useMemo(() => {
+    const dscCommission = users.reduce(
+      (sum, user) => sum + Number(user.price || 0),
+      0,
+    );
+    const tokenAmount = users.reduce(
+      (sum, user) =>
+        sum + (user.tokenType && user.tokenType !== "Not Required" ? 300 : 0),
+      0,
+    );
+    const assistedAmount = users.reduce(
+      (sum, user) =>
+        sum + (user.certType === "Signing & Encryption" ? 150 : 0),
+      0,
+    );
+    const totalCommission = dscCommission + tokenAmount + assistedAmount;
+    const gstPaid = Math.round(totalCommission * 0.18);
+    const paidCommission = users
+      .filter((user) => user.status === "approved")
+      .reduce((sum, user) => sum + Number(user.price || 0), 0);
+    const unpaidCommission = Math.max(totalCommission - paidCommission, 0);
+
+    return {
+      dscCommission,
+      tokenAmount,
+      assistedAmount,
+      totalCommission,
+      gstPaid,
+      paidCommission,
+      pendingApproval: stats.pending,
+      unpaidCommission,
+    };
+  }, [stats.pending, users]);
+
+  const actionButtons = [
+    {
+      label: "Update Shipping Address",
+      icon: <MapPinned size={16} />,
+      onClick: () => setView("admin" as DashboardView),
+      variant: "primary" as const,
+    },
+    {
+      label: "View Shipping Address",
+      icon: <Building2 size={16} />,
+      onClick: () =>
+        toast.success(admin?.number ? `Shipping contact: ${admin.number}` : "No shipping address saved yet"),
+      variant: "secondary" as const,
+    },
+    {
+      label: "Download Agreement",
+      icon: <Download size={16} />,
+      onClick: () => toast.success("Agreement download can be connected here."),
+      variant: "secondary" as const,
+    },
+  ];
 
   return (
     <div
@@ -293,12 +354,12 @@ export default function DongleIQAdminHub() {
       style={{
         color: colors.text,
         background: isDarkMode
-          ? "radial-gradient(circle at top, #334155 0%, #1e293b 40%, #0f172a 100%)"
-          : "radial-gradient(circle at top, #f8fbff 0%, #eef4ff 45%, #dbeafe 100%)",
+          ? "linear-gradient(180deg, #142033 0%, #0f172a 100%)"
+          : "linear-gradient(180deg, #f7fbff 0%, #edf4ff 100%)",
       }}
     >
       <aside
-        className={`theme-transition fixed inset-y-0 left-0 z-50 flex transform flex-col border-r px-4 py-5 transition-all duration-300 ${
+        className={`theme-transition fixed inset-y-0 left-0 z-50 flex transform flex-col border-r px-3 py-4 transition-all duration-300 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } ${isCollapsed ? "w-20" : "w-[88vw] max-w-72 lg:w-64 xl:w-72"} lg:static lg:translate-x-0`}
         style={{
@@ -311,14 +372,14 @@ export default function DongleIQAdminHub() {
       >
         <div className="flex h-full flex-col">
           <div>
-            <div className="mb-10 flex items-center gap-2">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[#45c3b9] text-[#081214]">
-                <Users size={22} />
+            <div className="mb-6 flex items-center gap-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#45c3b9,#67e8f9)] text-[#081214] shadow-[0_14px_24px_-18px_rgba(69,195,185,0.7)]">
+                <Users size={20} />
               </div>
 
               {!isCollapsed && (
                 <div>
-                  <p className="text-lg font-black uppercase tracking-tight">
+                  <p className="text-base font-black uppercase tracking-tight">
                     Dongle <span className="text-[#45c3b9]">IQ</span>
                   </p>
                   <p
@@ -331,16 +392,27 @@ export default function DongleIQAdminHub() {
               )}
             </div>
 
-            <nav className="space-y-1">
+            {!isCollapsed && (
+              <div className="mb-4 rounded-xl border px-3 py-2.5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
+                <p className="text-[10px] uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
+                  Navigation
+                </p>
+                <p className="mt-1 text-xs font-medium" style={{ color: colors.muted }}>
+                  Dashboard, orders, reports and admin controls
+                </p>
+              </div>
+            )}
+
+            <nav className="space-y-1.5">
               <NavItem
-                label="Overview"
+                label="Dashboard"
                 active={view === "home"}
                 onClick={() => setView("home")}
                 icon={<FileText size={18} />}
                 collapsed={isCollapsed}
               />
               <NavItem
-                label="User Ledger"
+                label="Orders / Ledger"
                 active={view === "ledger"}
                 onClick={() => setView("ledger")}
                 icon={<Users size={18} />}
@@ -348,7 +420,7 @@ export default function DongleIQAdminHub() {
               />
 
               <NavItem
-                label="Admin Profile"
+                label="Reports / Admin"
                 active={view === "admin"}
                 onClick={() => setView("admin")}
                 icon={<User size={18} />}
@@ -359,7 +431,7 @@ export default function DongleIQAdminHub() {
 
           {!isCollapsed && (
             <div
-              className="theme-transition mt-auto rounded-lg border p-4"
+              className="theme-transition mt-auto rounded-xl border p-3"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -373,13 +445,13 @@ export default function DongleIQAdminHub() {
               >
                 Logged in admin
               </p>
-              <p className="mt-3 text-lg font-black text-white">
+              <p className="mt-2 text-base font-black text-white">
                 {admin?.name || "Admin"}
               </p>
-              <p className="mt-1 text-sm" style={{ color: colors.subtleText }}>
+              <p className="mt-1 text-xs" style={{ color: colors.subtleText }}>
                 {admin?.email || "No email found"}
               </p>
-              <div className="mt-4 flex items-center justify-between text-[11px]"
+              <div className="mt-3 flex items-center justify-between text-[11px]"
                 style={{ color: colors.subtleText }}
               >
                 <span>{admin?.role || "admin"}</span>
@@ -399,7 +471,7 @@ export default function DongleIQAdminHub() {
 
       <main className="flex min-h-screen min-w-0 flex-1 flex-col lg:h-screen">
         <header
-          className="theme-transition sticky top-0 z-30 flex flex-wrap items-start justify-between gap-4 border-b px-5 py-4 backdrop-blur-xl lg:px-8"
+          className="theme-transition sticky top-0 z-30 flex flex-wrap items-start justify-between gap-3 border-b px-4 py-3 backdrop-blur-xl lg:px-6"
           style={{
             borderColor: isDarkMode
               ? "rgba(255,255,255,0.06)"
@@ -410,7 +482,7 @@ export default function DongleIQAdminHub() {
           <div className="flex items-start gap-3">
             <button
               onClick={handleSidebarToggle}
-              className="theme-transition flex items-center justify-center h-10 w-10 rounded-full border transition"
+              className="theme-transition flex h-10 w-10 items-center justify-center rounded-xl border transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.5)]"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -421,37 +493,25 @@ export default function DongleIQAdminHub() {
             >
               <Menu size={18} />
             </button>
-            <div className="flex items-start gap-4">
-              {/* 🔥 Left Accent Icon */}
-
-              {/* 🔥 Text Content */}
-              {/* <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-                  Admin Workspace
-                </p>
-
-                <h1
-                  className="mt-1 text-3xl font-black tracking-tight leading-tight"
-                  style={{ color: colors.text }}
-                >
-                  Dashboard Overview
-                </h1>
-
-                <p
-                  className="mt-2 text-sm max-w-xl leading-5"
-                  style={{ color: colors.muted }}
-                >
-                  Monitor users, approvals, and system activity in real-time
-                  with full control.
-                </p>
-              </div> */}
+            <div className="flex flex-col">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
+                Admin workspace
+              </p>
+              <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
+                <span style={{ color: "#16a34a" }}>
+                  Support call: 020-49105678, 7777090977
+                </span>
+                <span style={{ color: colors.muted }}>
+                  Support Email: info@dongleiq.com
+                </span>
+              </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-3 self-center lg:self-auto">
             <button
               onClick={toggleTheme}
-              className="theme-transition inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold transition"
+              className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)]"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -466,7 +526,7 @@ export default function DongleIQAdminHub() {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="theme-transition inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-70"
+              className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)] disabled:cursor-not-allowed disabled:opacity-70"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -483,7 +543,7 @@ export default function DongleIQAdminHub() {
               Refresh
             </button>
             <div
-              className="theme-transition rounded-lg border p-2"
+              className="theme-transition rounded-xl border p-2.5"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -496,7 +556,7 @@ export default function DongleIQAdminHub() {
             </div>
             <button
               onClick={handleLogout}
-              className="theme-transition inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-semibold transition hover:bg-rose-500/10 hover:text-rose-300"
+              className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:bg-rose-500/10 hover:shadow-[0_14px_30px_-18px_rgba(244,63,94,0.5)] hover:text-rose-300"
               style={{
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.06)"
@@ -511,7 +571,7 @@ export default function DongleIQAdminHub() {
           </div>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-5 lg:px-8">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 lg:px-6">
           {error ? (
             <div className="mb-6 rounded-lg border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
               {error}
@@ -519,10 +579,55 @@ export default function DongleIQAdminHub() {
           ) : null}
 
           {view === "home" && (
-            <div className="min-h-0 h-full space-y-6 overflow-y-auto pr-0 lg:pr-2">
-              <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="min-h-0 h-full space-y-4 overflow-y-auto pr-0 lg:pr-1">
+              <section className="rounded-2xl border p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)]" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
+                      Dashboard overview
+                    </p>
+                    <h1 className="mt-1 text-2xl font-black tracking-tight" style={{ color: colors.text }}>
+                      Commission and approval summary
+                    </h1>
+                    <p className="mt-1 max-w-2xl text-sm" style={{ color: colors.muted }}>
+                      Compact snapshot of earnings, approval flow, and shipping actions.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    {actionButtons.map((action) => (
+                      <QuickActionButton
+                        key={action.label}
+                        label={action.label}
+                        icon={action.icon}
+                        onClick={action.onClick}
+                        variant={action.variant}
+                      />
+                    ))}
+                    <QuickActionButton
+                      label="New Scheme"
+                      icon={<Package size={16} />}
+                      onClick={() => toast.success("New scheme workflow can be connected here.")}
+                      variant="accent"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <FinanceStatCard label="DSC Commission" value={financeStats.dscCommission} accent="slate" icon={<FileText size={16} />} />
+                <FinanceStatCard label="Token Amount" value={financeStats.tokenAmount} accent="blue" icon={<Wallet size={16} />} />
+                <FinanceStatCard label="Assisted Amount" value={financeStats.assistedAmount} accent="amber" icon={<Settings size={16} />} />
+                <FinanceStatCard label="Total Commission" value={financeStats.totalCommission} accent="teal" icon={<IndianRupee size={16} />} />
+                <FinanceStatCard label="GST Paid" value={financeStats.gstPaid} accent="cyan" icon={<Building2 size={16} />} />
+                <FinanceStatCard label="Paid Commission" value={financeStats.paidCommission} accent="green" icon={<CheckCircle2 size={16} />} />
+                <FinanceStatCard label="Pending Approval" value={financeStats.pendingApproval} accent="yellow" icon={<Loader2 size={16} />} isCount />
+                <FinanceStatCard label="Unpaid Commission" value={financeStats.unpaidCommission} accent="red" icon={<XCircle size={16} />} />
+              </section>
+
+              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <MetricCard
-                  label=" Applications"
+                  label="Applications"
                   value={stats.total}
                   accent="teal"
                   icon={<Users size={18} />}
@@ -547,10 +652,10 @@ export default function DongleIQAdminHub() {
                 />
               </section>
 
-              <section className="grid min-h-0 h-full gap-6 xl:grid-cols-[1.45fr_0.95fr]">
+              <section className="grid min-h-0 h-full gap-4 xl:grid-cols-[1.5fr_0.9fr]">
                 <div className="min-h-0 h-full overflow-y-auto pr-0 lg:pr-2">
                   <div
-                    className="theme-transition rounded-lg border p-3 shadow-xl transition-all duration-300 "
+                    className="theme-transition rounded-xl border p-3 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 "
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -558,7 +663,7 @@ export default function DongleIQAdminHub() {
                       backgroundColor: colors.panelStrong,
                     }}
                   >
-                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p
                           className="text-[10px] uppercase tracking-[0.2em]"
@@ -566,13 +671,13 @@ export default function DongleIQAdminHub() {
                         >
                           Recent users
                         </p>
-                        <h2 className="mt-1 text-xl font-bold tracking-tight">
+                        <h2 className="mt-1 text-lg font-bold tracking-tight">
                           Latest applications
                         </h2>
                       </div>
                       <button
                         onClick={() => setView("ledger")}
-                        className="theme-transition rounded-lg border px-3 py-1.5 text-xs font-semibold transition"
+                        className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)]"
                         style={{
                           borderColor: isDarkMode
                             ? "rgba(255,255,255,0.06)"
@@ -584,13 +689,13 @@ export default function DongleIQAdminHub() {
                         Open ledger
                       </button>
                     </div>
-                    <div className="mb-4">
+                    <div className="mb-3">
                       <input
                         type="text"
                         placeholder="Search users..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full rounded-lg border px-3 py-1.5 text-xs outline-none"
+                        className="w-full rounded-xl border px-3 py-2 text-[13px] outline-none"
                         style={{
                           borderColor: isDarkMode
                             ? "rgba(255,255,255,0.06)"
@@ -625,7 +730,7 @@ export default function DongleIQAdminHub() {
                                 expandedUserId === user._id ? null : user._id,
                               )
                             }
-                            className="group mb-2 cursor-pointer rounded-lg px-3 py-2 transition-all duration-200 hover:bg-white/5 hover:shadow-lg hover:shadow-black/10"
+                            className="group mb-2 cursor-pointer rounded-xl px-3 py-2 transition-all duration-200 hover:bg-white/5 hover:shadow-[0_14px_28px_-18px_rgba(15,23,42,0.35)]"
                             style={{
                               borderColor: isDarkMode
                                 ? "rgba(255,255,255,0.06)"
@@ -638,13 +743,13 @@ export default function DongleIQAdminHub() {
                                     : "rgba(0,0,0,0.03)",
                             }}
                           >
-                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="min-w-0 px-2 py-1">
-                              <p className="text-[12px] font-semibold truncate" style={{ color: colors.text }}>
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="min-w-0 px-1 py-0.5">
+                              <p className="text-[13px] font-semibold truncate" style={{ color: colors.text }}>
                                 {user.name}
                               </p>
 
-                              <p className="text-[10px] truncate" style={{ color: colors.subtleText }}>
+                              <p className="text-[11px] truncate" style={{ color: colors.subtleText }}>
                                 {user.email} • {user.number}
                               </p>
                             </div>
@@ -658,7 +763,7 @@ export default function DongleIQAdminHub() {
                             </div>
                              {expandedUserId === user._id && (
                               <div
-                                className="mt-3 rounded-lg border p-3 text-sm"
+                                className="mt-2 rounded-xl border p-3 text-[13px]"
                                 style={{
                                   borderColor: colors.borderSoft,
                                   backgroundColor: colors.panelStrong,
@@ -684,8 +789,8 @@ export default function DongleIQAdminHub() {
                     </div>
 
                     {totalLatestPages > 1 && (
-                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-sm" style={{ color: colors.subtleText }}>
+                      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-[13px]" style={{ color: colors.subtleText }}>
                           Showing {Math.min((latestPage - 1) * itemsPerPage + 1, filteredUsers.length)} to{' '}
                           {Math.min(latestPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} applications
                         </p>
@@ -693,7 +798,7 @@ export default function DongleIQAdminHub() {
                           <button
                             onClick={() => setLatestPage(Math.max(1, latestPage - 1))}
                             disabled={latestPage === 1}
-                            className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                            className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                             style={{
                               borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
                               backgroundColor: colors.panel,
@@ -702,13 +807,13 @@ export default function DongleIQAdminHub() {
                           >
                             Previous
                           </button>
-                          <span className="text-sm" style={{ color: colors.text }}>
+                          <span className="text-[13px]" style={{ color: colors.text }}>
                             Page {latestPage} of {totalLatestPages}
                           </span>
                           <button
                             onClick={() => setLatestPage(Math.min(totalLatestPages, latestPage + 1))}
                             disabled={latestPage === totalLatestPages}
-                            className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                            className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                             style={{
                               borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
                               backgroundColor: colors.panel,
@@ -722,10 +827,10 @@ export default function DongleIQAdminHub() {
                     )}
                   </div>
                 </div>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* ✅ Verification Card */}
                   <div
-                    className="theme-transition rounded-lg border p-4 shadow-xl"
+                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)]"
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -741,13 +846,13 @@ export default function DongleIQAdminHub() {
                     </p>
 
                     <h2
-                      className="mt-1 text-2xl font-black"
+                      className="mt-1 text-xl font-black"
                       style={{ color: colors.text }}
                     >
                       Verification Status
                     </h2>
 
-                    <div className="mt-5 space-y-4">
+                    <div className="mt-4 space-y-3">
                       <ProgressRow
                         label="Aadhaar verified"
                         value={stats.verified}
@@ -765,7 +870,7 @@ export default function DongleIQAdminHub() {
 
                   {/* ✅ Pie Chart Card (Separate) */}
                   <div
-                    className="theme-transition rounded-lg border p-4 shadow-xl "
+                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] "
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -773,9 +878,9 @@ export default function DongleIQAdminHub() {
                       backgroundColor: colors.panelStrong,
                     }}
                    >
-                    <h3 className="text-lg font-bold mb-4">User Status</h3>
+                    <h3 className="mb-3 text-base font-bold">User Status</h3>
 
-                    <div className="h-52">
+                    <div className="h-44">
                       <ResponsiveContainer width="100%" height="100%">
                         <PieChart>
                           <Pie
@@ -799,7 +904,7 @@ export default function DongleIQAdminHub() {
 
                   {/* ✅ Admin Snapshot Card */}
                   <div
-                    className="theme-transition rounded-lg border p-4 shadow-xl"
+                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)]"
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -875,10 +980,10 @@ export default function DongleIQAdminHub() {
 
           {view === "admin" && (
             <div className="h-full overflow-y-auto min-h-0">
-              <div className="mb-6">
+              <div className="mb-4">
                 <button
                   onClick={() => setView("home")}
-                  className="mb-3 inline-flex items-center gap-2 text-xs font-semibold transition hover:opacity-80"
+                  className="mb-2 inline-flex items-center gap-2 text-xs font-semibold transition hover:opacity-80"
                   style={{ color: colors.muted }}
                 >
                   <ArrowLeft size={14} />
@@ -887,21 +992,21 @@ export default function DongleIQAdminHub() {
 
                 <div className="flex items-center justify-between">
                   <h1
-                    className="mt-1 text-2xl lg:text-3xl font-black"
+                    className="mt-1 text-xl lg:text-2xl font-black"
                     style={{ color: colors.text }}
                   >
                     Admin Profile
                   </h1>
                 </div>
 
-                <p className="mt-2 text-sm" style={{ color: colors.muted }}>
+                <p className="mt-1 text-[13px]" style={{ color: colors.muted }}>
                   Manage admin details, update profile information, and control
                   system access.
                 </p>
               </div>
-              <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+              <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
                 <div
-                  className="theme-transition rounded-lg border p-6 shadow-2xl"
+                  className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)]"
                   style={{
                     borderColor: isDarkMode
                       ? "rgba(255,255,255,0.06)"
@@ -918,13 +1023,13 @@ export default function DongleIQAdminHub() {
                         Profile
                       </p>
                       <h2
-                        className="mt-1 text-2xl lg:text-3xl font-black"
+                      className="mt-1 text-xl lg:text-2xl font-black"
                         style={{ color: colors.text }}
                       >
                         {admin?.name || "Admin"}
                       </h2>
                       <p
-                        className="mt-2 max-w-xl text-sm leading-6"
+                      className="mt-2 max-w-xl text-[13px] leading-5"
                         style={{ color: colors.muted }}
                       >
                         Keep your admin contact details updated so the panel
@@ -937,7 +1042,7 @@ export default function DongleIQAdminHub() {
                         setIsEditingAdmin((current) => !current);
                         setAdminMessage("");
                       }}
-                      className="theme-transition inline-flex items-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-semibold transition"
+                      className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)]"
                       style={{
                         borderColor: isDarkMode
                           ? "rgba(255,255,255,0.06)"
@@ -951,7 +1056,7 @@ export default function DongleIQAdminHub() {
                     </button>
                   </div>
 
-                  <div className="mt-8 grid gap-4 md:grid-cols-2">
+                  <div className="mt-5 grid gap-3 md:grid-cols-2">
                     <ProfileCard
                       label="Admin name"
                       value={admin?.name || "Not set"}
@@ -976,7 +1081,7 @@ export default function DongleIQAdminHub() {
 
                   {adminMessage ? (
                     <div
-                      className="theme-transition mt-6 rounded-lg border px-4 py-3 text-sm"
+                      className="theme-transition mt-4 rounded-xl border px-4 py-3 text-[13px]"
                       style={{
                         borderColor: isDarkMode
                           ? "rgba(255,255,255,0.06)"
@@ -991,7 +1096,7 @@ export default function DongleIQAdminHub() {
                 </div>
 
                 <div
-                  className="theme-transition rounded-lg border p-6 shadow-2xl"
+                  className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)]"
                   style={{
                     borderColor: isDarkMode
                       ? "rgba(255,255,255,0.06)"
@@ -1006,13 +1111,13 @@ export default function DongleIQAdminHub() {
                     Edit details
                   </p>
                   <h3
-                    className="mt-1 text-2xl font-black"
+                    className="mt-1 text-xl font-black"
                     style={{ color: colors.text }}
                   >
                     Admin settings
                   </h3>
 
-                  <div className="mt-6 space-y-4">
+                  <div className="mt-4 space-y-3">
                     <InputField
                       label="Full name"
                       value={adminForm.name}
@@ -1056,7 +1161,7 @@ export default function DongleIQAdminHub() {
                   <button
                     onClick={handleAdminSave}
                     disabled={!isEditingAdmin || savingAdmin}
-                    className="mt-6 w-full rounded-lg bg-[#45c3b9] px-4 py-3 text-sm font-black text-[#091315] transition hover:bg-[#3db5ab] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-4 w-full rounded-xl bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] px-4 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_16px_30px_-18px_rgba(69,195,185,0.5)] disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {savingAdmin ? "Saving..." : "Save admin profile"}
                   </button>
@@ -1142,7 +1247,7 @@ function MetricCard({
 
   return (
     <div
-      className="theme-transition rounded-lg border p-4 lg:p-5 shadow-xl"
+      className="theme-transition rounded-xl border p-3.5 lg:p-4 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.35)]"
       style={{
         borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
         backgroundColor: colors.panelStrong,
@@ -1157,7 +1262,7 @@ function MetricCard({
             {label}
           </p>
           <p
-            className="mt-3 text-3xl font-black"
+            className="mt-2 text-2xl font-black"
             style={{ color: colors.text }}
           >
             {value}
@@ -1182,7 +1287,7 @@ function ProfileCard({
   const colors = getThemePalette(isDarkMode);
   return (
     <div
-      className="theme-transition min-w-0 rounded-lg border p-3"
+      className="theme-transition min-w-0 rounded-xl border p-3"
       style={{
         borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
         backgroundColor: colors.panel,
@@ -1226,7 +1331,7 @@ function InputField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         disabled={disabled}
-        className="theme-transition mt-2 w-full rounded-lg border px-4 py-3 text-sm outline-none disabled:cursor-not-allowed disabled:opacity-60"
+        className="theme-transition mt-1.5 w-full rounded-xl border px-3.5 py-2.5 text-[13px] outline-none disabled:cursor-not-allowed disabled:opacity-60"
         style={{
           borderColor: colors.inputBorder,
           backgroundColor: colors.input,
@@ -1234,6 +1339,96 @@ function InputField({
         }}
       />
     </label>
+  );
+}
+
+function QuickActionButton({
+  label,
+  icon,
+  onClick,
+  variant,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  variant: "primary" | "secondary" | "accent";
+}) {
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
+
+  const styles = {
+    primary: {
+      background: "linear-gradient(135deg, #1d7fd0, #2f9be4)",
+      color: "#f8fbff",
+      borderColor: "transparent",
+    },
+    secondary: {
+      background: colors.panel,
+      color: colors.text,
+      borderColor: colors.borderSoft,
+    },
+    accent: {
+      background: "linear-gradient(135deg, var(--accent), var(--accent-light))",
+      color: "#f8fbff",
+      borderColor: "transparent",
+    },
+  } as const;
+
+  return (
+    <button
+      onClick={onClick}
+      className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-xs font-semibold hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_16px_30px_-18px_rgba(69,195,185,0.5)]"
+      style={styles[variant]}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
+
+function FinanceStatCard({
+  label,
+  value,
+  icon,
+  accent,
+  isCount,
+}: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  accent: "slate" | "blue" | "amber" | "teal" | "cyan" | "green" | "yellow" | "red";
+  isCount?: boolean;
+}) {
+  const backgrounds = {
+    slate: "linear-gradient(135deg, #77808b, #8b949e)",
+    blue: "linear-gradient(135deg, #1570ef, #3291ff)",
+    amber: "linear-gradient(135deg, #f8b400, #ffc531)",
+    teal: "linear-gradient(135deg, #1ca3ba, #2eb8c9)",
+    cyan: "linear-gradient(135deg, #1f9fb5, #31b8cd)",
+    green: "linear-gradient(135deg, #26a541, #31ba4c)",
+    yellow: "linear-gradient(135deg, #f4b400, #ffcc33)",
+    red: "linear-gradient(135deg, #dc3545, #ef4b5c)",
+  } as const;
+
+  return (
+    <div
+      className="rounded-xl p-4 text-[#081214] shadow-[0_18px_36px_-24px_rgba(15,23,42,0.3)]"
+      style={{ background: backgrounds[accent] }}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/90">
+            {label}
+          </p>
+          <p className="mt-3 text-3xl font-black text-[#081214]">
+            {isCount ? value : value.toLocaleString("en-IN")}
+          </p>
+        </div>
+        <div className="rounded-xl border border-black/10 bg-white/10 p-3 text-[#081214]">
+          {icon}
+        </div>
+      </div>
+    </div>
   );
 }
 

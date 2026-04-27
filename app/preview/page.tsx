@@ -90,9 +90,6 @@ export default function PreviewPage() {
 
   return (
     <div className="theme-transition hero-grid relative min-h-screen px-4 pb-10 pt-24" style={{ color: colors.text }}>
-      <div className="hero-glow left-8 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
-      <div className="hero-glow right-12 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
-
       <div className="relative z-10 mx-auto max-w-6xl space-y-6">
         <div
           className="theme-transition rounded-lg border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.16)]"

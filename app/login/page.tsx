@@ -103,8 +103,6 @@ function LoginContent() {
       className="theme-transition hero-grid relative min-h-[100dvh] overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className="hero-glow left-0 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
-      <div className="hero-glow right-16 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
       <div className={`relative z-10 flex min-h-screen items-stretch ${navOffsetClass}`}>
         <div className="hidden lg:flex lg:min-w-0 lg:flex-[0.95] lg:flex-col lg:justify-center lg:px-10 xl:px-14" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">

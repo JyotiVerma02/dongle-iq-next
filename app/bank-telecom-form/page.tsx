@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import ParticleBackground from "@/components/ParticleBackground";
@@ -73,7 +73,15 @@ const createInitialState = (mobile: string): FormState => ({
   price: "800",
 });
 
-export default function DongleIQForm() {
+export default function DongleIQFormPage() {
+  return (
+    <Suspense fallback={null}>
+      <DongleIQForm />
+    </Suspense>
+  );
+}
+
+function DongleIQForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isDarkMode } = useTheme();
@@ -270,8 +278,6 @@ export default function DongleIQForm() {
   return (
     <div className="theme-transition hero-grid relative min-h-screen pb-10 pt-24" style={{ color: colors.text }}>
       <ParticleBackground />
-      <div className="hero-glow left-8 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
-      <div className="hero-glow right-12 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
 
       <div className="relative z-10 mx-auto max-w-6xl p-4 lg:p-8">
         <form

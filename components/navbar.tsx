@@ -3,18 +3,34 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Cpu,
-  LogIn,
-  LogOut,
-  Menu,
-  Moon,
-  SunMedium,
-  X,
-} from "lucide-react";
+import { Cpu, LogIn, LogOut, Menu, Moon, SunMedium, X } from "lucide-react";
 
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
+
+const NAV_LINKS = [
+  { label: "Why us", href: "/#whyus" },
+  { label: "Apply", href: "/#apply" },
+  { label: "Agents", href: "/#agents" },
+  { label: "FAQs", href: "/#faqs" },
+  { label: "Contact", href: "/#contact" },
+];
+
+const AUTH_ROUTES = new Set([
+  "/",
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+]);
+
+const LOGOUT_ROUTES = new Set([
+  "/user/dashboard",
+  "/verify",
+  "/verify-aadhaar",
+  "/bank-telecom-form",
+  "/preview",
+]);
 
 export default function Navbar() {
   const router = useRouter();
@@ -31,124 +47,103 @@ export default function Navbar() {
   }
 
   const colors = getThemePalette(isDarkMode);
-  const navLinks = ["Apply", "Why Us", "Agents", "FAQs", "Contact"];
-  const showAuthButtons = [
-  "/",
-  "/login",
-  "/signup",
-  "/forgot-password",
-  "/reset-password"
-].includes(pathname);
-  const themeLabel = "Toggle theme";
-  const showLogout = [
-    "/user/dashboard",
-    "/verify",
-    "/verify-aadhaar",
-    "/bank-telecom-form",
-    "/preview",
-  ].includes(pathname);
+  const showAuthButtons = AUTH_ROUTES.has(pathname);
+  const showLogout = LOGOUT_ROUTES.has(pathname);
+  const themeIcon = mounted && isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />;
 
   const handleLogout = async () => {
     try {
       await fetch("/api/logout", { method: "POST" });
     } catch {
-      // Redirect even if the request fails so the user is not stuck.
+      // Keep the user moving even if logout request fails.
     } finally {
       router.push("/");
       router.refresh();
     }
   };
 
-  const navHrefMap: Record<string, string> = {
-    Apply: "/#apply",
-    "Why Us": "/#whyus",
-    Agents: "/#agents",
-    FAQs: "/#faqs",
-    Contact: "/#contact",
-  };
-
-  const themeIcon = mounted && isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />;
-
   return (
     <nav
-      className="theme-transition fixed top-0 z-50 w-full border-b px-5 py-3.5 backdrop-blur-2xl"
-      style={{
-        backgroundColor: "var(--nav)",
-        borderColor: colors.borderSoft,
-      }}
+      className="theme-transition fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4"
+      style={{ color: colors.text }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3">
-        <Link href="/" className="group flex items-center gap-3">
+      <div
+        className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-[24px] border px-3 py-3 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:px-4"
+        style={{
+          backgroundColor: "var(--nav)",
+          borderColor: colors.borderSoft,
+        }}
+      >
+        <Link href="/" className="flex min-w-0 items-center gap-3">
           <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md shadow-lg transition-all duration-500 group-hover:rotate-180 sm:h-11 sm:w-11"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white"
             style={{
-              backgroundColor: colors.accent,
-              boxShadow: `0 0 24px ${colors.glow}`,
+              background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
+              boxShadow: `0 16px 30px -18px ${colors.accentShadow}`,
             }}
           >
-            <Cpu size={20} className="text-white" />
+            <Cpu size={18} />
           </div>
 
-          <span className="text-xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>
-            Dongle<span style={{ color: colors.accentLight }}>IQ</span>
-          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[1.05rem] font-semibold tracking-[0.01em]">
+              Dongle<span style={{ color: colors.accent }}>IQ</span>
+            </p>
+            <p className="truncate text-[0.72rem]" style={{ color: colors.subtleText }}>
+              Secure digital onboarding
+            </p>
+          </div>
         </Link>
 
-        <div className="hidden items-center gap-8 text-[10px] font-black uppercase tracking-[0.3em] md:flex">
-          {navLinks.map((link) => (
+        <div className="hidden items-center gap-1 lg:flex">
+          {NAV_LINKS.map((item) => (
             <a
-              key={link}
-              href={navHrefMap[link]}
-              className="relative group transition-all duration-300"
+              key={item.label}
+              href={item.href}
+              className="rounded-full px-4 py-2 text-[0.92rem] font-medium"
               style={{ color: colors.muted }}
             >
-              {link}
-              <span
-                className="absolute -bottom-1 left-0 h-px w-0 transition-all group-hover:w-full"
-                style={{ backgroundColor: colors.accent }}
-              />
+              {item.label}
             </a>
           ))}
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          {showAuthButtons && (
+        <div className="flex items-center gap-2">
+          {showAuthButtons ? (
             <button
               onClick={() => router.push("/login")}
-              className="theme-transition flex items-center gap-2 rounded-md px-3 py-2 text-[10px] font-black uppercase tracking-widest text-white sm:px-5 sm:py-2 sm:text-[11px]"
+              className="hidden min-h-11 items-center gap-2 rounded-full px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
               style={{
-                backgroundColor: colors.accent,
-                boxShadow: `0 4px 12px ${colors.accentShadow}`,
+                background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
+                boxShadow: `0 16px 28px -20px ${colors.accentShadow}`,
               }}
             >
-              <LogIn size={14} /> <span className="hidden sm:inline">Login</span>
+              <LogIn size={16} />
+              Login
             </button>
-          )}
+          ) : null}
 
           {showLogout ? (
             <button
               onClick={handleLogout}
-              className="theme-transition flex items-center gap-2 rounded-md px-3 py-2 text-[10px] font-black uppercase tracking-widest sm:px-4 sm:py-2 sm:text-[11px]"
+              className="hidden min-h-11 items-center gap-2 rounded-full border px-4 text-[0.9rem] font-semibold sm:inline-flex"
               style={{
-                color: colors.text,
-                backgroundColor: colors.panel,
-                border: `1px solid ${colors.borderSoft}`,
+                backgroundColor: colors.card,
+                borderColor: colors.borderSoft,
               }}
             >
-              <LogOut size={14} /> <span className="hidden xs:inline">Logout</span>
+              <LogOut size={16} />
+              Logout
             </button>
           ) : null}
 
           <button
-            onClick={() => {
-              toggleTheme();
-            }}
-            aria-label={themeLabel}
-            title={themeLabel}
-            className="theme-transition rounded-md border p-2.5 transition-all duration-300"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            title="Toggle theme"
+            className="flex h-11 w-11 items-center justify-center rounded-full border"
             style={{
-              color: colors.text,
-              backgroundColor: colors.panel,
+              backgroundColor: colors.card,
               borderColor: colors.borderSoft,
             }}
           >
@@ -158,10 +153,9 @@ export default function Navbar() {
           <button
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="theme-transition rounded-md border p-2.5 sm:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full border lg:hidden"
             style={{
-              color: colors.text,
-              backgroundColor: colors.panel,
+              backgroundColor: colors.card,
               borderColor: colors.borderSoft,
             }}
           >
@@ -172,21 +166,24 @@ export default function Navbar() {
 
       {isMenuOpen ? (
         <div
-          className="mx-auto mt-4 flex max-w-7xl flex-col gap-4 rounded-2xl border p-4 sm:hidden"
+          className="mx-auto mt-3 max-w-7xl rounded-[24px] border p-3 backdrop-blur-2xl lg:hidden"
           style={{
+            backgroundColor: "var(--overlay)",
             borderColor: colors.borderSoft,
-            backgroundColor: colors.card,
           }}
         >
-          <div className="flex flex-col gap-3 text-[11px] font-black uppercase tracking-[0.22em]">
-            {navLinks.map((link) => (
+          <div className="grid gap-2">
+            {NAV_LINKS.map((item) => (
               <a
-                key={link}
-                href={navHrefMap[link]}
-                className="rounded-lg px-3 py-2"
-                style={{ color: colors.text, backgroundColor: colors.panel }}
+                key={item.label}
+                href={item.href}
+                className="rounded-2xl px-4 py-3 text-sm font-medium"
+                style={{
+                  backgroundColor: colors.card,
+                  color: colors.text,
+                }}
               >
-                {link}
+                {item.label}
               </a>
             ))}
           </div>
@@ -197,30 +194,32 @@ export default function Navbar() {
                 router.push("/login");
                 setIsMenuOpen(false);
               }}
-              className="theme-transition flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-[11px] font-black uppercase tracking-widest text-white transition-all duration-200"
+              className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold text-white"
               style={{
-                backgroundColor: colors.accent,
-                boxShadow: `0 4px 12px ${colors.accentShadow}`,
+                background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
+                boxShadow: `0 16px 28px -20px ${colors.accentShadow}`,
               }}
             >
-              <LogIn size={14} /> Login
+              <LogIn size={16} />
+              Login
             </button>
           ) : null}
 
           {showLogout ? (
             <button
               onClick={() => {
-                handleLogout();
                 setIsMenuOpen(false);
+                handleLogout();
               }}
-              className="theme-transition flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-3 text-[11px] font-black uppercase tracking-widest transition-all duration-200"
+              className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border text-sm font-semibold"
               style={{
-                color: colors.text,
-                backgroundColor: colors.panel,
+                backgroundColor: colors.card,
                 borderColor: colors.borderSoft,
+                color: colors.text,
               }}
             >
-              <LogOut size={14} /> Logout
+              <LogOut size={16} />
+              Logout
             </button>
           ) : null}
         </div>

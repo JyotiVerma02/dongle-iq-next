@@ -43,9 +43,6 @@ export default function ForgotPassword() {
 
   return (
     <div className="theme-transition hero-grid relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
-      <div className="hero-glow left-8 top-24 h-56 w-56" style={{ backgroundColor: colors.accent }} />
-      <div className="hero-glow right-12 top-28 h-72 w-72" style={{ backgroundColor: "var(--accent-secondary)" }} />
-
       <nav 
         className="fixed top-0 z-50 w-full border-b p-4 backdrop-blur-xl animate-[slideDown_0.6s_ease-out] sm:p-5"
         style={{ backgroundColor: colors.overlay, borderColor: colors.border }}

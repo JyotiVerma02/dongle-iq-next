@@ -155,9 +155,6 @@ export default function AadhaarVerifyPage() {
 
   return (
     <main className="theme-transition hero-grid relative flex min-h-screen items-center justify-center px-4 pt-24" style={{ color: colors.text }}>
-      <div className="hero-glow left-8 top-28 h-52 w-52" style={{ backgroundColor: colors.accent }} />
-      <div className="hero-glow right-10 top-24 h-64 w-64" style={{ backgroundColor: "var(--accent-secondary)" }} />
-
       <div className="relative z-10 w-full max-w-sm">
         <div
           className="pointer-events-none absolute -inset-px rounded-lg blur-sm"

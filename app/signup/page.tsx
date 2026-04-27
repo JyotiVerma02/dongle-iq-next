@@ -158,14 +158,6 @@ function RegisterContent() {
       style={{ color: colors.text }}
     >
       <div
-        className="hero-glow left-8 top-24 h-56 w-56"
-        style={{ backgroundColor: colors.accent }}
-      />
-      <div
-        className="hero-glow right-12 top-28 h-72 w-72"
-        style={{ backgroundColor: "var(--accent-secondary)" }}
-      />
-      <div
         className={`relative z-10 flex min-h-screen items-stretch ${navOffsetClass}`}
       >
         <div
@@ -363,7 +355,7 @@ function RegisterContent() {
                 </div>
 
                 <div
-                  className="flex items-center rounded-md border"
+                  className="phone-field flex items-center rounded-md border"
                   style={{
                     backgroundColor: colors.input,
                     borderColor: colors.inputBorder,
@@ -388,7 +380,7 @@ function RegisterContent() {
                     placeholder="9876543210"
                     value={number}
                     onChange={(e) => setNumber(sanitizeNumber(e.target.value))}
-                    className="w-full bg-transparent px-3 py-2.5 text-sm outline-none"
+                    className="w-full rounded-r-md bg-transparent px-3 py-2.5 text-sm outline-none"
                     style={{ color: colors.text }}
                   />
                 </div>
