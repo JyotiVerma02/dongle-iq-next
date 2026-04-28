@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/app/context/ThemeContext";
 import AppShell from "@/components/AppShell";
 import Providers from "./providers";
+import Navbar from "@/components/navbar";
 
 export const metadata: Metadata = {
   title: "Dongle IQ | Secure DSC Portal",
@@ -33,14 +34,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-     <script
-  dangerouslySetInnerHTML={{ __html: themeInitScript }}
-/>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body suppressHydrationWarning className="theme-transition antialiased">
         <ThemeProvider>
           <Providers>
-            <AppShell>{children}</AppShell>
+            <Navbar />
+            {children}
           </Providers>
         </ThemeProvider>
       </body>
