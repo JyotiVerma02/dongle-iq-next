@@ -176,7 +176,7 @@ function RegisterContent() {
         <div className="no-scrollbar flex flex-1 items-start justify-center overflow-y-auto px-4 pb-8 pt-2 sm:px-6 lg:flex-[1.05] lg:items-center lg:px-8">
           <div className="group relative w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
             <div
-              className="absolute -inset-[1px] rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100"
+              className="absolute -inset-px rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100"
               style={{ background: premiumGradient }}
             />
 
@@ -491,7 +491,7 @@ function RegisterContent() {
 
 export default function Register() {
   return (
-    <Suspense fallback={<div className="min-h-[100dvh] bg-transparent" />}>
+    <Suspense fallback={<div className="min-h-dvh bg-transparent" />}>
       <RegisterContent />
     </Suspense>
   );

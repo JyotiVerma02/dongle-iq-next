@@ -11,6 +11,14 @@
   --muted: #4f6075;
   --subtle-text: #64748b;
 
+  /* ADD BELOW YOUR ACCENT COLORS */
+
+--accent-rgb: 15, 118, 110;
+
+/* cursor */
+--cursor-glow: rgba(15, 118, 110, 0.35);
+--cursor-ripple: rgba(15, 118, 110, 0.25);
+
   --card: rgba(255, 255, 255, 0.9);
   --card-strong: rgba(255, 255, 255, 0.96);
 
@@ -48,6 +56,14 @@ html.dark {
   --border: rgba(157, 177, 200, 0.16);
   --border-soft: rgba(157, 177, 200, 0.09);
 
+
+
+  /* ADD BELOW DARK ACCENT */
+
+--accent-rgb: 18, 163, 144;
+
+--cursor-glow: rgba(18, 163, 144, 0.35);
+--cursor-ripple: rgba(18, 163, 144, 0.25);
   --accent: #12a390;
   --accent-light: #067180;
   --accent-secondary: #38bdf8;
@@ -1022,17 +1038,73 @@ html:not(.dark) select {
   flex-wrap: wrap;
 }
 
-.cursor-glow {
+/* .cursor-glow {
   position: fixed;
   inset: auto;
   width: 360px;
   height: 360px;
   pointer-events: none;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--accent-soft), transparent 70%);
+background: radial-gradient(
+  circle,
+  rgba(var(--accent-rgb), 0.35) 0%,
+  rgba(var(--accent-rgb), 0.15) 40%,
+  transparent 70%
+);
   transform: translate(-50%, -50%);
   transition: transform 90ms linear;
   z-index: 0;
+} */
+
+.cursor-glow {
+  position: fixed;
+  width: 380px;
+  height: 380px;
+  pointer-events: none;
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(var(--accent-rgb), 0.45) 0%,
+    rgba(var(--accent-rgb), 0.25) 30%,
+    rgba(var(--accent-rgb), 0.12) 55%,
+    transparent 75%
+  );
+
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s linear;
+
+  z-index: 50;
+
+  filter: blur(60px);
+  mix-blend-mode: screen;
+}
+
+.cursor-dot {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+  border-radius: 50%;
+
+  background: white;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+
+  box-shadow:
+    0 0 8px rgba(var(--accent-rgb), 0.9),
+    0 0 18px rgba(var(--accent-rgb), 0.7),
+    0 0 28px rgba(var(--accent-rgb), 0.5);
+}
+
+.cursor-dot::after {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--accent-rgb), 0.6);
+  opacity: 0.7;
+  filter: blur(2px);
 }
 
 .reveal-up {

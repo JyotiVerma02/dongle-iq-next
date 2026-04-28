@@ -24,6 +24,7 @@ const HIDE_NAVBAR_PATHS = new Set([
   "/admin/dashboard",
 ]);
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const USE_SHELL_OFFSET_PATHS = new Set([
   "/admin/dashboard",
 ]);

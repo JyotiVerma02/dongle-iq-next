@@ -236,7 +236,7 @@ export default function UserLedgerView({
         }}
       >
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[920px] text-left">
+          <table className="w-full min-w-230 text-left">
             <thead style={{ backgroundColor: colors.panel }}>
               <tr
                 className="text-[11px] uppercase tracking-[0.18em]"
@@ -414,7 +414,7 @@ export default function UserLedgerView({
 
       {selectedUserFromList ? (
         <div
-          className="fixed inset-0 z-[80] p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-80 p-4 backdrop-blur-sm"
           style={{
             backgroundColor: isDarkMode
               ? "rgba(11,16,21,0.85)"
@@ -757,7 +757,7 @@ function DetailItem({
           {label}
         </p>
         <p
-          className="mt-1 break-words text-sm leading-6"
+          className="mt-1 wrap-break-word text-sm leading-6"
           style={{ color: colors.text }}
         >
           {value}

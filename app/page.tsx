@@ -207,7 +207,7 @@ export default function DongleIQLanding() {
     >
       <section className="section hero-section pt-32 sm:pt-36 lg:pt-40 mt-5">
         <div className="container-shell">
-          <div className="hero-panel grid items-center gap-10 overflow-hidden rounded-[32px] px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] lg:px-12 lg:py-12">
+          <div className="hero-panel grid items-center gap-10 overflow-hidden rounded-4xl px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] lg:px-12 lg:py-12">
             <div className="relative z-10 max-w-2xl">
               <div className="eyebrow-chip mb-6">
                 <BadgeCheck size={14} />
@@ -654,7 +654,7 @@ function FeatureCard({
       <div
         className="premium-card-icon"
         style={{
-          color: colors.accent,
+        color: "#ffffff",
           backgroundColor: colors.accentSoft,
         }}
       >

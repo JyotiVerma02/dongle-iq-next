@@ -27,16 +27,19 @@ export default function CursorGlow() {
     animate();
   }, [mouse]);
 
-  return (
-    <>
-      <div
-        className="cursor-glow"
-        style={{ left: smooth.x, top: smooth.y }}
-      />
-      <div
-        className="cursor-dot"
-        style={{ left: mouse.x, top: mouse.y }}
-      />
-    </>
-  );
+ return (
+  <>
+    {/* Big glow circle */}
+    <div
+      className="cursor-glow"
+      style={{ left: smooth.x, top: smooth.y }}
+    />
+
+    {/* Small sharp inner dot */}
+    <div
+      className="cursor-dot"
+      style={{ left: mouse.x, top: mouse.y }}
+    />
+  </>
+);
 }

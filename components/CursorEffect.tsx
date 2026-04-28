@@ -38,9 +38,10 @@ const SonarClickEffect = () => {
 
     let ripples: Ripple[] = [];
 
-    const getRippleColor = () =>
-      getComputedStyle(document.documentElement).getPropertyValue("--cursor-ripple").trim() ||
-      "rgba(109, 40, 217, 0.22)";
+ const getRippleColor = () =>
+  getComputedStyle(document.documentElement)
+    .getPropertyValue("--cursor-ripple")
+    .trim();
 
     const handleMouseDown = (e: MouseEvent) => {
       ripples.push(new Ripple(e.clientX, e.clientY));
@@ -48,13 +49,15 @@ const SonarClickEffect = () => {
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const strokeColor = getRippleColor();
 
       for (let i = 0; i < ripples.length; i++) {
         ripples[i].update();
         ctx.beginPath();
         ctx.arc(ripples[i].x, ripples[i].y, ripples[i].r, 0, Math.PI * 2);
-        ctx.strokeStyle = strokeColor.replace("0.22", `${Math.max(ripples[i].opacity, 0)}`);
+       ctx.strokeStyle = `rgba(${getComputedStyle(document.documentElement)
+  .getPropertyValue("--accent-rgb")}, ${ripples[i].opacity})`;
         ctx.lineWidth = 1;
         ctx.stroke();
         if (ripples[i].opacity <= 0) {

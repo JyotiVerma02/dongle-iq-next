@@ -104,7 +104,7 @@ export default function ResetPassword() {
 
         <div className="flex flex-1 items-start justify-center px-4 pb-8 pt-4 sm:px-6 lg:flex-[0.95] lg:items-center lg:px-8">
           <div className="relative group w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
-            <div className="absolute -inset-[1.5px] rounded-lg opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
+            <div className="absolute inset-[-1.5px] rounded-lg opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
 
             <div
               className="auth-card relative w-full p-6 sm:p-8"
