@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import { ThemeProvider } from "@/app/context/ThemeContext";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import AppShell from "@/components/AppShell";
 import Providers from "./providers";
 import Navbar from "@/components/navbar";

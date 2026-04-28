@@ -70,7 +70,7 @@ export default function Navbar() {
       style={{ color: colors.text }}
     >
       <div
-        className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-[24px] border px-3 py-3 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:px-4"
+        className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-3xl border px-3 py-3 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:px-4"
         style={{
           backgroundColor: "var(--nav)",
           borderColor: colors.borderSoft,
@@ -168,7 +168,7 @@ export default function Navbar() {
 
       {isMenuOpen ? (
         <div
-          className="mx-auto mt-3 max-w-7xl rounded-[24px] border p-3 backdrop-blur-2xl lg:hidden"
+          className="mx-auto mt-3 max-w-7xl rounded-3xl border p-3 backdrop-blur-2xl lg:hidden"
           style={{
             backgroundColor: "var(--overlay)",
             borderColor: colors.borderSoft,
