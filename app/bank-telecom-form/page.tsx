@@ -276,7 +276,7 @@ function DongleIQForm() {
 
   return (
     <div className="theme-transition hero-grid relative min-h-screen pb-10" style={{ color: colors.text }}>
-      <ParticleBackground />
+     
 
       <div className="page-max-shell relative z-10 p-4 lg:p-8">
         <form

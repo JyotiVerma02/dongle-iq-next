@@ -991,7 +991,7 @@ export default function DSCRegistrationForm() {
                   className="theme-primary-btn theme-transition w-full rounded-lg px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white shadow-2xl sm:w-auto sm:px-14 sm:py-5"
                 >
                   Generate Application{" "}
-                  <ArrowRight className="ml-2 inline" size={16} />
+                  {/* <ArrowRight className="ml-2 inline" size={15} /> */}
                 </button>
               </div>
             </div>

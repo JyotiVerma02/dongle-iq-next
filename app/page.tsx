@@ -337,10 +337,10 @@ export default function DongleIQLanding() {
 
       <section className="section">
         <div className="container-shell">
-          <div className="split-band">
-            <div>
+          <div className="split-band ">
+            <div className="flex items-center  justify-center h-full" >
               <SectionHeader
-                align="left"
+                // align="center"
                 label="Platform highlights"
                 title="Every important interaction feels cleaner and more intentional."
                 description="Better hierarchy, calmer surfaces, and stronger status cues make the product feel more premium while improving completion confidence."
