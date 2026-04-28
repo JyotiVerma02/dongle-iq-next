@@ -39,8 +39,8 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="auth-page-shell theme-transition hero-grid relative overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
-      <div className="relative z-10 flex app-page-min-height">
+    <div className="auth-page-shell theme-transition  relative overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
+      <div className="relative z-10 flex  w-full app-page-min-height">
         <div className="hidden lg:flex lg:min-w-0 lg:flex-[1.05] lg:flex-col lg:justify-center lg:px-12 xl:px-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="mb-8 text-5xl font-black uppercase leading-[0.9] tracking-tight xl:text-6xl" style={{ color: colors.text }}>

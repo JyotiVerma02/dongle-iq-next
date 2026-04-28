@@ -73,6 +73,7 @@ export default function DongleIQAdminHub() {
   const [isChartReady, setIsChartReady] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsChartReady(true);
   }, []);
 
