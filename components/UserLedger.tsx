@@ -78,7 +78,7 @@ export default function UserLedgerView({
   const [rejectReason, setRejectReason] = useState("");
   const [actionError, setActionError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-const itemsPerPage = 10;
+  const itemsPerPage = 10;
 
   const filteredUsers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -93,6 +93,7 @@ const itemsPerPage = 10;
 
   // Reset to first page when search changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [searchQuery]);
 
@@ -235,7 +236,7 @@ const itemsPerPage = 10;
         }}
       >
         <div className="overflow-x-auto">
-          <table className="w-full min-w-230 text-left">
+          <table className="w-full min-w-[920px] text-left">
             <thead style={{ backgroundColor: colors.panel }}>
               <tr
                 className="text-[11px] uppercase tracking-[0.18em]"
@@ -413,7 +414,7 @@ const itemsPerPage = 10;
 
       {selectedUserFromList ? (
         <div
-          className="fixed inset-0 z-80 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[80] p-4 backdrop-blur-sm"
           style={{
             backgroundColor: isDarkMode
               ? "rgba(11,16,21,0.85)"
@@ -676,7 +677,7 @@ function StatCard({
 
   return (
     <div
-      className="theme-transition rounded-lg border p-5"
+      className="theme-transition rounded-lg border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       style={{
         borderColor: colors.borderSoft,
         backgroundColor: colors.panelStrong,
@@ -714,7 +715,7 @@ function SectionCard({
 }) {
   return (
     <section
-      className="theme-transition rounded-lg border p-5"
+      className="theme-transition rounded-lg border p-5 transition-all duration-300 hover:shadow-lg"
       style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
     >
       <h4
@@ -756,7 +757,7 @@ function DetailItem({
           {label}
         </p>
         <p
-          className="mt-1 wrap-break-word text-sm leading-6"
+          className="mt-1 break-words text-sm leading-6"
           style={{ color: colors.text }}
         >
           {value}

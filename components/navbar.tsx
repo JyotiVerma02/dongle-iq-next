@@ -22,6 +22,7 @@ const AUTH_ROUTES = new Set([
   "/signup",
   "/forgot-password",
   "/reset-password",
+  "/admin/register",
 ]);
 
 const LOGOUT_ROUTES = new Set([
@@ -101,7 +102,7 @@ export default function Navbar() {
             <a
               key={item.label}
               href={item.href}
-              className="rounded-full px-4 py-2 text-[0.92rem] font-medium"
+              className="rounded-full px-4 py-2 text-[0.92rem] font-medium hover:-translate-y-0.5"
               style={{ color: colors.muted }}
             >
               {item.label}
@@ -113,7 +114,7 @@ export default function Navbar() {
           {showAuthButtons ? (
             <button
               onClick={() => router.push("/login")}
-              className="hidden min-h-11 items-center gap-2 rounded-md px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
+              className="hidden min-h-11 items-center gap-2 rounded-full px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
               style={{
                 background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
                 boxShadow: `0 16px 28px -20px ${colors.accentShadow}`,

@@ -70,6 +70,11 @@ export default function DongleIQAdminHub() {
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminMessage, setAdminMessage] = useState("");
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [isChartReady, setIsChartReady] = useState(false);
+
+  useEffect(() => {
+    setIsChartReady(true);
+  }, []);
 
   const fetchDashboardData = async (showLoader = true) => {
     if (showLoader) setLoading(true);
@@ -658,7 +663,7 @@ export default function DongleIQAdminHub() {
               <section className="grid min-h-0 h-full gap-4 xl:grid-cols-[1.5fr_0.9fr]">
                 <div className="min-h-0 h-full overflow-y-auto pr-0 lg:pr-2">
                   <div
-                    className="theme-transition rounded-xl border p-3 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 "
+                    className="theme-transition rounded-xl border p-3 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:shadow-2xl"
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -833,7 +838,7 @@ export default function DongleIQAdminHub() {
                 <div className="space-y-4">
                   {/* ✅ Verification Card */}
                   <div
-                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)]"
+                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -873,7 +878,7 @@ export default function DongleIQAdminHub() {
 
                   {/* ✅ Pie Chart Card (Separate) */}
                   <div
-                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] "
+                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -883,31 +888,38 @@ export default function DongleIQAdminHub() {
                    >
                     <h3 className="mb-3 text-base font-bold">User Status</h3>
 
-                    <div className="h-44">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={chartData}
-                            dataKey="value"
-                            outerRadius={70}
-                            innerRadius={40}
-                            paddingAngle={4}
-                            label
-                            stroke="none" 
-  style={{ outline: 'none' }}
-                           >
-                            <Cell fill="#10b981" />
-                            <Cell fill="#f59e0b" />
-                            <Cell fill="#ef4444" />
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
+                    <div className="h-44 min-w-0 w-full">
+                      {isChartReady ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <PieChart>
+                            <Pie
+                              data={chartData}
+                              dataKey="value"
+                              outerRadius={70}
+                              innerRadius={40}
+                              paddingAngle={4}
+                              label
+                              stroke="none"
+                              style={{ outline: "none" }}
+                            >
+                              <Cell fill="#10b981" />
+                              <Cell fill="#f59e0b" />
+                              <Cell fill="#ef4444" />
+                            </Pie>
+                          </PieChart>
+                        </ResponsiveContainer>
+                      ) : (
+                        <div
+                          className="h-full w-full rounded-xl"
+                          style={{ backgroundColor: colors.panel }}
+                        />
+                      )}
                     </div>
                   </div>
 
                   {/* ✅ Admin Snapshot Card */}
                   <div
-                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)]"
+                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
                     style={{
                       borderColor: isDarkMode
                         ? "rgba(255,255,255,0.06)"
@@ -1009,7 +1021,7 @@ export default function DongleIQAdminHub() {
               </div>
               <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
                 <div
-                  className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)]"
+                  className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:shadow-2xl"
                   style={{
                     borderColor: isDarkMode
                       ? "rgba(255,255,255,0.06)"
@@ -1099,7 +1111,7 @@ export default function DongleIQAdminHub() {
                 </div>
 
                 <div
-                  className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)]"
+                  className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:shadow-2xl"
                   style={{
                     borderColor: isDarkMode
                       ? "rgba(255,255,255,0.06)"
@@ -1250,7 +1262,7 @@ function MetricCard({
 
   return (
     <div
-      className="theme-transition rounded-xl border p-3.5 lg:p-4 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.35)]"
+      className="theme-transition rounded-xl border p-3.5 lg:p-4 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       style={{
         borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
         backgroundColor: colors.panelStrong,
@@ -1290,7 +1302,7 @@ function ProfileCard({
   const colors = getThemePalette(isDarkMode);
   return (
     <div
-      className="theme-transition min-w-0 rounded-xl border p-3"
+      className="theme-transition min-w-0 rounded-xl border p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       style={{
         borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
         backgroundColor: colors.panel,
@@ -1361,7 +1373,7 @@ function QuickActionButton({
 
   const styles = {
     primary: {
-      background: "linear-gradient(135deg, #1d7fd0, #2f9be4)",
+      background: "linear-gradient(135deg, var(--accent), var(--accent-light))",
       color: "#f8fbff",
       borderColor: "transparent",
     },
@@ -1404,7 +1416,7 @@ function FinanceStatCard({
 }) {
   const backgrounds = {
     slate: "linear-gradient(135deg, #77808b, #8b949e)",
-    blue: "linear-gradient(135deg, #1570ef, #3291ff)",
+    blue: "linear-gradient(135deg, var(--accent-secondary), var(--accent-light))",
     amber: "linear-gradient(135deg, #f8b400, #ffc531)",
     teal: "linear-gradient(135deg, #1ca3ba, #2eb8c9)",
     cyan: "linear-gradient(135deg, #1f9fb5, #31b8cd)",
@@ -1415,7 +1427,7 @@ function FinanceStatCard({
 
   return (
     <div
-      className="rounded-xl p-4 text-[#081214] shadow-[0_18px_36px_-24px_rgba(15,23,42,0.3)]"
+      className="rounded-xl p-4 text-[#081214] shadow-[0_18px_36px_-24px_rgba(15,23,42,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       style={{ background: backgrounds[accent] }}
     >
       <div className="flex items-start justify-between gap-3">

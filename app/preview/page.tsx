@@ -28,6 +28,7 @@ export default function PreviewPage() {
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDraft(savedDraft);
   }, [router]);
 
@@ -89,8 +90,8 @@ export default function PreviewPage() {
   });
 
   return (
-    <div className="theme-transition hero-grid relative min-h-screen px-4 pb-10 pt-24" style={{ color: colors.text }}>
-      <div className="relative z-10 mx-auto max-w-6xl space-y-6">
+    <div className="theme-transition hero-grid relative min-h-screen px-4 pb-10" style={{ color: colors.text }}>
+      <div className="page-max-shell relative z-10 space-y-6 px-4 sm:px-6">
         <div
           className="theme-transition rounded-lg border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
@@ -220,7 +221,7 @@ function PreviewItem({
 }) {
   return (
     <div
-      className="theme-transition rounded-lg border px-4 py-3"
+      className="theme-transition rounded-lg border px-4 py-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
       style={{ backgroundColor: colors.panelStrong, borderColor: colors.borderSoft }}
     >
       <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: colors.muted }}>
@@ -246,7 +247,7 @@ function DocumentCard({
 
   return (
     <div
-      className="theme-transition rounded-lg border p-4"
+      className="theme-transition rounded-lg border p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       style={{ backgroundColor: colors.panelStrong, borderColor: colors.borderSoft }}
     >
       <div className="mb-3">

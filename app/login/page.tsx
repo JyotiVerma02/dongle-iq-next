@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LogIn, ShieldCheck, Eye, EyeOff } from "lucide-react";
@@ -11,7 +11,6 @@ import { getThemePalette } from "@/app/lib/themePalette";
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const navOffsetClass = "pt-24 md:pt-28";
   const registered = searchParams.get("registered") === "true";
  
 
@@ -24,9 +23,8 @@ function LoginContent() {
   const { isDarkMode } = useTheme();
 
   const colors = getThemePalette(isDarkMode);
-  const premiumGradient = isDarkMode
-    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
-    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+  const premiumGradient =
+    "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
 
 
@@ -65,10 +63,10 @@ function LoginContent() {
   return (
     <div
       suppressHydrationWarning
-      className="theme-transition hero-grid relative min-h-[100dvh] overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition hero-grid relative overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className={`relative z-10 flex min-h-screen items-stretch ${navOffsetClass}`}>
+      <div className="relative z-10 flex app-page-min-height items-stretch">
         <div className="hidden lg:flex lg:min-w-0 lg:flex-[0.95] lg:flex-col lg:justify-center lg:px-10 xl:px-14" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="mb-5 text-4xl font-black uppercase leading-tight tracking-tight xl:text-5xl">
@@ -85,7 +83,7 @@ function LoginContent() {
               ].map((item, index) => (
                 <div
                   key={item.label}
-                  className={`rounded-lg border p-4 ${index === 0 ? "float-slow" : "float-delay"}`}
+                  className={`auth-aside-card rounded-2xl p-4 ${index === 0 ? "float-slow" : "float-delay"}`}
                   style={{ borderColor: colors.borderSoft, backgroundColor: premiumGradient }}
                 >
                   <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-md text-white" style={{ background: premiumGradient }}>
@@ -101,12 +99,12 @@ function LoginContent() {
           </div>
         </div>
 
-        <div className="no-scrollbar flex flex-1 items-start justify-center overflow-y-auto px-4 pb-6 pt-2 sm:px-6 lg:flex-[1.05] lg:items-center lg:px-8">
+        <div className="no-scrollbar flex flex-1 items-start justify-center overflow-y-auto px-4 pb-8 pt-2 sm:px-6 lg:flex-[1.05] lg:items-center lg:px-8">
           <div className="group relative w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
             <div className="absolute -inset-[1px] rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100" style={{ background: premiumGradient }} />
 
             <div
-              className="shine-border relative w-full overflow-hidden rounded-lg border p-4 shadow-[0_16px_40px_rgba(0,0,0,0.18)] backdrop-blur-2xl md:p-5"
+              className="auth-card shine-border relative w-full overflow-hidden p-4 md:p-5"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border,

@@ -87,9 +87,8 @@ export default function DSCRegistrationForm() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
-  const premiumGradient = isDarkMode
-    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
-    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+  const premiumGradient =
+    "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
   const shellBackground = isDarkMode ? colors.panelStrong : colors.card;
   const cardBackground = isDarkMode ? colors.card : colors.panelStrong;
   const strongBorderColor = isDarkMode ? colors.inputBorder : colors.border;
@@ -365,7 +364,7 @@ export default function DSCRegistrationForm() {
 
   return (
     <div
-      className="theme-transition hero-grid relative min-h-screen px-4 pb-10 pt-28 sm:px-6"
+      className="theme-transition hero-grid relative min-h-screen px-4 pb-10 sm:px-6"
       style={{ color: colors.text }}
     >
       <div
@@ -378,13 +377,13 @@ export default function DSCRegistrationForm() {
       />
 
       {loading ? (
-        <div className="relative z-10 mx-auto max-w-6xl">
+        <div className="page-max-shell relative z-10 px-4 sm:px-6">
           <div className="flex items-center justify-center min-h-50">
             <p style={{ color: colors.muted }}>Loading your profile...</p>
           </div>
         </div>
       ) : userData ? (
-        <div className="relative z-10 mx-auto mb-8 max-w-6xl">
+        <div className="page-max-shell relative z-10 mb-8 px-4 sm:px-6">
           <div
             className="shine-border theme-transition rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8"
             style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
@@ -632,7 +631,7 @@ export default function DSCRegistrationForm() {
       {!hasSubmittedApplication ? (
         <form
           onSubmit={handleSubmit}
-          className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-8"
+          className="page-max-shell relative z-10 flex w-full flex-col gap-8 px-4 sm:px-6"
         >
           <section
             className="shine-border theme-transition grid items-center gap-8 rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8 md:grid-cols-[0.95fr_1.05fr] lg:p-10"
@@ -1001,7 +1000,7 @@ export default function DSCRegistrationForm() {
       ) : null}
 
       {userData && hasSubmittedApplication ? (
-        <section className="relative z-10 mx-auto mt-8 grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_1fr]">
+        <section className="page-max-shell relative z-10 mt-8 grid w-full gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1fr]">
           <div
             className="rounded-lg border p-5 sm:p-8"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}

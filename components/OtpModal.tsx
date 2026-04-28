@@ -115,7 +115,7 @@ export default function OtpModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}>
       <div
-        className="w-100 rounded-lg border p-8 shadow-2xl backdrop-blur-2xl"
+        className="w-full max-w-md rounded-[28px] border p-5 shadow-2xl backdrop-blur-2xl sm:p-8"
         style={{ backgroundColor: colors.card, color: colors.text, borderColor: colors.border }}
       >
         <h2 className="mb-2 text-2xl font-bold">Verify OTP</h2>
@@ -124,7 +124,7 @@ export default function OtpModal({
           Enter the 6 digit OTP sent to your email
         </p>
 
-        <div className="flex justify-between mb-6">
+        <div className="mb-6 flex justify-between gap-2 sm:gap-3">
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -134,7 +134,7 @@ export default function OtpModal({
               ref={(el) => {
                 inputs.current[index] = el;
               }}
-              className="w-12 h-12 rounded-md border text-center text-xl focus:outline-none focus:ring-2"
+              className="h-11 w-11 rounded-2xl border text-center text-lg focus:outline-none focus:ring-2 sm:h-12 sm:w-12 sm:text-xl"
               style={{
                 backgroundColor: colors.input,
                 borderColor: colors.inputBorder,

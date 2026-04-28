@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
@@ -21,13 +22,15 @@ export default function AadhaarVerifyPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const premiumGradient = isDarkMode
-    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
-    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+  const premiumGradient =
+    "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
   useEffect(() => {
     if (timer <= 0) return;
-    const interval = setInterval(() => setTimer((current) => Math.max(current - 1, 0)), 1000);
+    const interval = setInterval(
+      () => setTimer((current) => Math.max(current - 1, 0)),
+      1000,
+    );
     return () => clearInterval(interval);
   }, [timer]);
 
@@ -39,12 +42,10 @@ export default function AadhaarVerifyPage() {
 
   const handleSendOtp = async () => {
     if (!/^\d{10}$/.test(mobile)) {
-      console.error("[VERIFY-AADHAAR] Invalid mobile format:", mobile);
       setError("Enter valid 10-digit number");
       return;
     }
 
-    console.log("[VERIFY-AADHAAR] Sending OTP for mobile:", mobile);
     setError("");
     setSuccess("");
     setIsSendingOtp(true);
@@ -57,20 +58,16 @@ export default function AadhaarVerifyPage() {
       });
 
       const data = await response.json();
-      console.log("[VERIFY-AADHAAR] Send OTP response:", response.status, data);
 
       if (!data.success) {
-        console.error("[VERIFY-AADHAAR] Failed to send OTP:", data.message);
         setError(data.message || "Failed to send OTP");
         return;
       }
 
-      console.log("[VERIFY-AADHAAR] OTP sent successfully to", mobile);
       setOtpSent(true);
       setTimer(120);
       setSuccess("OTP sent successfully.");
-    } catch (error) {
-      console.error("[VERIFY-AADHAAR] Connection error:", error);
+    } catch {
       setError("Connection error");
     } finally {
       setIsSendingOtp(false);
@@ -89,14 +86,21 @@ export default function AadhaarVerifyPage() {
     }
   };
 
-  const handleOtpKeyDown = (index: number, event: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleOtpKeyDown = (
+    index: number,
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (event.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handleOtpPaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
-    const pastedOtp = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const pastedOtp = event.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, 6);
+
     if (!pastedOtp) {
       return;
     }
@@ -114,12 +118,9 @@ export default function AadhaarVerifyPage() {
 
   const handleVerify = async () => {
     if (!isChecked || otp.join("").length !== 6) {
-      console.warn("[VERIFY-AADHAAR] Verification skipped - checkbox:", isChecked, "OTP length:", otp.join("").length);
       return;
     }
 
-    console.log("[VERIFY-AADHAAR] Attempting verification for mobile:", mobile);
-    console.log("[VERIFY-AADHAAR] OTP submitted:", otp.join(""));
     setIsVerifying(true);
     setError("");
 
@@ -131,22 +132,18 @@ export default function AadhaarVerifyPage() {
       });
 
       const data = await response.json();
-      console.log("[VERIFY-AADHAAR] Verification response:", response.status, data);
 
       if (!data.success) {
-        console.error("[VERIFY-AADHAAR] Verification failed:", data.message);
         setError(data.message || "Verification failed");
         setOtp(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
         return;
       }
 
-      console.log("[VERIFY-AADHAAR] Verification successful! Redirecting to bank-telecom-form...");
       setSuccess("Verified successfully.");
       sessionStorage.setItem("verifiedMobile", mobile);
       setTimeout(() => router.push(`/bank-telecom-form?mobile=${mobile}`), 900);
-    } catch (error) {
-      console.error("[VERIFY-AADHAAR] Server error:", error);
+    } catch {
       setError("Server error");
     } finally {
       setIsVerifying(false);
@@ -154,25 +151,42 @@ export default function AadhaarVerifyPage() {
   };
 
   return (
-    <main className="theme-transition hero-grid relative flex min-h-screen items-center justify-center px-4 pt-24" style={{ color: colors.text }}>
-      <div className="relative z-10 w-full max-w-sm">
+    <main
+      className="theme-transition hero-grid relative flex app-page-min-height items-center justify-center px-4 py-6 sm:px-6"
+      style={{ color: colors.text }}
+    >
+      <div className="relative z-10 w-full max-w-md">
         <div
           className="pointer-events-none absolute -inset-px rounded-lg blur-sm"
           style={{ background: premiumGradient, opacity: isDarkMode ? 0.34 : 0.18 }}
         />
 
         <section
-          className="shine-border theme-transition relative rounded-lg border p-5 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl"
+          className="shine-border theme-transition relative rounded-[28px] border p-5 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl sm:p-6"
           style={{ backgroundColor: colors.panelStrong, borderColor: colors.border }}
         >
-          <div className="mb-4 text-center">
+          <div className="mb-5 text-center">
+            <div
+              className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl text-white"
+              style={{ background: premiumGradient }}
+            >
+              <ShieldCheck size={20} />
+            </div>
             <h1 className="text-xl font-black uppercase tracking-tighter">
               Aadhaar <span style={{ color: colors.accent }}>Verification</span>
             </h1>
           </div>
 
           {(error || success) && (
-            <div className="mb-3 text-center text-[10px] font-black uppercase">
+            <div
+              className="mb-4 rounded-2xl border px-4 py-3 text-center text-[11px] font-semibold"
+              style={{
+                borderColor: error ? "rgba(244, 63, 94, 0.2)" : colors.borderSoft,
+                backgroundColor: error
+                  ? "rgba(244, 63, 94, 0.08)"
+                  : colors.accentSoft,
+              }}
+            >
               {error ? <p className="text-rose-500">{error}</p> : null}
               {success ? <p style={{ color: colors.accent }}>{success}</p> : null}
             </div>
@@ -186,7 +200,7 @@ export default function AadhaarVerifyPage() {
           </div>
 
           <div className="space-y-4">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 type="tel"
                 maxLength={10}
@@ -195,21 +209,26 @@ export default function AadhaarVerifyPage() {
                 disabled={otpSent}
                 placeholder="Mobile Number"
                 onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
-                className="glass-input theme-transition flex-1 rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none disabled:opacity-70"
-                style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder, caretColor: colors.text }}
+                className="glass-input theme-transition flex-1 rounded-2xl border px-4 py-3 text-sm font-semibold outline-none disabled:opacity-70"
+                style={{
+                  backgroundColor: colors.input,
+                  color: colors.text,
+                  borderColor: colors.inputBorder,
+                  caretColor: colors.text,
+                }}
               />
-              {!otpSent && (
+              {!otpSent ? (
                 <button
                   onClick={handleSendOtp}
                   disabled={isSendingOtp}
-                  className="theme-primary-btn theme-transition rounded-lg px-4 py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:opacity-60 whitespace-nowrap"
+                  className="theme-primary-btn theme-transition rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap text-white disabled:opacity-60"
                 >
                   {isSendingOtp ? "Sending..." : "Send OTP"}
                 </button>
-              )}
+              ) : null}
             </div>
 
-            {otpSent && (
+            {otpSent ? (
               <div className="space-y-3 text-center">
                 <div className="flex justify-center gap-1.5">
                   {otp.map((digit, index) => (
@@ -225,35 +244,50 @@ export default function AadhaarVerifyPage() {
                       onChange={(event) => handleOtpChange(index, event.target.value)}
                       onKeyDown={(event) => handleOtpKeyDown(index, event)}
                       onPaste={handleOtpPaste}
-                      className="glass-input theme-transition h-9 w-9 rounded-lg border text-center text-sm font-bold outline-none"
-                      style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder, caretColor: colors.text }}
+                      className="glass-input theme-transition h-11 w-11 rounded-2xl border text-center text-sm font-bold outline-none"
+                      style={{
+                        backgroundColor: colors.input,
+                        color: colors.text,
+                        borderColor: colors.inputBorder,
+                        caretColor: colors.text,
+                      }}
                     />
                   ))}
                 </div>
 
-                <button onClick={() => timer === 0 && handleSendOtp()} className="text-[10px] font-semibold" style={{ color: colors.accent }}>
+                <button
+                  onClick={() => timer === 0 && handleSendOtp()}
+                  className="text-[10px] font-semibold"
+                  style={{ color: colors.accent }}
+                >
                   {timer > 0 ? `Resend in ${timer}s` : "Resend OTP"}
                 </button>
               </div>
-            )}
+            ) : null}
 
-            <div className="flex cursor-pointer items-center gap-2 text-[10px]" onClick={() => setIsChecked((current) => !current)}>
+            <div
+              className="flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3.5 text-[11px]"
+              style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
+              onClick={() => setIsChecked((current) => !current)}
+            >
               <div
-                className="theme-transition flex h-5 w-5 items-center justify-center rounded border text-white"
+                className="theme-transition mt-0.5 flex h-5 w-5 items-center justify-center rounded border text-white"
                 style={{
                   backgroundColor: isChecked ? colors.accent : "transparent",
                   borderColor: colors.accent,
                 }}
               >
-                {isChecked && <span className="text-xs font-bold">✓</span>}
+                {isChecked ? <span className="text-xs font-bold">✓</span> : null}
               </div>
-              <span style={{ color: colors.text }}>Consent for verification</span>
+              <span style={{ color: colors.text }}>
+                I consent to Aadhaar-linked mobile verification for this application.
+              </span>
             </div>
 
             <button
               onClick={handleVerify}
               disabled={!isChecked || otp.join("").length !== 6 || isVerifying}
-              className="theme-primary-btn theme-transition w-full rounded-lg py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="theme-primary-btn theme-transition w-full rounded-2xl py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:cursor-not-allowed disabled:opacity-60"
               style={{ opacity: isChecked && otp.join("").length === 6 ? 1 : 0.55 }}
             >
               {isVerifying ? "Verifying..." : "Verify"}

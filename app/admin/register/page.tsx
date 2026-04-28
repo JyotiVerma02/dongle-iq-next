@@ -12,7 +12,6 @@ export default function AdminRegister() {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
-  const navOffsetClass = "pt-24 md:pt-28";
 
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -28,9 +27,8 @@ export default function AdminRegister() {
   const [adminExists, setAdminExists] = useState(false);
   const [existingAdminEmail, setExistingAdminEmail] = useState("");
 
-  const premiumGradient = isDarkMode
-    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
-    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+  const premiumGradient =
+    "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
   const sanitizeNumber = (value: string) =>
     value.replace(/\D/g, "").slice(0, 10);
@@ -99,10 +97,10 @@ export default function AdminRegister() {
 
   return (
     <div
-      className="theme-transition hero-grid relative min-h-[100dvh] overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition hero-grid relative overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className={`relative z-10 flex min-h-[100dvh] items-stretch ${navOffsetClass}`}>
+      <div className="relative z-10 flex app-page-min-height items-stretch">
         <div
           className="hidden lg:flex lg:min-w-0 lg:flex-[0.95] lg:flex-col lg:justify-center lg:px-10 xl:px-14"
           style={{ borderRight: `1px solid ${colors.borderSoft}` }}
