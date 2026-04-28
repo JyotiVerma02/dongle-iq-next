@@ -78,7 +78,7 @@ export default function UserLedgerView({
   const [rejectReason, setRejectReason] = useState("");
   const [actionError, setActionError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-const itemsPerPage = 10;
+  const itemsPerPage = 10;
 
   const filteredUsers = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -93,6 +93,7 @@ const itemsPerPage = 10;
 
   // Reset to first page when search changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [searchQuery]);
 
@@ -676,7 +677,7 @@ function StatCard({
 
   return (
     <div
-      className="theme-transition rounded-lg border p-5"
+      className="theme-transition rounded-lg border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       style={{
         borderColor: colors.borderSoft,
         backgroundColor: colors.panelStrong,
@@ -714,7 +715,7 @@ function SectionCard({
 }) {
   return (
     <section
-      className="theme-transition rounded-lg border p-5"
+      className="theme-transition rounded-lg border p-5 transition-all duration-300 hover:shadow-lg"
       style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
     >
       <h4

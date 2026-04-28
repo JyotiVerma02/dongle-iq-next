@@ -2,10 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { 
-  Cpu, ShieldCheck, Eye, EyeOff 
-} from "lucide-react";
+import { ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
@@ -21,9 +18,8 @@ export default function ResetPassword() {
   const { isDarkMode } = useTheme();
 
   const colors = getThemePalette(isDarkMode);
-  const premiumGradient = isDarkMode
-    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
-    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+  const premiumGradient =
+    "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,30 +69,8 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="theme-transition hero-grid relative min-h-screen overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
-      <nav
-        className="fixed top-0 z-50 w-full border-b p-4 backdrop-blur-xl animate-[slideDown_0.6s_ease-out] sm:p-5"
-        style={{ backgroundColor: colors.overlay, borderColor: colors.border }}
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 group">
-            <div 
-              className="w-10 h-10 rounded-lg flex items-center justify-center shadow-lg transition-all duration-500 group-hover:rotate-360"
-              style={{ backgroundColor: colors.accent, boxShadow: `0 0 20px ${colors.accent}44` }}
-            >
-              <Cpu size={20} className="text-white" />
-            </div>
-            <span className="font-black text-xl uppercase tracking-tighter" style={{ color: colors.text }}>
-              Dongle<span style={{ color: colors.accentLight }}>IQ</span>
-            </span>
-          </Link>
-          <Link href="/login" className="text-right text-[9px] font-black uppercase tracking-[0.22em] sm:text-[10px] sm:tracking-[0.3em]" style={{ color: colors.muted }}>
-            Back to Login
-          </Link>
-        </div>
-      </nav>
-
-      <div className="relative z-10 flex min-h-screen pt-[4.5rem]">
+    <div className="auth-page-shell theme-transition relative overflow-hidden bg-transparent font-sans antialiased tracking-tight" style={{ color: colors.text }}>
+      <div className="relative z-10 flex w-full app-page-min-height">
         <div className="hidden lg:flex lg:min-w-0 lg:flex-[1.05] lg:flex-col lg:justify-center lg:px-12 xl:px-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
           <div className="animate-[fadeInLeft_0.8s_ease-out]">
             <h1 className="mb-8 text-5xl font-black uppercase leading-[0.9] tracking-tight xl:text-6xl" style={{ color: colors.text }}>
@@ -114,7 +88,7 @@ export default function ResetPassword() {
               ].map((item, index) => (
                 <div
                   key={item.label}
-                  className={`rounded-lg border p-5 ${index === 0 ? "float-slow" : "float-delay"}`}
+                  className={`auth-aside-card rounded-2xl p-5 ${index === 0 ? "float-slow" : "float-delay"}`}
                   style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
                 >
                   <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg text-white" style={{ background: premiumGradient }}>
@@ -128,12 +102,12 @@ export default function ResetPassword() {
           </div>
         </div>
 
-        <div className="flex flex-1 items-start justify-center px-4 pb-6 pt-4 sm:px-6 lg:flex-[0.95] lg:items-center">
+        <div className="flex flex-1 items-start justify-center px-4 pb-8 pt-4 sm:px-6 lg:flex-[0.95] lg:items-center lg:px-8">
           <div className="relative group w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
-            <div className="absolute -inset-[1.5px] rounded-lg opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
+            <div className="absolute inset-[-1.5px] rounded-lg opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
 
             <div
-              className="relative w-full rounded-lg border p-6 shadow-[0_20px_50px_rgba(0,0,0,0.22)] backdrop-blur-2xl sm:p-8"
+              className="auth-card relative w-full p-6 sm:p-8"
               style={{ backgroundColor: colors.card, borderColor: colors.border }}
             >
               <div className="mb-6 text-center">
@@ -146,10 +120,10 @@ export default function ResetPassword() {
               </div>
 
               {message && (
-                <div className={`mb-4 py-2 text-[10px] text-center rounded-lg ${
+                <div className={`mb-4 rounded-lg border px-3 py-2.5 text-center text-[11px] font-semibold ${
                   message.toLowerCase().includes("success")
-                    ? "bg-emerald-500/10 text-emerald-400"
-                    : "bg-red-500/10 text-red-400"
+                    ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                    : "border-red-500/20 bg-red-500/10 text-red-400"
                 }`}>
                   {message}
                 </div>
@@ -208,10 +182,6 @@ export default function ResetPassword() {
       </div>
 
       <style jsx global>{`
-        @keyframes slideDown {
-          from { transform: translateY(-100%); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
         @keyframes fadeInLeft {
           from { transform: translateX(-50px); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }

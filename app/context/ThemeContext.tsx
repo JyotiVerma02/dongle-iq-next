@@ -28,6 +28,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Set mounted state and restore theme from localStorage
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
     if (typeof window !== "undefined") {
       const savedTheme = window.localStorage.getItem(STORAGE_KEY) as Theme | null;

@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, LoaderCircle, MessageSquare, Send, Sparkles, X } from "lucide-react";
 
+import { useTheme } from "@/app/context/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
+
 type Msg = {
   role: "user" | "assistant";
   content: string;
@@ -15,6 +18,8 @@ const starterQuestions = [
 ];
 
 export default function AIChat() {
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState("");
@@ -95,14 +100,25 @@ export default function AIChat() {
       <button
         onClick={() => setOpen((current) => !current)}
         aria-label={open ? "Close AI chat" : "Open AI chat"}
-        className="relative z-20 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-2xl transition-all hover:scale-105"
+        className="relative z-20 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-2xl transition-all hover:scale-105"
+        style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-light))" }}
       >
         {open ? <X size={22} /> : <MessageSquare size={22} />}
       </button>
 
       {open ? (
-        <div className="mt-3 flex h-[560px] w-[360px] max-w-[95vw] flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950 text-white shadow-2xl">
-          <div className="flex items-center justify-between bg-blue-600 px-4 py-3">
+        <div
+          className="mt-3 flex h-[560px] w-[360px] max-w-[95vw] flex-col overflow-hidden rounded-2xl border text-white shadow-2xl"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: isDarkMode ? "#08111f" : "#f8fbff",
+            color: colors.text,
+          }}
+        >
+          <div
+            className="flex items-center justify-between px-4 py-3 text-white"
+            style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-light))" }}
+          >
             <div className="flex items-center gap-2">
               <Bot size={20} />
               <div>
@@ -120,16 +136,26 @@ export default function AIChat() {
             </button>
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto bg-slate-900 p-3">
+          <div
+            className="flex-1 space-y-3 overflow-y-auto p-3"
+            style={{ backgroundColor: isDarkMode ? "#0b1526" : "rgba(255,255,255,0.78)" }}
+          >
             {messages.map((msg, i) => (
               <div
                 key={`${msg.role}-${i}`}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[82%] rounded-2xl px-3 py-2 text-sm ${
-                    msg.role === "user" ? "bg-blue-600 text-white" : "bg-slate-800 text-white"
-                  }`}
+                  className="max-w-[82%] rounded-2xl px-3 py-2 text-sm"
+                  style={{
+                    background:
+                      msg.role === "user"
+                        ? "linear-gradient(135deg, var(--accent), var(--accent-light))"
+                        : isDarkMode
+                          ? "rgba(148, 163, 184, 0.14)"
+                          : "rgba(226, 232, 240, 0.9)",
+                    color: msg.role === "user" ? "#ffffff" : colors.text,
+                  }}
                 >
                   {msg.content}
                 </div>
@@ -137,7 +163,13 @@ export default function AIChat() {
             ))}
 
             {loading ? (
-              <div className="flex w-fit items-center gap-2 rounded-xl bg-slate-800 px-3 py-2">
+              <div
+                className="flex w-fit items-center gap-2 rounded-xl px-3 py-2"
+                style={{
+                  backgroundColor: isDarkMode ? "rgba(148, 163, 184, 0.14)" : "rgba(226, 232, 240, 0.9)",
+                  color: colors.text,
+                }}
+              >
                 <LoaderCircle size={14} className="animate-spin" />
                 Typing...
               </div>
@@ -146,7 +178,13 @@ export default function AIChat() {
             <div ref={bottomRef} />
           </div>
 
-          <div className="border-t border-white/10 bg-slate-950 p-3">
+          <div
+            className="border-t p-3"
+            style={{
+              borderColor: colors.borderSoft,
+              backgroundColor: isDarkMode ? "#08111f" : "#f8fbff",
+            }}
+          >
             {error ? (
               <p className="mb-2 text-xs font-semibold text-red-400">{error}</p>
             ) : null}
@@ -157,13 +195,19 @@ export default function AIChat() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleEnter}
                 placeholder="Ask anything..."
-                className="flex-1 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-sm outline-none"
+                className="flex-1 rounded-xl border px-3 py-2 text-sm outline-none"
+                style={{
+                  borderColor: colors.borderSoft,
+                  backgroundColor: colors.input,
+                  color: colors.text,
+                }}
               />
 
               <button
                 onClick={() => void sendMessage()}
                 disabled={loading || !input.trim()}
-                className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white transition hover:bg-blue-500 disabled:opacity-50"
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-white transition disabled:opacity-50"
+                style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-light))" }}
               >
                 <Send size={16} />
               </button>
@@ -176,7 +220,11 @@ export default function AIChat() {
                   type="button"
                   onClick={() => void sendMessage(question)}
                   disabled={loading}
-                  className="rounded-full border border-blue-400/40 bg-blue-600 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition hover:bg-blue-500 disabled:opacity-50"
+                  className="rounded-full border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition disabled:opacity-50"
+                  style={{
+                    borderColor: colors.accentSoft,
+                    background: "linear-gradient(135deg, var(--accent), var(--accent-light))",
+                  }}
                 >
                   <span className="flex items-center gap-2">
                     <Sparkles size={12} />

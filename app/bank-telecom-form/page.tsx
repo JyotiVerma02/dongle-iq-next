@@ -86,9 +86,8 @@ function DongleIQForm() {
   const searchParams = useSearchParams();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
-  const premiumGradient = isDarkMode
-    ? "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))"
-    : "linear-gradient(135deg, #2563eb, #0ea5e9)";
+  const premiumGradient =
+    "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
   const shellBackground = isDarkMode ? colors.panelStrong : colors.card;
   const sectionBackground = isDarkMode ? colors.panel : colors.accentSubtle;
   const strongBorderColor = isDarkMode ? colors.inputBorder : colors.border;
@@ -276,10 +275,10 @@ function DongleIQForm() {
   };
 
   return (
-    <div className="theme-transition hero-grid relative min-h-screen pb-10 pt-24" style={{ color: colors.text }}>
+    <div className="theme-transition hero-grid relative min-h-screen pb-10" style={{ color: colors.text }}>
       <ParticleBackground />
 
-      <div className="relative z-10 mx-auto max-w-6xl p-4 lg:p-8">
+      <div className="page-max-shell relative z-10 p-4 lg:p-8">
         <form
           onSubmit={handleSubmit}
           className="shine-border theme-transition overflow-hidden rounded-lg border shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
@@ -356,7 +355,8 @@ function DongleIQForm() {
                         value={option}
                         checked={formData.bpAvailable === option}
                         onChange={handleChange}
-                        className="h-3 w-3 accent-purple-600"
+                        className="h-3 w-3"
+                        style={{ accentColor: colors.accent }}
                       />
                       {option.toUpperCase()}
                     </label>
