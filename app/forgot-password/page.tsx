@@ -42,7 +42,7 @@ export default function ForgotPassword() {
         <div className="content-container flex flex-col lg:flex-row items-center justify-center lg:gap-10 xl:gap-20">
           
           {/* ASIDE SECTION */}
-          <div className="hidden lg:flex lg:flex-col lg:justify-center lg:w-full lg:max-w-[500px] lg:pr-12 xl:pr-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
+          <div className="hidden lg:flex lg:flex-col lg:justify-center lg:w-full lg:max-w-125 lg:pr-12 xl:pr-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
               <h1 className="mb-8 text-5xl font-black uppercase leading-[0.9] tracking-tight xl:text-6xl" style={{ color: colors.text }}>
                 Account <br />

@@ -21,7 +21,6 @@ function RegisterContent() {
   const searchParams = useSearchParams();
   const googleEmail = (searchParams.get("email") || "").toLowerCase();
   const googleName = searchParams.get("name") || "";
-  const isGooglePrefill = searchParams.get("google") === "1";
   
   const [prefillFirstName, ...prefillLastNameParts] = googleName.split(" ");
   const prefillLastName = prefillLastNameParts.join(" ");
@@ -110,7 +109,7 @@ function RegisterContent() {
           
           {/* ASIDE SECTION: Information */}
           <div
-            className="hidden lg:flex lg:flex-col lg:justify-center lg:w-full lg:max-w-[500px] lg:pr-10 xl:pr-16"
+            className="hidden lg:flex lg:flex-col lg:justify-center lg:w-full lg:max-w-125 lg:pr-10 xl:pr-16"
             style={{ borderRight: `1px solid ${colors.borderSoft}` }}
           >
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
