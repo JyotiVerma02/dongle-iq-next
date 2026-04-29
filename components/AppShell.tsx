@@ -33,24 +33,20 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const showEffects = !EFFECTS_DISABLED_PATHS.has(pathname);
   const showNavbar = !HIDE_NAVBAR_PATHS.has(pathname);
- const NO_OFFSET_PATHS = new Set([
-  "/", // landing page
-]);
+ const NO_OFFSET_PATHS = new Set([]);
 
 const useShellOffset = showNavbar && !NO_OFFSET_PATHS.has(pathname);
 
   return (
     <>
       {showNavbar ? <Navbar /> : null}
-    <div
+  <main
   className={`relative z-10 ${
     useShellOffset ? "app-shell-content" : ""
   }`}
 >
-  <div className="container-shell">
-    {children}
-  </div>
-</div>
+  {children}
+</main>
       {showEffects ? <CursorEffect /> : null}
       <Toaster position="top-right" />
     </>
