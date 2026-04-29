@@ -69,7 +69,7 @@ function LoginContent() {
           
           {/* ASIDE SECTION: Secure Access */}
           <div 
-            className="hidden lg:flex lg:flex-col lg:justify-center lg:w-full lg:max-w-[500px] lg:pr-10 xl:pr-16" 
+            className="hidden lg:flex lg:flex-col lg:justify-center lg:w-full lg:max-w-125 lg:pr-10 xl:pr-16" 
             style={{ borderRight: `1px solid ${colors.borderSoft}` }}
           >
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
