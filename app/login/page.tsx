@@ -8,6 +8,7 @@ import { LogIn, ShieldCheck, Eye, EyeOff } from "lucide-react";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
+
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();

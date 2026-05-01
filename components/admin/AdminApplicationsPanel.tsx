@@ -22,6 +22,7 @@ import type { DashboardUser } from "@/components/UserLedger";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import AdminApplicationPreview from "@/components/admin/AdminApplicationPreview";
 import AdminApplicationEditor from "@/components/admin/AdminApplicationEditor";
+import BackToPreviewButton from "@/components/BackToPreviewButton";
 
 type ApplicationFetch = {
   _id: string;
@@ -318,30 +319,27 @@ export default function AdminApplicationsPanel({
 
   return (
     <>
-      <div className="h-full overflow-y-auto min-h-0">
-        <div className="mb-4">
-          <button
-            onClick={onBack}
-            className="mb-2 inline-flex items-center gap-2 text-xs font-semibold transition hover:opacity-80"
-            style={{ color: colors.muted }}
-          >
-            <ArrowLeft size={14} />
-            Back to overview
-          </button>
+      <div className="relative h-full overflow-y-auto min-h-0">
+        <div className="mb-4 flex flex-col gap-3">
+          {/* Back Button (TOP) */}
+          <div className="flex items-center">
+            <BackToPreviewButton />
+          </div>
 
-          <div className="flex items-center justify-between">
+          {/* Title */}
+          <div>
             <h1
-              className="mt-1 text-xl font-black lg:text-2xl"
+              className="text-xl font-black lg:text-2xl"
               style={{ color: colors.text }}
             >
               Applications
             </h1>
-          </div>
 
-          <p className="mt-1 text-[13px]" style={{ color: colors.muted }}>
-            Manage applicants, create new applications, and edit records in the
-            same dashboard flow.
-          </p>
+            <p className="mt-1 text-[13px]" style={{ color: colors.muted }}>
+              Manage applicants, create new applications, and edit records in
+              the same dashboard flow.
+            </p>
+          </div>
         </div>
 
         <section
@@ -365,7 +363,7 @@ export default function AdminApplicationsPanel({
               </h2>
             </div> */}
 
-          <div className="mt-5 flex items-center justify-between gap-3">
+          <div className=" flex items-center justify-between gap-3">
             {/* 🔍 Search (Left) */}
             <div className="relative w-full max-w-md">
               <Search
@@ -531,7 +529,7 @@ export default function AdminApplicationsPanel({
                         return (
                           <tr
                             key={user._id}
-                            className="transition"
+                            className=" transition-transform duration-200 hover:scale-[1.01] hover:z-10"
                             style={{
                               backgroundColor: isActive
                                 ? `${colors.accent}12`

@@ -103,6 +103,7 @@ function RegisterContent() {
       className="auth-page-shell theme-transition relative overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
+     
       <div className="relative z-10 flex w-full app-page-min-height items-center justify-center">
         {/* --- START OF ULTRA-WIDE FIX CONTAINER --- */}
         <div className="content-container flex flex-col lg:flex-row items-center justify-center lg:gap-10 xl:gap-20">

@@ -18,6 +18,7 @@ import {
 
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
+import BackToPreviewButton from "./BackToPreviewButton";
 
 export interface DashboardUser {
   _id: string;
@@ -152,14 +153,15 @@ export default function UserLedgerView({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <button
+          {/* <button
             onClick={onBack}
             className="mb-3 inline-flex items-center gap-2 text-xs font-semibold transition"
             style={{ color: colors.muted }}
           >
             <ArrowLeft size={14} />
             Back to overview
-          </button>
+          </button> */}
+          <BackToPreviewButton/>
           <h2
             className="text-3xl font-black tracking-tight"
             style={{ color: colors.text }}

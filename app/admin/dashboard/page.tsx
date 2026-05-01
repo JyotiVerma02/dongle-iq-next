@@ -32,6 +32,7 @@ import { PieChart, Pie, Cell } from "recharts";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AdminApplicationsPanel from "@/components/admin/AdminApplicationsPanel";
+import BackToPreviewButton from "@/components/BackToPreviewButton";
 
 type DashboardView = "home" | "admin" | "ledger" | "applications";
 
@@ -324,6 +325,11 @@ useEffect(() => {
   ];
 
   return (
+
+
+
+
+
     <div
       className="theme-transition flex min-h-screen overflow-hidden text-[13px]"
       style={{
@@ -1021,14 +1027,8 @@ useEffect(() => {
           {view === "admin" && (
             <div className="h-full overflow-y-auto min-h-0">
               <div className="mb-4">
-                <button
-                  onClick={() => setView("home")}
-                  className="mb-2 inline-flex items-center gap-2 text-xs font-semibold transition hover:opacity-80"
-                  style={{ color: colors.muted }}
-                >
-                  <ArrowLeft size={14} />
-                  Back to overview
-                </button>
+                
+                <BackToPreviewButton/>
 
                 <div className="flex items-center justify-between">
                   <h1
