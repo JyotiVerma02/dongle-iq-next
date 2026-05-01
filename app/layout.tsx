@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { Metadata } from "next";
 
 import "./globals.css";
 import { ThemeProvider } from "@/app/context/ThemeContext";
 import AppShell from "@/components/AppShell";
 import Providers from "./providers";
-import Script from "next/script";
 export const metadata: Metadata = {
   title: "Dongle IQ | Secure DSC Portal",
   description:

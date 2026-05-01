@@ -18,17 +18,14 @@ const EFFECTS_DISABLED_PATHS = new Set([
   "/preview",
   "/user/dashboard",
   "/admin/dashboard",
-  "/admin/create-application",
 ]);
 
 const HIDE_NAVBAR_PATHS = new Set([
   "/admin/dashboard",
-  "/admin/create-application",
 ]);
 
 const NO_OFFSET_PATHS = new Set<string>([
   "/admin/dashboard",
-  "/admin/create-application",
 ]);
 
 export default function AppShell({ children }: { children: ReactNode }) {

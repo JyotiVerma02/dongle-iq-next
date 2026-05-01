@@ -118,7 +118,7 @@ export default function UserDongleView({
 
       <div className="theme-transition overflow-hidden rounded-lg border shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1380px] text-left">
+          <table className="w-full min-w-345 text-left">
             <thead style={{ backgroundColor: colors.panel }}>
               <tr className="text-[11px] uppercase tracking-[0.16em]" style={{ color: colors.muted }}>
                 <th className="px-5 py-4">Applicant</th>

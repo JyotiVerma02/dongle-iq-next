@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     }
 
     user.isVerified = true;
-    user.status = "approved";
+    user.status = "pending";
     user.otp = undefined;
     user.otpExpiry = undefined;
 

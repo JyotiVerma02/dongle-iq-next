@@ -31,8 +31,9 @@ import { Menu } from "lucide-react";
 import { PieChart, Pie, Cell } from "recharts";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import AdminApplicationsPanel from "@/components/admin/AdminApplicationsPanel";
 
-type DashboardView = "home" | "admin" | "ledger";
+type DashboardView = "home" | "admin" | "ledger" | "applications";
 
 interface AdminProfile {
   _id?: string;
@@ -59,7 +60,7 @@ export default function DongleIQAdminHub() {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
  
   const [adminForm, setAdminForm] = useState({
     name: "",
@@ -415,8 +416,8 @@ useEffect(() => {
 
               <NavItem
                 label="Applications"
-                active={false}
-                onClick={() => router.push("/admin/create-application")}
+                active={view === "applications"}
+                onClick={() => setView("applications")}
                 icon={<FileText size={18} />}
                 collapsed={isCollapsed}
               />
@@ -1207,6 +1208,15 @@ useEffect(() => {
                 </div>
               </section>
             </div>
+          )}
+
+          {view === "applications" && (
+            <AdminApplicationsPanel
+              onBack={() => setView("home")}
+              users={users}
+              loading={loading}
+              onUsersChange={setUsers}
+            />
           )}
         </div>
       </main>

@@ -152,25 +152,25 @@ export default function AadhaarVerifyPage() {
 
   return (
     <main
-      className="theme-transition hero-grid relative flex app-page-min-height items-center justify-center px-4 py-6 sm:px-6"
+      className="theme-transition hero-grid relative flex app-page-min-height items-center justify-center px-2 py-2 sm:px-3 sm:py-3"
       style={{ color: colors.text }}
     >
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-sm">
         <div
           className="pointer-events-none absolute -inset-px rounded-lg blur-sm"
           style={{ background: premiumGradient, opacity: isDarkMode ? 0.34 : 0.18 }}
         />
 
         <section
-          className="shine-border theme-transition relative rounded-[28px] border p-5 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl sm:p-6"
+          className="shine-border theme-transition relative rounded-[24px] border p-3.5 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl sm:p-4"
           style={{ backgroundColor: colors.panelStrong, borderColor: colors.border }}
         >
-          <div className="mb-5 text-center">
+          <div className="mb-3 text-center">
             <div
-              className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl text-white"
+              className="mx-auto mb-2.5 flex h-11 w-11 items-center justify-center rounded-2xl text-white"
               style={{ background: premiumGradient }}
             >
-              <ShieldCheck size={20} />
+              <ShieldCheck size={18} />
             </div>
             <h1 className="text-xl font-black uppercase tracking-tighter">
               Aadhaar <span style={{ color: colors.accent }}>Verification</span>
@@ -179,7 +179,7 @@ export default function AadhaarVerifyPage() {
 
           {(error || success) && (
             <div
-              className="mb-4 rounded-2xl border px-4 py-3 text-center text-[11px] font-semibold"
+              className="mb-3 rounded-2xl border px-4 py-3 text-center text-[11px] font-semibold"
               style={{
                 borderColor: error ? "rgba(244, 63, 94, 0.2)" : colors.borderSoft,
                 backgroundColor: error
@@ -193,13 +193,13 @@ export default function AadhaarVerifyPage() {
           )}
 
           <div
-            className="mb-4 rounded-lg px-3 py-2 text-center text-[11px]"
+            className="mb-3 rounded-lg px-3 py-2 text-center text-[11px]"
             style={{ backgroundColor: colors.accentSoft, color: colors.text }}
           >
             Enter Aadhaar linked mobile number
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 type="tel"
@@ -209,7 +209,7 @@ export default function AadhaarVerifyPage() {
                 disabled={otpSent}
                 placeholder="Mobile Number"
                 onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
-                className="glass-input theme-transition flex-1 rounded-2xl border px-4 py-3 text-sm font-semibold outline-none disabled:opacity-70"
+                className="glass-input theme-transition flex-1 rounded-2xl border px-4 py-2.5 text-sm font-semibold outline-none disabled:opacity-70"
                 style={{
                   backgroundColor: colors.input,
                   color: colors.text,
@@ -221,7 +221,7 @@ export default function AadhaarVerifyPage() {
                 <button
                   onClick={handleSendOtp}
                   disabled={isSendingOtp}
-                  className="theme-primary-btn theme-transition rounded-2xl px-4 py-3 text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap text-white disabled:opacity-60"
+                  className="theme-primary-btn theme-transition rounded-2xl px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] whitespace-nowrap text-white disabled:opacity-60"
                 >
                   {isSendingOtp ? "Sending..." : "Send OTP"}
                 </button>
@@ -244,7 +244,7 @@ export default function AadhaarVerifyPage() {
                       onChange={(event) => handleOtpChange(index, event.target.value)}
                       onKeyDown={(event) => handleOtpKeyDown(index, event)}
                       onPaste={handleOtpPaste}
-                      className="glass-input theme-transition h-11 w-11 rounded-2xl border text-center text-sm font-bold outline-none"
+                      className="glass-input theme-transition h-10 w-10 rounded-2xl border text-center text-sm font-bold outline-none sm:h-11 sm:w-11"
                       style={{
                         backgroundColor: colors.input,
                         color: colors.text,
@@ -266,7 +266,7 @@ export default function AadhaarVerifyPage() {
             ) : null}
 
             <div
-              className="flex cursor-pointer items-start gap-3 rounded-2xl border px-4 py-3.5 text-[11px]"
+              className="flex cursor-pointer items-start gap-3 rounded-2xl border px-3 py-2.5 text-[11px]"
               style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
               onClick={() => setIsChecked((current) => !current)}
             >
@@ -287,7 +287,7 @@ export default function AadhaarVerifyPage() {
             <button
               onClick={handleVerify}
               disabled={!isChecked || otp.join("").length !== 6 || isVerifying}
-              className="theme-primary-btn theme-transition w-full rounded-2xl py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="theme-primary-btn theme-transition w-full rounded-2xl py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:cursor-not-allowed disabled:opacity-60"
               style={{ opacity: isChecked && otp.join("").length === 6 ? 1 : 0.55 }}
             >
               {isVerifying ? "Verifying..." : "Verify"}

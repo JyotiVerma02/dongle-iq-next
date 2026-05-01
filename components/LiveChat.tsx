@@ -203,7 +203,7 @@ export default function LiveChat({
 
   return (
     <div
-      className="live-chat-backdrop fixed inset-0 z-[120] flex items-end justify-end bg-slate-950/35 p-0 sm:p-6"
+      className="live-chat-backdrop fixed inset-0 z-120 flex items-end justify-end bg-slate-950/35 p-0 sm:p-6"
       onClick={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -212,16 +212,16 @@ export default function LiveChat({
     >
       <div
         ref={panelRef}
-        className="live-chat-panel flex h-[100dvh] w-full flex-col overflow-hidden border border-white/10 bg-[var(--card-strong)] text-[var(--foreground)] shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(42rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
+        className="live-chat-panel flex h-dvh w-full flex-col overflow-hidden border border-white/10 bg-(--card-strong) text-(--foreground) shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(42rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
       >
-        <div className="flex items-center justify-between border-b border-[var(--border-soft)] bg-[var(--card)] px-4 py-3.5">
+        <div className="flex items-center justify-between border-b border-(--border-soft) bg-(--card) px-4 py-3.5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--accent)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-(--accent-soft) text-(--accent)">
               <MessageSquare size={18} />
             </div>
             <div>
               <p className="text-sm font-semibold">{title}</p>
-              <p className="text-xs text-[var(--muted)]">Online now</p>
+              <p className="text-xs text-(--muted)">Online now</p>
             </div>
           </div>
 
@@ -229,13 +229,13 @@ export default function LiveChat({
             type="button"
             onClick={onClose}
             aria-label="Close live chat"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border-soft)] bg-[var(--card)] text-[var(--foreground)]"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-(--border-soft) bg-(--card) text-(--foreground)"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="border-b border-[var(--border-soft)] px-4 py-2.5 text-xs text-[var(--subtle-text)]">
+        <div className="border-b border-(--border-soft) px-4 py-2.5 text-xs text-(--subtle-text)">
           {messageCountLabel}
         </div>
 
@@ -252,7 +252,7 @@ export default function LiveChat({
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 ${
                     message.role === "user"
                       ? "bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] text-white"
-                      : "border border-[var(--border-soft)] bg-[var(--card)] text-[var(--foreground)]"
+                      : "border border-(--border-soft) bg-(--card) text-(--foreground)"
                   }`}
                 >
                   {message.content}
@@ -262,7 +262,7 @@ export default function LiveChat({
 
             {isSending ? (
               <div className="flex justify-start">
-                <div className="inline-flex items-center gap-2 rounded-2xl border border-[var(--border-soft)] bg-[var(--card)] px-3.5 py-2.5 text-sm text-[var(--muted)]">
+                <div className="inline-flex items-center gap-2 rounded-2xl border border-(--border-soft) bg-(--card) px-3.5 py-2.5 text-sm text-(--muted)">
                   <LoaderCircle size={14} className="animate-spin" />
                   Support is typing...
                 </div>
@@ -273,7 +273,7 @@ export default function LiveChat({
           <div ref={bottomRef} />
         </div>
 
-        <div className="border-t border-[var(--border-soft)] bg-[var(--card)] p-4">
+        <div className="border-t border-(--border-soft) bg-(--card) p-4">
           <div className="flex items-center gap-2">
             <input
               ref={inputRef}
@@ -286,7 +286,7 @@ export default function LiveChat({
                 }
               }}
               placeholder="Type your message..."
-              className="live-chat-input h-12 flex-1 rounded-2xl border border-[var(--input-border)] bg-[var(--input)] px-4 text-sm outline-none"
+              className="live-chat-input h-12 flex-1 rounded-2xl border border-(--input-border) bg-(--input) px-4 text-sm outline-none"
             />
 
             <button

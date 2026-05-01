@@ -1,7 +1,11 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
+import logger from "@/app/lib/logger";
 
 const rateLimit = new Map<string, { count: number; timestamp: number }>();
 
@@ -49,11 +53,13 @@ export async function POST(req: Request) {
       let user = await User.findOne({ number: mobile });
 
       if (!user) {
+        const password = await bcrypt.hash("temp123", 10);
+
         user = await User.create({
           name: "Pending User",
           email: `${mobile}@temp.com`,
           number: mobile,
-          password: "temporary",
+          password,
           isVerified: false,
           isAadhaarVerified: false,
           status: "pending",
@@ -64,7 +70,9 @@ export async function POST(req: Request) {
       user.aadhaarOtpExpiry = otpExpiry;
       await user.save();
 
+      logger.info(`[VERIFY-AADHAAR] OTP for ${mobile}: ${generatedOtp}`);
       console.log(`[VERIFY-AADHAAR] OTP for ${mobile}: ${generatedOtp}`);
+      process.stdout.write(`[VERIFY-AADHAAR] OTP for ${mobile}: ${generatedOtp}\n`);
 
       return NextResponse.json({
         success: true,
@@ -104,7 +112,7 @@ export async function POST(req: Request) {
       }
 
       user.isAadhaarVerified = true;
-      user.status = "approved";
+      user.status = "pending";
       user.aadhaarOtp = undefined;
       user.aadhaarOtpExpiry = undefined;
 
