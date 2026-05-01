@@ -189,7 +189,7 @@ export async function proxy(request: NextRequest) {
   if (isPublicPath(pathname)) {
     // Rate limiting for sensitive endpoints
     if (pathname === "/api/login" || pathname === "/api/signup" || pathname === "/api/send-otp") {
-      if (isRateLimited(clientIp, 5, 15 * 60 * 1000)) {
+      if (isRateLimited(clientIp, 10,5 * 60 * 1000)) {
         return NextResponse.json(
           { message: "Too many requests. Try again later." },
           { status: 429 }

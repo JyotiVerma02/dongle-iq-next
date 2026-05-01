@@ -140,7 +140,7 @@ export default function VerifyPage() {
         />
 
         <section
-          className="shine-border theme-transition relative rounded-[24px] border p-3.5 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl sm:p-4"
+          className="shine-border theme-transition relative rounded-3xl border p-3.5 shadow-[0_20px_55px_rgba(0,0,0,0.14)] backdrop-blur-2xl sm:p-4"
           style={{ backgroundColor: colors.panelStrong, borderColor: colors.border }}
         >
           <div className="mb-3 text-center">

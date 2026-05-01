@@ -130,11 +130,13 @@ function DongleIQForm() {
             name: config.name || nextState.name,
             email: config.email || nextState.email,
             mobile: config.mobile || nextState.mobile,
-            certificateClass: config.certificateClass || nextState.certificateClass,
+            certificateClass:
+              config.certificateClass || nextState.certificateClass,
             tokenType: config.tokenType || nextState.tokenType,
             certType: config.certType || nextState.certType,
             validity: config.validity || nextState.validity,
-            assistedService: config.assistedService || nextState.assistedService,
+            assistedService:
+              config.assistedService || nextState.assistedService,
             price: config.price || nextState.price,
           };
         } catch {
@@ -175,7 +177,11 @@ function DongleIQForm() {
     restoreState();
   }, [searchParams]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
     const { name, value } = event.target;
     setFormData((prev) => {
       const nextData = { ...prev, [name]: value };
@@ -210,9 +216,9 @@ function DongleIQForm() {
   const validateUpload = (file: File | null, label: string) => {
     if (!file) return true;
 
-    const allowedTypes = ["image/jpeg", "application/pdf"];
+    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
     if (!allowedTypes.includes(file.type)) {
-      alert(`${label}: only JPG and PDF files are allowed.`);
+      alert(`${label}: only JPG, PNG, and PDF files are allowed.`);
       return false;
     }
 
@@ -222,7 +228,13 @@ function DongleIQForm() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!formData.name || !formData.pan || !formData.email || !formData.address || !formData.ekycPin) {
+    if (
+      !formData.name ||
+      !formData.pan ||
+      !formData.email ||
+      !formData.address ||
+      !formData.ekycPin
+    ) {
       alert("Please fill all required fields marked with *");
       return;
     }
@@ -256,9 +268,7 @@ function DongleIQForm() {
       ]);
 
       savePreviewDraft({
-        formData: Object.fromEntries(
-          Object.entries(formData).map(([key, value]) => [key, String(value)]),
-        ),
+        formData,
         files: {
           photo,
           idProof,
@@ -267,7 +277,8 @@ function DongleIQForm() {
       });
 
       router.push("/preview");
-    } catch {
+    } catch (error) {
+      console.error("PREVIEW ERROR:", error);
       alert("Could not prepare preview. Please try again.");
     } finally {
       setLoading(false);
@@ -275,43 +286,141 @@ function DongleIQForm() {
   };
 
   return (
-    <div className="theme-transition hero-grid relative min-h-screen pb-10" style={{ color: colors.text }}>
-     
-
+    <div
+      className="theme-transition hero-grid relative min-h-screen pb-10"
+      style={{ color: colors.text }}
+    >
       <div className="page-max-shell relative z-10 p-4 lg:p-8">
         <form
           onSubmit={handleSubmit}
           className="shine-border theme-transition overflow-hidden rounded-lg border shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
-          style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
+          style={{
+            backgroundColor: shellBackground,
+            borderColor: strongBorderColor,
+          }}
         >
           <div
             className="grid grid-cols-1 items-end gap-4 border-b p-6 md:grid-cols-5"
-            style={{ backgroundColor: sectionBackground, borderColor: strongBorderColor }}
+            style={{
+              backgroundColor: sectionBackground,
+              borderColor: strongBorderColor,
+            }}
           >
-            <ThemeSelect name="certificateClass" label="Class" options={["Class III"]} value={formData.certificateClass} onChange={handleChange} colors={colors} />
-            <ThemeSelect name="tokenType" label="Token" options={["Not Required", "USB Token"]} value={formData.tokenType} onChange={handleChange} colors={colors} />
-            <ThemeSelect name="certType" label="Type" options={["Signature", "Encryption", "Signing & Encryption"]} value={formData.certType} onChange={handleChange} colors={colors} />
-            <ThemeSelect name="validity" label="Validity" options={["1 Year", "2 Years", "3 Years"]} value={formData.validity} onChange={handleChange} colors={colors} />
+            <ThemeSelect
+              name="certificateClass"
+              label="Class"
+              options={["Class III"]}
+              value={formData.certificateClass}
+              onChange={handleChange}
+              colors={colors}
+            />
+            <ThemeSelect
+              name="tokenType"
+              label="Token"
+              options={["Not Required", "USB Token"]}
+              value={formData.tokenType}
+              onChange={handleChange}
+              colors={colors}
+            />
+            <ThemeSelect
+              name="certType"
+              label="Type"
+              options={["Signature", "Encryption", "Signing & Encryption"]}
+              value={formData.certType}
+              onChange={handleChange}
+              colors={colors}
+            />
+            <ThemeSelect
+              name="validity"
+              label="Validity"
+              options={["1 Year", "2 Years", "3 Years"]}
+              value={formData.validity}
+              onChange={handleChange}
+              colors={colors}
+            />
             <div className="pb-1 text-right">
-              <span className="text-2xl font-black" style={{ color: colors.accent }}>INR {formData.price}</span>
+              <span
+                className="text-2xl font-black"
+                style={{ color: colors.accent }}
+              >
+                INR {formData.price}
+              </span>
             </div>
           </div>
 
           <div className="space-y-8 p-8">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <ThemeInput name="name" label="Name as per PAN" placeholder="ENTER FULL NAME" value={formData.name} onChange={handleChange} required colors={colors} />
-              <ThemeSelect name="gender" label="Gender" options={["Select Gender", "Male", "Female"]} value={formData.gender} onChange={handleChange} required colors={colors} />
-              <ThemeInput name="dob" label="Date of Birth" placeholder="DD-MM-YYYY" value={formData.dob} onChange={handleChange} required colors={colors} />
+              <ThemeInput
+                name="name"
+                label="Name as per PAN"
+                placeholder="ENTER FULL NAME"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                colors={colors}
+              />
+              <ThemeSelect
+                name="gender"
+                label="Gender"
+                options={["Select Gender", "Male", "Female"]}
+                value={formData.gender}
+                onChange={handleChange}
+                required
+                colors={colors}
+              />
+              <ThemeInput
+                name="dob"
+                label="Date of Birth"
+                placeholder="DD-MM-YYYY"
+                value={formData.dob}
+                onChange={handleChange}
+                required
+                colors={colors}
+              />
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <ThemeInput name="pan" label="PAN No" placeholder="ABCDE1234F" value={formData.pan} onChange={handleChange} required colors={colors} />
-              <ThemeInput name="email" label="Email Address" type="email" placeholder="EMAIL@EXAMPLE.COM" value={formData.email} onChange={handleChange} required colors={colors} />
-              <ThemeInput name="mobile" label="Mobile No" readOnly value={formData.mobile} required className="" colors={colors} muted />
+              <ThemeInput
+                name="pan"
+                label="PAN No"
+                placeholder="ABCDE1234F"
+                value={formData.pan}
+                onChange={handleChange}
+                required
+                colors={colors}
+              />
+              <ThemeInput
+                name="email"
+                label="Email Address"
+                type="email"
+                placeholder="EMAIL@EXAMPLE.COM"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                colors={colors}
+              />
+              <ThemeInput
+                name="mobile"
+                label="Mobile No"
+                readOnly
+                value={formData.mobile}
+                required
+                className=""
+                colors={colors}
+                muted
+              />
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <ThemeInput name="ekycId" label="eKYC ID" placeholder="mobile@dongle-iq" value={formData.ekycId} onChange={handleChange} required colors={colors} />
+              <ThemeInput
+                name="ekycId"
+                label="eKYC ID"
+                placeholder="mobile@dongle-iq"
+                value={formData.ekycId}
+                onChange={handleChange}
+                required
+                colors={colors}
+              />
               <div>
                 <Label text="eKYC PIN" required colors={colors} />
                 <div className="flex h-12">
@@ -323,7 +432,11 @@ function DongleIQForm() {
                     placeholder="6 DIGIT PIN"
                     required
                     className="glass-input theme-transition w-full rounded-l-xl border-2 px-4 text-[14px] font-bold outline-none"
-                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                    style={{
+                      backgroundColor: colors.input,
+                      borderColor: colors.inputBorder,
+                      color: colors.text,
+                    }}
                   />
                   <button
                     type="button"
@@ -343,12 +456,20 @@ function DongleIQForm() {
                   onChange={handleChange}
                   placeholder="REFERENCE CODE"
                   className="glass-input theme-transition h-12 w-full rounded-lg border-2 px-4 text-[14px] font-bold outline-none"
-                  style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                  style={{
+                    backgroundColor: colors.input,
+                    borderColor: colors.inputBorder,
+                    color: colors.text,
+                  }}
                 />
                 <div className="mt-2 flex items-center gap-4 text-[10px] font-black uppercase">
                   <span style={{ color: colors.accent }}>BP Available?</span>
                   {["Yes", "No"].map((option) => (
-                    <label key={option} className="flex cursor-pointer items-center gap-1.5" style={{ color: colors.muted }}>
+                    <label
+                      key={option}
+                      className="flex cursor-pointer items-center gap-1.5"
+                      style={{ color: colors.muted }}
+                    >
                       <input
                         type="radio"
                         name="bpAvailable"
@@ -374,14 +495,42 @@ function DongleIQForm() {
                 onChange={handleChange}
                 required
                 className="glass-input theme-transition min-h-25 w-full rounded-lg border-2 p-4 text-[14px] font-bold outline-none"
-                style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                style={{
+                  backgroundColor: colors.input,
+                  borderColor: colors.inputBorder,
+                  color: colors.text,
+                }}
               />
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <ThemeInput name="pincode" label="Pincode" placeholder="600001" value={formData.pincode} onChange={handleChange} required colors={colors} />
-              <ThemeInput name="city" label="City" placeholder="CITY NAME" value={formData.city} onChange={handleChange} required colors={colors} />
-              <ThemeInput name="state" label="State" placeholder="STATE NAME" value={formData.state} onChange={handleChange} required colors={colors} />
+              <ThemeInput
+                name="pincode"
+                label="Pincode"
+                placeholder="600001"
+                value={formData.pincode}
+                onChange={handleChange}
+                required
+                colors={colors}
+              />
+              <ThemeInput
+                name="city"
+                label="City"
+                placeholder="CITY NAME"
+                value={formData.city}
+                onChange={handleChange}
+                required
+                colors={colors}
+              />
+              <ThemeInput
+                name="state"
+                label="State"
+                placeholder="STATE NAME"
+                value={formData.state}
+                onChange={handleChange}
+                required
+                colors={colors}
+              />
             </div>
 
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -434,10 +583,18 @@ function DongleIQForm() {
                 <div
                   onClick={() => photoRef.current?.click()}
                   className="theme-transition flex h-40 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed"
-                  style={{ backgroundColor: sectionBackground, borderColor: strongBorderColor }}
+                  style={{
+                    backgroundColor: sectionBackground,
+                    borderColor: strongBorderColor,
+                  }}
                 >
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg" style={{ background: premiumGradient }}>
-                    <span className="text-xs font-black">{photoFile ? "Done" : "Add"}</span>
+                  <div
+                    className="mb-3 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg"
+                    style={{ background: premiumGradient }}
+                  >
+                    <span className="text-xs font-black">
+                      {photoFile ? "Done" : "Add"}
+                    </span>
                   </div>
                   {photoFile ? (
                     <img
@@ -446,16 +603,25 @@ function DongleIQForm() {
                       className="h-24 w-24 rounded-full border object-cover"
                       style={{
                         borderColor: colors.accent,
-                        display: photoFile.type === "application/pdf" ? "none" : "block",
+                        display:
+                          photoFile.type === "application/pdf"
+                            ? "none"
+                            : "block",
                       }}
                     />
                   ) : (
-                    <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: colors.accent }}>
+                    <p
+                      className="text-[10px] font-black uppercase tracking-widest"
+                      style={{ color: colors.accent }}
+                    >
                       Click to Upload Photo
                     </p>
                   )}
                   {photoFile?.type === "application/pdf" ? (
-                    <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: colors.accent }}>
+                    <p
+                      className="text-[10px] font-black uppercase tracking-widest"
+                      style={{ color: colors.accent }}
+                    >
                       PDF selected
                     </p>
                   ) : null}
@@ -471,8 +637,13 @@ function DongleIQForm() {
                     borderColor: colors.inputBorder,
                   }}
                 >
-                  <p className="text-sm font-semibold leading-relaxed" style={{ color: colors.muted }}>
-                    Please upload your applicant photo, identity proof, and address proof, then review the details before the final submission step.
+                  <p
+                    className="text-sm font-semibold leading-relaxed"
+                    style={{ color: colors.muted }}
+                  >
+                    Please upload your applicant photo, identity proof, and
+                    address proof, then review the details before the final
+                    submission step.
                   </p>
                 </div>
               </div>
@@ -481,7 +652,10 @@ function DongleIQForm() {
 
           <div
             className="flex flex-col items-center gap-4 border-t p-8"
-            style={{ backgroundColor: sectionBackground, borderColor: strongBorderColor }}
+            style={{
+              backgroundColor: sectionBackground,
+              borderColor: strongBorderColor,
+            }}
           >
             <button
               type="submit"
@@ -490,10 +664,19 @@ function DongleIQForm() {
             >
               {loading ? "Preparing Preview..." : "Preview Before Submit"}
             </button>
-            <p className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest" style={{ color: colors.muted }}>
-              <span className="h-1 w-1 rounded-full" style={{ backgroundColor: colors.accent }} />
+            <p
+              className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest"
+              style={{ color: colors.muted }}
+            >
+              <span
+                className="h-1 w-1 rounded-full"
+                style={{ backgroundColor: colors.accent }}
+              />
               Encrypted & Secure Session
-              <span className="h-1 w-1 rounded-full" style={{ backgroundColor: colors.accent }} />
+              <span
+                className="h-1 w-1 rounded-full"
+                style={{ backgroundColor: colors.accent }}
+              />
             </p>
           </div>
         </form>
@@ -512,7 +695,10 @@ function Label({
   colors: ReturnType<typeof getThemePalette>;
 }) {
   return (
-    <label className="mb-2 ml-1 block text-[9px] font-black uppercase tracking-widest" style={{ color: colors.muted }}>
+    <label
+      className="mb-2 ml-1 block text-[9px] font-black uppercase tracking-widest"
+      style={{ color: colors.muted }}
+    >
       {text}
       {required ? <span style={{ color: colors.accent }}>*</span> : null}
     </label>
@@ -586,9 +772,18 @@ function FileComponent({ label, inputRef, fileName, setFile, colors }: any) {
       <Label text={label} required colors={colors} />
       <div
         className="theme-transition flex items-center gap-4 rounded-xl border-2 p-2"
-        style={{ backgroundColor: fileSurfaceColor, borderColor: fileBorderColor }}
+        style={{
+          backgroundColor: fileSurfaceColor,
+          borderColor: fileBorderColor,
+        }}
       >
-        <input type="file" accept=".jpg,.png,.pdf" ref={inputRef} className="hidden" onChange={(event) => setFile(event.target.files?.[0] || null)} />
+        <input
+          type="file"
+          accept=".jpg,.png,.pdf"
+          ref={inputRef}
+          className="hidden"
+          onChange={(event) => setFile(event.target.files?.[0] || null)}
+        />
         <button
           type="button"
           onClick={() => inputRef.current.click()}
@@ -597,7 +792,10 @@ function FileComponent({ label, inputRef, fileName, setFile, colors }: any) {
         >
           Attach
         </button>
-        <span className="grow truncate pr-2 text-[10px] font-bold italic" style={{ color: colors.muted }}>
+        <span
+          className="grow truncate pr-2 text-[10px] font-bold italic"
+          style={{ color: colors.muted }}
+        >
           {fileName}
         </span>
       </div>

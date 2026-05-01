@@ -105,7 +105,7 @@ export default function AdminApplicationsPanel({
   });
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [mode, setMode] = useState<"view" | "edit">("edit");
-  const [formInitialValues, setFormInitialValues] =
+  const [, setFormInitialValues] =
     useState<ApplicationFormData>(BASE_INITIAL_VALUES);
   const [savingApplication, setSavingApplication] = useState(false);
   const [selectedUserDetails, setSelectedUserDetails] =
