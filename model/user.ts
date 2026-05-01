@@ -31,6 +31,13 @@ const UserSchema = new mongoose.Schema(
     },
 
     role: { type: String, default: "user" },
+    createdBy: {
+      type: String,
+      enum: ["admin", "client"],
+      default: "client",
+    },
+    createdById: { type: String },
+    clientId: { type: String },
 
     isVerified: { type: Boolean, default: false },
     isAadhaarVerified: { type: Boolean, default: false },

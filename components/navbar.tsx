@@ -44,9 +44,12 @@ export default function Navbar() {
     setIsMenuOpen(false);
   }, [pathname]);
 
-  if (pathname === "/admin/dashboard") {
-    return null;
-  }
+ if (
+  pathname === "/admin/dashboard" ||
+  pathname === "/admin/create-application"
+) {
+  return null;
+}
 
   const colors = getThemePalette(isDarkMode);
   const showAuthButtons = AUTH_ROUTES.has(pathname);

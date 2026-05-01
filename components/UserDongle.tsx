@@ -65,9 +65,11 @@ export default function UserDongleView({
   }, [records, searchQuery]);
 
   // Reset to first page when search changes
+  /* eslint-disable react-hooks/set-state-in-effect */
   React.useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const paginatedRecords = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
 
 import Navbar from "@/components/navbar";
 import CursorEffect from "@/components/CursorEffect";
@@ -17,18 +18,39 @@ const EFFECTS_DISABLED_PATHS = new Set([
   "/preview",
   "/user/dashboard",
   "/admin/dashboard",
+  "/admin/create-application",
 ]);
 
 const HIDE_NAVBAR_PATHS = new Set([
   "/admin/dashboard",
+  "/admin/create-application",
 ]);
 
 const NO_OFFSET_PATHS = new Set<string>([
   "/admin/dashboard",
+  "/admin/create-application",
 ]);
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() || "";
+
+  useEffect(() => {
+  try {
+    const storageKey = "dongle-iq-theme";
+    const savedTheme = localStorage.getItem(storageKey);
+
+    const theme =
+      savedTheme === "dark" || savedTheme === "light"
+        ? savedTheme
+        : "light";
+
+    const root = document.documentElement;
+
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+    root.style.colorScheme = theme;
+  } catch (e) {}
+}, []);
 
   // ✅ Normalize path (fixes trailing slash + query bugs)
   const cleanPath = pathname.split("?")[0].replace(/\/$/, "");
@@ -63,4 +85,5 @@ export default function AppShell({ children }: { children: ReactNode }) {
       />
     </>
   );
+  
 }

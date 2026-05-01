@@ -4,9 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowRight,
   BadgeCheck,
-  FileText,
   PencilLine,
   ShieldCheck,
   Sparkles,
@@ -18,22 +16,12 @@ import {
   clearPreviewDraft,
   saveFormState,
 } from "@/app/lib/applicationPreview";
+import ApplicationForm, {
+  type ApplicationFormData,
+} from "@/components/ApplicationForm";
 import { calculatePricing } from "@/app/lib/pricing";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
-
-type FormDataType = {
-  name: string;
-  email: string;
-  mobile: string;
-  userType: string;
-  classType: string;
-  certType: string;
-  validity: string;
-  tokenType: string;
-  assistedService: string;
-  ekycType: string;
-};
 
 type UserData = {
   name: string;
@@ -62,6 +50,19 @@ type UserData = {
   price?: number;
   createdAt?: string;
   updatedAt?: string;
+};
+
+const DEFAULT_FORM_VALUES: ApplicationFormData = {
+  name: "",
+  email: "",
+  mobile: "",
+  userType: "Individual",
+  classType: "Class III",
+  certType: "",
+  validity: "",
+  tokenType: "Not Required",
+  assistedService: "Not Required",
+  ekycType: "PAN",
 };
 
 function hasCompletedApplication(user: UserData | null) {
@@ -96,19 +97,6 @@ export default function DSCRegistrationForm() {
 
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [formData, setFormData] = useState<FormDataType>({
-    name: "",
-    email: "",
-    mobile: "",
-    userType: "Individual",
-    classType: "Class III",
-    certType: "",
-    validity: "",
-    tokenType: "Not Required",
-    assistedService: "Not Required",
-    ekycType: "PAN",
-  });
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -120,12 +108,6 @@ export default function DSCRegistrationForm() {
 
         if (data.success && data.user) {
           setUserData(data.user);
-          setFormData((prev) => ({
-            ...prev,
-            name: data.user.name || "",
-            email: data.user.email || "",
-            mobile: data.user.number || "",
-          }));
         } else {
           setUserData(null);
         }
@@ -139,19 +121,6 @@ export default function DSCRegistrationForm() {
 
     fetchUserData();
   }, []);
-
-  const pricing = useMemo(
-    () =>
-      calculatePricing({
-        certType: formData.certType,
-        validity: formData.validity,
-        tokenType: formData.tokenType,
-        assistedService: formData.assistedService,
-      }),
-    [formData],
-  );
-
-  const isProductSelected = Boolean(formData.certType && formData.validity);
   const hasSubmittedApplication = hasCompletedApplication(userData);
   const applicationStatus = hasSubmittedApplication
     ? userData?.status || "pending"
@@ -204,39 +173,6 @@ export default function DSCRegistrationForm() {
       })
     : "Awaiting update";
 
-  const updateField = (key: keyof FormDataType, value: string) => {
-    setFormData((current) => {
-      const next = { ...current, [key]: value };
-      const nextPricing = calculatePricing({
-        certType: next.certType,
-        validity: next.validity,
-        tokenType: next.tokenType,
-        assistedService: next.assistedService,
-      });
-
-      sessionStorage.setItem(
-        APPLICATION_CONFIG_KEY,
-        JSON.stringify({
-          certificateClass: next.classType,
-          certType: next.certType,
-          validity: next.validity,
-          tokenType: next.tokenType,
-          assistedService: next.assistedService,
-          price: String(nextPricing.total),
-          name: next.name,
-          email: next.email,
-          mobile: next.mobile,
-        }),
-      );
-
-      if (next.mobile) {
-        sessionStorage.setItem("verifiedMobile", next.mobile);
-      }
-
-      return next;
-    });
-  };
-
   const canEditApplication =
     hasSubmittedApplication &&
     (applicationStatus === "pending" || applicationStatus === "rejected");
@@ -249,18 +185,25 @@ export default function DSCRegistrationForm() {
     sessionStorage.setItem(
       APPLICATION_CONFIG_KEY,
       JSON.stringify({
-        certificateClass: userData.certificateClass || formData.classType,
-        certType: userData.certType || formData.certType,
-        validity: userData.validity || formData.validity,
-        tokenType: userData.tokenType || formData.tokenType,
-        assistedService: formData.assistedService,
+        certificateClass: userData.certificateClass || DEFAULT_FORM_VALUES.classType,
+        certType: userData.certType || DEFAULT_FORM_VALUES.certType,
+        validity: userData.validity || DEFAULT_FORM_VALUES.validity,
+        tokenType: userData.tokenType || DEFAULT_FORM_VALUES.tokenType,
+        assistedService: DEFAULT_FORM_VALUES.assistedService,
         price:
           typeof userData.price === "number"
             ? String(userData.price)
-            : String(pricing.total),
-        name: userData.name || formData.name,
-        email: userData.email || formData.email,
-        mobile: userData.number || formData.mobile,
+            : String(
+                calculatePricing({
+                  certType: userData.certType || DEFAULT_FORM_VALUES.certType,
+                  validity: userData.validity || DEFAULT_FORM_VALUES.validity,
+                  tokenType: userData.tokenType || DEFAULT_FORM_VALUES.tokenType,
+                  assistedService: DEFAULT_FORM_VALUES.assistedService,
+                }).total,
+              ),
+        name: userData.name || "",
+        email: userData.email || "",
+        mobile: userData.number || "",
       }),
     );
 
@@ -287,84 +230,86 @@ export default function DSCRegistrationForm() {
       bpAvailable: "Yes",
       internalRemarks: "",
       photo: "",
-      assistedService: formData.assistedService,
+      assistedService: DEFAULT_FORM_VALUES.assistedService,
       price:
         typeof userData.price === "number"
           ? String(userData.price)
-          : String(pricing.total),
+          : String(
+              calculatePricing({
+                certType: userData.certType || DEFAULT_FORM_VALUES.certType,
+                validity: userData.validity || DEFAULT_FORM_VALUES.validity,
+                tokenType: userData.tokenType || DEFAULT_FORM_VALUES.tokenType,
+                assistedService: DEFAULT_FORM_VALUES.assistedService,
+              }).total,
+            ),
     });
 
     clearPreviewDraft();
     sessionStorage.setItem(
       "verifiedMobile",
-      userData.number || formData.mobile,
+      userData.number || "",
     );
-    router.push(
-      `/bank-telecom-form?mobile=${userData.number || formData.mobile}`,
-    );
+    router.push(`/bank-telecom-form?mobile=${userData.number || ""}`);
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const clearUserSession = () => {
-  sessionStorage.clear();
-  localStorage.clear();
-};
+  const initialFormValues = useMemo<ApplicationFormData>(
+    () => ({
+      ...DEFAULT_FORM_VALUES,
+      name: userData?.name || "",
+      email: userData?.email || "",
+      mobile: userData?.number || "",
+      classType: userData?.certificateClass || DEFAULT_FORM_VALUES.classType,
+      certType: userData?.certType || DEFAULT_FORM_VALUES.certType,
+      validity: userData?.validity || DEFAULT_FORM_VALUES.validity,
+      tokenType: userData?.tokenType || DEFAULT_FORM_VALUES.tokenType,
+    }),
+    [
+      userData?.name,
+      userData?.email,
+      userData?.number,
+      userData?.certificateClass,
+      userData?.certType,
+      userData?.validity,
+      userData?.tokenType,
+    ],
+  );
 
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.mobile ||
-      !formData.certType ||
-      !formData.validity
-    ) {
-      setError("Please complete all required details.");
-      setUserData(null);
-      return;
+  const handleApplicationStart = async (
+    formData: ApplicationFormData & { totalAmount: number },
+  ) => {
+    const response = await fetch("/api/create-application", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.message || "Could not start verification.");
     }
 
-    setError("");
-
-    try {
-      const response = await fetch("/api/user-dashboard", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, totalAmount: pricing.total }),
-      });
-
-      const data = await response.json();
-
-      if (!data.success) {
-        alert("Could not start verification.");
-        return;
-      }
-
-      sessionStorage.setItem(
-        APPLICATION_CONFIG_KEY,
-        JSON.stringify({
-          certificateClass: formData.classType,
-          certType: formData.certType,
-          validity: formData.validity,
-          tokenType: formData.tokenType,
-          assistedService: formData.assistedService,
-          price: String(pricing.total),
-          name: formData.name,
-          email: formData.email,
-          mobile: formData.mobile,
-        }),
-      );
-      sessionStorage.setItem("userEmail", formData.email);
-      router.push(
-        formData.ekycType === "Aadhaar" ? "/verify-aadhaar" : "/verify",
-      );
-    } catch {
-      alert("Server error. Please try again.");
-    }
+    sessionStorage.setItem(
+      APPLICATION_CONFIG_KEY,
+      JSON.stringify({
+        certificateClass: formData.classType,
+        certType: formData.certType,
+        validity: formData.validity,
+        tokenType: formData.tokenType,
+        assistedService: formData.assistedService,
+        price: String(formData.totalAmount),
+        name: formData.name,
+        email: formData.email,
+        mobile: formData.mobile,
+      }),
+    );
+    sessionStorage.setItem("userEmail", formData.email);
+    router.push(formData.ekycType === "Aadhaar" ? "/verify-aadhaar" : "/verify");
   };
 
   return (
     <div
-      className="theme-transition hero-grid relative min-h-screen px-4 pb-10 sm:px-6"
+      className="theme-transition hero-grid relative min-h-screen px-0 pb-8 sm:px-0"
       style={{ color: colors.text }}
     >
       <div
@@ -377,18 +322,18 @@ export default function DSCRegistrationForm() {
       />
 
       {loading ? (
-        <div className="page-max-shell relative z-10 px-4 sm:px-6">
+        <div className="page-max-shell relative z-10">
           <div className="flex items-center justify-center min-h-50">
             <p style={{ color: colors.muted }}>Loading your profile...</p>
           </div>
         </div>
       ) : userData ? (
-        <div className="page-max-shell relative z-10 mb-8 px-4 sm:px-6">
+        <div className="page-max-shell relative z-10 mb-6">
           <div
-            className="shine-border theme-transition rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8"
+            className="shine-border theme-transition rounded-lg border p-4 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-6"
             style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
           >
-            <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <div
                   className="mb-4 inline-flex rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em]"
@@ -401,7 +346,7 @@ export default function DSCRegistrationForm() {
                   Review Center
                 </div>
                 <h2
-                  className="text-2xl font-black uppercase tracking-tight sm:text-3xl"
+                  className="text-xl font-black uppercase tracking-tight sm:text-2xl"
                   style={{ color: colors.text }}
                 >
                   Hello, {userData.name || userData.email.split("@")[0]}!
@@ -458,7 +403,7 @@ export default function DSCRegistrationForm() {
                 </div>
               ) : (
                 <div
-                  className="rounded-lg border px-5 py-4"
+                  className="rounded-lg border px-4 py-3"
                   style={{
                     borderColor: cardBorderColor,
                     backgroundColor: cardBackground,
@@ -470,16 +415,16 @@ export default function DSCRegistrationForm() {
                   >
                     Fresh Login
                   </p>
-                  <p className="mt-2 text-lg font-black" style={{ color: colors.text }}>
+                  <p className="mt-1 text-base font-black" style={{ color: colors.text }}>
                     No DSC submission yet
                   </p>
-                  <p className="mt-2 text-xs font-semibold" style={{ color: colors.muted }}>
+                  <p className="mt-1 text-[11px] font-semibold" style={{ color: colors.muted }}>
                     Complete the form and bank/telecom verification to unlock tracking status.
                   </p>
                 </div>
               )}
             </div>
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
+            <div className="mt-4 grid gap-3 md:grid-cols-3">
               {[
                 {
                   icon: <ShieldCheck size={18} />,
@@ -503,7 +448,7 @@ export default function DSCRegistrationForm() {
               ].map((item, index) => (
                 <div
                   key={item.label}
-                  className={`rounded-lg border p-5 ${index === 1 ? "float-delay" : "float-slow"}`}
+                  className={`rounded-lg border p-4 ${index === 1 ? "float-delay" : "float-slow"}`}
                   style={{
                     borderColor: cardBorderColor,
                     backgroundColor: cardBackground,
@@ -515,7 +460,7 @@ export default function DSCRegistrationForm() {
                   >
                     {item.icon}
                   </div>
-                  <p className="text-xl font-black uppercase">{item.value}</p>
+                  <p className="text-lg font-black uppercase">{item.value}</p>
                   <p
                     className="mt-1 text-[10px] font-black uppercase tracking-[0.22em]"
                     style={{ color: colors.muted }}
@@ -528,7 +473,7 @@ export default function DSCRegistrationForm() {
             {hasSubmittedApplication ? (
               <div className="mt-6 grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
                 <div
-                  className="rounded-lg border p-5"
+                  className="rounded-lg border p-4"
                   style={{
                     borderColor: cardBorderColor,
                     backgroundColor: cardBackground,
@@ -541,13 +486,13 @@ export default function DSCRegistrationForm() {
                     Admin Review Details
                   </p>
                   <h3
-                    className="mt-3 text-2xl font-black uppercase tracking-tight"
+                    className="mt-2 text-xl font-black uppercase tracking-tight"
                     style={{ color: statusTone.accent }}
                   >
                     {statusTone.title}
                   </h3>
                   <p
-                    className="mt-3 text-sm font-semibold leading-relaxed"
+                    className="mt-2 text-xs font-semibold leading-relaxed"
                     style={{ color: colors.muted }}
                   >
                     {userData?.internalRemarks
@@ -558,7 +503,7 @@ export default function DSCRegistrationForm() {
                           ? "Admin has requested corrections before moving forward."
                           : "Admin has not added remarks yet. Your application is waiting for review."}
                   </p>
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
                     <StatusMeta
                       label="Review Status"
                       value={applicationStatus || "pending"}
@@ -573,7 +518,7 @@ export default function DSCRegistrationForm() {
                 </div>
 
                 <div
-                  className="rounded-lg border p-5"
+                  className="rounded-lg border p-4"
                   style={{
                     borderColor: colors.borderSoft,
                     backgroundColor: colors.panelStrong,
@@ -585,7 +530,7 @@ export default function DSCRegistrationForm() {
                   >
                     Submitted Application
                   </p>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <StatusMeta
                       label="Certificate"
                       value={userData?.certType || "Not selected"}
@@ -629,380 +574,18 @@ export default function DSCRegistrationForm() {
       ) : null}
 
       {!hasSubmittedApplication ? (
-        <form
-          onSubmit={handleSubmit}
-          className="page-max-shell relative z-10 flex w-full flex-col gap-8 px-4 sm:px-6"
-        >
-          <section
-            className="shine-border theme-transition grid items-center gap-8 rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8 md:grid-cols-[0.95fr_1.05fr] lg:p-10"
-            style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
-          >
-            <div className="flex justify-center">
-              <div
-                className="w-full max-w-sm rounded-lg border p-6"
-                style={{
-                  backgroundColor: cardBackground,
-                  borderColor: cardBorderColor,
-                }}
-              >
-                <div className="mb-5 flex items-center justify-between">
-                  <div>
-                    <p
-                      className="text-[10px] font-black uppercase tracking-[0.24em]"
-                      style={{ color: colors.muted }}
-                    >
-                      Application Flow
-                    </p>
-                    <h3 className="mt-2 text-2xl font-black uppercase tracking-tight">
-                      One clean journey
-                    </h3>
-                  </div>
-                  <div
-                    className="flex h-12 w-12 items-center justify-center rounded-lg text-white"
-                    style={{ background: premiumGradient }}
-                  >
-                    <FileText size={20} />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {[
-                    "Choose certificate and validity",
-                    "Verify via PAN or Aadhaar",
-                    "Upload documents and preview",
-                  ].map((item, index) => (
-                    <div
-                      key={item}
-                      className="flex items-center gap-3 rounded-lg border px-4 py-4"
-                      style={{
-                        borderColor: cardBorderColor,
-                        backgroundColor: isDarkMode ? colors.panel : colors.card,
-                      }}
-                    >
-                      <div
-                        className="flex h-9 w-9 items-center justify-center rounded-lg text-sm font-black text-white"
-                        style={{ background: premiumGradient }}
-                      >
-                        0{index + 1}
-                      </div>
-                      <span
-                        className="text-sm font-bold"
-                        style={{ color: colors.text }}
-                      >
-                        {item}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-8 flex items-center gap-4">
-                <div
-                  className="h-0.5 w-12"
-                  style={{ backgroundColor: colors.accent }}
-                />
-                <h1
-                  className="text-3xl font-light uppercase tracking-tight sm:text-4xl"
-                  style={{ color: colors.text }}
-                >
-                  DSC{" "}
-                  <span className="font-black" style={{ color: colors.accent }}>
-                    Enrollment
-                  </span>
-                </h1>
-              </div>
-
-              <div className="grid gap-6">
-                {[
-                  { label: "Full Name", type: "text", key: "name" },
-                  { label: "Email Address", type: "email", key: "email" },
-                  { label: "Mobile Number", type: "tel", key: "mobile" },
-                ].map((field) => (
-                  <FieldLabel
-                    key={field.key}
-                    label={field.label}
-                    required
-                    colors={colors}
-                  >
-                    <input
-                      type={field.type}
-                      value={formData[field.key as keyof FormDataType]}
-                      placeholder={`Enter ${field.label.toLowerCase()}`}
-                      onChange={(event) =>
-                        updateField(
-                          field.key as keyof FormDataType,
-                          event.target.value,
-                        )
-                      }
-                      className="glass-input theme-transition w-full rounded-lg border px-4 py-4 text-sm font-semibold outline-none"
-                      style={{
-                        color: colors.text,
-                        backgroundColor: colors.input,
-                        borderColor: colors.inputBorder,
-                      }}
-                    />
-                  </FieldLabel>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          <section
-            className="shine-border theme-transition rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8 md:p-10 lg:p-14"
-            style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
-          >
-            <h2
-              className="mb-10 text-center text-xs font-black uppercase tracking-[0.4em]"
-              style={{ color: colors.muted }}
-            >
-              Service Configuration
-            </h2>
-
-            <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {[
-                {
-                  label: "User Category",
-                  key: "userType",
-                  options: ["Individual", "Organization", "Foreign Individual"],
-                  required: false,
-                },
-                {
-                  label: "Certificate Class",
-                  key: "classType",
-                  options: ["Class III"],
-                  required: false,
-                },
-                {
-                  label: "Service Type",
-                  key: "certType",
-                  options: ["Encryption", "Signature", "Signing & Encryption"],
-                  required: true,
-                },
-                {
-                  label: "Validity",
-                  key: "validity",
-                  options: ["1 Year", "2 Years", "3 Years"],
-                  required: true,
-                },
-                {
-                  label: "USB Token",
-                  key: "tokenType",
-                  options: ["Not Required", "USB Token"],
-                  required: false,
-                },
-                {
-                  label: "Assisted Service",
-                  key: "assistedService",
-                  options: ["Not Required", "Required"],
-                  required: false,
-                },
-              ].map((item) => (
-                <FieldLabel
-                  key={item.key}
-                  label={item.label}
-                  required={item.required}
-                  colors={colors}
-                >
-                  <select
-                    value={formData[item.key as keyof FormDataType]}
-                    onChange={(event) =>
-                      updateField(
-                        item.key as keyof FormDataType,
-                        event.target.value,
-                      )
-                    }
-                    className="glass-input theme-transition w-full cursor-pointer rounded-lg border px-3 py-3.5 text-sm font-bold outline-none"
-                    style={{
-                      color: colors.text,
-                      backgroundColor: colors.input,
-                      borderColor: colors.inputBorder,
-                      colorScheme: isDarkMode ? "dark" : "light",
-                    }}
-                  >
-                    {(item.key === "certType" || item.key === "validity") && (
-                      <option
-                        value=""
-                        style={{
-                          backgroundColor: colors.card,
-                          color: colors.text,
-                        }}
-                      >{`Select ${item.label}`}</option>
-                    )}
-                    {item.options.map((option) => (
-                      <option
-                        key={option}
-                        value={option}
-                        style={{
-                          backgroundColor: colors.card,
-                          color: colors.text,
-                        }}
-                      >
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                </FieldLabel>
-              ))}
-
-              <div className="mt-4 md:col-span-2 lg:col-span-3">
-                {!isProductSelected ? (
-                  <div
-                    className="theme-transition flex min-h-27.5 flex-col items-center justify-center rounded-lg border border-dashed p-6"
-                    style={{
-                      backgroundColor: colors.panelStrong,
-                      borderColor: colors.borderSoft,
-                    }}
-                  >
-                    <p
-                      className="text-[10px] font-black uppercase tracking-widest"
-                      style={{ color: colors.muted }}
-                    >
-                      Select service type and validity to see pricing
-                    </p>
-                  </div>
-                ) : (
-                  <div
-                    className="theme-transition flex flex-col items-center justify-between gap-6 rounded-lg border p-6 sm:p-8 md:flex-row"
-                    style={{
-                      backgroundColor: `${colors.accent}12`,
-                      borderColor: colors.borderSoft,
-                    }}
-                  >
-                    <div className="text-center md:text-left">
-                      <span
-                        className="text-[10px] font-black uppercase tracking-widest"
-                        style={{ color: colors.accent }}
-                      >
-                        Total Investment
-                      </span>
-                      <div
-                        className="text-4xl font-black"
-                        style={{ color: colors.text }}
-                      >
-                        INR {pricing.total}
-                      </div>
-                    </div>
-
-                    <div
-                      className="flex flex-wrap justify-center gap-4 text-center sm:gap-6"
-                      style={{ color: colors.text }}
-                    >
-                      <PriceUnit
-                        label="Cert"
-                        value={pricing.certificate}
-                        muted={colors.muted}
-                        divider={colors.borderSoft}
-                      />
-                      <PriceUnit
-                        label="Token"
-                        value={pricing.token}
-                        muted={colors.muted}
-                        divider={colors.borderSoft}
-                      />
-                      <PriceUnit
-                        label="Assist"
-                        value={pricing.assisted}
-                        muted={colors.muted}
-                        divider=""
-                        last
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div
-              className="mt-10 flex flex-col items-stretch justify-between gap-8 border-t pt-12 md:flex-row md:items-center"
-              style={{ borderColor: colors.borderSoft }}
-            >
-              <div
-                className="theme-transition flex flex-col gap-4 rounded-lg border px-4 py-4 sm:px-6 md:flex-row md:items-center md:gap-6"
-                style={{
-                  backgroundColor: colors.panel,
-                  borderColor: colors.borderSoft,
-                }}
-              >
-                <span
-                  className="text-[11px] font-black uppercase"
-                  style={{ color: colors.muted }}
-                >
-                  eKYC Mode:
-                </span>
-                <div className="flex flex-wrap gap-4 sm:gap-6">
-                  {["PAN", "Aadhaar"].map((type) => (
-                    <label
-                      key={type}
-                      className="flex cursor-pointer items-center gap-2.5"
-                    >
-                      <input
-                        type="radio"
-                        checked={formData.ekycType === type}
-                        onChange={() => updateField("ekycType", type)}
-                        className="sr-only"
-                      />
-                      <span
-                        className="flex h-5 w-5 items-center justify-center rounded-full border transition-all"
-                        style={{
-                          borderColor:
-                            formData.ekycType === type
-                              ? colors.accent
-                              : colors.muted,
-                          backgroundColor:
-                            formData.ekycType === type
-                              ? `${colors.accent}15`
-                              : "transparent",
-                          boxShadow:
-                            formData.ekycType === type
-                              ? `0 0 0 3px ${colors.accentSoft}`
-                              : "none",
-                        }}
-                      >
-                        <span
-                          className="h-2.5 w-2.5 rounded-full"
-                          style={{
-                            backgroundColor:
-                              formData.ekycType === type
-                                ? colors.accent
-                                : "transparent",
-                          }}
-                        />
-                      </span>
-                      <span
-                        className="text-sm font-bold"
-                        style={{ color: colors.text }}
-                      >
-                        {type}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col items-stretch gap-3 md:items-end">
-                {error ? (
-                  <p className="text-[11px] font-black uppercase text-rose-500">
-                    {error}
-                  </p>
-                ) : null}
-                <button
-                  type="submit"
-                  className="theme-primary-btn theme-transition w-full rounded-lg px-8 py-4 text-xs font-black uppercase tracking-[0.2em] text-white shadow-2xl sm:w-auto sm:px-14 sm:py-5"
-                >
-                  Generate Application{" "}
-                  {/* <ArrowRight className="ml-2 inline" size={15} /> */}
-                </button>
-              </div>
-            </div>
-          </section>
-        </form>
+        <ApplicationForm
+          initialValues={initialFormValues}
+          submitLabel="Generate Application"
+          mode="client"
+          onSubmit={handleApplicationStart}
+        />
       ) : null}
 
       {userData && hasSubmittedApplication ? (
-        <section className="page-max-shell relative z-10 mt-8 grid w-full gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1fr]">
+        <section className="page-max-shell relative z-10 mt-6 grid w-full gap-6 lg:grid-cols-[1fr_1fr]">
           <div
-            className="rounded-lg border p-5 sm:p-8"
+            className="rounded-lg border p-4 sm:p-6"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <p
@@ -1011,7 +594,7 @@ export default function DSCRegistrationForm() {
             >
               Your Details
             </p>
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <StatusMeta
                 label="Full Name"
                 value={userData.name || "Not added"}
@@ -1062,7 +645,7 @@ export default function DSCRegistrationForm() {
           </div>
 
           <div
-            className="rounded-lg border p-5 sm:p-8"
+            className="rounded-lg border p-4 sm:p-6"
             style={{ backgroundColor: colors.card, borderColor: colors.border }}
           >
             <p
@@ -1071,7 +654,7 @@ export default function DSCRegistrationForm() {
             >
               Your Uploaded Documents
             </p>
-            <div className="mt-5 grid gap-4">
+            <div className="mt-4 grid gap-3">
               <DocumentMeta
                 label="Applicant Photo"
                 value={userData.photo}
@@ -1095,60 +678,6 @@ export default function DSCRegistrationForm() {
   );
 }
 
-function FieldLabel({
-  label,
-  required,
-  colors,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  colors: ReturnType<typeof getThemePalette>;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label
-        className="ml-1 text-[10px] font-bold uppercase"
-        style={{ color: colors.muted }}
-      >
-        {label}{" "}
-        {required ? <span style={{ color: colors.accent }}>*</span> : null}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function PriceUnit({
-  label,
-  value,
-  muted,
-  divider,
-  last,
-}: {
-  label: string;
-  value: number;
-  muted: string;
-  divider: string;
-  last?: boolean;
-}) {
-  return (
-    <div className="flex items-center gap-4 sm:gap-6">
-      <div>
-        <div
-          className="text-[9px] font-bold uppercase"
-          style={{ color: muted }}
-        >
-          {label}
-        </div>
-        <div className="font-bold">INR {value}</div>
-      </div>
-      {!last ? <div className="hidden h-8 w-px sm:block" style={{ backgroundColor: divider }} /> : null}
-    </div>
-  );
-}
-
 function StatusMeta({
   label,
   value,
@@ -1160,20 +689,20 @@ function StatusMeta({
 }) {
   return (
     <div
-      className="rounded-lg border px-4 py-3"
+      className="rounded-lg border px-3 py-2"
       style={{
         borderColor: colors.inputBorder,
         backgroundColor: colors.panelStrong,
       }}
     >
       <p
-        className="text-[10px] font-black uppercase tracking-[0.18em]"
+        className="text-[9px] font-black uppercase tracking-[0.18em]"
         style={{ color: colors.muted }}
       >
         {label}
       </p>
       <p
-        className="mt-2 break-all text-sm font-semibold"
+        className="mt-1 break-all text-xs font-semibold"
         style={{ color: colors.text }}
       >
         {value}
@@ -1193,25 +722,25 @@ function DocumentMeta({
 }) {
   return (
     <div
-      className="rounded-lg border px-4 py-4"
+      className="rounded-lg border px-3 py-3"
       style={{
         borderColor: colors.inputBorder,
         backgroundColor: colors.panelStrong,
       }}
     >
       <p
-        className="text-[10px] font-black uppercase tracking-[0.18em]"
+        className="text-[9px] font-black uppercase tracking-[0.18em]"
         style={{ color: colors.muted }}
       >
         {label}
       </p>
       {value ? (
-        <div className="mt-3 flex flex-wrap gap-3">
+        <div className="mt-2 flex flex-wrap gap-2">
           <a
             href={value}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold"
+            className="inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-semibold"
             style={{
               color: colors.accent,
               borderColor: colors.inputBorder,
@@ -1224,7 +753,7 @@ function DocumentMeta({
             href={value}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center rounded-lg border px-4 py-2 text-sm font-semibold"
+            className="inline-flex items-center rounded-lg border px-3 py-1.5 text-xs font-semibold"
             style={{
               color: colors.text,
               borderColor: colors.inputBorder,
@@ -1236,7 +765,7 @@ function DocumentMeta({
         </div>
       ) : (
         <p
-          className="mt-2 text-sm font-semibold"
+          className="mt-1 text-xs font-semibold"
           style={{ color: colors.text }}
         >
           Not uploaded yet

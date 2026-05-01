@@ -173,7 +173,7 @@ function LoginContent() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer" style={{ color: colors.subtleText }}>
+                    <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer whitespace-nowrap " style={{ color: colors.subtleText }}>
                       <input
                         type="checkbox"
                         checked={rememberMe}

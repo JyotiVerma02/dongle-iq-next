@@ -10,12 +10,10 @@ import {
   ChevronRight,
   Download,
   FileText,
-  IndianRupee,
   Loader2,
   Mail,
   MapPinned,
   Moon,
-  Package,
   PencilLine,
   Phone,
   RefreshCw,
@@ -23,7 +21,6 @@ import {
   SunMedium,
   User,
   Users,
-  Wallet,
   XCircle,
 } from "lucide-react";
 import UserLedgerView, { type DashboardUser } from "@/components/UserLedger";
@@ -31,7 +28,7 @@ import UserLedgerView, { type DashboardUser } from "@/components/UserLedger";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import { Menu } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell } from "recharts";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -47,6 +44,7 @@ interface AdminProfile {
   createdAt?: string;
 }
 
+
 export default function DongleIQAdminHub() {
   const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
@@ -57,9 +55,12 @@ export default function DongleIQAdminHub() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+ 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
   const [adminForm, setAdminForm] = useState({
     name: "",
     email: "",
@@ -70,101 +71,88 @@ export default function DongleIQAdminHub() {
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminMessage, setAdminMessage] = useState("");
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
-  const [isChartReady, setIsChartReady] = useState(false);
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsChartReady(true);
-  }, []);
+ const fetchDashboardData = async (showLoader = true) => {
+  if (showLoader) setLoading(true);
+  setError("");
 
-  const fetchDashboardData = async (showLoader = true) => {
-    if (showLoader) setLoading(true);
-    setError("");
+  try {
+    const adminRes = await fetch("/api/get-admin", { cache: "no-store" });
+    const usersRes = await fetch("/api/get-users", { cache: "no-store" });
 
-    try {
-      const [adminRes, usersRes] = await Promise.all([
-        fetch("/api/get-admin", { cache: "no-store" }),
-        fetch("/api/get-users", { cache: "no-store" }),
-      ]);
+    const adminData = await adminRes.json().catch(() => null);
+    const usersData = await usersRes.json().catch(() => null);
 
-      const [adminData, usersData] = await Promise.all([
-        adminRes.json(),
-        usersRes.json(),
-      ]);
-
-      if (!adminRes.ok || !adminData.success) {
-        throw new Error(adminData.message || "Failed to load admin details");
-      }
-
-      if (!usersRes.ok || !usersData.success) {
-        throw new Error(usersData.message || "Failed to load users");
-      }
-
-      setAdmin(adminData.admin || null);
-      setAdminForm({
-        name: adminData.admin?.name || "",
-        email: adminData.admin?.email || "",
-        number: adminData.admin?.number || "",
-        role: adminData.admin?.role || "admin",
-      });
-      setUsers(usersData.users || []);
-    } catch (fetchError) {
-      setError(
-        fetchError instanceof Error
-          ? fetchError.message
-          : "Failed to load dashboard data",
-      );
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
+    if (!adminRes.ok || !adminData?.success) {
+      throw new Error(adminData?.message || "Failed to load admin");
     }
-  };
+
+    if (!usersRes.ok || !usersData?.success) {
+      throw new Error(usersData?.message || "Failed to load users");
+    }
+
+    setAdmin(adminData.admin ?? null);
+
+    setAdminForm({
+      name: adminData.admin?.name || "",
+      email: adminData.admin?.email || "",
+      number: adminData.admin?.number || "",
+      role: adminData.admin?.role || "admin",
+    });
+
+    setUsers(usersData.users ?? []);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : "Unknown error");
+  } finally {
+    setLoading(false);
+    setRefreshing(false);
+  }
+};
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDashboardData();
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
+useEffect(() => {
+  if (typeof window === "undefined") return;
 
-    const mediaQuery = window.matchMedia("(min-width: 1024px)");
-    const syncSidebarState = (matches: boolean) => {
-      setSidebarOpen(matches);
-      if (!matches) {
-        setIsCollapsed(false);
-      }
-    };
+  const mediaQuery = window.matchMedia("(min-width: 1024px)");
 
-    syncSidebarState(mediaQuery.matches);
-    const listener = (event: MediaQueryListEvent) => {
-      syncSidebarState(event.matches);
-    };
+  const handleChange = (e: MediaQueryListEvent) => {
+    setSidebarOpen(e.matches);
+    if (!e.matches) setIsCollapsed(false);
+  };
 
-    mediaQuery.addEventListener("change", listener);
-    return () => {
-      mediaQuery.removeEventListener("change", listener);
-    };
-  }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setSidebarOpen(mediaQuery.matches);
 
-  const stats = useMemo(() => {
-    const pending = users.filter((user) => user.status === "pending").length;
-    const approved = users.filter((user) => user.status === "approved").length;
-    const rejected = users.filter((user) => user.status === "rejected").length;
-    const verified = users.filter(
-      (user) => user?.isAadhaarVerified === true,
-    ).length;
+  mediaQuery.addEventListener("change", handleChange);
+  return () => mediaQuery.removeEventListener("change", handleChange);
+}, []);
 
-    return {
-      total: users.length,
-      pending,
-      approved,
-      rejected,
-      verified,
-    };
-  }, [users]);
+ const stats = useMemo(() => {
+  let pending = 0;
+  let approved = 0;
+  let rejected = 0;
+  let verified = 0;
+
+  for (const user of users) {
+    if (user.status === "pending") pending++;
+    if (user.status === "approved") approved++;
+    if (user.status === "rejected") rejected++;
+    if (user.isAadhaarVerified) verified++;
+  }
+
+  return {
+    total: users.length,
+    pending,
+    approved,
+    rejected,
+    verified,
+  };
+}, [users]);
+
 
   const [search, setSearch] = useState("");
   const [latestPage, setLatestPage] = useState(1);
@@ -183,17 +171,19 @@ export default function DongleIQAdminHub() {
     });
   }, [users, search]);
 
-  const latestUsers = useMemo(() => {
-    const startIndex = (latestPage - 1) * itemsPerPage;
-    return filteredUsers.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredUsers, latestPage]);
+const latestUsers = useMemo(() => {
+  const startIndex = (latestPage - 1) * itemsPerPage;
+  return filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+}, [filteredUsers, latestPage]);
+  const totalLatestPages = Math.max(
+    1,
+    Math.ceil(filteredUsers.length / itemsPerPage),
+  );
 
-  const totalLatestPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLatestPage(1);
-  }, [search]);
+useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  setLatestPage(1);
+}, [search]);
 
   useEffect(() => {
     if (!filteredUsers.length) {
@@ -237,11 +227,12 @@ export default function DongleIQAdminHub() {
     // redirect to register/login page
     router.push("/admin/register"); // or "/admin/login"
   };
-  const handleStatusChange = async (
-    userId: string,
-    status: "approved" | "rejected",
-    internalRemarks?: string,
-  ) => {
+ const handleStatusChange = async (
+  userId: string,
+  status: "approved" | "rejected",
+  internalRemarks?: string,
+) => {
+  try {
     const response = await fetch("/api/admin/update-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -251,19 +242,22 @@ export default function DongleIQAdminHub() {
     const data = await response.json();
 
     if (!response.ok || !data.success) {
-      toast.error(data.message || "Failed to update status");
-      return;
+      throw new Error(data.message || "Failed to update status");
     }
 
-    setUsers((currentUsers) =>
-      currentUsers.map((user) =>
-        user._id === data.user._id ? data.user : user,
-      ),
+    setUsers((prev) =>
+      prev.map((user) =>
+        user._id === data.user._id ? data.user : user
+      )
     );
 
-    // ✅ Add here
     toast.success(`User ${status} successfully`);
-  };
+  } catch (error) {
+    toast.error(
+      error instanceof Error ? error.message : "Something went wrong"
+    );
+  }
+};
 
   const handleAdminSave = async () => {
     setSavingAdmin(true);
@@ -296,46 +290,19 @@ export default function DongleIQAdminHub() {
       setSavingAdmin(false);
     }
   };
-  const chartData = [
-    { name: "Approved", value: stats.approved },
-    { name: "Pending", value: stats.pending },
-    { name: "Rejected", value: stats.rejected },
-  ];
-  const financeStats = useMemo(() => {
-    const dscCommission = users.reduce(
-      (sum, user) => sum + Number(user.price || 0),
-      0,
-    );
-    const tokenAmount = users.reduce(
-      (sum, user) =>
-        sum + (user.tokenType && user.tokenType !== "Not Required" ? 300 : 0),
-      0,
-    );
-    const assistedAmount = users.reduce(
-      (sum, user) =>
-        sum + (user.certType === "Signing & Encryption" ? 150 : 0),
-      0,
-    );
-    const totalCommission = dscCommission + tokenAmount + assistedAmount;
-    const gstPaid = Math.round(totalCommission * 0.18);
-    const paidCommission = users
-      .filter((user) => user.status === "approved")
-      .reduce((sum, user) => sum + Number(user.price || 0), 0);
-    const unpaidCommission = Math.max(totalCommission - paidCommission, 0);
-
-    return {
-      dscCommission,
-      tokenAmount,
-      assistedAmount,
-      totalCommission,
-      gstPaid,
-      paidCommission,
-      pendingApproval: stats.pending,
-      unpaidCommission,
-    };
-  }, [stats.pending, users]);
+ const chartData = useMemo(() => [
+  { name: "Approved", value: stats.approved },
+  { name: "Pending", value: stats.pending },
+  { name: "Rejected", value: stats.rejected },
+], [stats.approved, stats.pending, stats.rejected]);
 
   const actionButtons = [
+    {
+      label: "Download Agreement",
+      icon: <Download size={16} />,
+      onClick: () => toast.success("Agreement download can be connected here."),
+      variant: "accent" as const,
+    },
     {
       label: "Update Shipping Address",
       icon: <MapPinned size={16} />,
@@ -346,13 +313,11 @@ export default function DongleIQAdminHub() {
       label: "View Shipping Address",
       icon: <Building2 size={16} />,
       onClick: () =>
-        toast.success(admin?.number ? `Shipping contact: ${admin.number}` : "No shipping address saved yet"),
-      variant: "secondary" as const,
-    },
-    {
-      label: "Download Agreement",
-      icon: <Download size={16} />,
-      onClick: () => toast.success("Agreement download can be connected here."),
+        toast.success(
+          admin?.number
+            ? `Shipping contact: ${admin.number}`
+            : "No shipping address saved yet",
+        ),
       variant: "secondary" as const,
     },
   ];
@@ -402,11 +367,23 @@ export default function DongleIQAdminHub() {
             </div>
 
             {!isCollapsed && (
-              <div className="mb-4 rounded-xl border px-3 py-2.5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
-                <p className="text-[10px] uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
+              <div
+                className="mb-4 rounded-xl border px-3 py-2.5"
+                style={{
+                  borderColor: colors.borderSoft,
+                  backgroundColor: colors.panel,
+                }}
+              >
+                <p
+                  className="text-[10px] uppercase tracking-[0.18em]"
+                  style={{ color: colors.subtleText }}
+                >
                   Navigation
                 </p>
-                <p className="mt-1 text-xs font-medium" style={{ color: colors.muted }}>
+                <p
+                  className="mt-1 text-xs font-medium"
+                  style={{ color: colors.muted }}
+                >
                   Dashboard, orders, reports and admin controls
                 </p>
               </div>
@@ -435,6 +412,14 @@ export default function DongleIQAdminHub() {
                 icon={<User size={18} />}
                 collapsed={isCollapsed}
               />
+
+              <NavItem
+                label="Applications"
+                active={false}
+                onClick={() => router.push("/admin/create-application")}
+                icon={<FileText size={18} />}
+                collapsed={isCollapsed}
+              />
             </nav>
           </div>
 
@@ -460,7 +445,8 @@ export default function DongleIQAdminHub() {
               <p className="mt-1 text-xs" style={{ color: colors.subtleText }}>
                 {admin?.email || "No email found"}
               </p>
-              <div className="mt-3 flex items-center justify-between text-[11px]"
+              <div
+                className="mt-3 flex items-center justify-between text-[11px]"
                 style={{ color: colors.subtleText }}
               >
                 <span>{admin?.role || "admin"}</span>
@@ -503,7 +489,10 @@ export default function DongleIQAdminHub() {
               <Menu size={18} />
             </button>
             <div className="flex flex-col">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
+              <p
+                className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: colors.subtleText }}
+              >
                 Admin workspace
               </p>
               <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
@@ -589,17 +578,33 @@ export default function DongleIQAdminHub() {
 
           {view === "home" && (
             <div className="min-h-0 h-full space-y-4 overflow-y-auto pr-0 lg:pr-1">
-              <section className="rounded-2xl border p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)]" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+              <section
+                className="rounded-2xl border p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)]"
+                style={{
+                  borderColor: colors.borderSoft,
+                  backgroundColor: colors.panelStrong,
+                }}
+              >
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div>
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
+                    <p
+                      className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+                      style={{ color: colors.subtleText }}
+                    >
                       Dashboard overview
                     </p>
-                    <h1 className="mt-1 text-2xl font-black tracking-tight" style={{ color: colors.text }}>
+                    <h1
+                      className="mt-1 text-2xl font-black tracking-tight"
+                      style={{ color: colors.text }}
+                    >
                       Commission and approval summary
                     </h1>
-                    <p className="mt-1 max-w-2xl text-sm" style={{ color: colors.muted }}>
-                      Compact snapshot of earnings, approval flow, and shipping actions.
+                    <p
+                      className="mt-1 max-w-2xl text-sm"
+                      style={{ color: colors.muted }}
+                    >
+                      Compact snapshot of earnings, approval flow, and shipping
+                      actions.
                     </p>
                   </div>
 
@@ -613,25 +618,8 @@ export default function DongleIQAdminHub() {
                         variant={action.variant}
                       />
                     ))}
-                    <QuickActionButton
-                      label="New Scheme"
-                      icon={<Package size={16} />}
-                      onClick={() => toast.success("New scheme workflow can be connected here.")}
-                      variant="accent"
-                    />
                   </div>
                 </div>
-              </section>
-
-              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <FinanceStatCard label="DSC Commission" value={financeStats.dscCommission} accent="slate" icon={<FileText size={16} />} />
-                <FinanceStatCard label="Token Amount" value={financeStats.tokenAmount} accent="blue" icon={<Wallet size={16} />} />
-                <FinanceStatCard label="Assisted Amount" value={financeStats.assistedAmount} accent="amber" icon={<Settings size={16} />} />
-                <FinanceStatCard label="Total Commission" value={financeStats.totalCommission} accent="teal" icon={<IndianRupee size={16} />} />
-                <FinanceStatCard label="GST Paid" value={financeStats.gstPaid} accent="cyan" icon={<Building2 size={16} />} />
-                <FinanceStatCard label="Paid Commission" value={financeStats.paidCommission} accent="green" icon={<CheckCircle2 size={16} />} />
-                <FinanceStatCard label="Pending Approval" value={financeStats.pendingApproval} accent="yellow" icon={<Loader2 size={16} />} isCount />
-                <FinanceStatCard label="Unpaid Commission" value={financeStats.unpaidCommission} accent="red" icon={<XCircle size={16} />} />
               </section>
 
               <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -726,7 +714,10 @@ export default function DongleIQAdminHub() {
                           ))}
                         </div>
                       ) : filteredUsers.length === 0 ? (
-                        <div className="text-center py-10" style={{ color: colors.subtleText }}>
+                        <div
+                          className="text-center py-10"
+                          style={{ color: colors.subtleText }}
+                        >
                           <Users className="mx-auto mb-3 opacity-40" />
                           <p>No applications yet</p>
                         </div>
@@ -735,8 +726,8 @@ export default function DongleIQAdminHub() {
                           <div
                             key={user._id}
                             onClick={() =>
-                              setExpandedUserId(
-                                expandedUserId === user._id ? null : user._id,
+                              setExpandedUserId((prev) =>
+                                prev === user._id ? null : user._id,
                               )
                             }
                             className="group mb-2 cursor-pointer rounded-xl px-3 py-2 transition-all duration-200 hover:bg-white/5 hover:shadow-[0_14px_28px_-18px_rgba(15,23,42,0.35)]"
@@ -753,24 +744,33 @@ export default function DongleIQAdminHub() {
                             }}
                           >
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="min-w-0 px-1 py-0.5">
-                              <p className="text-[13px] font-semibold truncate" style={{ color: colors.text }}>
-                                {user.name}
-                              </p>
+                              <div className="min-w-0 px-1 py-0.5">
+                                <p
+                                  className="text-[13px] font-semibold truncate"
+                                  style={{ color: colors.text }}
+                                >
+                                  {user.name}
+                                </p>
 
-                              <p className="text-[11px] truncate" style={{ color: colors.subtleText }}>
-                                {user.email} • {user.number}
-                              </p>
-                            </div>
+                                <p
+                                  className="text-[11px] truncate"
+                                  style={{ color: colors.subtleText }}
+                                >
+                                  {user.email} • {user.number}
+                                </p>
+                              </div>
 
-                            <div className="flex flex-wrap items-center gap-2">
-                              <StatusChip status={user.status} />
-                              <span className="text-[11px]" style={{ color: colors.subtleText }}>
-                                {formatDate(user.createdAt)}
-                              </span>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <StatusChip status={user.status} />
+                                <span
+                                  className="text-[11px]"
+                                  style={{ color: colors.subtleText }}
+                                >
+                                  {formatDate(user.createdAt)}
+                                </span>
+                              </div>
                             </div>
-                            </div>
-                             {expandedUserId === user._id && (
+                            {expandedUserId === user._id && (
                               <div
                                 className="mt-2 rounded-xl border p-3 text-[13px]"
                                 style={{
@@ -799,32 +799,57 @@ export default function DongleIQAdminHub() {
 
                     {totalLatestPages > 1 && (
                       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-[13px]" style={{ color: colors.subtleText }}>
-                          Showing {Math.min((latestPage - 1) * itemsPerPage + 1, filteredUsers.length)} to{' '}
-                          {Math.min(latestPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} applications
+                        <p
+                          className="text-[13px]"
+                          style={{ color: colors.subtleText }}
+                        >
+                          Showing{" "}
+                          {Math.min(
+                            (latestPage - 1) * itemsPerPage + 1,
+                            filteredUsers.length,
+                          )}{" "}
+                          to{" "}
+                          {Math.min(
+                            latestPage * itemsPerPage,
+                            filteredUsers.length,
+                          )}{" "}
+                          of {filteredUsers.length} applications
                         </p>
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => setLatestPage(Math.max(1, latestPage - 1))}
+                            onClick={() =>
+                              setLatestPage(Math.max(1, latestPage - 1))
+                            }
                             disabled={latestPage === 1}
                             className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                             style={{
-                              borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+                              borderColor: isDarkMode
+                                ? "rgba(255,255,255,0.08)"
+                                : "rgba(0,0,0,0.08)",
                               backgroundColor: colors.panel,
                               color: colors.text,
                             }}
                           >
                             Previous
                           </button>
-                          <span className="text-[13px]" style={{ color: colors.text }}>
+                          <span
+                            className="text-[13px]"
+                            style={{ color: colors.text }}
+                          >
                             Page {latestPage} of {totalLatestPages}
                           </span>
                           <button
-                            onClick={() => setLatestPage(Math.min(totalLatestPages, latestPage + 1))}
+                            onClick={() =>
+                              setLatestPage(
+                                Math.min(totalLatestPages, latestPage + 1),
+                              )
+                            }
                             disabled={latestPage === totalLatestPages}
                             className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                             style={{
-                              borderColor: isDarkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
+                              borderColor: isDarkMode
+                                ? "rgba(255,255,255,0.08)"
+                                : "rgba(0,0,0,0.08)",
                               backgroundColor: colors.panel,
                               color: colors.text,
                             }}
@@ -847,10 +872,10 @@ export default function DongleIQAdminHub() {
                       backgroundColor: colors.panelStrong,
                     }}
                   >
-<p
-                    className="text-[10px] uppercase tracking-[0.2em]"
-                    style={{ color: colors.subtleText }}
-                  >
+                    <p
+                      className="text-[10px] uppercase tracking-[0.2em]"
+                      style={{ color: colors.subtleText }}
+                    >
                       Verification
                     </p>
 
@@ -886,13 +911,12 @@ export default function DongleIQAdminHub() {
                         : "rgba(0,0,0,0.06)",
                       backgroundColor: colors.panelStrong,
                     }}
-                   >
+                  >
                     <h3 className="mb-3 text-base font-bold">User Status</h3>
 
-                    <div className="h-44 min-w-0 w-full">
-                      {isChartReady ? (
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
+                    <div className="flex min-h-44 min-w-0 w-full items-center justify-center">
+                    {chartData.length > 0 ? (
+                        <PieChart width={240} height={176}>
                             <Pie
                               data={chartData}
                               dataKey="value"
@@ -908,10 +932,9 @@ export default function DongleIQAdminHub() {
                               <Cell fill="#ef4444" />
                             </Pie>
                           </PieChart>
-                        </ResponsiveContainer>
                       ) : (
                         <div
-                          className="h-full w-full rounded-xl"
+                          className="h-44 w-full rounded-xl"
                           style={{ backgroundColor: colors.panel }}
                         />
                       )}
@@ -1039,13 +1062,13 @@ export default function DongleIQAdminHub() {
                         Profile
                       </p>
                       <h2
-                      className="mt-1 text-xl lg:text-2xl font-black"
+                        className="mt-1 text-xl lg:text-2xl font-black"
                         style={{ color: colors.text }}
                       >
                         {admin?.name || "Admin"}
                       </h2>
                       <p
-                      className="mt-2 max-w-xl text-[13px] leading-5"
+                        className="mt-2 max-w-xl text-[13px] leading-5"
                         style={{ color: colors.muted }}
                       >
                         Keep your admin contact details updated so the panel
@@ -1205,8 +1228,7 @@ function NavItem({
   collapsed?: boolean;
 }) {
   const { isDarkMode } = useTheme();
-  const colors = getThemePalette(isDarkMode);
-
+const colors = useMemo(() => getThemePalette(isDarkMode), [isDarkMode]);
   return (
     <button
       onClick={onClick}
@@ -1311,7 +1333,10 @@ function ProfileCard({
     >
       <div className="flex items-center gap-2" style={{ color: colors.text }}>
         <span className="text-[#45c3b9]">{icon}</span>
-        <span className="text-[11px] uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
+        <span
+          className="text-[11px] uppercase tracking-[0.18em]"
+          style={{ color: colors.subtleText }}
+        >
           {label}
         </span>
       </div>
@@ -1340,7 +1365,10 @@ function InputField({
   const colors = getThemePalette(isDarkMode);
   return (
     <label className="block">
-      <span className="text-[11px] font-semibold uppercase tracking-[0.16em] " style={{ color: colors.subtleText }}>
+      <span
+        className="text-[11px] font-semibold uppercase tracking-[0.16em] "
+        style={{ color: colors.subtleText }}
+      >
         {label}
       </span>
       <input
@@ -1399,52 +1427,6 @@ function QuickActionButton({
       {icon}
       {label}
     </button>
-  );
-}
-
-function FinanceStatCard({
-  label,
-  value,
-  icon,
-  accent,
-  isCount,
-}: {
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  accent: "slate" | "blue" | "amber" | "teal" | "cyan" | "green" | "yellow" | "red";
-  isCount?: boolean;
-}) {
-  const backgrounds = {
-    slate: "linear-gradient(135deg, #77808b, #8b949e)",
-    blue: "linear-gradient(135deg, var(--accent-secondary), var(--accent-light))",
-    amber: "linear-gradient(135deg, #f8b400, #ffc531)",
-    teal: "linear-gradient(135deg, #1ca3ba, #2eb8c9)",
-    cyan: "linear-gradient(135deg, #1f9fb5, #31b8cd)",
-    green: "linear-gradient(135deg, #26a541, #31ba4c)",
-    yellow: "linear-gradient(135deg, #f4b400, #ffcc33)",
-    red: "linear-gradient(135deg, #dc3545, #ef4b5c)",
-  } as const;
-
-  return (
-    <div
-      className="rounded-xl p-4 text-[#081214] shadow-[0_18px_36px_-24px_rgba(15,23,42,0.3)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-      style={{ background: backgrounds[accent] }}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/90">
-            {label}
-          </p>
-          <p className="mt-3 text-3xl font-black text-[#081214]">
-            {isCount ? value : value.toLocaleString("en-IN")}
-          </p>
-        </div>
-        <div className="rounded-xl border border-black/10 bg-white/10 p-3 text-[#081214]">
-          {icon}
-        </div>
-      </div>
-    </div>
   );
 }
 
