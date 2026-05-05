@@ -330,10 +330,12 @@ export default function DongleIQAdminHub() {
 
       <main className="flex min-h-screen min-w-0 flex-1 flex-col lg:h-screen">
         <Header
+          admin={admin}
           onSidebarToggle={handleSidebarToggle}
           onRefresh={handleRefresh}
           onLogout={handleLogout}
           refreshing={refreshing}
+          onOpenAdminSettings={() => setView("admin")}
         />
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 lg:px-6">

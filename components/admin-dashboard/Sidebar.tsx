@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ChevronRight, FileText, User, Users } from "lucide-react";
+import { ChevronRight, FileText, Users } from "lucide-react";
 
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
@@ -83,13 +83,6 @@ export function Sidebar({
               active={view === "ledger"}
               onClick={() => onViewChange("ledger")}
               icon={<Users size={18} />}
-              collapsed={isCollapsed}
-            />
-            <NavItem
-              label="Reports / Admin"
-              active={view === "admin"}
-              onClick={() => onViewChange("admin")}
-              icon={<User size={18} />}
               collapsed={isCollapsed}
             />
             <NavItem

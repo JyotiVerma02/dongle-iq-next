@@ -14,7 +14,10 @@ import {
 import toast from "react-hot-toast";
 
 import { MetricsGrid } from "@/components/admin-dashboard/MetricsGrid";
-import type { DashboardStats, DashboardView } from "@/components/admin-dashboard/types";
+import type {
+  DashboardStats,
+  DashboardView,
+} from "@/components/admin-dashboard/types";
 
 export function DashboardHome({
   stats,
@@ -51,7 +54,9 @@ export function DashboardHome({
   onExpandedUserIdChange: (value: string | null) => void;
   onViewChange: (view: DashboardView) => void;
 }) {
-  const [actionLoading, setActionLoading] = useState<"track" | "claim" | "apply" | null>(null);
+  const [actionLoading, setActionLoading] = useState<
+    "track" | "claim" | "apply" | null
+  >(null);
 
   const topButtons = [
     {
@@ -94,7 +99,9 @@ export function DashboardHome({
       if (!data.success) throw new Error(data.message || "Failed to track DSC");
       toast.success(`Status: ${data.status}`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to track DSC");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to track DSC",
+      );
     } finally {
       setActionLoading(null);
     }
@@ -134,7 +141,7 @@ export function DashboardHome({
   };
 
   return (
-    <div className="min-h-0 h-full space-y-6 overflow-y-auto pr-0 lg:pr-1">
+    <div className="min-h-0 h-full space-y-6 overflow-y-auto overflow-x-visible pr-0 lg:pr-1">
       <section
         className="rounded-[1.75rem] border p-6 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)]"
         style={{
@@ -142,24 +149,47 @@ export function DashboardHome({
           backgroundColor: colors.panelStrong,
         }}
       >
-        <div className="space-y-5">
-          <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
-              Dashboard overview
-            </p>
-            <h1 className="mt-2 text-2xl font-black tracking-tight" style={{ color: colors.text }}>
-              Commission and approval summary
-            </h1>
-          </div>
+        <div className="space-y-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <p
+                className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: colors.subtleText }}
+              >
+                Dashboard overview
+              </p>
+              <h1
+                className="mt-2 text-2xl font-black tracking-tight"
+                style={{ color: colors.text }}
+              >
+                Commission and approval summary
+              </h1>
+              <div
+                className="mt-4 max-w-[560px] rounded-2xl px-5 py-3 text-sm italic"
+                style={{
+                  color: "#b91c1c",
+                  backgroundColor: isDarkMode
+                    ? "rgba(255,255,255,0.04)"
+                    : "rgba(255,255,255,0.7)",
+                }}
+              >
+                Claim mTokens Rs315 (385-70 Cash Back scheme benefits for
+                limited period)
+              </div>
+            </div>
 
-          <div
-            className="rounded-2xl px-5 py-3 text-sm italic"
-            style={{
-              color: "#b91c1c",
-              backgroundColor: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.7)",
-            }}
-          >
-            Claim mTokens Rs315 (385-70 Cash Back scheme benefits for limited period)
+            <div className="flex-shrink-0">
+              <button
+                type="button"
+                className="inline-flex min-w-[180px] items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.03]"
+                style={{
+                  background: "linear-gradient(135deg, #ffb31a, #f59e0b)",
+                }}
+              >
+                <ImagePlus size={16} />
+                New Scheme
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
@@ -172,18 +202,6 @@ export function DashboardHome({
               />
             ))}
           </div>
-
-          <div className="flex justify-end">
-            <button
-              type="button"
-              className="inline-flex min-w-56 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-[0_14px_30px_-18px_rgba(245,158,11,0.8)] transition hover:-translate-y-0.5 hover:brightness-105"
-              style={{ background: "linear-gradient(135deg, #ffb31a, #f59e0b)" }}
-              onClick={() => toast.success("New Scheme button can be connected here.")}
-            >
-              <ImagePlus size={16} />
-              New Scheme
-            </button>
-          </div>
         </div>
       </section>
 
@@ -194,40 +212,41 @@ export function DashboardHome({
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
+          color: colors.text,
         }}
       >
-        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        {/* <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: colors.subtleText }}>
               Quick actions
             </p>
-            <h2 className="mt-2 text-lg font-bold tracking-tight" style={{ color: colors.text }}>
+            <h2 className="mt-1 text-xl font-bold tracking-tight" style={{ color: colors.text }}>
               Service shortcuts
             </h2>
           </div>
 
           <label
-            className="flex w-full max-w-xl items-center gap-3 rounded-2xl border px-4 py-3"
+            className="flex w-full max-w-md items-center gap-2 rounded-xl border px-3 py-2"
             style={{
               borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
               backgroundColor: colors.panel,
             }}
           >
-            <Search size={18} style={{ color: colors.subtleText }} />
+            <Search size={16} style={{ color: colors.subtleText }} />
             <input
               type="text"
               placeholder="Search users..."
               value={search}
-              onChange={(event) => onSearchChange(event.target.value)}
-              className="w-full bg-transparent text-[15px] outline-none"
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="w-full bg-transparent text-sm outline-none"
               style={{ color: colors.text }}
             />
           </label>
-        </div>
+        </div> */}
 
         <div className="grid gap-6 xl:grid-cols-3">
           <ServiceCard
-            icon={<Search size={24} />}
+            icon={<Search size={22} />}
             title="Track DSC"
             description="View the current status of your Digital Signature Certificate."
             buttonLabel="Track DSC"
@@ -237,7 +256,7 @@ export function DashboardHome({
             colors={colors}
           />
           <ServiceCard
-            icon={<IndianRupee size={24} />}
+            icon={<IndianRupee size={22} />}
             title="Claim mTokens"
             description="Rs315 (385-70 Cash Back scheme benefits for limited period)"
             buttonLabel="Claim Now"
@@ -248,7 +267,7 @@ export function DashboardHome({
             highlighted
           />
           <ServiceCard
-            icon={<FileText size={24} />}
+            icon={<FileText size={22} />}
             title="Apply DSC"
             description="Register & apply for a new Digital Signature Certificate."
             buttonLabel="Apply Now"
@@ -264,7 +283,9 @@ export function DashboardHome({
         className="rounded-[1.75rem] border px-6 py-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]"
         style={{
           borderColor: colors.borderSoft,
-          backgroundColor: isDarkMode ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.72)",
+          backgroundColor: isDarkMode
+            ? "rgba(255,255,255,0.03)"
+            : "rgba(255,255,255,0.72)",
         }}
       >
         <div className="grid gap-4 text-sm lg:grid-cols-3 lg:items-center">
@@ -276,10 +297,15 @@ export function DashboardHome({
           </div>
 
           <div className="text-sm leading-7" style={{ color: colors.muted }}>
-            <p>Version : 1.2.0.1 || BuildNumber : 20260420.1 || BuildID : 8358</p>
+            <p>
+              Version : 1.2.0.1 || BuildNumber : 20260420.1 || BuildID : 8358
+            </p>
           </div>
 
-          <div className="text-sm leading-7 lg:text-right" style={{ color: "#2563eb" }}>
+          <div
+            className="text-sm leading-7 lg:text-right"
+            style={{ color: "#2563eb" }}
+          >
             <p>Support call 020-49105678, 7777090977</p>
             <p>Support Email: info@dongleiq.com</p>
           </div>
@@ -301,7 +327,7 @@ function TopActionButton({
   return (
     <button
       onClick={onClick}
-      className="inline-flex items-center justify-center gap-2 rounded-2xl border px-4 py-5 text-base font-medium text-white shadow-[0_16px_30px_-18px_rgba(29,127,208,0.7)] transition hover:-translate-y-0.5 hover:brightness-105"
+      className="inline-flex items-center justify-center gap-3 rounded-xl border px-3 py-2 text-base font-medium text-white shadow-[0_16px_30px_-18px_rgba(29,127,208,0.7)] transition hover:-translate-y-0.5 hover:brightness-105"
       style={{
         background: "linear-gradient(135deg, #1d7fd0, #2f92e8)",
         borderColor: "transparent",
@@ -340,56 +366,90 @@ function ServiceCard({
   highlighted?: boolean;
 }) {
   const buttonStyles = {
-    blue: { background: "linear-gradient(135deg, #3578f6, #2563eb)", color: "#ffffff" },
-    orange: { background: "linear-gradient(135deg, #ffb31a, #f59e0b)", color: "#ffffff" },
+    blue: {
+      background: "linear-gradient(135deg, #3578f6, #2563eb)",
+      color: "#ffffff",
+    },
+    orange: {
+      background: "linear-gradient(135deg, #ffb31a, #f59e0b)",
+      color: "#ffffff",
+    },
     light: { background: "#ffffff", color: "#2563eb" },
   } as const;
+  const iconStyles = highlighted
+    ? {
+        wrapper: "rgba(255,255,255,0.14)",
+        color: "#ffffff",
+      }
+    : title === "Apply DSC"
+      ? {
+          wrapper: "rgba(255,179,26,0.14)",
+          color: "#f59e0b",
+        }
+      : {
+          wrapper: "rgba(53,120,246,0.12)",
+          color: "#3578f6",
+        };
 
   return (
     <div
-      className="rounded-[2rem] border px-10 py-10 shadow-[0_25px_60px_-40px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+  className="rounded-2xl border px-6 py-8 shadow-[0_25px_60px_-40px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:px-7 sm:py-9"
+  style={{
+    borderColor: colors.borderSoft,
+    background: highlighted
+      ? "linear-gradient(180deg, #619cf4, #4f8ce9)"
+      : colors.panelStrong,
+    color: highlighted ? "#ffffff" : colors.text,
+    margin: highlighted ? "-6px" : undefined,
+  }}
+>
+  {/* Header */}
+  <div className="flex items-center gap-3 mt-2">
+    <div
+      className="flex h-10 w-10 items-center justify-center rounded-full"
       style={{
-        borderColor: colors.borderSoft,
-        background: highlighted ? "linear-gradient(180deg, #619cf4, #4f8ce9)" : colors.panelStrong,
-        color: highlighted ? "#ffffff" : colors.text,
+        backgroundColor: iconStyles.wrapper,
+        color: iconStyles.color,
       }}
     >
-      <div
-        className="flex h-18 w-18 items-center justify-center rounded-full"
-        style={{
-          backgroundColor: highlighted
-            ? "rgba(255,255,255,0.16)"
-            : title === "Apply DSC"
-              ? "rgba(255,179,26,0.12)"
-              : "rgba(53,120,246,0.12)",
-          color: highlighted ? "#ffffff" : title === "Apply DSC" ? "#f59e0b" : "#3578f6",
-        }}
-      >
-        {icon}
-      </div>
-
-      <h3 className="mt-8 text-[2rem] font-medium leading-tight">{title}</h3>
-      <p
-        className="mt-8 min-h-24 text-[15px] leading-8"
-        style={{ color: highlighted ? "rgba(255,255,255,0.95)" : colors.muted }}
-      >
-        {description}
-      </p>
-
-      <div
-        className="mt-8 h-px w-full"
-        style={{ backgroundColor: highlighted ? "rgba(255,255,255,0.3)" : colors.borderSoft }}
-      />
-
-      <button
-        type="button"
-        onClick={onClick}
-        disabled={loading}
-        className="mt-8 rounded-2xl px-7 py-4 text-xl font-medium transition disabled:opacity-70"
-        style={buttonStyles[buttonTone]}
-      >
-        {loading ? "Please wait..." : buttonLabel}
-      </button>
+      {icon}
     </div>
+
+    <h3 className="text-[18px] font-semibold leading-tight">
+      {title}
+    </h3>
+  </div>
+
+  {/* Description */}
+  <p
+    className="mt-5 min-h-[96px] max-w-[24ch] text-[14px] leading-7"
+    style={{
+      color: highlighted ? "rgba(255,255,255,0.95)" : colors.muted,
+    }}
+  >
+    {description}
+  </p>
+
+  {/* Divider */}
+  <div
+    className="mt-6 h-px w-full"
+    style={{
+      backgroundColor: highlighted
+        ? "rgba(255,255,255,0.3)"
+        : colors.borderSoft,
+    }}
+  />
+
+  {/* Button */}
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={loading}
+    className="mt-6 rounded-[0.8rem] px-4 py-2 text-[15px] font-medium transition disabled:opacity-70"
+    style={buttonStyles[buttonTone]}
+  >
+    {loading ? "Please wait..." : buttonLabel}
+  </button>
+</div>
   );
 }
