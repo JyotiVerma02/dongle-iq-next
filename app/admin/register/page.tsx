@@ -170,7 +170,7 @@ export default function AdminRegister() {
         <div className="flex flex-1 items-start justify-center overflow-y-auto px-4 pb-6 pt-2 sm:px-6 lg:flex-[1.05] lg:items-center lg:px-8">
           <div className="group relative w-full max-w-md animate-[fadeIn_1.2s_ease-out]">
             <div
-              className="absolute -inset-[1px] rounded-lg opacity-20 blur-sm transition-opacity duration-500 group-hover:opacity-35 dark:opacity-40 dark:group-hover:opacity-100"
+              className="absolute -inset-px rounded-lg opacity-20 blur-sm transition-opacity duration-500 group-hover:opacity-35 dark:opacity-40 dark:group-hover:opacity-100"
               style={{ background: premiumGradient }}
             />
 

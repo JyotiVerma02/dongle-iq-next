@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ArrowLeft,
   ArrowUpDown,
   Eye,
@@ -90,6 +91,7 @@ type AdminApplicationsPanelProps = {
 export default function AdminApplicationsPanel({
   users,
   loading,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onBack,
   onUsersChange,
 }: AdminApplicationsPanelProps) {

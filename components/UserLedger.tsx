@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
@@ -19,8 +20,13 @@ import {
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import BackToPreviewButton from "./BackToPreviewButton";
+import user from "@/model/user";
 
 export interface DashboardUser {
+  commission: number;
+  gst: number;
+  paymentStatus: string;
+  serviceType: string;
   _id: string;
   name: string;
   email: string;
@@ -61,6 +67,8 @@ interface UserLedgerProps {
     status: "approved" | "rejected",
     internalRemarks?: string,
   ) => Promise<void>;
+
+  onPaymentChange: (userId: string, status: "paid" | "unpaid") => void; // ✅ ADD THIS
 }
 
 export default function UserLedgerView({
@@ -126,6 +134,13 @@ export default function UserLedgerView({
     } finally {
       setActionLoading(null);
     }
+    type Props = {
+      users: DashboardUser[];
+      loading: boolean;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onStatusChange: (...args: any) => void;
+      onPaymentChange: (userId: string, status: "paid" | "unpaid") => void;
+    };
   };
 
   const handleReject = async () => {
@@ -149,6 +164,11 @@ export default function UserLedgerView({
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function handlePaymentChange(_id: any, arg1: string): void {
+    throw new Error("Function not implemented.");
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -161,7 +181,7 @@ export default function UserLedgerView({
             <ArrowLeft size={14} />
             Back to overview
           </button> */}
-          <BackToPreviewButton/>
+          <BackToPreviewButton />
           <h2
             className="text-3xl font-black tracking-tight"
             style={{ color: colors.text }}
@@ -174,29 +194,29 @@ export default function UserLedgerView({
           </p>
         </div>
 
-      <label
-  className="theme-transition flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-sm lg:max-w-sm outline-none focus-within:ring-0 focus-within:outline-none"
-  style={{
-    borderColor: colors.borderSoft,
-    backgroundColor: colors.panel,
-    // Add this to ensure no browser-specific outline appears on the label
-    outline: 'none', 
-    boxShadow: 'none'
-  }}
->
-  <Search size={16} style={{ color: colors.muted }} />
-  <input
-    value={searchQuery}
-    onChange={(event) => setSearchQuery(event.target.value)}
-    placeholder="Search by name, email, PAN, mobile"
-    className="w-full bg-transparent text-sm outline-none focus:ring-0"
-    style={{ 
-      color: colors.text,
-      border: 'none',
-      boxShadow: 'none'
-    }}
-  />
-</label>
+        <label
+          className="theme-transition flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-sm lg:max-w-sm outline-none focus-within:ring-0 focus-within:outline-none"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.panel,
+            // Add this to ensure no browser-specific outline appears on the label
+            outline: "none",
+            boxShadow: "none",
+          }}
+        >
+          <Search size={16} style={{ color: colors.muted }} />
+          <input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Search by name, email, PAN, mobile"
+            className="w-full bg-transparent text-sm outline-none focus:ring-0"
+            style={{
+              color: colors.text,
+              border: "none",
+              boxShadow: "none",
+            }}
+          />
+        </label>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
@@ -377,8 +397,13 @@ export default function UserLedgerView({
       {filteredUsers.length > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm" style={{ color: colors.muted }}>
-            Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredUsers.length)} to{' '}
-            {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} users
+            Showing{" "}
+            {Math.min(
+              (currentPage - 1) * itemsPerPage + 1,
+              filteredUsers.length,
+            )}{" "}
+            to {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of{" "}
+            {filteredUsers.length} users
           </p>
           {totalPages > 1 && (
             <div className="flex items-center gap-2">
@@ -398,7 +423,9 @@ export default function UserLedgerView({
                 Page {currentPage} of {totalPages}
               </span>
               <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                onClick={() =>
+                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                }
                 disabled={currentPage === totalPages}
                 className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                 style={{
@@ -646,6 +673,28 @@ export default function UserLedgerView({
                     >
                       {actionLoading === "rejected" ? "Rejecting..." : "Reject"}
                     </button>
+                    <div className="mt-2 flex gap-2">
+                      <button
+                        onClick={() =>
+                          handlePaymentChange(selectedUserFromList._id, "paid")
+                        }
+                        className="px-2 py-1 text-xs rounded bg-green-500 text-white"
+                      >
+                        Mark Paid
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          handlePaymentChange(
+                            selectedUserFromList._id,
+                            "unpaid",
+                          )
+                        }
+                        className="px-2 py-1 text-xs rounded bg-red-500 text-white"
+                      >
+                        Mark Unpaid
+                      </button>
+                    </div>
                   </div>
                 </SectionCard>
               </div>

@@ -268,7 +268,7 @@ select:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-block: clamp(3rem, 6vw, 6rem);
+padding-block: clamp(0.5rem, 1.5vw, 1.5rem);
 }
 
 .section-muted {
@@ -1263,23 +1263,31 @@ html.dark label {
    TABLET FIX (768px)
 ========================= */
 
-/* 1. MOBILE (Default - Single Column) */
-.footer-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-}
 
-.footer-grid > div:first-child {
-  grid-column: span 1;
-}
+/* =========================
+   MOBILE ONLY FIX
+========================= */
+@media (max-width: 768px) {
+  .section {
+    padding-top: 2rem; /* restore gap between navbar & hero */
+  }
 
-.metric-card {
-  flex: 1 1 100%; /* Full width on mobile */
-}
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
 
-.split-band {
-  grid-template-columns: 1fr;
+  .footer-grid > div:first-child {
+    grid-column: span 1;
+  }
+
+  .metric-card {
+    flex: 1 1 100%;
+  }
+
+  .split-band {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 2. TABLET (768px to 1023px) */

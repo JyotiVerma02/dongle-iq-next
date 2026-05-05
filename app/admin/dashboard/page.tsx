@@ -2,163 +2,155 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  ArrowLeft,
-  Bell,
-  Building2,
-  CheckCircle2,
-  ChevronRight,
-  Download,
-  FileText,
-  Loader2,
-  Mail,
-  MapPinned,
-  Moon,
-  PencilLine,
-  Phone,
-  RefreshCw,
-  Settings,
-  SunMedium,
-  User,
-  Users,
-  XCircle,
-} from "lucide-react";
-import UserLedgerView, { type DashboardUser } from "@/components/UserLedger";
+import { useRouter } from "next/navigation";
 
+import UserLedgerView, { type DashboardUser } from "@/components/UserLedger";
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
-import { Menu } from "lucide-react";
-import { PieChart, Pie, Cell } from "recharts";
-import { LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
-import AdminApplicationsPanel from "@/components/admin/AdminApplicationsPanel";
-import BackToPreviewButton from "@/components/BackToPreviewButton";
-
-type DashboardView = "home" | "admin" | "ledger" | "applications";
-
-interface AdminProfile {
-  _id?: string;
-  name?: string;
-  email?: string;
-  number?: string;
-  role?: string;
-  status?: string;
-  createdAt?: string;
-}
-
+import {
+  AdminProfileSection,
+  Applications,
+  DashboardHome,
+  Header,
+  Sidebar,
+} from "@/components/admin-dashboard";
+import type { AdminProfile, DashboardStats, DashboardView } from "@/components/admin-dashboard/types";
 
 export default function DongleIQAdminHub() {
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const [view, setView] = useState<DashboardView>("home");
   const [admin, setAdmin] = useState<AdminProfile | null>(null);
   const [users, setUsers] = useState<DashboardUser[]>([]);
-
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
- 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isEditingAdmin, setIsEditingAdmin] = useState(false);
- 
- 
   const [adminForm, setAdminForm] = useState({
     name: "",
     email: "",
     number: "",
     role: "",
   });
-  const router = useRouter();
   const [savingAdmin, setSavingAdmin] = useState(false);
   const [adminMessage, setAdminMessage] = useState("");
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [latestPage, setLatestPage] = useState(1);
+  const router = useRouter();
+  const itemsPerPage = 10;
 
- const fetchDashboardData = async (showLoader = true) => {
-  if (showLoader) setLoading(true);
-  setError("");
+  const fetchDashboardData = async (showLoader = true) => {
+    if (showLoader) setLoading(true);
+    setError("");
 
-  try {
-    const adminRes = await fetch("/api/get-admin", { cache: "no-store" });
-    const usersRes = await fetch("/api/get-users", { cache: "no-store" });
+    try {
+      const adminRes = await fetch("/api/get-admin", { cache: "no-store" });
+      const usersRes = await fetch("/api/get-users", { cache: "no-store" });
 
-    const adminData = await adminRes.json().catch(() => null);
-    const usersData = await usersRes.json().catch(() => null);
+      const adminData = await adminRes.json().catch(() => null);
+      const usersData = await usersRes.json().catch(() => null);
 
-    if (!adminRes.ok || !adminData?.success) {
-      throw new Error(adminData?.message || "Failed to load admin");
+      if (!adminRes.ok || !adminData?.success) {
+        throw new Error(adminData?.message || "Failed to load admin");
+      }
+
+      if (!usersRes.ok || !usersData?.success) {
+        throw new Error(usersData?.message || "Failed to load users");
+      }
+
+      setAdmin(adminData.admin ?? null);
+      setAdminForm({
+        name: adminData.admin?.name || "",
+        email: adminData.admin?.email || "",
+        number: adminData.admin?.number || "",
+        role: adminData.admin?.role || "admin",
+      });
+      setUsers(usersData.users ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-
-    if (!usersRes.ok || !usersData?.success) {
-      throw new Error(usersData?.message || "Failed to load users");
-    }
-
-    setAdmin(adminData.admin ?? null);
-
-    setAdminForm({
-      name: adminData.admin?.name || "",
-      email: adminData.admin?.email || "",
-      number: adminData.admin?.number || "",
-      role: adminData.admin?.role || "admin",
-    });
-
-    setUsers(usersData.users ?? []);
-  } catch (err) {
-    setError(err instanceof Error ? err.message : "Unknown error");
-  } finally {
-    setLoading(false);
-    setRefreshing(false);
-  }
-};
+  };
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchDashboardData();
+    void fetchDashboardData();
   }, []);
 
-useEffect(() => {
-  if (typeof window === "undefined") return;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
-  const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    const handleChange = (event: MediaQueryListEvent) => {
+      setSidebarOpen(event.matches);
+      if (!event.matches) setIsCollapsed(false);
+    };
 
-  const handleChange = (e: MediaQueryListEvent) => {
-    setSidebarOpen(e.matches);
-    if (!e.matches) setIsCollapsed(false);
-  };
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSidebarOpen(mediaQuery.matches);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  setSidebarOpen(mediaQuery.matches);
+  const stats = useMemo<DashboardStats>(() => {
+    let pending = 0;
+    let approved = 0;
+    let rejected = 0;
+    let verified = 0;
+    let dscCommission = 0;
+    let tokenAmount = 0;
+    let assistedAmount = 0;
+    let totalCommission = 0;
+    let gstPaid = 0;
+    let paidCommission = 0;
+    let unpaidCommission = 0;
 
-  mediaQuery.addEventListener("change", handleChange);
-  return () => mediaQuery.removeEventListener("change", handleChange);
-}, []);
+    for (const user of users) {
+      if (user.status === "pending") pending++;
+      if (user.status === "approved") approved++;
+      if (user.status === "rejected") rejected++;
+      if (user.isAadhaarVerified) verified++;
 
- const stats = useMemo(() => {
-  let pending = 0;
-  let approved = 0;
-  let rejected = 0;
-  let verified = 0;
+      const commission = Number(user.commission || 0);
+      const price = Number(user.price || 0);
+      const gst = Number(user.gst || 0);
 
-  for (const user of users) {
-    if (user.status === "pending") pending++;
-    if (user.status === "approved") approved++;
-    if (user.status === "rejected") rejected++;
-    if (user.isAadhaarVerified) verified++;
-  }
+      totalCommission += commission;
 
-  return {
-    total: users.length,
-    pending,
-    approved,
-    rejected,
-    verified,
-  };
-}, [users]);
+      if (user.serviceType === "dsc") dscCommission += commission;
+      if (user.serviceType === "token") tokenAmount += price;
+      if (user.serviceType === "assisted") assistedAmount += price;
 
+      if (user.paymentStatus === "paid") {
+        paidCommission += commission;
+        gstPaid += gst;
+      } else if (user.paymentStatus === "unpaid") {
+        unpaidCommission += commission;
+      }
+    }
 
-  const [search, setSearch] = useState("");
-  const [latestPage, setLatestPage] = useState(1);
-  const itemsPerPage = 10;
+    return {
+      totalUsers: users.length,
+      total: users.length,
+      pending,
+      approved,
+      rejected,
+      verified,
+      dscCommission,
+      tokenAmount,
+      assistedAmount,
+      totalCommission,
+      gstPaid,
+      paidCommission,
+      pendingApproval: pending,
+      unpaidCommission,
+    };
+  }, [users]);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -173,19 +165,17 @@ useEffect(() => {
     });
   }, [users, search]);
 
-const latestUsers = useMemo(() => {
-  const startIndex = (latestPage - 1) * itemsPerPage;
-  return filteredUsers.slice(startIndex, startIndex + itemsPerPage);
-}, [filteredUsers, latestPage]);
-  const totalLatestPages = Math.max(
-    1,
-    Math.ceil(filteredUsers.length / itemsPerPage),
-  );
+  const latestUsers = useMemo(() => {
+    const startIndex = (latestPage - 1) * itemsPerPage;
+    return filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredUsers, latestPage]);
 
-useEffect(() => {
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  setLatestPage(1);
-}, [search]);
+  const totalLatestPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLatestPage(1);
+  }, [search]);
 
   useEffect(() => {
     if (!filteredUsers.length) {
@@ -220,46 +210,57 @@ useEffect(() => {
   };
 
   const handleLogout = () => {
-    // clear auth (examples)
     localStorage.removeItem("adminToken");
     localStorage.removeItem("admin");
-
     toast.success("Logged out successfully");
-
-    // redirect to register/login page
-    router.push("/admin/register"); // or "/admin/login"
+    router.push("/admin/register");
   };
- const handleStatusChange = async (
-  userId: string,
-  status: "approved" | "rejected",
-  internalRemarks?: string,
-) => {
-  try {
-    const response = await fetch("/api/admin/update-status", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, status, internalRemarks }),
-    });
 
-    const data = await response.json();
+  const handleStatusChange = async (
+    userId: string,
+    status: "approved" | "rejected",
+    internalRemarks?: string,
+  ) => {
+    try {
+      const response = await fetch("/api/admin/update-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, status, internalRemarks }),
+      });
 
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || "Failed to update status");
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to update status");
+      }
+
+      setUsers((prev) => prev.map((user) => (user._id === data.user._id ? data.user : user)));
+      toast.success(`User ${status} successfully`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     }
+  };
 
-    setUsers((prev) =>
-      prev.map((user) =>
-        user._id === data.user._id ? data.user : user
-      )
-    );
+  const handlePaymentChange = async (userId: string, paymentStatus: "paid" | "unpaid") => {
+    try {
+      const response = await fetch("/api/admin/update-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, paymentStatus }),
+      });
 
-    toast.success(`User ${status} successfully`);
-  } catch (error) {
-    toast.error(
-      error instanceof Error ? error.message : "Something went wrong"
-    );
-  }
-};
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Failed to update payment");
+      }
+
+      setUsers((prev) => prev.map((user) => (user._id === userId ? { ...user, paymentStatus } : user)));
+      toast.success(`Marked as ${paymentStatus}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
+    }
+  };
 
   const handleAdminSave = async () => {
     setSavingAdmin(true);
@@ -292,44 +293,17 @@ useEffect(() => {
       setSavingAdmin(false);
     }
   };
- const chartData = useMemo(() => [
-  { name: "Approved", value: stats.approved },
-  { name: "Pending", value: stats.pending },
-  { name: "Rejected", value: stats.rejected },
-], [stats.approved, stats.pending, stats.rejected]);
 
-  const actionButtons = [
-    {
-      label: "Download Agreement",
-      icon: <Download size={16} />,
-      onClick: () => toast.success("Agreement download can be connected here."),
-      variant: "accent" as const,
-    },
-    {
-      label: "Update Shipping Address",
-      icon: <MapPinned size={16} />,
-      onClick: () => setView("admin" as DashboardView),
-      variant: "primary" as const,
-    },
-    {
-      label: "View Shipping Address",
-      icon: <Building2 size={16} />,
-      onClick: () =>
-        toast.success(
-          admin?.number
-            ? `Shipping contact: ${admin.number}`
-            : "No shipping address saved yet",
-        ),
-      variant: "secondary" as const,
-    },
-  ];
+  const chartData = useMemo(
+    () => [
+      { name: "Approved", value: stats.approved },
+      { name: "Pending", value: stats.pending },
+      { name: "Rejected", value: stats.rejected },
+    ],
+    [stats.approved, stats.pending, stats.rejected],
+  );
 
   return (
-
-
-
-
-
     <div
       className="theme-transition flex min-h-screen overflow-hidden text-[13px]"
       style={{
@@ -339,130 +313,13 @@ useEffect(() => {
           : "linear-gradient(180deg, #f7fbff 0%, #edf4ff 100%)",
       }}
     >
-      <aside
-        className={`theme-transition fixed inset-y-0 left-0 z-50 flex transform flex-col border-r px-3 py-4 transition-all duration-300 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } ${isCollapsed ? "w-20" : "w-[88vw] max-w-72 lg:w-64 xl:w-72"} lg:static lg:translate-x-0`}
-        style={{
-          width: isCollapsed ? "5.5rem" : "18rem",
-          borderColor: isDarkMode
-            ? "rgba(255,255,255,0.06)"
-            : "rgba(0,0,0,0.06)",
-          backgroundColor: colors.overlay,
-        }}
-      >
-        <div className="flex h-full flex-col">
-          <div>
-            <div className="mb-6 flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#45c3b9,#67e8f9)] text-[#081214] shadow-[0_14px_24px_-18px_rgba(69,195,185,0.7)]">
-                <Users size={20} />
-              </div>
-
-              {!isCollapsed && (
-                <div>
-                  <p className="text-base font-black uppercase tracking-tight">
-                    Dongle <span className="text-[#45c3b9]">IQ</span>
-                  </p>
-                  <p
-                    className="text-[10px] uppercase tracking-[0.2em]"
-                    style={{ color: colors.subtleText }}
-                  >
-                    Admin Panel
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {!isCollapsed && (
-              <div
-                className="mb-4 rounded-xl border px-3 py-2.5"
-                style={{
-                  borderColor: colors.borderSoft,
-                  backgroundColor: colors.panel,
-                }}
-              >
-                <p
-                  className="text-[10px] uppercase tracking-[0.18em]"
-                  style={{ color: colors.subtleText }}
-                >
-                  Navigation
-                </p>
-                <p
-                  className="mt-1 text-xs font-medium"
-                  style={{ color: colors.muted }}
-                >
-                  Dashboard, orders, reports and admin controls
-                </p>
-              </div>
-            )}
-
-            <nav className="space-y-1.5">
-              <NavItem
-                label="Dashboard"
-                active={view === "home"}
-                onClick={() => setView("home")}
-                icon={<FileText size={18} />}
-                collapsed={isCollapsed}
-              />
-              <NavItem
-                label="Orders / Ledger"
-                active={view === "ledger"}
-                onClick={() => setView("ledger")}
-                icon={<Users size={18} />}
-                collapsed={isCollapsed}
-              />
-
-              <NavItem
-                label="Reports / Admin"
-                active={view === "admin"}
-                onClick={() => setView("admin")}
-                icon={<User size={18} />}
-                collapsed={isCollapsed}
-              />
-
-              <NavItem
-                label="Applications"
-                active={view === "applications"}
-                onClick={() => setView("applications")}
-                icon={<FileText size={18} />}
-                collapsed={isCollapsed}
-              />
-            </nav>
-          </div>
-
-          {!isCollapsed && (
-            <div
-              className="theme-transition mt-auto rounded-xl border p-3"
-              style={{
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.06)"
-                  : "rgba(0,0,0,0.06)",
-                backgroundColor: colors.panel,
-              }}
-            >
-              <p
-                className="text-[11px] uppercase tracking-[0.16em]"
-                style={{ color: colors.subtleText }}
-              >
-                Logged in admin
-              </p>
-              <p className="mt-2 text-base font-black text-white">
-                {admin?.name || "Admin"}
-              </p>
-              <p className="mt-1 text-xs" style={{ color: colors.subtleText }}>
-                {admin?.email || "No email found"}
-              </p>
-              <div
-                className="mt-3 flex items-center justify-between text-[11px]"
-                style={{ color: colors.subtleText }}
-              >
-                <span>{admin?.role || "admin"}</span>
-                <span>{admin?.status || "active"}</span>
-              </div>
-            </div>
-          )}
-        </div>
-      </aside>
+      <Sidebar
+        view={view}
+        admin={admin}
+        isCollapsed={isCollapsed}
+        isSidebarOpen={isSidebarOpen}
+        onViewChange={setView}
+      />
 
       {isSidebarOpen ? (
         <div
@@ -472,109 +329,12 @@ useEffect(() => {
       ) : null}
 
       <main className="flex min-h-screen min-w-0 flex-1 flex-col lg:h-screen">
-        <header
-          className="theme-transition sticky top-0 z-30 flex flex-wrap items-start justify-between gap-3 border-b px-4 py-3 backdrop-blur-xl lg:px-6"
-          style={{
-            borderColor: isDarkMode
-              ? "rgba(255,255,255,0.06)"
-              : "rgba(0,0,0,0.06)",
-            backgroundColor: colors.overlay,
-          }}
-        >
-          <div className="flex items-start gap-3">
-            <button
-              onClick={handleSidebarToggle}
-              className="theme-transition flex h-10 w-10 items-center justify-center rounded-xl border transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.5)]"
-              style={{
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.06)"
-                  : "rgba(0,0,0,0.06)",
-                backgroundColor: colors.panel,
-                color: colors.text,
-              }}
-            >
-              <Menu size={18} />
-            </button>
-            <div className="flex flex-col">
-              <p
-                className="text-[10px] font-semibold uppercase tracking-[0.18em]"
-                style={{ color: colors.subtleText }}
-              >
-                Admin workspace
-              </p>
-              <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
-                <span style={{ color: "#16a34a" }}>
-                  Support call: 020-49105678, 7777090977
-                </span>
-                <span style={{ color: colors.muted }}>
-                  Support Email: info@dongleiq.com
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-end gap-3 self-center lg:self-auto">
-            <button
-              onClick={toggleTheme}
-              className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)]"
-              style={{
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.06)"
-                  : "rgba(0,0,0,0.06)",
-                backgroundColor: colors.panel,
-                color: colors.text,
-              }}
-            >
-              {isDarkMode ? <SunMedium size={16} /> : <Moon size={16} />}
-              {isDarkMode ? "Light" : "Dark"}
-            </button>
-            <button
-              onClick={handleRefresh}
-              disabled={refreshing}
-              className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)] disabled:cursor-not-allowed disabled:opacity-70"
-              style={{
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.06)"
-                  : "rgba(0,0,0,0.06)",
-                backgroundColor: colors.panel,
-                color: colors.text,
-              }}
-            >
-              {refreshing ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <RefreshCw size={16} />
-              )}
-              Refresh
-            </button>
-            <div
-              className="theme-transition rounded-xl border p-2.5"
-              style={{
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.06)"
-                  : "rgba(0,0,0,0.06)",
-                backgroundColor: colors.panel,
-                color: colors.text,
-              }}
-            >
-              <Bell size={18} />
-            </div>
-            <button
-              onClick={handleLogout}
-              className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:bg-rose-500/10 hover:shadow-[0_14px_30px_-18px_rgba(244,63,94,0.5)] hover:text-rose-300"
-              style={{
-                borderColor: isDarkMode
-                  ? "rgba(255,255,255,0.06)"
-                  : "rgba(0,0,0,0.06)",
-                backgroundColor: colors.panel,
-                color: colors.text,
-              }}
-            >
-              <LogOut size={16} />
-              Logout
-            </button>
-          </div>
-        </header>
+        <Header
+          onSidebarToggle={handleSidebarToggle}
+          onRefresh={handleRefresh}
+          onLogout={handleLogout}
+          refreshing={refreshing}
+        />
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 lg:px-6">
           {error ? (
@@ -583,923 +343,65 @@ useEffect(() => {
             </div>
           ) : null}
 
-          {view === "home" && (
-            <div className="min-h-0 h-full space-y-4 overflow-y-auto pr-0 lg:pr-1">
-              <section
-                className="rounded-2xl border p-4 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)]"
-                style={{
-                  borderColor: colors.borderSoft,
-                  backgroundColor: colors.panelStrong,
-                }}
-              >
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <p
-                      className="text-[10px] font-semibold uppercase tracking-[0.18em]"
-                      style={{ color: colors.subtleText }}
-                    >
-                      Dashboard overview
-                    </p>
-                    <h1
-                      className="mt-1 text-2xl font-black tracking-tight"
-                      style={{ color: colors.text }}
-                    >
-                      Commission and approval summary
-                    </h1>
-                    <p
-                      className="mt-1 max-w-2xl text-sm"
-                      style={{ color: colors.muted }}
-                    >
-                      Compact snapshot of earnings, approval flow, and shipping
-                      actions.
-                    </p>
-                  </div>
+          {view === "home" ? (
+            <DashboardHome
+              admin={admin}
+              stats={stats}
+              loading={loading}
+              search={search}
+              latestPage={latestPage}
+              itemsPerPage={itemsPerPage}
+              filteredUsers={filteredUsers}
+              latestUsers={latestUsers}
+              totalLatestPages={totalLatestPages}
+              expandedUserId={expandedUserId}
+              chartData={chartData}
+              isDarkMode={isDarkMode}
+              colors={colors}
+              onSearchChange={setSearch}
+              onLatestPageChange={setLatestPage}
+              onExpandedUserIdChange={setExpandedUserId}
+              onViewChange={setView}
+            />
+          ) : null}
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    {actionButtons.map((action) => (
-                      <QuickActionButton
-                        key={action.label}
-                        label={action.label}
-                        icon={action.icon}
-                        onClick={action.onClick}
-                        variant={action.variant}
-                      />
-                    ))}
-                  </div>
-                </div>
-              </section>
-
-              <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                <MetricCard
-                  label="Applications"
-                  value={stats.total}
-                  accent="teal"
-                  icon={<Users size={18} />}
-                />
-                <MetricCard
-                  label="Pending review"
-                  value={stats.pending}
-                  accent="amber"
-                  icon={<Loader2 size={18} />}
-                />
-                <MetricCard
-                  label="Approved"
-                  value={stats.approved}
-                  accent="green"
-                  icon={<CheckCircle2 size={18} />}
-                />
-                <MetricCard
-                  label="Rejected"
-                  value={stats.rejected}
-                  accent="red"
-                  icon={<XCircle size={18} />}
-                />
-              </section>
-
-              <section className="grid min-h-0 h-full gap-4 xl:grid-cols-[1.5fr_0.9fr]">
-                <div className="min-h-0 h-full overflow-y-auto pr-0 lg:pr-2">
-                  <div
-                    className="theme-transition rounded-xl border p-3 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:shadow-2xl"
-                    style={{
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(0,0,0,0.06)",
-                      backgroundColor: colors.panelStrong,
-                    }}
-                  >
-                    <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p
-                          className="text-[10px] uppercase tracking-[0.2em]"
-                          style={{ color: colors.subtleText }}
-                        >
-                          Recent users
-                        </p>
-                        <h2 className="mt-1 text-lg font-bold tracking-tight">
-                          Latest applications
-                        </h2>
-                      </div>
-                      <button
-                        onClick={() => setView("ledger")}
-                        className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)]"
-                        style={{
-                          borderColor: isDarkMode
-                            ? "rgba(255,255,255,0.06)"
-                            : "rgba(0,0,0,0.06)",
-                          backgroundColor: colors.panel,
-                          color: colors.text,
-                        }}
-                      >
-                        Open ledger
-                      </button>
-                    </div>
-                    <div className="mb-3">
-                      <input
-                        type="text"
-                        placeholder="Search users..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full rounded-xl border px-3 py-2 text-[13px] outline-none"
-                        style={{
-                          borderColor: isDarkMode
-                            ? "rgba(255,255,255,0.06)"
-                            : "rgba(0,0,0,0.06)",
-                          backgroundColor: colors.panel,
-                          color: colors.text,
-                        }}
-                      />
-                    </div>
-
-                    <div className="divide-y divide-white/5">
-                      {loading ? (
-                        <div className="space-y-4">
-                          {[1, 2, 3].map((i) => (
-                            <div
-                              key={i}
-                              className="h-16 rounded-lg bg-white/10 animate-pulse"
-                            />
-                          ))}
-                        </div>
-                      ) : filteredUsers.length === 0 ? (
-                        <div
-                          className="text-center py-10"
-                          style={{ color: colors.subtleText }}
-                        >
-                          <Users className="mx-auto mb-3 opacity-40" />
-                          <p>No applications yet</p>
-                        </div>
-                      ) : (
-                        latestUsers.map((user, index) => (
-                          <div
-                            key={user._id}
-                            onClick={() =>
-                              setExpandedUserId((prev) =>
-                                prev === user._id ? null : user._id,
-                              )
-                            }
-                            className="group mb-2 cursor-pointer rounded-xl px-3 py-2 transition-all duration-200 hover:bg-white/5 hover:shadow-[0_14px_28px_-18px_rgba(15,23,42,0.35)]"
-                            style={{
-                              borderColor: isDarkMode
-                                ? "rgba(255,255,255,0.06)"
-                                : "rgba(0,0,0,0.06)",
-                              backgroundColor:
-                                index % 2 === 0
-                                  ? colors.panel
-                                  : isDarkMode
-                                    ? "rgba(255,255,255,0.03)"
-                                    : "rgba(0,0,0,0.03)",
-                            }}
-                          >
-                            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                              <div className="min-w-0 px-1 py-0.5">
-                                <p
-                                  className="text-[13px] font-semibold truncate"
-                                  style={{ color: colors.text }}
-                                >
-                                  {user.name}
-                                </p>
-
-                                <p
-                                  className="text-[11px] truncate"
-                                  style={{ color: colors.subtleText }}
-                                >
-                                  {user.email} • {user.number}
-                                </p>
-                              </div>
-
-                              <div className="flex flex-wrap items-center gap-2">
-                                <StatusChip status={user.status} />
-                                <span
-                                  className="text-[11px]"
-                                  style={{ color: colors.subtleText }}
-                                >
-                                  {formatDate(user.createdAt)}
-                                </span>
-                              </div>
-                            </div>
-                            {expandedUserId === user._id && (
-                              <div
-                                className="mt-2 rounded-xl border p-3 text-[13px]"
-                                style={{
-                                  borderColor: colors.borderSoft,
-                                  backgroundColor: colors.panelStrong,
-                                }}
-                              >
-                                <p style={{ color: colors.text }}>
-                                  <strong>Name:</strong> {user.name}
-                                </p>
-                                <p style={{ color: colors.text }}>
-                                  <strong>Email:</strong> {user.email}
-                                </p>
-                                <p style={{ color: colors.text }}>
-                                  <strong>Phone:</strong> {user.number}
-                                </p>
-                                <p style={{ color: colors.text }}>
-                                  <strong>Status:</strong> {user.status}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    {totalLatestPages > 1 && (
-                      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                        <p
-                          className="text-[13px]"
-                          style={{ color: colors.subtleText }}
-                        >
-                          Showing{" "}
-                          {Math.min(
-                            (latestPage - 1) * itemsPerPage + 1,
-                            filteredUsers.length,
-                          )}{" "}
-                          to{" "}
-                          {Math.min(
-                            latestPage * itemsPerPage,
-                            filteredUsers.length,
-                          )}{" "}
-                          of {filteredUsers.length} applications
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() =>
-                              setLatestPage(Math.max(1, latestPage - 1))
-                            }
-                            disabled={latestPage === 1}
-                            className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
-                            style={{
-                              borderColor: isDarkMode
-                                ? "rgba(255,255,255,0.08)"
-                                : "rgba(0,0,0,0.08)",
-                              backgroundColor: colors.panel,
-                              color: colors.text,
-                            }}
-                          >
-                            Previous
-                          </button>
-                          <span
-                            className="text-[13px]"
-                            style={{ color: colors.text }}
-                          >
-                            Page {latestPage} of {totalLatestPages}
-                          </span>
-                          <button
-                            onClick={() =>
-                              setLatestPage(
-                                Math.min(totalLatestPages, latestPage + 1),
-                              )
-                            }
-                            disabled={latestPage === totalLatestPages}
-                            className="theme-transition rounded-xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
-                            style={{
-                              borderColor: isDarkMode
-                                ? "rgba(255,255,255,0.08)"
-                                : "rgba(0,0,0,0.08)",
-                              backgroundColor: colors.panel,
-                              color: colors.text,
-                            }}
-                          >
-                            Next
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {/* ✅ Verification Card */}
-                  <div
-                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-                    style={{
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(0,0,0,0.06)",
-                      backgroundColor: colors.panelStrong,
-                    }}
-                  >
-                    <p
-                      className="text-[10px] uppercase tracking-[0.2em]"
-                      style={{ color: colors.subtleText }}
-                    >
-                      Verification
-                    </p>
-
-                    <h2
-                      className="mt-1 text-xl font-black"
-                      style={{ color: colors.text }}
-                    >
-                      Verification Status
-                    </h2>
-
-                    <div className="mt-4 space-y-3">
-                      <ProgressRow
-                        label="Aadhaar verified"
-                        value={stats.verified}
-                        accent="bg-gradient-to-r from-[#45c3b9] to-emerald-400"
-                        total={stats.total}
-                      />
-                      <ProgressRow
-                        label="Approval rate"
-                        value={stats.approved}
-                        total={Math.max(stats.total, 1)}
-                        accent="bg-emerald-400"
-                      />
-                    </div>
-                  </div>
-
-                  {/* ✅ Pie Chart Card (Separate) */}
-                  <div
-                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-                    style={{
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(0,0,0,0.06)",
-                      backgroundColor: colors.panelStrong,
-                    }}
-                  >
-                    <h3 className="mb-3 text-base font-bold">User Status</h3>
-
-                    <div className="flex min-h-44 min-w-0 w-full items-center justify-center">
-                    {chartData.length > 0 ? (
-                        <PieChart width={240} height={176}>
-                            <Pie
-                              data={chartData}
-                              dataKey="value"
-                              outerRadius={70}
-                              innerRadius={40}
-                              paddingAngle={4}
-                              label
-                              stroke="none"
-                              style={{ outline: "none" }}
-                            >
-                              <Cell fill="#10b981" />
-                              <Cell fill="#f59e0b" />
-                              <Cell fill="#ef4444" />
-                            </Pie>
-                          </PieChart>
-                      ) : (
-                        <div
-                          className="h-44 w-full rounded-xl"
-                          style={{ backgroundColor: colors.panel }}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {/* ✅ Admin Snapshot Card */}
-                  <div
-                    className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-                    style={{
-                      borderColor: isDarkMode
-                        ? "rgba(255,255,255,0.06)"
-                        : "rgba(0,0,0,0.06)",
-                      backgroundColor: colors.panelStrong,
-                    }}
-                  >
-                    <p
-                      className="text-[10px] uppercase tracking-[0.2em]"
-                      style={{ color: colors.subtleText }}
-                    >
-                      Admin snapshot
-                    </p>
-
-                    <div className="mt-4 flex items-start gap-4">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#45c3b9]/15 text-xl font-black text-[#45c3b9]">
-                        {admin?.name?.charAt(0) || "A"}
-                      </div>
-
-                      <div>
-                        <h3
-                          className="text-xl font-black"
-                          style={{ color: colors.text }}
-                        >
-                          {admin?.name || "Admin"}
-                        </h3>
-                        <p
-                          className="mt-1 text-sm"
-                          style={{ color: colors.muted }}
-                        >
-                          {admin?.email || "No email found"}
-                        </p>
-                        <p
-                          className="mt-2 text-[11px] uppercase tracking-[0.18em]"
-                          style={{ color: colors.subtleText }}
-                        >
-                          {admin?.role || "admin"} •{" "}
-                          {admin?.number || "No mobile"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => setView("admin")}
-                      className="theme-transition mt-5 inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-semibold transition"
-                      style={{
-                        borderColor: isDarkMode
-                          ? "rgba(255,255,255,0.06)"
-                          : "rgba(0,0,0,0.06)",
-                        backgroundColor: colors.panel,
-                        color: colors.text,
-                      }}
-                    >
-                      Edit profile
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </div>
-              </section>
-            </div>
-          )}
-
-          {view === "ledger" && (
+          {view === "ledger" ? (
             <div className="h-full overflow-y-auto min-h-0">
               <UserLedgerView
                 onBack={() => setView("home")}
                 users={users}
                 loading={loading}
                 onStatusChange={handleStatusChange}
+                onPaymentChange={handlePaymentChange}
               />
             </div>
-          )}
+          ) : null}
 
-          {view === "admin" && (
-            <div className="h-full overflow-y-auto min-h-0">
-              <div className="mb-4">
-                
-                <BackToPreviewButton/>
-
-                <div className="flex items-center justify-between">
-                  <h1
-                    className="mt-1 text-xl lg:text-2xl font-black"
-                    style={{ color: colors.text }}
-                  >
-                    Admin Profile
-                  </h1>
-                </div>
-
-                <p className="mt-1 text-[13px]" style={{ color: colors.muted }}>
-                  Manage admin details, update profile information, and control
-                  system access.
-                </p>
-              </div>
-              <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-                <div
-                  className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:shadow-2xl"
-                  style={{
-                    borderColor: isDarkMode
-                      ? "rgba(255,255,255,0.06)"
-                      : "rgba(0,0,0,0.06)",
-                    backgroundColor: colors.panelStrong,
-                  }}
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p
-                        className="text-[10px] uppercase tracking-[0.2em]"
-                        style={{ color: colors.subtleText }}
-                      >
-                        Profile
-                      </p>
-                      <h2
-                        className="mt-1 text-xl lg:text-2xl font-black"
-                        style={{ color: colors.text }}
-                      >
-                        {admin?.name || "Admin"}
-                      </h2>
-                      <p
-                        className="mt-2 max-w-xl text-[13px] leading-5"
-                        style={{ color: colors.muted }}
-                      >
-                        Keep your admin contact details updated so the panel
-                        always shows the correct owner and communication
-                        channel.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setIsEditingAdmin((current) => !current);
-                        setAdminMessage("");
-                      }}
-                      className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)]"
-                      style={{
-                        borderColor: isDarkMode
-                          ? "rgba(255,255,255,0.06)"
-                          : "rgba(0,0,0,0.06)",
-                        backgroundColor: colors.panel,
-                        color: colors.text,
-                      }}
-                    >
-                      <PencilLine size={16} />
-                      {isEditingAdmin ? "Close edit" : "Edit"}
-                    </button>
-                  </div>
-
-                  <div className="mt-5 grid gap-3 md:grid-cols-2">
-                    <ProfileCard
-                      label="Admin name"
-                      value={admin?.name || "Not set"}
-                      icon={<User size={16} />}
-                    />
-                    <ProfileCard
-                      label="Email"
-                      value={admin?.email || "Not set"}
-                      icon={<Mail size={16} />}
-                    />
-                    <ProfileCard
-                      label="Phone"
-                      value={admin?.number || "Not set"}
-                      icon={<Phone size={16} />}
-                    />
-                    <ProfileCard
-                      label="Role"
-                      value={admin?.role || "admin"}
-                      icon={<Settings size={16} />}
-                    />
-                  </div>
-
-                  {adminMessage ? (
-                    <div
-                      className="theme-transition mt-4 rounded-xl border px-4 py-3 text-[13px]"
-                      style={{
-                        borderColor: isDarkMode
-                          ? "rgba(255,255,255,0.06)"
-                          : "rgba(0,0,0,0.06)",
-                        backgroundColor: colors.panel,
-                        color: colors.text,
-                      }}
-                    >
-                      {adminMessage}
-                    </div>
-                  ) : null}
-                </div>
-
-                <div
-                  className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:shadow-2xl"
-                  style={{
-                    borderColor: isDarkMode
-                      ? "rgba(255,255,255,0.06)"
-                      : "rgba(0,0,0,0.06)",
-                    backgroundColor: colors.panelStrong,
-                  }}
-                >
-                  <p
-                    className="text-[10px] uppercase tracking-[0.2em]"
-                    style={{ color: colors.subtleText }}
-                  >
-                    Edit details
-                  </p>
-                  <h3
-                    className="mt-1 text-xl font-black"
-                    style={{ color: colors.text }}
-                  >
-                    Admin settings
-                  </h3>
-
-                  <div className="mt-4 space-y-3">
-                    <InputField
-                      label="Full name"
-                      value={adminForm.name}
-                      onChange={(value) =>
-                        setAdminForm((current) => ({ ...current, name: value }))
-                      }
-                      disabled={!isEditingAdmin}
-                    />
-                    <InputField
-                      label="Email"
-                      value={adminForm.email}
-                      onChange={(value) =>
-                        setAdminForm((current) => ({
-                          ...current,
-                          email: value,
-                        }))
-                      }
-                      disabled={!isEditingAdmin}
-                    />
-                    <InputField
-                      label="Phone"
-                      value={adminForm.number}
-                      onChange={(value) =>
-                        setAdminForm((current) => ({
-                          ...current,
-                          number: value,
-                        }))
-                      }
-                      disabled={!isEditingAdmin}
-                    />
-                    <InputField
-                      label="Role"
-                      value={adminForm.role}
-                      onChange={(value) =>
-                        setAdminForm((current) => ({ ...current, role: value }))
-                      }
-                      disabled={!isEditingAdmin}
-                    />
-                  </div>
-
-                  <button
-                    onClick={handleAdminSave}
-                    disabled={!isEditingAdmin || savingAdmin}
-                    className="mt-4 w-full rounded-xl bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] px-4 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_16px_30px_-18px_rgba(69,195,185,0.5)] disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {savingAdmin ? "Saving..." : "Save admin profile"}
-                  </button>
-                </div>
-              </section>
-            </div>
-          )}
-
-          {view === "applications" && (
-            <AdminApplicationsPanel
-              onBack={() => setView("home")}
-              users={users}
-              loading={loading}
-              onUsersChange={setUsers}
+          {view === "admin" ? (
+            <AdminProfileSection
+              admin={admin}
+              adminForm={adminForm}
+              isDarkMode={isDarkMode}
+              colors={colors}
+              isEditingAdmin={isEditingAdmin}
+              savingAdmin={savingAdmin}
+              adminMessage={adminMessage}
+              onToggleEdit={() => {
+                setIsEditingAdmin((current) => !current);
+                setAdminMessage("");
+              }}
+              onAdminFormChange={(field, value) =>
+                setAdminForm((current) => ({ ...current, [field]: value }))
+              }
+              onSave={handleAdminSave}
             />
-          )}
+          ) : null}
+
+          {view === "applications" ? (
+            <Applications users={users} loading={loading} onUsersChange={setUsers} />
+          ) : null}
         </div>
       </main>
     </div>
   );
-}
-
-function NavItem({
-  label,
-  active,
-  onClick,
-  icon,
-  collapsed,
-}: {
-  label: string;
-  active: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-  collapsed?: boolean;
-}) {
-  const { isDarkMode } = useTheme();
-const colors = useMemo(() => getThemePalette(isDarkMode), [isDarkMode]);
-  return (
-    <button
-      onClick={onClick}
-      title={collapsed ? label : ""}
-      className={`flex items-center ${
-        collapsed ? "justify-center" : "justify-between"
-      } w-full px-2 py-2 rounded-lg text-sm font-medium transition-all duration-200`}
-      style={{
-        backgroundColor: active ? "rgba(69,195,185,0.15)" : "transparent",
-        color: active ? "#45c3b9" : colors.muted,
-        border: active
-          ? "1px solid rgba(69,195,185,0.3)"
-          : "1px solid transparent",
-      }}
-    >
-      {/* Left side */}
-      <div className="flex items-center gap-2.5">
-        <span className="flex items-center justify-center">{icon}</span>
-        {!collapsed && <span>{label}</span>}
-      </div>
-
-      {/* Right arrow */}
-      {!collapsed && (
-        <ChevronRight
-          size={12}
-          className={`transition-transform ${
-            active ? "translate-x-1 opacity-100" : "opacity-40"
-          }`}
-        />
-      )}
-    </button>
-  );
-}
-
-function MetricCard({
-  label,
-  value,
-  icon,
-  accent,
-}: {
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  accent: "teal" | "amber" | "green" | "red";
-}) {
-  const { isDarkMode } = useTheme();
-  const colors = getThemePalette(isDarkMode);
-  const accentStyles = {
-    teal: "bg-[#45c3b9]/12 text-[#45c3b9]",
-    amber: "bg-amber-400/12 text-amber-300",
-    green: "bg-emerald-400/12 text-emerald-300",
-    red: "bg-rose-400/12 text-rose-300",
-  };
-
-  return (
-    <div
-      className="theme-transition rounded-xl border p-3.5 lg:p-4 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-      style={{
-        borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-        backgroundColor: colors.panelStrong,
-      }}
-    >
-      <div className="flex items-start justify-between">
-        <div>
-          <p
-            className="text-[11px] font-semibold uppercase tracking-[0.16em]"
-            style={{ color: colors.subtleText }}
-          >
-            {label}
-          </p>
-          <p
-            className="mt-2 text-2xl font-black"
-            style={{ color: colors.text }}
-          >
-            {value}
-          </p>
-        </div>
-        <div className={`rounded-lg p-3 ${accentStyles[accent]}`}>{icon}</div>
-      </div>
-    </div>
-  );
-}
-
-function ProfileCard({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
-  const { isDarkMode } = useTheme();
-  const colors = getThemePalette(isDarkMode);
-  return (
-    <div
-      className="theme-transition min-w-0 rounded-xl border p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
-      style={{
-        borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-        backgroundColor: colors.panel,
-      }}
-    >
-      <div className="flex items-center gap-2" style={{ color: colors.text }}>
-        <span className="text-[#45c3b9]">{icon}</span>
-        <span
-          className="text-[11px] uppercase tracking-[0.18em]"
-          style={{ color: colors.subtleText }}
-        >
-          {label}
-        </span>
-      </div>
-      <p
-        className="mt-3 min-w-0 break-all text-[13px] font-bold"
-        style={{ color: colors.text }}
-      >
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function InputField({
-  label,
-  value,
-  onChange,
-  disabled,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  disabled: boolean;
-}) {
-  const { isDarkMode } = useTheme();
-  const colors = getThemePalette(isDarkMode);
-  return (
-    <label className="block">
-      <span
-        className="text-[11px] font-semibold uppercase tracking-[0.16em] "
-        style={{ color: colors.subtleText }}
-      >
-        {label}
-      </span>
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        disabled={disabled}
-        className="theme-transition mt-1.5 w-full rounded-xl border px-3.5 py-2.5 text-[13px] outline-none disabled:cursor-not-allowed disabled:opacity-60"
-        style={{
-          borderColor: colors.inputBorder,
-          backgroundColor: colors.input,
-          color: colors.text,
-        }}
-      />
-    </label>
-  );
-}
-
-function QuickActionButton({
-  label,
-  icon,
-  onClick,
-  variant,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  onClick: () => void;
-  variant: "primary" | "secondary" | "accent";
-}) {
-  const { isDarkMode } = useTheme();
-  const colors = getThemePalette(isDarkMode);
-
-  const styles = {
-    primary: {
-      background: "linear-gradient(135deg, var(--accent), var(--accent-light))",
-      color: "#f8fbff",
-      borderColor: "transparent",
-    },
-    secondary: {
-      background: colors.panel,
-      color: colors.text,
-      borderColor: colors.borderSoft,
-    },
-    accent: {
-      background: "linear-gradient(135deg, var(--accent), var(--accent-light))",
-      color: "#f8fbff",
-      borderColor: "transparent",
-    },
-  } as const;
-
-  return (
-    <button
-      onClick={onClick}
-      className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-xs font-semibold hover:-translate-y-0.5 hover:brightness-105 hover:shadow-[0_16px_30px_-18px_rgba(69,195,185,0.5)]"
-      style={styles[variant]}
-    >
-      {icon}
-      {label}
-    </button>
-  );
-}
-
-function StatusChip({ status }: { status: DashboardUser["status"] }) {
-  const { isDarkMode } = useTheme();
-  const colors = getThemePalette(isDarkMode);
-  const styles = {
-    pending: "border-yellow-400/30 bg-yellow-400/20 text-yellow-300",
-    approved: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
-    rejected: "border-rose-400/25 bg-rose-400/10 text-rose-300",
-  };
-
-  return (
-    <span
-      className={`inline-flex rounded-full border px-3 py-1 text-[11px] font-bold capitalize ${styles[status]}`}
-      style={{ color: colors.text }}
-    >
-      {status}
-    </span>
-  );
-}
-
-function ProgressRow({
-  label,
-  value,
-  total,
-  accent,
-}: {
-  label: string;
-  value: number;
-  total: number;
-  accent: string;
-}) {
-  const { isDarkMode } = useTheme();
-  const colors = getThemePalette(isDarkMode);
-  const safeTotal = Math.max(total, 1);
-  const percentage = Math.min(100, Math.round((value / safeTotal) * 100));
-
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between text-sm">
-        <span style={{ color: colors.text }}>{label}</span>
-        <span style={{ color: colors.subtleText }}>{percentage}%</span>
-      </div>
-      <div
-        className="h-2 rounded-full"
-        style={{ backgroundColor: colors.borderSoft }}
-      >
-        <div
-          className={`h-2 rounded-full ${accent} transition-all duration-700 ease-out`}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function formatDate(value?: string) {
-  if (!value) return "Unknown date";
-
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value));
 }

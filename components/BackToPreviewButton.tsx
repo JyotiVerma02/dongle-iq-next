@@ -6,25 +6,29 @@ import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 type Props = {
-  onClick?: () => void; // optional custom handler
+  onClick?: () => void;
   label?: string;
   className?: string;
+  fallbackRoute?: string;
 };
 
 export default function BackToPreviewButton({
   onClick,
   label = "Back to Preview",
   className = "",
+  fallbackRoute,
 }: Props) {
   const router = useRouter();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
 
   const handleClick = () => {
-    if (onClick) {
-      onClick(); // custom behavior (like closing modal)
+    if (onClick) return onClick();
+
+    if (fallbackRoute) {
+      router.push(fallbackRoute);
     } else {
-      router.back(); // default behavior
+      router.back();
     }
   };
 
@@ -34,8 +38,6 @@ export default function BackToPreviewButton({
       onClick={handleClick}
       className={`inline-flex items-center gap-2 rounded-md  px-2 py-1 text-[11px] text-bold tracking-[0.14em] transition hover:-translate-y-0.5 ${className}`}
       style={{
-       
-      
         color: colors.text,
       }}
     >

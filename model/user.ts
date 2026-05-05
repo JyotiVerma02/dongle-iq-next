@@ -84,6 +84,27 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       min: [0, "Price must be positive"],
     },
+    commission: {
+  type: Number,
+  default: 0,
+},
+
+gst: {
+  type: Number,
+  default: 0,
+},
+
+paymentStatus: {
+  type: String,
+  enum: ["paid", "pending", "unpaid"],
+  default: "pending",
+},
+
+serviceType: {
+  type: String,
+  enum: ["dsc", "token", "assisted"],
+  default: "dsc",
+},
 
     otp: String,
     otpExpiry: Date,

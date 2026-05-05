@@ -5,6 +5,7 @@
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import ParticleBackground from "@/components/ParticleBackground";
 import {
   APPLICATION_CONFIG_KEY,
