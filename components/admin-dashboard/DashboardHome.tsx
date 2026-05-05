@@ -81,30 +81,13 @@ export function DashboardHome({
     },
   ];
 
-  const handleTrack = async () => {
-    const candidateNumber = latestUsers[0]?.number || filteredUsers[0]?.number;
-    if (!candidateNumber) {
-      toast.error("No user mobile available to track DSC");
-      return;
-    }
-
+  const handleTrack = () => {
     setActionLoading("track");
-    try {
-      const response = await fetch("/api/track-dsc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ number: candidateNumber }),
-      });
-      const data = await response.json();
-      if (!data.success) throw new Error(data.message || "Failed to track DSC");
-      toast.success(`Status: ${data.status}`);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to track DSC",
-      );
-    } finally {
+
+    setTimeout(() => {
       setActionLoading(null);
-    }
+      onViewChange("track-dsc");
+    }, 200);
   };
 
   const handleClaim = async () => {
@@ -215,35 +198,6 @@ export function DashboardHome({
           color: colors.text,
         }}
       >
-        {/* <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: colors.subtleText }}>
-              Quick actions
-            </p>
-            <h2 className="mt-1 text-xl font-bold tracking-tight" style={{ color: colors.text }}>
-              Service shortcuts
-            </h2>
-          </div>
-
-          <label
-            className="flex w-full max-w-md items-center gap-2 rounded-xl border px-3 py-2"
-            style={{
-              borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
-              backgroundColor: colors.panel,
-            }}
-          >
-            <Search size={16} style={{ color: colors.subtleText }} />
-            <input
-              type="text"
-              placeholder="Search users..."
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full bg-transparent text-sm outline-none"
-              style={{ color: colors.text }}
-            />
-          </label>
-        </div> */}
-
         <div className="grid gap-6 xl:grid-cols-3">
           <ServiceCard
             icon={<Search size={22} />}
@@ -376,6 +330,7 @@ function ServiceCard({
     },
     light: { background: "#ffffff", color: "#2563eb" },
   } as const;
+
   const iconStyles = highlighted
     ? {
         wrapper: "rgba(255,255,255,0.14)",
@@ -393,63 +348,57 @@ function ServiceCard({
 
   return (
     <div
-  className="rounded-2xl border px-6 py-8 shadow-[0_25px_60px_-40px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:px-7 sm:py-9"
-  style={{
-    borderColor: colors.borderSoft,
-    background: highlighted
-      ? "linear-gradient(180deg, #619cf4, #4f8ce9)"
-      : colors.panelStrong,
-    color: highlighted ? "#ffffff" : colors.text,
-    margin: highlighted ? "-6px" : undefined,
-  }}
->
-  {/* Header */}
-  <div className="flex items-center gap-3 mt-2">
-    <div
-      className="flex h-10 w-10 items-center justify-center rounded-full"
+      className="rounded-2xl border px-6 py-8 shadow-[0_25px_60px_-40px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:px-7 sm:py-9"
       style={{
-        backgroundColor: iconStyles.wrapper,
-        color: iconStyles.color,
+        borderColor: colors.borderSoft,
+        background: highlighted
+          ? "linear-gradient(180deg, #619cf4, #4f8ce9)"
+          : colors.panelStrong,
+        color: highlighted ? "#ffffff" : colors.text,
+        margin: highlighted ? "-6px" : undefined,
       }}
     >
-      {icon}
+      <div className="mt-2 flex items-center gap-3">
+        <div
+          className="flex h-10 w-10 items-center justify-center rounded-full"
+          style={{
+            backgroundColor: iconStyles.wrapper,
+            color: iconStyles.color,
+          }}
+        >
+          {icon}
+        </div>
+
+        <h3 className="text-[18px] font-semibold leading-tight">{title}</h3>
+      </div>
+
+      <p
+        className="mt-5 min-h-[96px] max-w-[24ch] text-[14px] leading-7"
+        style={{
+          color: highlighted ? "rgba(255,255,255,0.95)" : colors.muted,
+        }}
+      >
+        {description}
+      </p>
+
+      <div
+        className="mt-6 h-px w-full"
+        style={{
+          backgroundColor: highlighted
+            ? "rgba(255,255,255,0.3)"
+            : colors.borderSoft,
+        }}
+      />
+
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={loading}
+        className="mt-6 rounded-[0.8rem] px-4 py-2 text-[15px] font-medium transition disabled:opacity-70"
+        style={buttonStyles[buttonTone]}
+      >
+        {loading ? "Please wait..." : buttonLabel}
+      </button>
     </div>
-
-    <h3 className="text-[18px] font-semibold leading-tight">
-      {title}
-    </h3>
-  </div>
-
-  {/* Description */}
-  <p
-    className="mt-5 min-h-[96px] max-w-[24ch] text-[14px] leading-7"
-    style={{
-      color: highlighted ? "rgba(255,255,255,0.95)" : colors.muted,
-    }}
-  >
-    {description}
-  </p>
-
-  {/* Divider */}
-  <div
-    className="mt-6 h-px w-full"
-    style={{
-      backgroundColor: highlighted
-        ? "rgba(255,255,255,0.3)"
-        : colors.borderSoft,
-    }}
-  />
-
-  {/* Button */}
-  <button
-    type="button"
-    onClick={onClick}
-    disabled={loading}
-    className="mt-6 rounded-[0.8rem] px-4 py-2 text-[15px] font-medium transition disabled:opacity-70"
-    style={buttonStyles[buttonTone]}
-  >
-    {loading ? "Please wait..." : buttonLabel}
-  </button>
-</div>
   );
 }

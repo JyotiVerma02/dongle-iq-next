@@ -1,9 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export async function POST(req: Request) {
   const { number } = await req.json();
 
+  if (!number) {
+    return Response.json({
+      success: false,
+      message: "Number required",
+    });
+  }
+
   return Response.json({
     success: true,
-    status: "pending",
+    status: Math.random() > 0.5 ? "approved" : "pending", // demo
   });
 }

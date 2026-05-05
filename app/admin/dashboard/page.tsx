@@ -14,7 +14,12 @@ import {
   Header,
   Sidebar,
 } from "@/components/admin-dashboard";
-import type { AdminProfile, DashboardStats, DashboardView } from "@/components/admin-dashboard/types";
+  import TrackDSCView from "@/components/admin-dashboard/TrackDSCView";
+import type {
+  AdminProfile,
+  DashboardStats,
+  DashboardView,
+} from "@/components/admin-dashboard/types";
 
 export default function DongleIQAdminHub() {
   const { isDarkMode } = useTheme();
@@ -170,7 +175,10 @@ export default function DongleIQAdminHub() {
     return filteredUsers.slice(startIndex, startIndex + itemsPerPage);
   }, [filteredUsers, latestPage]);
 
-  const totalLatestPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
+  const totalLatestPages = Math.max(
+    1,
+    Math.ceil(filteredUsers.length / itemsPerPage),
+  );
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -234,14 +242,21 @@ export default function DongleIQAdminHub() {
         throw new Error(data.message || "Failed to update status");
       }
 
-      setUsers((prev) => prev.map((user) => (user._id === data.user._id ? data.user : user)));
+      setUsers((prev) =>
+        prev.map((user) => (user._id === data.user._id ? data.user : user)),
+      );
       toast.success(`User ${status} successfully`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Something went wrong");
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong",
+      );
     }
   };
 
-  const handlePaymentChange = async (userId: string, paymentStatus: "paid" | "unpaid") => {
+  const handlePaymentChange = async (
+    userId: string,
+    paymentStatus: "paid" | "unpaid",
+  ) => {
     try {
       const response = await fetch("/api/admin/update-payment", {
         method: "POST",
@@ -255,10 +270,16 @@ export default function DongleIQAdminHub() {
         throw new Error(data.message || "Failed to update payment");
       }
 
-      setUsers((prev) => prev.map((user) => (user._id === userId ? { ...user, paymentStatus } : user)));
+      setUsers((prev) =>
+        prev.map((user) =>
+          user._id === userId ? { ...user, paymentStatus } : user,
+        ),
+      );
       toast.success(`Marked as ${paymentStatus}`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Something went wrong");
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong",
+      );
     }
   };
 
@@ -400,7 +421,15 @@ export default function DongleIQAdminHub() {
           ) : null}
 
           {view === "applications" ? (
-            <Applications users={users} loading={loading} onUsersChange={setUsers} />
+            <Applications
+              users={users}
+              loading={loading}
+              onUsersChange={setUsers}
+            />
+          ) : null}
+
+          {view === "track-dsc" ? (
+            <TrackDSCView /> // 👈 YOUR COMPONENT HERE
           ) : null}
         </div>
       </main>
