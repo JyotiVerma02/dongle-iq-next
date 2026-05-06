@@ -14,24 +14,31 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   
-  // ✅ FIX: read from localStorage immediately
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") return "dark";
 
-    const saved = localStorage.getItem("dongle-iq-theme") as Theme | null;
-    return saved === "light" || saved === "dark" ? saved : "dark";
+    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return systemDark ? "dark" : "light";
   });
 
-  // ✅ Apply theme
   useEffect(() => {
     const root = document.documentElement;
 
     root.classList.remove("light", "dark");
     root.classList.add(theme);
     root.style.colorScheme = theme;
-
-    localStorage.setItem("dongle-iq-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const handler = (e: MediaQueryListEvent) => {
+      setTheme(e.matches ? "dark" : "light");
+    };
+
+    media.addEventListener("change", handler);
+    return () => media.removeEventListener("change", handler);
+  }, []);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));

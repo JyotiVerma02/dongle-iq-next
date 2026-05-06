@@ -21,8 +21,8 @@ export default function RootLayout({
       try {
         var storageKey = 'dongle-iq-theme';
         var savedTheme = window.localStorage.getItem(storageKey);
-    var theme = savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'dark';
-        var root = document.documentElement;
+var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+var theme = systemDark ? 'dark' : 'light';        var root = document.documentElement;
         root.classList.remove('light', 'dark');
         root.classList.add(theme);
         root.style.colorScheme = theme;
