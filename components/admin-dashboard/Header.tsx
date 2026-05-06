@@ -167,7 +167,10 @@ export function Header({
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.08)"
                   : "rgba(0,0,0,0.08)",
-               background: isDarkMode ? "#1f2937" : "#ffffff",
+                background: isDarkMode ? "#1f2937" : "#f3f4f6",
+                boxShadow: isDarkMode
+                  ? "0 10px 40px rgba(0,0,0,0.6)"
+                  : "0 10px 25px rgba(0,0,0,0.08)",
               }}
             >
               {/* HEADER */}

@@ -21,7 +21,7 @@ export default function RootLayout({
       try {
         var storageKey = 'dongle-iq-theme';
         var savedTheme = window.localStorage.getItem(storageKey);
-        var theme = savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'light';
+    var theme = savedTheme === 'dark' || savedTheme === 'light' ? savedTheme : 'dark';
         var root = document.documentElement;
         root.classList.remove('light', 'dark');
         root.classList.add(theme);
