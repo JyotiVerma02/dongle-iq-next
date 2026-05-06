@@ -6,29 +6,31 @@ type Theme = "light" | "dark";
 
 type ThemeContextType = {
   theme: Theme;
+  isDarkMode: boolean;
   toggleTheme: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
+  
+  // ✅ FIX: read from localStorage immediately
   const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      return (sessionStorage.getItem("theme") as Theme) || "dark";
-    }
-    return "light";
+    if (typeof window === "undefined") return "dark";
+
+    const saved = localStorage.getItem("dongle-iq-theme") as Theme | null;
+    return saved === "light" || saved === "dark" ? saved : "dark";
   });
 
+  // ✅ Apply theme
   useEffect(() => {
     const root = document.documentElement;
 
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+    root.classList.remove("light", "dark");
+    root.classList.add(theme);
+    root.style.colorScheme = theme;
 
-    sessionStorage.setItem("theme", theme);
+    localStorage.setItem("dongle-iq-theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
@@ -36,7 +38,13 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        isDarkMode: theme === "dark",
+        toggleTheme,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
