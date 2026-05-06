@@ -1,5 +1,7 @@
 import winston from "winston";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const logger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
@@ -8,16 +10,15 @@ const logger = winston.createLogger({
     winston.format.json()
   ),
   defaultMeta: { service: "dongle-iq-next" },
+
   transports: [
-    new winston.transports.File({ filename: "logs/error.log", level: "error" }),
-    new winston.transports.File({ filename: "logs/combined.log" }),
+    // ✅ Always safe (Vercel compatible)
+    new winston.transports.Console({
+      format: isProd
+        ? winston.format.json()
+        : winston.format.simple(),
+    }),
   ],
 });
-
-if (process.env.NODE_ENV !== "production") {
-  logger.add(new winston.transports.Console({
-    format: winston.format.simple(),
-  }));
-}
 
 export default logger;
