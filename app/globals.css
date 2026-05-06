@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: light;
---app-navbar-offset: calc(72px + 16px);
+  color-scheme: light dark;
+  --app-navbar-offset: calc(72px + 16px);
   --app-shell-min-height: calc(100dvh - var(--app-navbar-offset));
 
   --background: #f6f7f2;
@@ -13,11 +13,11 @@
 
   /* ADD BELOW YOUR ACCENT COLORS */
 
---accent-rgb: 15, 118, 110;
+  --accent-rgb: 15, 118, 110;
 
-/* cursor */
---cursor-glow: rgba(15, 118, 110, 0.35);
---cursor-ripple: rgba(15, 118, 110, 0.25);
+  /* cursor */
+  --cursor-glow: rgba(15, 118, 110, 0.35);
+  --cursor-ripple: rgba(15, 118, 110, 0.25);
 
   --card: rgba(255, 255, 255, 0.9);
   --card-strong: rgba(255, 255, 255, 0.96);
@@ -46,9 +46,12 @@ html.dark {
 
   --background: #09111f;
   --background-alt: #0d1727;
- --foreground: #f8fafc;   /* near white, crisp */
---muted: #cbd5f5;        /* brighter muted */
---subtle-text: #a5b4fc;  /* slight accent tint */
+  --foreground: #f8fafc;
+  /* near white, crisp */
+  --muted: #cbd5f5;
+  /* brighter muted */
+  --subtle-text: #a5b4fc;
+  /* slight accent tint */
 
   --card: rgba(10, 20, 36, 0.78);
   --card-strong: rgba(12, 25, 43, 0.9);
@@ -60,10 +63,10 @@ html.dark {
 
   /* ADD BELOW DARK ACCENT */
 
---accent-rgb: 18, 163, 144;
+  --accent-rgb: 18, 163, 144;
 
---cursor-glow: rgba(18, 163, 144, 0.35);
---cursor-ripple: rgba(18, 163, 144, 0.25);
+  --cursor-glow: rgba(18, 163, 144, 0.35);
+  --cursor-ripple: rgba(18, 163, 144, 0.25);
   --accent: #12a390;
   --accent-light: #067180;
   --accent-secondary: #38bdf8;
@@ -105,7 +108,7 @@ body {
     color 220ms ease,
     border-color 220ms ease,
     box-shadow 220ms ease;
-    
+
 }
 
 h1,
@@ -221,7 +224,8 @@ select:focus {
 .page-shell {
   position: relative;
   width: 100%;
-  overflow-x: hidden; /* This kills the horizontal scroll/empty space */
+  overflow-x: hidden;
+  /* This kills the horizontal scroll/empty space */
 }
 
 
@@ -230,13 +234,15 @@ select:focus {
   min-height: var(--app-shell-min-height);
 }
 
-.page-max-shell, 
+.page-max-shell,
 .container-shell {
   width: 100%;
-  max-width: 1320px; 
+  max-width: 1320px;
   margin-inline: auto;
-  padding-inline: clamp(1rem, 5vw, 1.5rem); /* Added: ensures content never touches screen edges */
-  box-sizing: border-box; /* Added: prevents padding from adding to the width */
+  padding-inline: clamp(1rem, 5vw, 1.5rem);
+  /* Added: ensures content never touches screen edges */
+  box-sizing: border-box;
+  /* Added: prevents padding from adding to the width */
 }
 
 .page-shell::before {
@@ -250,14 +256,14 @@ select:focus {
 
 .content-container {
   width: 100%;
-  max-width: 1320px; 
+  max-width: 1320px;
   margin-inline: auto !important;
   display: flex !important;
-  justify-content: center !important; 
+  justify-content: center !important;
   align-items: center;
-  gap: clamp(1.5rem, 4vw, 5rem); 
+  gap: clamp(1.5rem, 4vw, 5rem);
   padding-inline: clamp(1.5rem, 5vw, 3rem);
-  flex-wrap: wrap; 
+  flex-wrap: wrap;
 }
 
 .section {
@@ -266,7 +272,7 @@ select:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-padding-block: clamp(0.5rem, 1.5vw, 1.5rem);
+  padding-block: clamp(0.5rem, 1.5vw, 1.5rem);
 }
 
 .section-muted {
@@ -278,6 +284,7 @@ padding-block: clamp(0.5rem, 1.5vw, 1.5rem);
 .hero-glow {
   display: none;
 }
+
 .app-shell-content {
   padding-top: 60px;
 }
@@ -321,7 +328,7 @@ html.dark .split-band {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
     var(--card);
-  box-shadow: 
+  box-shadow:
     0 24px 52px -32px rgba(0, 0, 0, 0.48),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
@@ -375,11 +382,13 @@ html.dark .split-band {
 
 .hero-title {
   max-width: 15ch;
-  font-size: clamp(2.2rem, 8vw, 4.2rem); /* Slightly smaller base for mobile */
+  font-size: clamp(2.2rem, 8vw, 4.2rem);
+  /* Slightly smaller base for mobile */
   line-height: 0.95;
   font-weight: 800;
   text-wrap: balance;
-  word-break: break-word; /* Prevents long words from pushing the layout */
+  word-break: break-word;
+  /* Prevents long words from pushing the layout */
 }
 
 .hero-copy {
@@ -402,6 +411,7 @@ html.dark .split-band {
   font-weight: 600;
   text-align: center;
 }
+
 .button-primary {
   color: #ffffff;
   background: var(--accent);
@@ -410,19 +420,19 @@ html.dark .split-band {
   letter-spacing: 0.2px;
   transition: all 0.2s ease;
 }
+
 html:not(.dark) .button-primary,
 html:not(.dark) .theme-primary-btn {
   background: var(--accent);
   color: #ffffff;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 12px var(--accent-shadow);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 4px 12px var(--accent-shadow);
 }
+
 .theme-primary-btn {
-  background: linear-gradient(
-    135deg,
-    var(--accent),
-    var(--accent-light),
-    var(--accent-secondary)
-  );
+  background: linear-gradient(135deg,
+      var(--accent),
+      var(--accent-light),
+      var(--accent-secondary));
   color: #ffffff;
   box-shadow: 0 8px 20px -6px var(--accent-shadow);
   transition: all 0.25s ease;
@@ -444,7 +454,7 @@ html:not(.dark) .theme-primary-btn {
   color: var(--foreground);
   border: 1px solid var(--border);
   background: var(--card-strong);
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .urgency-tag {
@@ -722,7 +732,8 @@ html.dark .metric-card {
 .audience-card:hover,
 .info-card:hover,
 .faq-card:hover {
-  transform: translateY(-2px); /* Subtle hover lift */
+  transform: translateY(-2px);
+  /* Subtle hover lift */
   border-color: var(--accent);
   box-shadow:
     0 12px 30px -10px rgba(9, 17, 31, 0.15),
@@ -972,21 +983,25 @@ html:not(.dark) select {
   align-items: center !important;
   width: 100%;
 }
+
 /* Specifically ensures Auth pages (Login/Signup) feel balanced */
 .auth-page-shell .content-container {
-  min-height: calc(100vh - 120px); /* Centers content vertically in the viewport */
+  min-height: calc(100vh - 120px);
+  /* Centers content vertically in the viewport */
   align-content: center;
 }
 
 /* Fixes the text side to keep it readable */
 .auth-page-shell .contact-copy {
   max-width: 500px;
- flex: 0 1 auto !important;
+  flex: 0 1 auto !important;
 }
 
 /* Fixes the card side */
-.auth-card, .auth-aside-card {
- flex: 0 0 450px !important; /* Prevents the card from stretching too wide */
+.auth-card,
+.auth-aside-card {
+  flex: 0 0 450px !important;
+  /* Prevents the card from stretching too wide */
   width: 100%;
   max-width: 100%;
 }
@@ -1013,16 +1028,20 @@ html:not(.dark) select {
 .footer-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 20px; /* reduced for mobile */
+  gap: 20px;
+  /* reduced for mobile */
 }
-.footer-grid > div {
+
+.footer-grid>div {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
 }
+
 .footer-contact {
   max-width: 260px;
 }
+
 .footer-links ul {
   display: flex;
   flex-wrap: wrap;
@@ -1121,13 +1140,11 @@ background: radial-gradient(
   pointer-events: none;
   border-radius: 50%;
 
-  background: radial-gradient(
-    circle,
-    rgba(var(--accent-rgb), 0.45) 0%,
-    rgba(var(--accent-rgb), 0.25) 30%,
-    rgba(var(--accent-rgb), 0.12) 55%,
-    transparent 75%
-  );
+  background: radial-gradient(circle,
+      rgba(var(--accent-rgb), 0.45) 0%,
+      rgba(var(--accent-rgb), 0.25) 30%,
+      rgba(var(--accent-rgb), 0.12) 55%,
+      transparent 75%);
 
   transform: translate(-50%, -50%);
   transition: transform 0.08s linear;
@@ -1168,6 +1185,7 @@ background: radial-gradient(
 .reveal-up {
   animation: reveal-up 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
 html.dark h1,
 html.dark h2,
 html.dark h3 {
@@ -1177,10 +1195,12 @@ html.dark h3 {
 html.dark p {
   text-shadow: 0 0 6px rgba(255, 255, 255, 0.05);
 }
+
 html.dark .text-accent,
 html.dark .theme-primary-btn {
   text-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
 }
+
 html.dark input,
 html.dark label {
   color: #e2e8f0;
@@ -1240,27 +1260,30 @@ html.dark label {
   :root {
     --app-navbar-offset: calc(72px + 20px);
   }
-   .footer-grid {
+
+  .footer-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 32px;
   }
-   .app-shell-content {
+
+  .app-shell-content {
     padding-top: 100px;
   }
 
-  .footer-grid > div:first-child {
+  .footer-grid>div:first-child {
     grid-column: span 1;
   }
- .site-footer {
-  width: 100%;
-  background: var(--nav); 
-  backdrop-filter: blur(12px) saturate(160%);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  border-top: 1px solid var(--border-soft);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  padding: 3rem 0;
-  margin-top: 4rem;
-}
+
+  .site-footer {
+    width: 100%;
+    background: var(--nav);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border-top: 1px solid var(--border-soft);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    padding: 3rem 0;
+    margin-top: 4rem;
+  }
 }
 
 /* =========================
@@ -1273,7 +1296,8 @@ html.dark label {
 ========================= */
 @media (max-width: 768px) {
   .section {
-    padding-top: 2rem; /* restore gap between navbar & hero */
+    padding-top: 2rem;
+    /* restore gap between navbar & hero */
   }
 
   .content-container {
@@ -1332,7 +1356,7 @@ html.dark label {
     gap: 2rem;
   }
 
-  .footer-grid > div:first-child {
+  .footer-grid>div:first-child {
     grid-column: span 1;
   }
 
@@ -1352,19 +1376,21 @@ html.dark label {
   }
 
   .footer-grid {
-    grid-template-columns: repeat(2, 1fr); /* 2x2 Grid */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2x2 Grid */
     gap: 24px;
   }
 
   /* Make the brand/logo area span the full top width of the tablet grid */
-  .footer-grid > div:first-child {
+  .footer-grid>div:first-child {
     grid-column: span 2;
   }
 
   .metric-card {
-    flex: 1 1 48%; /* Side-by-side metrics */
+    flex: 1 1 48%;
+    /* Side-by-side metrics */
   }
-  
+
   .hero-title {
     font-size: clamp(2.2rem, 4vw, 3.2rem);
   }
@@ -1377,19 +1403,22 @@ html.dark label {
   }
 
   .footer-grid {
-    grid-template-columns: 1.5fr 1fr 1fr 1fr; 
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
     align-items: start;
     gap: 4rem;
   }
 
-  .footer-grid > div:first-child {
-    grid-column: span 1; /* Reset to 1 column in the 4-column row */
+  .footer-grid>div:first-child {
+    grid-column: span 1;
+    /* Reset to 1 column in the 4-column row */
   }
 
   .split-band {
-    grid-template-columns: 1fr 1fr; /* Side-by-side on desktop */
+    grid-template-columns: 1fr 1fr;
+    /* Side-by-side on desktop */
   }
 }
+
 /* =========================
    SMALL LAPTOP (1024px)
 ========================= */
@@ -1409,13 +1438,13 @@ html.dark label {
     gap: 3rem;
   }
 
-    .footer-grid {
+  .footer-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 32px;
   }
-  
 
-  .footer-grid > div:first-child {
+
+  .footer-grid>div:first-child {
     grid-column: span 1;
   }
 }
@@ -1427,7 +1456,7 @@ html.dark label {
 @media (min-width: 1280px) and (max-width: 1439px) {
   .container-shell {
     max-width: 1200px;
-    
+
   }
 
   .hero-title {
@@ -1444,6 +1473,7 @@ html.dark label {
     grid-template-columns: 1.6fr 1fr 1fr 1fr;
   }
 }
+
 /* =========================
    ULTRA WIDE (1440px+)
 ========================= */
@@ -1452,8 +1482,8 @@ html.dark label {
   .container-shell {
     max-width: 1320px;
     margin-inline: auto;
-      padding-inline: 1.5rem;
-       gap: 12rem;
+    padding-inline: 1.5rem;
+    gap: 12rem;
   }
 
   .hero-title {
@@ -1469,7 +1499,7 @@ html.dark label {
     grid-template-columns: 1.15fr 0.85fr;
     align-items: start;
     gap: 5rem;
-      
+
   }
 
   .footer-grid {

@@ -16,19 +16,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const themeInitScript = `
-    (function() {
-      try {
-        var storageKey = 'dongle-iq-theme';
-        var savedTheme = window.localStorage.getItem(storageKey);
-var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-var theme = systemDark ? 'dark' : 'light';        var root = document.documentElement;
-        root.classList.remove('light', 'dark');
-        root.classList.add(theme);
-        root.style.colorScheme = theme;
-      } catch (e) {}
-    })();
-  `;
+ const themeInitScript = `
+  (function() {
+    try {
+      var root = document.documentElement;
+
+      var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = systemDark ? 'dark' : 'light';
+
+      root.classList.remove('light', 'dark');
+      root.classList.add(theme);
+      root.style.colorScheme = theme;
+    } catch (e) {}
+  })();
+`;
 
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
