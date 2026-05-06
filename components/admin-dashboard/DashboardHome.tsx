@@ -133,7 +133,7 @@ export function DashboardHome({
         }}
       >
         <div className="space-y-6">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex-1">
               <p
                 className="text-[10px] font-semibold uppercase tracking-[0.18em]"
@@ -164,7 +164,7 @@ export function DashboardHome({
             <div className="flex-shrink-0">
               <button
                 type="button"
-                className="inline-flex min-w-[180px] items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.03]"
+                className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.03] sm:min-w-[180px] sm:w-auto"
                 style={{
                   background: "linear-gradient(135deg, #ffb31a, #f59e0b)",
                 }}
@@ -257,7 +257,7 @@ export function DashboardHome({
           </div>
 
           <div
-            className="text-sm leading-7 lg:text-right"
+            className="break-words text-sm leading-7 lg:text-right"
             style={{ color: "#2563eb" }}
           >
             <p>Support call 020-49105678, 7777090977</p>
@@ -281,7 +281,7 @@ function TopActionButton({
   return (
     <button
       onClick={onClick}
-      className="inline-flex items-center justify-center gap-3 rounded-xl border px-3 py-2 text-base font-medium text-white shadow-[0_16px_30px_-18px_rgba(29,127,208,0.7)] transition hover:-translate-y-0.5 hover:brightness-105"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border px-3 py-2 text-center text-base font-medium text-white shadow-[0_16px_30px_-18px_rgba(29,127,208,0.7)] transition hover:-translate-y-0.5 hover:brightness-105"
       style={{
         background: "linear-gradient(135deg, #1d7fd0, #2f92e8)",
         borderColor: "transparent",
@@ -373,7 +373,7 @@ function ServiceCard({
       </div>
 
       <p
-        className="mt-5 min-h-[96px] max-w-[24ch] text-[14px] leading-7"
+        className="mt-5 min-h-[96px] max-w-full text-[14px] leading-7 sm:max-w-[24ch]"
         style={{
           color: highlighted ? "rgba(255,255,255,0.95)" : colors.muted,
         }}
@@ -394,7 +394,7 @@ function ServiceCard({
         type="button"
         onClick={onClick}
         disabled={loading}
-        className="mt-6 rounded-[0.8rem] px-4 py-2 text-[15px] font-medium transition disabled:opacity-70"
+        className="mt-6 min-h-11 rounded-[0.8rem] px-4 py-2 text-[15px] font-medium transition disabled:opacity-70"
         style={buttonStyles[buttonTone]}
       >
         {loading ? "Please wait..." : buttonLabel}

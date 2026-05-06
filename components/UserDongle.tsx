@@ -118,7 +118,7 @@ export default function UserDongleView({
 
       <div className="theme-transition overflow-hidden rounded-lg border shadow-2xl" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-345 text-left">
+          <table className="w-full min-w-[1380px] text-left">
             <thead style={{ backgroundColor: colors.panel }}>
               <tr className="text-[11px] uppercase tracking-[0.16em]" style={{ color: colors.muted }}>
                 <th className="px-5 py-4">Applicant</th>
@@ -194,12 +194,12 @@ export default function UserDongleView({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm" style={{ color: colors.muted }}>
             Showing {Math.min((currentPage - 1) * itemsPerPage + 1, filteredRecords.length)} to{' '}
             {Math.min(currentPage * itemsPerPage, filteredRecords.length)} of {filteredRecords.length} records
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}

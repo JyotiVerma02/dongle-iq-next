@@ -199,6 +199,37 @@ export default function DongleIQLanding() {
   const colors = getThemePalette(isDarkMode);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [chatOpen, setChatOpen] = useState(false);
+  const [quoteForm, setQuoteForm] = useState({
+    name: "",
+    email: "",
+    requirements: "",
+  });
+
+  const handleQuoteFieldChange = (
+    field: "name" | "email" | "requirements",
+    value: string,
+  ) => {
+    setQuoteForm((current) => ({ ...current, [field]: value }));
+  };
+
+  const handleQuoteSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const name = quoteForm.name.trim();
+    const email = quoteForm.email.trim();
+    const requirements = quoteForm.requirements.trim();
+
+    if (!name || !email || !requirements) {
+      return;
+    }
+
+    const subject = encodeURIComponent(`Quote request from ${name}`);
+    const body = encodeURIComponent(
+      `Name: ${name}\nEmail: ${email}\n\nRequirements:\n${requirements}`,
+    );
+
+    window.location.href = `mailto:support@dongleiq.com?subject=${subject}&body=${body}`;
+  };
 
   return (
     <main
@@ -487,22 +518,43 @@ export default function DongleIQLanding() {
                 </p>
               </div>
 
-              <form className="quote-form">
+              <form className="quote-form" onSubmit={handleQuoteSubmit}>
                 <label className="field">
                   <span>Full name</span>
-                  <input type="text" placeholder="Enter your full name" />
+                  <input
+                    type="text"
+                    value={quoteForm.name}
+                    onChange={(event) =>
+                      handleQuoteFieldChange("name", event.target.value)
+                    }
+                    placeholder="Enter your full name"
+                    required
+                  />
                 </label>
 
                 <label className="field">
                   <span>Email address</span>
-                  <input type="email" placeholder="name@company.com" />
+                  <input
+                    type="email"
+                    value={quoteForm.email}
+                    onChange={(event) =>
+                      handleQuoteFieldChange("email", event.target.value)
+                    }
+                    placeholder="name@company.com"
+                    required
+                  />
                 </label>
 
                 <label className="field field-full">
                   <span>Requirements</span>
                   <textarea
                     rows={5}
+                    value={quoteForm.requirements}
+                    onChange={(event) =>
+                      handleQuoteFieldChange("requirements", event.target.value)
+                    }
                     placeholder="Tell us about your onboarding, renewal, or partner support requirement."
+                    required
                   />
                 </label>
 
@@ -580,10 +632,10 @@ export default function DongleIQLanding() {
             <FooterLinks
               title="Services"
               items={[
-                { label: "Digital Signature Certificate", href: "/services/dsc" },
-                { label: "IRCTC Agent Registration", href: "/services/irctc" },
-                { label: "Aadhaar eKYC Verification", href: "/services/ekyc" },
-                { label: "Renewal and reissue", href: "/services/renewal" },
+                { label: "Digital Signature Certificate", href: "/signup" },
+                { label: "IRCTC Agent Registration", href: "/signup" },
+                { label: "Aadhaar eKYC Verification", href: "/verify-aadhaar" },
+                { label: "Renewal and reissue", href: "/login" },
               ]}
             />
 
@@ -784,7 +836,7 @@ function FaqItem({
 }) {
   return (
     <div className={`faq-card ${isOpen ? "faq-card-open" : ""}`}>
-      <button className="faq-button" onClick={onToggle}>
+      <button type="button" className="faq-button" onClick={onToggle}>
         <span>{faq.question}</span>
         {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
       </button>

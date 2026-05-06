@@ -365,7 +365,7 @@ export default function AdminApplicationsPanel({
               </h2>
             </div> */}
 
-          <div className=" flex items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {/* 🔍 Search (Left) */}
             <div className="relative w-full max-w-md">
               <Search
@@ -396,7 +396,7 @@ export default function AdminApplicationsPanel({
                 setApplicantModalOpen(true);
                 setCreateApplicantError("");
               }}
-              className="theme-transition inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 whitespace-nowrap"
+              className="theme-transition inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 sm:w-auto"
               style={{
                 background:
                   "linear-gradient(135deg, var(--accent), var(--accent-light))",
@@ -441,7 +441,7 @@ export default function AdminApplicationsPanel({
                 }}
               >
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-220 border-collapse text-left">
+                  <table className="w-full min-w-[880px] border-collapse text-left">
                     <thead>
                       <tr
                         className="text-[11px] font-black uppercase tracking-[0.18em]"

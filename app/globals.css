@@ -253,11 +253,9 @@ select:focus {
   max-width: 1320px; 
   margin-inline: auto !important;
   display: flex !important;
-  /* Change: This forces the items to stay together in the middle */
   justify-content: center !important; 
   align-items: center;
-  /* Use a fixed gap so they stay close but not touching */
-  gap: 80px; 
+  gap: clamp(1.5rem, 4vw, 5rem); 
   padding-inline: clamp(1.5rem, 5vw, 3rem);
   flex-wrap: wrap; 
 }
@@ -539,6 +537,7 @@ html.dark .inline-trust-pill {
   border-radius: 1rem;
   border: 1px solid var(--border-soft);
   background: rgba(255, 255, 255, 0.44);
+  min-width: 0;
 }
 
 html.dark .preview-row {
@@ -568,6 +567,7 @@ html.dark .preview-row {
 
 .preview-row-copy {
   flex: 1;
+  min-width: 0;
 }
 
 .preview-row-copy h3,
@@ -617,6 +617,7 @@ html.dark .preview-row {
 }
 
 .dashboard-metrics {
+  flex-wrap: wrap;
   gap: 0.9rem;
   margin-top: 1rem;
 }
@@ -776,6 +777,7 @@ html.dark .metric-card {
 
 .contact-shell {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2.5rem;
   padding: 1.25rem;
   border-radius: 1.25rem;
@@ -801,7 +803,7 @@ html.dark .metric-card {
 
 .quote-form {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   margin-top: 1.5rem;
 }
@@ -836,6 +838,7 @@ html.dark .metric-card {
 
 .support-note {
   display: flex;
+  align-items: flex-start;
   gap: 0.9rem;
   margin-top: 1.4rem;
   padding: 1rem;
@@ -985,6 +988,7 @@ html:not(.dark) select {
 .auth-card, .auth-aside-card {
  flex: 0 0 450px !important; /* Prevents the card from stretching too wide */
   width: 100%;
+  max-width: 100%;
 }
 
 .auth-card {
@@ -1272,6 +1276,57 @@ html.dark label {
     padding-top: 2rem; /* restore gap between navbar & hero */
   }
 
+  .content-container {
+    justify-content: flex-start !important;
+    align-items: stretch;
+    gap: 1.5rem;
+    padding-inline: 1rem;
+  }
+
+  .hero-panel {
+    border-radius: 1.5rem;
+  }
+
+  .preview-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .preview-row .status-pill {
+    width: 100%;
+  }
+
+  .dashboard-metrics {
+    flex-direction: column;
+  }
+
+  .contact-shell,
+  .quote-form {
+    grid-template-columns: 1fr;
+  }
+
+  .support-note {
+    flex-direction: column;
+  }
+
+  .auth-page-shell .content-container {
+    min-height: auto;
+  }
+
+  .auth-card,
+  .auth-aside-card {
+    flex: 1 1 auto !important;
+  }
+
+  .footer-contact {
+    max-width: none;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .footer-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
@@ -1321,14 +1376,12 @@ html.dark label {
     padding-top: 100px;
   }
 
-@media (min-width: 1024px) {
   .footer-grid {
-    /* Brand gets 1.5 units, links get 1 unit each */
     grid-template-columns: 1.5fr 1fr 1fr 1fr; 
     align-items: start;
     gap: 4rem;
   }
-}
+
   .footer-grid > div:first-child {
     grid-column: span 1; /* Reset to 1 column in the 4-column row */
   }

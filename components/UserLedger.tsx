@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ArrowLeft,
   Calendar,
@@ -20,7 +20,6 @@ import {
 import { useTheme } from "@/app/context/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import BackToPreviewButton from "./BackToPreviewButton";
-import user from "@/model/user";
 
 export interface DashboardUser {
   commission: number;
@@ -76,6 +75,7 @@ export default function UserLedgerView({
   users,
   loading,
   onStatusChange,
+  onPaymentChange,
 }: UserLedgerProps) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
@@ -134,13 +134,6 @@ export default function UserLedgerView({
     } finally {
       setActionLoading(null);
     }
-    type Props = {
-      users: DashboardUser[];
-      loading: boolean;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onStatusChange: (...args: any) => void;
-      onPaymentChange: (userId: string, status: "paid" | "unpaid") => void;
-    };
   };
 
   const handleReject = async () => {
@@ -163,11 +156,6 @@ export default function UserLedgerView({
       setActionLoading(null);
     }
   };
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function handlePaymentChange(_id: any, arg1: string): void {
-    throw new Error("Function not implemented.");
-  }
 
   return (
     <div className="space-y-6">
@@ -258,7 +246,7 @@ export default function UserLedgerView({
         }}
       >
         <div className="overflow-x-auto">
-          <table className="w-full min-w-230 text-left">
+          <table className="w-full min-w-[920px] text-left">
             <thead style={{ backgroundColor: colors.panel }}>
               <tr
                 className="text-[11px] uppercase tracking-[0.18em]"
@@ -395,7 +383,7 @@ export default function UserLedgerView({
       </div>
 
       {filteredUsers.length > 0 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm" style={{ color: colors.muted }}>
             Showing{" "}
             {Math.min(
@@ -406,7 +394,7 @@ export default function UserLedgerView({
             {filteredUsers.length} users
           </p>
           {totalPages > 1 && (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
@@ -648,7 +636,7 @@ export default function UserLedgerView({
                   {actionError ? (
                     <p className="mt-3 text-sm text-rose-300">{actionError}</p>
                   ) : null}
-                  <div className="mt-4 flex gap-3">
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                     <button
                       onClick={handleApprove}
                       disabled={actionLoading !== null}
@@ -673,24 +661,24 @@ export default function UserLedgerView({
                     >
                       {actionLoading === "rejected" ? "Rejecting..." : "Reject"}
                     </button>
-                    <div className="mt-2 flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() =>
-                          handlePaymentChange(selectedUserFromList._id, "paid")
+                          onPaymentChange(selectedUserFromList._id, "paid")
                         }
-                        className="px-2 py-1 text-xs rounded bg-green-500 text-white"
+                        className="rounded bg-green-500 px-3 py-2 text-xs text-white"
                       >
                         Mark Paid
                       </button>
 
                       <button
                         onClick={() =>
-                          handlePaymentChange(
+                          onPaymentChange(
                             selectedUserFromList._id,
                             "unpaid",
                           )
                         }
-                        className="px-2 py-1 text-xs rounded bg-red-500 text-white"
+                        className="rounded bg-red-500 px-3 py-2 text-xs text-white"
                       >
                         Mark Unpaid
                       </button>

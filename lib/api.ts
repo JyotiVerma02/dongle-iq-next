@@ -1,11 +1,26 @@
 import type {
   AdminProfile,
-  DashboardMetrics,
-  DashboardUser,
-  PaymentStatus,
-  StatusFilter,
-  UserStatus,
 } from "@/components/admin-dashboard/types";
+import type { DashboardUser } from "@/components/UserLedger";
+
+type UserStatus = DashboardUser["status"];
+type PaymentStatus = "paid" | "unpaid";
+type StatusFilter = UserStatus | "all";
+type DashboardMetrics = {
+  totalUsers: number;
+  approved: number;
+  pending: number;
+  rejected: number;
+  totalCommission: number;
+  paidCommission: number;
+  unpaidCommission: number;
+  totalGst: number;
+  serviceStats: {
+    dsc: number;
+    token: number;
+    assisted: number;
+  };
+};
 
 type ApiSuccess<T> = T & {
   success: true;
@@ -31,7 +46,9 @@ async function request<T>(input: RequestInfo, init?: RequestInit): Promise<T> {
   const data = (await response.json().catch(() => null)) as ApiResponse<T> | null;
 
   if (!response.ok || !data?.success) {
-    throw new Error(data?.message || "Something went wrong");
+    const message =
+      data && "message" in data ? data.message : "Something went wrong";
+    throw new Error(message || "Something went wrong");
   }
 
   return data;

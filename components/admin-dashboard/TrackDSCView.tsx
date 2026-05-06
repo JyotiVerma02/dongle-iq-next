@@ -46,15 +46,15 @@ export default function TrackDSCView() {
   const isApproved = status?.toLowerCase() === "approved";
 
   return (
-    <div className="mt-10 flex justify-center px-4">
+    <div className="mt-6 flex justify-center px-4 sm:mt-10">
       <div className="w-full max-w-3xl overflow-hidden rounded-md border border-white/10 bg-[#111b2e] shadow-[0_28px_80px_-40px_rgba(15,23,42,0.9)]">
         <div className="bg-blue-600 px-6 py-4 text-lg font-semibold text-white">
           Track DSC Status
         </div>
 
         <div className="space-y-6 p-6">
-          <div className="flex gap-6 items-center">
-            <label className="mb-2 block text-sm font-medium text-white/80">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+            <label className="block text-sm font-medium text-white/80 sm:mb-0 sm:min-w-[72px]">
               PID
             </label>
 
@@ -63,8 +63,7 @@ export default function TrackDSCView() {
               value={pid}
               onChange={(e) => setPid(e.target.value)}
               placeholder="Enter Person ID"
-              className="w-50! rounded-md border border-white/15 bg-white/8 px-4 py-3 text-white outline-none transition placeholder:text-white/35 focus:border-blue-900"
-              style={{ width: "600px" }}
+              className="w-full rounded-md border border-white/15 bg-white/8 px-4 py-2 text-white outline-none transition placeholder:text-white/35 focus:border-blue-900"
             />
           </div>
 
