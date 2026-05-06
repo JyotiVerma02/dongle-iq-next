@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Cpu, LogIn, LogOut, Menu, Moon, SunMedium, X } from "lucide-react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { ThemeProvider, useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 const NAV_LINKS = [
@@ -36,7 +36,7 @@ const LOGOUT_ROUTES = new Set([
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { mounted, isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function Navbar() {
   const colors = getThemePalette(isDarkMode);
   const showAuthButtons = AUTH_ROUTES.has(pathname);
   const showLogout = LOGOUT_ROUTES.has(pathname);
-  const themeIcon = mounted && isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />;
+  const themeIcon = isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />;
 
   const handleLogout = async () => {
     try {

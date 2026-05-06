@@ -8,33 +8,39 @@ type ThemeContextType = {
   theme: Theme;
   isDarkMode: boolean;
   toggleTheme: () => void;
-  mounted?: boolean;
 };
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
+const STORAGE_KEY = "dongle-iq-theme";
+
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  
+  // ✅ Read from HTML (set by Script) → prevents flicker
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") return "dark";
 
-    const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    return systemDark ? "dark" : "light";
+    return document.documentElement.classList.contains("dark")
+      ? "dark"
+      : "light";
   });
 
+  // ✅ Apply theme + persist
   useEffect(() => {
     const root = document.documentElement;
 
     root.classList.remove("light", "dark");
     root.classList.add(theme);
     root.style.colorScheme = theme;
+
+    localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
+  // ✅ Follow system ONLY if user has not chosen manually
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
 
     const handler = (e: MediaQueryListEvent) => {
-       if (localStorage.getItem("dongle-iq-theme")) return; // Don't override user choice
+      if (localStorage.getItem(STORAGE_KEY)) return;
       setTheme(e.matches ? "dark" : "light");
     };
 
@@ -42,12 +48,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     return () => media.removeEventListener("change", handler);
   }, []);
 
+  // ✅ Toggle manually
   const toggleTheme = () => {
-    setTheme((prev) => {
-       const next = prev === "dark" ? "light" : "dark";
-      localStorage.setItem("dongle-iq-theme", next);
-      return next;
-    });
+    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
   return (
@@ -63,6 +66,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+// ✅ Hook
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {

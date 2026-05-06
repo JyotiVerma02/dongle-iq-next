@@ -3,7 +3,7 @@
 
 import React, { useEffect, useRef } from "react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { ThemeProvider, useTheme } from "@/components/ThemeContext";
 
 class Ripple {
   x: number;
@@ -26,11 +26,9 @@ class Ripple {
 
 const SonarClickEffect = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { theme, mounted } = useTheme();
+  const { theme } = useTheme();
 
   useEffect(() => {
-    if (!mounted) return;
-
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -38,10 +36,10 @@ const SonarClickEffect = () => {
 
     let ripples: Ripple[] = [];
 
- const getRippleColor = () =>
-  getComputedStyle(document.documentElement)
-    .getPropertyValue("--cursor-ripple")
-    .trim();
+    const getRippleColor = () =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--cursor-ripple")
+        .trim();
 
     const handleMouseDown = (e: MouseEvent) => {
       ripples.push(new Ripple(e.clientX, e.clientY));
@@ -56,8 +54,8 @@ const SonarClickEffect = () => {
         ripples[i].update();
         ctx.beginPath();
         ctx.arc(ripples[i].x, ripples[i].y, ripples[i].r, 0, Math.PI * 2);
-       ctx.strokeStyle = `rgba(${getComputedStyle(document.documentElement)
-  .getPropertyValue("--accent-rgb")}, ${ripples[i].opacity})`;
+        ctx.strokeStyle = `rgba(${getComputedStyle(document.documentElement)
+        .getPropertyValue("--accent-rgb")}, ${ripples[i].opacity})`;
         ctx.lineWidth = 1;
         ctx.stroke();
         if (ripples[i].opacity <= 0) {
@@ -83,7 +81,7 @@ const SonarClickEffect = () => {
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("resize", handleResize);
     };
-  }, [mounted, theme]);
+  }, [theme]);
 
   return (
     <canvas
