@@ -8,6 +8,7 @@ type ThemeContextType = {
   theme: Theme;
   isDarkMode: boolean;
   toggleTheme: () => void;
+  mounted?: boolean;
 };
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
@@ -33,6 +34,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
 
     const handler = (e: MediaQueryListEvent) => {
+       if (localStorage.getItem("dongle-iq-theme")) return; // Don't override user choice
       setTheme(e.matches ? "dark" : "light");
     };
 
@@ -41,7 +43,11 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    setTheme((prev) => {
+       const next = prev === "dark" ? "light" : "dark";
+      localStorage.setItem("dongle-iq-theme", next);
+      return next;
+    });
   };
 
   return (
