@@ -105,12 +105,12 @@ function LoginContent() {
           </div>
 
           {/* FORM SECTION: Login Card */}
-          <div className="no-scrollbar flex w-full max-w-md items-center justify-center px-4 py-8 lg:px-0">
+          <div className="no-scrollbar flex w-full max-w-md items-center justify-center px-3 py-6 lg:px-0">
             <div className="group relative w-full animate-[fadeIn_1.2s_ease-out]">
               <div className="absolute -inset-px rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100" style={{ background: premiumGradient }} />
 
               <div
-                className="auth-card shine-border relative w-full overflow-hidden p-4 md:p-6"
+                className="auth-card shine-border relative w-full overflow-hidden p-3.5 md:p-5"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -125,18 +125,32 @@ function LoginContent() {
                 </div>
 
                 {registered && (
-                  <div className="mb-4 rounded-lg border border-emerald-500/20 bg-emerald-500/10 py-2 text-center text-[10px] font-black uppercase tracking-widest text-emerald-300">
+                  <div
+                    className="mb-4 rounded-xl border py-2 text-center text-[10px] font-black uppercase tracking-widest"
+                    style={{
+                      borderColor: isDarkMode ? "rgba(16,185,129,0.28)" : "rgba(16,185,129,0.35)",
+                      backgroundColor: isDarkMode ? "rgba(16,185,129,0.12)" : "rgba(16,185,129,0.1)",
+                      color: isDarkMode ? "#6ee7b7" : "#065f46",
+                    }}
+                  >
                     Registration complete. Please log in.
                   </div>
                 )}
 
                 {error && (
-                  <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 py-2 text-center text-[10px] font-black uppercase tracking-widest text-red-500">
+                  <div
+                    className="mb-4 rounded-xl border py-2 text-center text-[10px] font-black uppercase tracking-widest"
+                    style={{
+                      borderColor: isDarkMode ? "rgba(244,63,94,0.28)" : "rgba(244,63,94,0.3)",
+                      backgroundColor: isDarkMode ? "rgba(244,63,94,0.12)" : "rgba(244,63,94,0.1)",
+                      color: isDarkMode ? "#fda4af" : "#9f1239",
+                    }}
+                  >
                     {error}
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-3.5">
                   <div className="space-y-1.5">
                     <label className="text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: colors.subtleText }}>Email or Mobile</label>
                     <input

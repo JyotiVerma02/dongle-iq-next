@@ -248,7 +248,10 @@ export default function UserLedgerView({
       >
         <div className="overflow-x-auto">
           <table className="w-full min-w-[920px] text-left">
-            <thead style={{ backgroundColor: colors.panel }}>
+            <thead
+              className="sticky top-0 z-10 backdrop-blur-md"
+              style={{ backgroundColor: isDarkMode ? "rgba(15,23,42,0.86)" : "rgba(255,255,255,0.88)" }}
+            >
               <tr
                 className="text-[11px] uppercase tracking-[0.18em]"
                 style={{ color: colors.muted }}
@@ -313,7 +316,7 @@ export default function UserLedgerView({
                 paginatedUsers.map((user, index) => (
                   <tr
                     key={user._id}
-                    className="transition-colors duration-150 hover:bg-black/[0.02] dark:hover:bg-white/[0.03]"
+                    className="transition-all duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.04]"
                     style={{
                       borderTop: `1px solid ${colors.borderSoft}`,
                       backgroundColor:
@@ -392,7 +395,7 @@ export default function UserLedgerView({
                           setRejectReason(user.internalRemarks || "");
                           setActionError("");
                         }}
-                        className="theme-transition rounded-xl border px-4 py-2 text-xs font-semibold hover:-translate-y-0.5"
+                        className="theme-transition rounded-2xl border px-4 py-2 text-xs font-semibold hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-20px_var(--accent-shadow)]"
                         style={{
                           borderColor: colors.borderSoft,
                           backgroundColor: colors.panel,
@@ -426,7 +429,7 @@ export default function UserLedgerView({
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                className="theme-transition rounded-2xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                 style={{
                   borderColor: colors.borderSoft,
                   backgroundColor: colors.panel,
@@ -443,7 +446,7 @@ export default function UserLedgerView({
                   setCurrentPage(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
-                className="theme-transition rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                className="theme-transition rounded-2xl border px-3 py-2 text-xs font-semibold disabled:opacity-50"
                 style={{
                   borderColor: colors.borderSoft,
                   backgroundColor: colors.panel,

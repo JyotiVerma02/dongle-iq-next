@@ -237,7 +237,7 @@ export default function DongleIQLanding() {
       style={{ color: colors.text }}
     >
       <section className="section hero-section hero-section-full-bleed">
-        <div className="hero-shell hero-shell-full-bleed px-6 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
+        <div className="hero-shell hero-shell-full-bleed px-5 py-6 sm:px-6 sm:py-8 lg:px-9 lg:py-9">
           <div className="container-shell hero-panel-inner">
             <div className="relative z-10 max-w-2xl">
               <div className="eyebrow-chip mb-6">
