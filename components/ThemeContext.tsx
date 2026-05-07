@@ -1,12 +1,19 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 type Theme = "light" | "dark";
 
 type ThemeContextType = {
   theme: Theme;
   isDarkMode: boolean;
+  mounted: boolean;
   toggleTheme: () => void;
 };
 
@@ -23,15 +30,25 @@ const getStoredTheme = (): Theme | null => {
   }
 };
 
+const getResolvedTheme = (): Theme => {
+  if (typeof window === "undefined") return "light";
+
+  const saved = getStoredTheme();
+  if (saved) return saved;
+
+  if (document.documentElement.classList.contains("dark")) return "dark";
+  return "light";
+};
+
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "light";
+  const [theme, setTheme] = useState<Theme>("light");
+  const [mounted, setMounted] = useState(false);
 
-    const saved = getStoredTheme();
-    if (saved) return saved;
-
-    return document.documentElement.classList.contains("dark") ? "dark" : "light";
-  });
+  useLayoutEffect(() => {
+    const resolvedTheme = getResolvedTheme();
+    setTheme((current) => (current === resolvedTheme ? current : resolvedTheme));
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -73,6 +90,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       value={{
         theme,
         isDarkMode: theme === "dark",
+        mounted,
         toggleTheme,
       }}
     >

@@ -36,7 +36,7 @@ const LOGOUT_ROUTES = new Set([
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, mounted, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -76,7 +76,7 @@ export default function Navbar() {
   const colors = getThemePalette(isDarkMode);
   const showAuthButtons = AUTH_ROUTES.has(pathname);
   const showLogout = LOGOUT_ROUTES.has(pathname);
-  const themeIcon = isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />;
+  const themeIcon = !mounted ? null : isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />;
 
   const handleLogout = async () => {
     try {

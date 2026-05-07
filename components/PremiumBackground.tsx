@@ -2,6 +2,42 @@
 
 import { useEffect, useMemo } from "react";
 
+type ParticleSpec = {
+  left: number;
+  top: number;
+  size: number;
+  delay: number;
+  dur: number;
+  dx: number;
+  dy: number;
+  tint: number;
+};
+
+const createSeededRandom = (seed: number) => {
+  let value = seed;
+
+  return () => {
+    value = (value * 1664525 + 1013904223) % 4294967296;
+    return value / 4294967296;
+  };
+};
+
+const buildParticles = (count: number): ParticleSpec[] => {
+  const random = createSeededRandom(20260507);
+
+  return Array.from({ length: count }).map((_, i) => {
+    const left = random() * 100;
+    const top = random() * 100;
+    const size = 1.1 + random() * 1.8;
+    const delay = random() * 20;
+    const dur = 16 + random() * 18;
+    const dx = (random() - 0.5) * 54;
+    const dy = (random() - 0.5) * 42;
+
+    return { left, top, size, delay, dur, dx, dy, tint: i % 3 };
+  });
+};
+
 export default function PremiumBackground() {
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -42,22 +78,7 @@ export default function PremiumBackground() {
     };
   }, []);
 
-  const particles = useMemo(() => {
-    const count = 140;
-    const items = Array.from({ length: count }).map((_, i) => {
-      const left = Math.random() * 100;
-      const top = Math.random() * 100;
-      const size = 1.1 + Math.random() * 1.8;
-      const delay = Math.random() * 20; // slow staggering
-      const dur = 16 + Math.random() * 18;
-      const dx = (Math.random() - 0.5) * 54;
-      const dy = (Math.random() - 0.5) * 42;
-
-      const tint = i % 3;
-      return { left, top, size, delay, dur, dx, dy, tint };
-    });
-    return items;
-  }, []);
+  const particles = useMemo(() => buildParticles(140), []);
 
   return (
     <div className="saas-bg" aria-hidden="true">
