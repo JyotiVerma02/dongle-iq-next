@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Cpu, LogIn, LogOut, Menu, Moon, SunMedium, X } from "lucide-react";
 
-import { ThemeProvider, useTheme } from "@/components/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 const NAV_LINKS = [

@@ -14,48 +14,58 @@ const ThemeContext = createContext<ThemeContextType | null>(null);
 
 const STORAGE_KEY = "dongle-iq-theme";
 
+const getStoredTheme = (): Theme | null => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved === "dark" || saved === "light" ? saved : null;
+  } catch {
+    return null;
+  }
+};
+
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  // ✅ Read from HTML (set by Script) → prevents flicker
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window === "undefined") return "light";
 
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved === "dark" || saved === "light") return saved;
-    } catch {
-      // Ignore storage errors; fall back to HTML class.
-    }
+    const saved = getStoredTheme();
+    if (saved) return saved;
 
     return document.documentElement.classList.contains("dark") ? "dark" : "light";
   });
 
-  // ✅ Apply theme + persist
   useEffect(() => {
     const root = document.documentElement;
 
     root.classList.remove("light", "dark");
     root.classList.add(theme);
     root.style.colorScheme = theme;
-
-    localStorage.setItem(STORAGE_KEY, theme);
+    root.setAttribute("data-theme-ready", "true");
   }, [theme]);
 
-  // ✅ Follow system ONLY if user has not chosen manually
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
 
-    const handler = (e: MediaQueryListEvent) => {
-      if (localStorage.getItem(STORAGE_KEY)) return;
-      setTheme(e.matches ? "dark" : "light");
+    const handler = (event: MediaQueryListEvent) => {
+      if (getStoredTheme()) return;
+      setTheme(event.matches ? "dark" : "light");
     };
 
     media.addEventListener("change", handler);
     return () => media.removeEventListener("change", handler);
   }, []);
 
-  // ✅ Toggle manually
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+    setTheme((current) => {
+      const nextTheme = current === "dark" ? "light" : "dark";
+
+      try {
+        localStorage.setItem(STORAGE_KEY, nextTheme);
+      } catch {
+        // Ignore storage errors and still let the UI switch.
+      }
+
+      return nextTheme;
+    });
   };
 
   return (
@@ -71,7 +81,6 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// ✅ Hook
 export const useTheme = () => {
   const context = useContext(ThemeContext);
   if (!context) {

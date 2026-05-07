@@ -236,9 +236,9 @@ export default function DongleIQLanding() {
       className="page-shell min-h-screen"
       style={{ color: colors.text }}
     >
-   <section className="section hero-section">
-        <div className="container-shell">
-          <div className="hero-panel grid items-center gap-10 overflow-hidden rounded-4xl px-6 py-8 sm:px-8 sm:py-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] lg:px-12 lg:py-12">
+      <section className="section hero-section hero-section-full-bleed">
+        <div className="hero-shell hero-shell-full-bleed px-6 py-8 sm:px-8 sm:py-10 lg:px-12 lg:py-12">
+          <div className="container-shell hero-panel-inner">
             <div className="relative z-10 max-w-2xl">
               <div className="eyebrow-chip mb-6">
                 <BadgeCheck size={14} />
@@ -327,7 +327,9 @@ export default function DongleIQLanding() {
               </div>
             </div>
           </div>
+          </div>
 
+        <div className="container-shell">
           <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             {trustMetrics.map((item, index) => (
               <div

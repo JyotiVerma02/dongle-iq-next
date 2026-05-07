@@ -20,6 +20,7 @@ export default function RootLayout({
   (function() {
     try {
       var root = document.documentElement;
+      root.setAttribute('data-theme-ready', 'false');
 
       var saved = null;
       try { saved = localStorage.getItem('dongle-iq-theme'); } catch (e) {}
@@ -31,6 +32,7 @@ export default function RootLayout({
       root.classList.remove('light', 'dark');
       root.classList.add(theme);
       root.style.colorScheme = theme;
+      root.setAttribute('data-theme-ready', 'true');
     } catch (e) {}
   })();
 `;
@@ -40,7 +42,7 @@ export default function RootLayout({
       <head>
     <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body suppressHydrationWarning className="theme-transition antialiased">
+      <body suppressHydrationWarning className="antialiased">
   
         <ThemeProvider>
           <Providers>

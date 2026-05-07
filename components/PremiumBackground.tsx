@@ -43,17 +43,16 @@ export default function PremiumBackground() {
   }, []);
 
   const particles = useMemo(() => {
-    const count = 90;
+    const count = 140;
     const items = Array.from({ length: count }).map((_, i) => {
       const left = Math.random() * 100;
       const top = Math.random() * 100;
-      const size = 1 + Math.random() * 1.2; // tiny dots
+      const size = 1.1 + Math.random() * 1.8;
       const delay = Math.random() * 20; // slow staggering
-      const dur = 18 + Math.random() * 22; // slow motion
-      const dx = (Math.random() - 0.5) * 36; // subtle drift
-      const dy = (Math.random() - 0.5) * 26;
+      const dur = 16 + Math.random() * 18;
+      const dx = (Math.random() - 0.5) * 54;
+      const dy = (Math.random() - 0.5) * 42;
 
-      // Slightly vary color intensity using a seed-like modulus
       const tint = i % 3;
       return { left, top, size, delay, dur, dx, dy, tint };
     });
@@ -96,4 +95,3 @@ export default function PremiumBackground() {
     </div>
   );
 }
-

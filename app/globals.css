@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: light dark;
-  --app-navbar-offset: calc(72px + 16px);
+  color-scheme: light;
+  --app-navbar-offset: calc(72px + 8px);
   --app-shell-min-height: calc(100dvh - var(--app-navbar-offset));
 
   /* Premium SaaS light theme (cool-neutral) */
@@ -126,6 +126,15 @@ body {
     border-color 220ms ease,
     box-shadow 220ms ease;
 
+}
+
+html[data-theme-ready="false"] body,
+html:not([data-theme-ready]) body {
+  opacity: 0;
+}
+
+html[data-theme-ready="true"] body {
+  opacity: 1;
 }
 
 /* =========================
@@ -267,28 +276,31 @@ html.dark .saas-bg__grain {
   left: 0;
   top: 0;
   border-radius: 999px;
-  background: rgba(var(--accent-rgb), 0.45);
-  opacity: var(--o1, 0.18);
-  filter: blur(0.15px);
+  background: rgba(var(--accent-rgb), 0.52);
+  opacity: var(--o1, 0.22);
+  filter: blur(0.3px);
   will-change: transform, opacity;
   animation-name: saas-particle-float;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   animation-duration: var(--dur, 28s);
+  box-shadow:
+    0 0 10px rgba(var(--accent-rgb), 0.14),
+    0 0 22px rgba(var(--accent-rgb), 0.08);
 }
 
 /* Light intensity */
 .saas-bg__particle {
-  --o1: 0.14;
-  --o2: 0.2;
+  --o1: 0.18;
+  --o2: 0.3;
 }
 
 /* Dark intensity */
 html.dark .saas-bg__particle {
-  --o1: 0.22;
-  --o2: 0.32;
-  background: rgba(var(--accent-rgb), 0.6);
-  filter: blur(0.25px);
+  --o1: 0.28;
+  --o2: 0.42;
+  background: rgba(var(--accent-rgb), 0.7);
+  filter: blur(0.4px);
 }
 
 @keyframes saas-particle-float {
@@ -454,6 +466,11 @@ select:focus {
     box-shadow 220ms ease;
 }
 
+html[data-theme-ready="false"] *,
+html:not([data-theme-ready]) * {
+  transition: none !important;
+}
+
 .page-shell {
   position: relative;
   width: 100%;
@@ -519,7 +536,7 @@ select:focus {
 }
 
 .app-shell-content {
-  padding-top: 60px;
+  padding-top: 52px;
 }
 
 .hero-panel,
@@ -572,6 +589,33 @@ html.dark .split-band {
   gap: 2rem;
 }
 
+.hero-shell {
+  position: relative;
+  width: 100%;
+}
+
+.hero-panel-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 100%;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.hero-panel-contained {
+  border-radius: 1.25rem;
+}
+
+.hero-section-full-bleed {
+  padding-inline: 0;
+}
+
+.hero-shell-full-bleed {
+  width: 100%;
+  background: transparent;
+}
+
 .hero-panel::after {
   content: "";
   position: absolute;
@@ -582,6 +626,46 @@ html.dark .split-band {
   background: radial-gradient(circle, var(--accent-soft), transparent 72%);
   opacity: 0.55;
   pointer-events: none;
+}
+
+.hero-panel,
+.stat-surface,
+.split-band,
+.contact-shell,
+.quote-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-panel::before,
+.stat-surface::before,
+.split-band::before,
+.contact-shell::before,
+.quote-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 42%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.05) 55%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+html.dark .hero-panel::before,
+html.dark .stat-surface::before,
+html.dark .split-band::before,
+html.dark .contact-shell::before,
+html.dark .quote-panel::before {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.02) 58%,
+    transparent
+  );
 }
 
 .eyebrow-chip,
@@ -1495,7 +1579,7 @@ html.dark label {
 
 @media (min-width: 768px) {
   :root {
-    --app-navbar-offset: calc(72px + 20px);
+    --app-navbar-offset: calc(72px + 12px);
   }
 
   .footer-grid {
@@ -1504,7 +1588,7 @@ html.dark label {
   }
 
   .app-shell-content {
-    padding-top: 100px;
+    padding-top: 84px;
   }
 
   .footer-grid>div:first-child {
@@ -1546,6 +1630,14 @@ html.dark label {
 
   .hero-panel {
     border-radius: 1.5rem;
+  }
+
+  .hero-panel-full-bleed {
+    border-radius: 0;
+  }
+
+  .hero-panel-inner {
+    grid-template-columns: 1fr;
   }
 
   .preview-row {
@@ -1644,7 +1736,7 @@ html.dark label {
 /* 3. DESKTOP (1024px and up) */
 @media (min-width: 1024px) {
   .app-shell-content {
-    padding-top: 100px;
+    padding-top: 84px;
   }
 
   .footer-grid {
@@ -1661,6 +1753,10 @@ html.dark label {
   .split-band {
     grid-template-columns: 1fr 1fr;
     /* Side-by-side on desktop */
+  }
+
+  .hero-panel-inner {
+    grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
   }
 }
 
