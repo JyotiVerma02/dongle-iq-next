@@ -102,10 +102,10 @@ export default function PremiumBackground() {
                 height: `${p.size}px`,
                 animationDelay: `${p.delay}s`,
                 animationDuration: `${p.dur}s`,
-                ["--dx" as any]: `${p.dx}px`,
-                ["--dy" as any]: `${p.dy}px`,
-                ["--tint" as any]: p.tint,
-              } as any
+               "--dx": `${p.dx}px`,
+                "--dy": `${p.dy}px`,
+                "--tint": p.tint,
+              } as React.CSSProperties
             }
           />
         ))}
