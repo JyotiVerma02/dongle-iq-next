@@ -45,5 +45,8 @@ export function getThemePalette(isDarkMode: boolean): ThemePalette {
     inputBorder: "var(--input-border)",
     overlay: "var(--overlay)",
     glow: "var(--accent-glow)",
+
+
+    
   };
 }

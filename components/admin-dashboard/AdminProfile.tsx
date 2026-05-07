@@ -31,6 +31,7 @@ export function AdminProfileSection({
     text: string;
     muted: string;
     subtleText: string;
+    borderSoft: string;
     input: string;
     inputBorder: string;
   };
@@ -151,7 +152,6 @@ function ProfileCard({
   label,
   value,
   icon,
-  isDarkMode,
   colors,
 }: {
   label: string;

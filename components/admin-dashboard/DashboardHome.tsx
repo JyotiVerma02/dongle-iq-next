@@ -42,6 +42,7 @@ export function DashboardHome({
   chartData: Array<{ name: string; value: number }>;
   isDarkMode: boolean;
   colors: {
+    accent: string;
     borderSoft: string;
     panel: string;
     panelStrong: string;
