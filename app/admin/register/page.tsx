@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff, ShieldCheck } from "lucide-react";
 
 import OtpModal from "@/components/OtpModal";
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function AdminRegister() {

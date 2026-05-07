@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import type { DashboardUser } from "@/components/UserLedger";
 import BackToPreviewButton from "@/components/BackToPreviewButton";

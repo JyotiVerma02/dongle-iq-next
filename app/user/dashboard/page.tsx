@@ -20,7 +20,7 @@ import ApplicationForm, {
   type ApplicationFormData,
 } from "@/components/ApplicationForm";
 import { calculatePricing } from "@/app/lib/pricing";
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 type UserData = {

@@ -4,11 +4,16 @@ import { useState } from "react";
 import { Search, X } from "lucide-react";
 import toast from "react-hot-toast";
 
+import { useTheme } from "@/components/ThemeContext";
+import { getThemePalette } from "@/app/lib/themePalette";
+
 export default function TrackDSCView() {
   const [pid, setPid] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [isResultOpen, setIsResultOpen] = useState(false);
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
 
   const handleTrack = async () => {
     if (!pid.trim()) {
@@ -47,14 +52,30 @@ export default function TrackDSCView() {
 
   return (
     <div className="mt-6 flex justify-center px-4 sm:mt-10">
-      <div className="w-full max-w-3xl overflow-hidden rounded-md border border-white/10 bg-[#111b2e] shadow-[0_28px_80px_-40px_rgba(15,23,42,0.9)]">
-        <div className="bg-blue-600 px-6 py-4 text-lg font-semibold text-white">
+      <div
+        className="w-full max-w-2xl overflow-hidden rounded-xl border shadow-[0_22px_60px_-42px_rgba(15,23,42,0.35)]"
+        style={{
+          borderColor: colors.borderSoft,
+          backgroundColor: isDarkMode ? colors.panelStrong : colors.card,
+        }}
+      >
+        <div
+          className="border-b px-5 py-3 text-sm font-black uppercase tracking-[0.18em]"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.panel,
+            color: colors.text,
+          }}
+        >
           Track DSC Status
         </div>
 
-        <div className="space-y-6 p-6">
+        <div className="space-y-4 p-4 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
-            <label className="block text-sm font-medium text-white/80 sm:mb-0 sm:min-w-[72px]">
+            <label
+              className="block text-[11px] font-black uppercase tracking-[0.22em] sm:mb-0 sm:min-w-[72px]"
+              style={{ color: colors.subtleText }}
+            >
               PID
             </label>
 
@@ -63,18 +84,19 @@ export default function TrackDSCView() {
               value={pid}
               onChange={(e) => setPid(e.target.value)}
               placeholder="Enter Person ID"
-              className="w-full rounded-md border border-white/15 bg-white/8 px-4 py-2 text-white outline-none transition placeholder:text-white/35 focus:border-blue-900"
+              className="glass-input theme-transition w-full rounded-xl border px-4 py-3 text-sm font-semibold outline-none"
+              style={{
+                backgroundColor: colors.input,
+                borderColor: colors.inputBorder,
+                color: colors.text,
+              }}
             />
           </div>
 
           <button
             onClick={handleTrack}
             disabled={loading}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 font-medium text-white transition disabled:opacity-70"
-            style={{
-              background: "linear-gradient(135deg, #16a34a, #15803d)",
-              boxShadow: "0 18px 35px -20px rgba(22,163,74,0.8)",
-            }}
+            className="theme-primary-btn theme-transition inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:opacity-70"
           >
             <Search size={18} />
             {loading ? "Tracking..." : "Track DSC"}
@@ -83,33 +105,51 @@ export default function TrackDSCView() {
       </div>
 
       {isResultOpen && status ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-md bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-              <h2 className="text-lg font-semibold text-slate-900">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center px-4 backdrop-blur-sm"
+          style={{ backgroundColor: "rgba(2, 6, 23, 0.55)" }}
+        >
+          <div
+            className="w-full max-w-md overflow-hidden rounded-2xl border shadow-2xl"
+            style={{
+              borderColor: colors.borderSoft,
+              backgroundColor: isDarkMode ? colors.panelStrong : colors.card,
+            }}
+          >
+            <div
+              className="flex items-center justify-between border-b px-6 py-4"
+              style={{ borderColor: colors.borderSoft }}
+            >
+              <h2 className="text-base font-black uppercase tracking-tight" style={{ color: colors.text }}>
                 DSC Status
               </h2>
               <button
                 type="button"
                 onClick={() => setIsResultOpen(false)}
-                className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                className="rounded-full p-2 transition"
+                style={{ color: colors.muted }}
               >
                 <X size={18} />
               </button>
             </div>
 
             <div className="px-6 py-8 text-center">
-              <p className="text-sm text-slate-500">Status for PID</p>
-              <p className="mt-2 break-all text-base font-medium text-slate-900">
+              <p className="text-[11px] font-black uppercase tracking-[0.22em]" style={{ color: colors.muted }}>
+                Status for PID
+              </p>
+              <p className="mt-2 break-all text-sm font-semibold" style={{ color: colors.text }}>
                 {pid}
               </p>
 
               <div className="mt-6 flex justify-center">
                 <span
-                  className="rounded-full px-5 py-2 text-sm font-semibold"
+                  className="rounded-full px-5 py-2 text-xs font-black uppercase tracking-[0.18em]"
                   style={{
-                    backgroundColor: isApproved ? "#dcfce7" : "#fef3c7",
-                    color: isApproved ? "#166534" : "#92400e",
+                    backgroundColor: isApproved ? "rgba(34,197,94,0.14)" : "rgba(245,158,11,0.18)",
+                    color: isApproved ? "#16a34a" : "#d97706",
+                    border: `1px solid ${
+                      isApproved ? "rgba(34,197,94,0.25)" : "rgba(245,158,11,0.3)"
+                    }`,
                   }}
                 >
                   {status.toUpperCase()}

@@ -2,26 +2,38 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Mail, ShieldCheck } from "lucide-react";
+
 import OTPInput from "@/components/OTPInput";
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function VerifyOTP() {
   const router = useRouter();
-  const emailFromUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("email") || "" : "";
+  const emailFromUrl =
+    typeof window !== "undefined"
+      ? new URLSearchParams(window.location.search).get("email") || ""
+      : "";
   const [email, setEmail] = useState<string>(emailFromUrl);
   const [otp, setOtp] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
+  const premiumGradient =
+    "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!email || otp.length !== 6) {
+      setMessage("Please enter your email and 6-digit OTP.");
+      setMessageType("error");
+      return;
+    }
 
-    console.log("[VERIFY-OTP] Attempting verification for email:", email);
-    console.log("[VERIFY-OTP] OTP submitted:", otp);
-
+    setLoading(true);
     const res = await fetch("/api/verify-otp", {
       method: "POST",
       headers: {
@@ -34,26 +46,29 @@ export default function VerifyOTP() {
     });
 
     const data = await res.json();
-    console.log("[VERIFY-OTP] Response status:", res.status);
-    console.log("[VERIFY-OTP] Response data:", data);
 
     if (res.ok) {
-      console.log("[VERIFY-OTP] Verification successful! Redirecting to login...");
       setMessage("Email verified successfully!");
       setMessageType("success");
       setTimeout(() => {
         router.push("/login");
       }, 2000);
     } else {
-      console.error("[VERIFY-OTP] Verification failed:", data.message);
-      setMessage(data.message);
+      setMessage(data?.message || "OTP verification failed.");
       setMessageType("error");
     }
+
+    setLoading(false);
   };
 
   const handleResendOTP = async () => {
-    console.log("[VERIFY-OTP] Attempting resend OTP for email:", email);
-    
+    if (!email) {
+      setMessage("Please enter your email first.");
+      setMessageType("error");
+      return;
+    }
+
+    setResending(true);
     const res = await fetch("/api/resend-otp", {
       method: "POST",
       headers: {
@@ -63,73 +78,128 @@ export default function VerifyOTP() {
     });
 
     const data = await res.json();
-    console.log("[VERIFY-OTP] Resend response:", res.status, data);
-    setMessage(data.message);
+    setMessage(data?.message || (res.ok ? "OTP resent." : "Failed to resend OTP."));
     setMessageType(res.ok ? "success" : "error");
+    setResending(false);
   };
 
   return (
     <div
-      className="theme-transition flex min-h-screen items-center justify-center bg-cover bg-center px-4"
-      style={{ backgroundImage: "url('/tech-bg.jpg')" }}
+      suppressHydrationWarning
+      className="auth-page-shell theme-transition relative overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      style={{ color: colors.text }}
     >
-      <div
-        className="w-96 rounded-lg border p-10 shadow-xl backdrop-blur-md"
-        style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
-      >
-        <h2 className="mb-6 text-center text-3xl font-bold">
-          Verify OTP
-        </h2>
+      <div className="relative z-10 flex w-full app-page-min-height items-center justify-center px-4 py-8">
+        <div className="content-container flex w-full items-center justify-center">
+          <div className="group relative w-full max-w-md">
+            <div
+              className="absolute -inset-px rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100"
+              style={{ background: premiumGradient }}
+            />
 
-        <p className="mb-6 text-center" style={{ color: colors.muted }}>
-          Enter the OTP sent to your email
-        </p>
+            <div
+              className="auth-card shine-border relative w-full overflow-hidden p-5 sm:p-7"
+              style={{
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+              }}
+            >
+              <div className="mb-5 text-center">
+                <div
+                  className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl text-white"
+                  style={{ background: premiumGradient }}
+                >
+                  <ShieldCheck size={18} />
+                </div>
+                <h2 className="text-xl font-black uppercase tracking-tight">
+                  Verify <span style={{ color: colors.accent }}>OTP</span>
+                </h2>
+                <p className="mt-2 text-xs font-medium" style={{ color: colors.muted }}>
+                  Enter the 6-digit OTP sent to your email.
+                </p>
+              </div>
 
-        <form onSubmit={handleSubmit}>
-          {/* EMAIL */}
-          <input
-            type="email"
-            className="mb-6 w-full rounded border p-3"
-            style={{ backgroundColor: colors.input, color: colors.text, borderColor: colors.inputBorder }}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+              {message ? (
+                <div
+                  className={`mb-4 rounded-2xl border px-4 py-3 text-center text-[11px] font-semibold ${
+                    messageType === "success"
+                      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                      : "border-rose-500/20 bg-rose-500/10 text-rose-400"
+                  }`}
+                >
+                  {message}
+                </div>
+              ) : null}
 
-          {/* PROFESSIONAL OTP INPUT */}
-          <div className="mb-6 flex justify-center">
-            <OTPInput length={6} onComplete={(value) => setOtp(value)} />
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label
+                    className="text-[10px] font-black uppercase tracking-[0.22em]"
+                    style={{ color: colors.subtleText }}
+                  >
+                    Email
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value.toLowerCase())}
+                      placeholder="agent@dongleiq.com"
+                      className="glass-input w-full rounded-2xl border py-3 pl-10 pr-4 text-sm font-semibold outline-none"
+                      style={{
+                        backgroundColor: colors.input,
+                        borderColor: colors.inputBorder,
+                        color: colors.text,
+                      }}
+                      required
+                    />
+                    <Mail
+                      size={16}
+                      className="absolute left-4 top-1/2 -translate-y-1/2"
+                      style={{ color: colors.muted }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label
+                    className="text-[10px] font-black uppercase tracking-[0.22em]"
+                    style={{ color: colors.subtleText }}
+                  >
+                    OTP
+                  </label>
+                  <OTPInput
+                    length={6}
+                    onComplete={(value) => setOtp(value)}
+                    disabled={loading}
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || otp.length !== 6}
+                  className="theme-primary-btn theme-transition flex w-full items-center justify-center rounded-2xl py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loading ? "Verifying..." : "Verify OTP"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={resending || loading}
+                  className="w-full rounded-2xl border py-3 text-[11px] font-black uppercase tracking-[0.2em] disabled:cursor-not-allowed disabled:opacity-60"
+                  style={{
+                    borderColor: colors.borderSoft,
+                    backgroundColor: colors.panelStrong,
+                    color: colors.accent,
+                  }}
+                >
+                  {resending ? "Resending..." : "Resend OTP"}
+                </button>
+              </form>
+            </div>
           </div>
-
-          {/* VERIFY BUTTON */}
-          <button
-            type="submit"
-            className="w-full rounded-lg py-3 text-white"
-            style={{ backgroundColor: colors.accent }}
-          >
-            Verify OTP
-          </button>
-
-          {/* RESEND OTP */}
-          <button
-            type="button"
-            onClick={handleResendOTP}
-            className="mt-4 w-full"
-            style={{ color: colors.accent }}
-          >
-            Resend OTP
-          </button>
-        </form>
-
-        {message && (
-          <p
-            className={`text-center mt-4 ${
-              messageType === "success" ? "text-green-400" : "text-red-400"
-            }`}
-          >
-            {message}
-          </p>
-        )}
+        </div>
       </div>
     </div>
   );

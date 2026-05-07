@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { ChevronRight, FileText, Users } from "lucide-react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import type { AdminProfile, DashboardView } from "@/components/admin-dashboard/types";
 
@@ -22,6 +22,10 @@ export function Sidebar({
 }) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
+  const isLedgerView = view === "ledger" || view === "ledger-new" || view === "ledger-old";
+  // null = follow active view (auto-open on ledger views)
+  const [ordersOpen, setOrdersOpen] = useState<boolean | null>(null);
+  const effectiveOrdersOpen = ordersOpen ?? isLedgerView;
 
   return (
     <aside
@@ -80,11 +84,32 @@ export function Sidebar({
             />
             <NavItem
               label="Orders / Ledger"
-              active={view === "ledger"}
-              onClick={() => onViewChange("ledger")}
+              active={isLedgerView}
+              onClick={() => {
+                const next = !effectiveOrdersOpen;
+                setOrdersOpen(next);
+                if (next && !isLedgerView) {
+                  onViewChange("ledger-new");
+                }
+              }}
               icon={<Users size={18} />}
               collapsed={isCollapsed}
             />
+
+            {!isCollapsed && effectiveOrdersOpen ? (
+              <div className="ml-2 mt-1 space-y-1 border-l pl-3" style={{ borderColor: colors.borderSoft }}>
+                <SubNavItem
+                  label="New Orders"
+                  active={view === "ledger-new" || view === "ledger"}
+                  onClick={() => onViewChange("ledger-new")}
+                />
+                <SubNavItem
+                  label="Old Orders"
+                  active={view === "ledger-old"}
+                  onClick={() => onViewChange("ledger-old")}
+                />
+              </div>
+            ) : null}
             <NavItem
               label="Applications"
               active={view === "applications"}
@@ -161,6 +186,34 @@ function NavItem({
           className={`transition-transform ${active ? "translate-x-1 opacity-100" : "opacity-40"}`}
         />
       )}
+    </button>
+  );
+}
+
+function SubNavItem({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  const { isDarkMode } = useTheme();
+  const colors = useMemo(() => getThemePalette(isDarkMode), [isDarkMode]);
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full rounded-lg px-2 py-2 text-left text-xs font-semibold transition-all duration-200"
+      style={{
+        backgroundColor: active ? `${colors.accent}18` : "transparent",
+        color: active ? colors.accent : colors.muted,
+        border: active ? `1px solid ${colors.accent}40` : "1px solid transparent",
+      }}
+    >
+      {label}
     </button>
   );
 }

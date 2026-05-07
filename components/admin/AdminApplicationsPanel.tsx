@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { type ApplicationFormData } from "@/components/ApplicationForm";
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import type { DashboardUser } from "@/components/UserLedger";
 import { ArrowUp, ArrowDown } from "lucide-react";

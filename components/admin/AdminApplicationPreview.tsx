@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 
 import { calculatePricing } from "@/app/lib/pricing";
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import type { DashboardUser } from "@/components/UserLedger";
 

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LogIn, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { ThemeProvider, useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 

@@ -17,7 +17,7 @@ import {
   XCircle,
 } from "lucide-react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import BackToPreviewButton from "./BackToPreviewButton";
 

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import OtpModal from "@/components/OtpModal";
-import { useTheme } from "@/app/context/ThemeContext";
+import { ThemeProvider, useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 function RegisterContent() {
@@ -216,8 +216,17 @@ function RegisterContent() {
                     <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }} />
                   </div>
 
-                  <div className="phone-field flex items-center rounded-md border" style={{ backgroundColor: colors.input, borderColor: colors.inputBorder }}>
-                    <div className="flex items-center gap-2 pl-3" style={{ color: colors.muted }}>
+                  <div
+                    className="phone-field flex h-11 items-center overflow-hidden rounded-md border sm:h-12"
+                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder }}
+                  >
+                    <div
+                      className="phone-prefix flex h-full items-center gap-2 px-3"
+                      style={{
+                        color: colors.muted,
+                        borderRight: `1px solid ${colors.borderSoft}`,
+                      }}
+                    >
                       <Smartphone size={16} />
                       <span className="text-sm font-semibold">+91</span>
                     </div>
@@ -227,7 +236,7 @@ function RegisterContent() {
                       placeholder="Phone Number"
                       value={number}
                       onChange={(e) => setNumber(sanitizeNumber(e.target.value))}
-                      className="w-full rounded-r-md bg-transparent px-3 py-2.5 text-sm outline-none"
+                      className="h-full w-full bg-transparent px-3 text-sm font-semibold outline-none"
                       style={{ color: colors.text }}
                     />
                   </div>

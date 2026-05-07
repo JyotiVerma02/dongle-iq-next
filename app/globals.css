@@ -937,6 +937,10 @@ html.dark .faq-button:hover {
     background-color 180ms ease;
 }
 
+.phone-field {
+  border-radius: 0.75rem;
+}
+
 .phone-field:focus-within {
   border-color: var(--accent) !important;
   box-shadow:
@@ -1321,7 +1325,9 @@ html.dark label {
   }
 
   .dashboard-metrics {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
   }
 
   .contact-shell,
@@ -1365,6 +1371,12 @@ html.dark label {
   }
 
   .split-band {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 420px) {
+  .dashboard-metrics {
     grid-template-columns: 1fr;
   }
 }

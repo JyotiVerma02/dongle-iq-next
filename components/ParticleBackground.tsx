@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 
 class Particle {
   x: number;
@@ -40,11 +40,9 @@ class Particle {
 
 export default function ParticleBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { theme, mounted } = useTheme();
+  const { theme } = useTheme();
 
   useEffect(() => {
-    if (!mounted) return;
-
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -107,7 +105,7 @@ export default function ParticleBackground() {
       cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", init);
     };
-  }, [mounted, theme]);
+  }, [theme]);
 
   return (
     <canvas

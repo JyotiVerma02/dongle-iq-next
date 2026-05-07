@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { APPLICATION_CONFIG_KEY } from "@/app/lib/applicationPreview";
 import { calculatePricing } from "@/app/lib/pricing";
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 export type ApplicationFormData = {

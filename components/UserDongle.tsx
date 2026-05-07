@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { ArrowLeft, ExternalLink, FileText, Search } from "lucide-react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 export interface DongleRecord {

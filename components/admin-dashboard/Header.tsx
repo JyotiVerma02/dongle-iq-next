@@ -13,7 +13,7 @@ import {
   SunMedium,
 } from "lucide-react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import type { AdminProfile } from "@/components/admin-dashboard/types";
 
 export function Header({

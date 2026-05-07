@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Bot, LoaderCircle, MessageSquare, Send, Sparkles, X } from "lucide-react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 type Msg = {
@@ -108,7 +108,7 @@ export default function AIChat() {
 
       {open ? (
         <div
-          className="mt-3 flex h-[560px] w-[360px] max-w-[95vw] flex-col overflow-hidden rounded-2xl border text-white shadow-2xl"
+          className="mt-3 flex h-[min(560px,78vh)] w-[min(360px,95vw)] max-w-[95vw] flex-col overflow-hidden rounded-2xl border text-white shadow-2xl"
           style={{
             borderColor: colors.borderSoft,
             backgroundColor: isDarkMode ? "#08111f" : "#f8fbff",

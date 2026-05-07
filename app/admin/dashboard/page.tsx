@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
 import UserLedgerView, { type DashboardUser } from "@/components/UserLedger";
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import {
   AdminProfileSection,
@@ -156,6 +156,17 @@ export default function DongleIQAdminHub() {
       unpaidCommission,
     };
   }, [users]);
+
+  const sortedOrders = useMemo(() => {
+    return [...users].sort((a, b) => {
+      const aTime = a.createdAt ? Date.parse(a.createdAt) : 0;
+      const bTime = b.createdAt ? Date.parse(b.createdAt) : 0;
+      return bTime - aTime;
+    });
+  }, [users]);
+
+  const newOrders = useMemo(() => sortedOrders.slice(0, 10), [sortedOrders]);
+  const oldOrders = useMemo(() => sortedOrders.slice(10), [sortedOrders]);
 
   const filteredUsers = useMemo(() => {
     return users.filter((user) => {
@@ -388,11 +399,23 @@ export default function DongleIQAdminHub() {
             />
           ) : null}
 
-          {view === "ledger" ? (
+          {view === "ledger" || view === "ledger-new" ? (
             <div className="h-full overflow-y-auto min-h-0">
               <UserLedgerView
                 onBack={() => setView("home")}
-                users={users}
+                users={newOrders}
+                loading={loading}
+                onStatusChange={handleStatusChange}
+                onPaymentChange={handlePaymentChange}
+              />
+            </div>
+          ) : null}
+
+          {view === "ledger-old" ? (
+            <div className="h-full overflow-y-auto min-h-0">
+              <UserLedgerView
+                onBack={() => setView("home")}
+                users={oldOrders}
                 loading={loading}
                 onStatusChange={handleStatusChange}
                 onPaymentChange={handlePaymentChange}

@@ -1,4 +1,11 @@
-export type DashboardView = "home" | "admin" | "ledger" | "applications" | "track-dsc";
+export type DashboardView =
+  | "home"
+  | "admin"
+  | "ledger"
+  | "ledger-new"
+  | "ledger-old"
+  | "applications"
+  | "track-dsc";
 export type AdminProfile = {
   _id?: string;
   name?: string;

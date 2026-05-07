@@ -3,7 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { useMemo } from "react";
 
-import { useTheme } from "@/app/context/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 export function useDashboardPalette() {
