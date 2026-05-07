@@ -61,7 +61,7 @@ export function AdminProfileSection({
         <div
           className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:shadow-2xl"
           style={{
-            borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+            borderColor: colors.borderSoft,
             backgroundColor: colors.panelStrong,
           }}
         >
@@ -79,9 +79,9 @@ export function AdminProfileSection({
             </div>
             <button
               onClick={onToggleEdit}
-              className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)]"
+              className="theme-transition inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_var(--accent-shadow)]"
               style={{
-                borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                borderColor: colors.borderSoft,
                 backgroundColor: colors.panel,
                 color: colors.text,
               }}
@@ -102,7 +102,7 @@ export function AdminProfileSection({
             <div
               className="theme-transition mt-4 rounded-xl border px-4 py-3 text-[13px]"
               style={{
-                borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                borderColor: colors.borderSoft,
                 backgroundColor: colors.panel,
                 color: colors.text,
               }}
@@ -115,7 +115,7 @@ export function AdminProfileSection({
         <div
           className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:shadow-2xl"
           style={{
-            borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+            borderColor: colors.borderSoft,
             backgroundColor: colors.panelStrong,
           }}
         >
@@ -136,7 +136,8 @@ export function AdminProfileSection({
           <button
             onClick={onSave}
             disabled={!isEditingAdmin || savingAdmin}
-            className="mt-4 w-full rounded-xl bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] px-4 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_16px_30px_-18px_rgba(69,195,185,0.5)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-4 w-full rounded-xl px-4 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_16px_30px_-18px_var(--accent-shadow)] disabled:cursor-not-allowed disabled:opacity-60"
+            style={{ background: "var(--brand-gradient)" }}
           >
             {savingAdmin ? "Saving..." : "Save admin profile"}
           </button>
@@ -167,12 +168,12 @@ function ProfileCard({
     <div
       className="theme-transition min-w-0 rounded-xl border p-3 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       style={{
-        borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+        borderColor: "var(--border-soft)",
         backgroundColor: colors.panel,
       }}
     >
       <div className="flex items-center gap-2" style={{ color: colors.text }}>
-        <span className="text-[#45c3b9]">{icon}</span>
+        <span style={{ color: "var(--accent)" }}>{icon}</span>
         <span className="text-[11px] uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
           {label}
         </span>

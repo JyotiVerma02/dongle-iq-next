@@ -34,21 +34,24 @@ export function Sidebar({
       } ${isCollapsed ? "w-20" : "w-[88vw] max-w-72 lg:w-64 xl:w-72"} lg:static lg:translate-x-0`}
       style={{
         width: isCollapsed ? "5.5rem" : "18rem",
-        borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+        borderColor: "var(--border-soft)",
         backgroundColor: colors.overlay,
       }}
     >
       <div className="flex h-full flex-col">
         <div>
           <div className="mb-6 flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#45c3b9,#67e8f9)] text-[#081214] shadow-[0_14px_24px_-18px_rgba(69,195,185,0.7)]">
+            <div
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-[0_14px_24px_-18px_var(--accent-shadow)]"
+              style={{ background: "var(--brand-gradient)" }}
+            >
               <Users size={20} />
             </div>
 
             {!isCollapsed && (
               <div>
                 <p className="text-base font-black uppercase tracking-tight">
-                  Dongle <span className="text-[#45c3b9]">IQ</span>
+                  Dongle <span style={{ color: colors.accent }}>IQ</span>
                 </p>
                 <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: colors.subtleText }}>
                   Admin Panel
@@ -124,14 +127,16 @@ export function Sidebar({
           <div
             className="theme-transition mt-auto rounded-xl border p-3"
             style={{
-              borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+              borderColor: "var(--border-soft)",
               backgroundColor: colors.panel,
             }}
           >
             <p className="text-[11px] uppercase tracking-[0.16em]" style={{ color: colors.subtleText }}>
               Logged in admin
             </p>
-            <p className="mt-2 text-base font-black text-white">{admin?.name || "Admin"}</p>
+            <p className="mt-2 text-base font-black" style={{ color: colors.text }}>
+              {admin?.name || "Admin"}
+            </p>
             <p className="mt-1 text-xs" style={{ color: colors.subtleText }}>
               {admin?.email || "No email found"}
             </p>
@@ -170,9 +175,9 @@ function NavItem({
         collapsed ? "justify-center" : "justify-between"
       } w-full rounded-lg px-2 py-2 text-sm font-medium transition-all duration-200`}
       style={{
-        backgroundColor: active ? "rgba(69,195,185,0.15)" : "transparent",
-        color: active ? "#45c3b9" : colors.muted,
-        border: active ? "1px solid rgba(69,195,185,0.3)" : "1px solid transparent",
+        backgroundColor: active ? colors.accentSoft : "transparent",
+        color: active ? colors.accent : colors.muted,
+        border: active ? `1px solid ${colors.accent}40` : "1px solid transparent",
       }}
     >
       <div className="flex items-center gap-2.5">

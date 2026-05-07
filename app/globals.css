@@ -5,82 +5,98 @@
   --app-navbar-offset: calc(72px + 16px);
   --app-shell-min-height: calc(100dvh - var(--app-navbar-offset));
 
-  --background: #f6f7f2;
-  --background-alt: #eef2ec;
-  --foreground: #132238;
-  --muted: #4f6075;
+  /* Premium SaaS light theme (cool-neutral) */
+  --background: #f8fafc;
+  --background-alt: #f1f5f9;
+  --foreground: #0f172a;
+  --muted: #475569;
   --subtle-text: #64748b;
 
   /* ADD BELOW YOUR ACCENT COLORS */
 
-  --accent-rgb: 15, 118, 110;
+  /* Modern indigo/blue/violet accent system */
+  --accent-rgb: 79, 70, 229;
 
   /* cursor */
-  --cursor-glow: rgba(15, 118, 110, 0.35);
-  --cursor-ripple: rgba(15, 118, 110, 0.25);
+  --cursor-glow: rgba(79, 70, 229, 0.28);
+  --cursor-ripple: rgba(37, 99, 235, 0.2);
 
-  --card: rgba(255, 255, 255, 0.9);
-  --card-strong: rgba(255, 255, 255, 0.96);
+  --card: #ffffff;
+  --card-strong: #ffffff;
 
-  --border: rgba(19, 34, 56, 0.1);
-  --border-soft: rgba(19, 34, 56, 0.06);
+  --border: rgba(15, 23, 42, 0.12);
+  --border-soft: rgba(15, 23, 42, 0.08);
 
-  --accent: #0f766e;
-  --accent-light: #129388;
-  --accent-secondary: #1d7fd0;
-  --accent-soft: rgba(15, 118, 110, 0.12);
-  --accent-subtle: rgba(18, 147, 136, 0.1);
-  --accent-faint: rgba(29, 127, 208, 0.07);
-  --accent-strong: rgba(15, 118, 110, 0.82);
-  --accent-shadow: rgba(15, 118, 110, 0.22);
-  --accent-glow: rgba(29, 127, 208, 0.12);
+  --accent: #4f46e5;
+  --accent-light: #2563eb;
+  --accent-secondary: #7c3aed;
+  --accent-soft: rgba(79, 70, 229, 0.14);
+  --accent-subtle: rgba(37, 99, 235, 0.12);
+  --accent-faint: rgba(124, 58, 237, 0.08);
+  --accent-strong: rgba(79, 70, 229, 0.9);
+  --accent-shadow: rgba(15, 23, 42, 0.18);
+  --accent-glow: rgba(79, 70, 229, 0.14);
 
-  --input: rgba(255, 255, 255, 0.98);
-  --input-border: rgba(19, 34, 56, 0.14);
-  --overlay: rgba(246, 247, 242, 0.84);
-  --nav: rgba(246, 247, 242, 0.78);
+  --input: rgba(255, 255, 255, 0.95);
+  --input-border: rgba(15, 23, 42, 0.14);
+
+  /* Glass overlays (navbar/sidebar) */
+  --overlay: rgba(248, 250, 252, 0.82);
+  --nav: rgba(248, 250, 252, 0.72);
+
+  /* Brand gradient used sparingly */
+  --brand-gradient: linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary));
+
+  /* Skeleton */
+  --skeleton: rgba(15, 23, 42, 0.06);
+
+  /* Cursor spotlight position (used by PremiumBackground) */
+  --spot-x: 60vw;
+  --spot-y: 35vh;
 }
 
 html.dark {
   color-scheme: dark;
 
-  --background: #09111f;
-  --background-alt: #0d1727;
-  --foreground: #f8fafc;
-  /* near white, crisp */
-  --muted: #cbd5f5;
-  /* brighter muted */
-  --subtle-text: #a5b4fc;
-  /* slight accent tint */
+  /* Premium SaaS dark theme (high-contrast, cool) */
+  --background: #070a13;
+  --background-alt: #0b1020;
+  --foreground: #eaf0ff;
+  --muted: rgba(234, 240, 255, 0.72);
+  --subtle-text: rgba(234, 240, 255, 0.56);
 
-  --card: rgba(10, 20, 36, 0.78);
-  --card-strong: rgba(12, 25, 43, 0.9);
+  --card: rgba(15, 23, 42, 0.72);
+  --card-strong: rgba(15, 23, 42, 0.9);
 
-  --border: rgba(157, 177, 200, 0.16);
-  --border-soft: rgba(157, 177, 200, 0.09);
+  --border: rgba(148, 163, 184, 0.18);
+  --border-soft: rgba(148, 163, 184, 0.12);
 
 
 
   /* ADD BELOW DARK ACCENT */
 
-  --accent-rgb: 18, 163, 144;
+  --accent-rgb: 99, 102, 241;
 
-  --cursor-glow: rgba(18, 163, 144, 0.35);
-  --cursor-ripple: rgba(18, 163, 144, 0.25);
-  --accent: #12a390;
-  --accent-light: #067180;
-  --accent-secondary: #38bdf8;
-  --accent-soft: rgba(45, 212, 191, 0.12);
-  --accent-subtle: rgba(103, 232, 249, 0.14);
-  --accent-faint: rgba(56, 189, 248, 0.08);
-  --accent-strong: rgba(45, 212, 191, 0.82);
-  --accent-shadow: rgba(45, 212, 191, 0.18);
-  --accent-glow: rgba(103, 232, 249, 0.14);
+  --cursor-glow: rgba(99, 102, 241, 0.28);
+  --cursor-ripple: rgba(37, 99, 235, 0.2);
+  --accent: #6366f1;
+  --accent-light: #3b82f6;
+  --accent-secondary: #a855f7;
+  --accent-soft: rgba(99, 102, 241, 0.18);
+  --accent-subtle: rgba(59, 130, 246, 0.16);
+  --accent-faint: rgba(168, 85, 247, 0.12);
+  --accent-strong: rgba(99, 102, 241, 0.92);
+  --accent-shadow: rgba(0, 0, 0, 0.55);
+  --accent-glow: rgba(99, 102, 241, 0.16);
 
-  --input: rgba(12, 25, 43, 0.9);
-  --input-border: rgba(157, 177, 200, 0.18);
-  --overlay: rgba(9, 17, 31, 0.76);
-  --nav: rgba(9, 17, 31, 0.62);
+  --input: rgba(15, 23, 42, 0.82);
+  --input-border: rgba(148, 163, 184, 0.18);
+  --overlay: rgba(7, 10, 19, 0.66);
+  --nav: rgba(7, 10, 19, 0.56);
+
+  --brand-gradient: linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary));
+
+  --skeleton: rgba(234, 240, 255, 0.08);
 }
 
 html {
@@ -89,8 +105,9 @@ html {
   margin: 0;
   padding: 0;
   background:
-    radial-gradient(circle at top left, var(--accent-subtle), transparent 24%),
-    linear-gradient(180deg, var(--background-alt) 0%, var(--background) 58%, var(--background-alt) 100%);
+    radial-gradient(circle at 20% 10%, var(--accent-faint), transparent 38%),
+    radial-gradient(circle at 80% 0%, var(--accent-subtle), transparent 42%),
+    linear-gradient(180deg, var(--background-alt) 0%, var(--background) 55%, var(--background-alt) 100%);
 }
 
 body {
@@ -109,6 +126,222 @@ body {
     border-color 220ms ease,
     box-shadow 220ms ease;
 
+}
+
+/* =========================
+   Premium SaaS background
+   (theme-aware, GPU-friendly)
+========================= */
+.saas-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.saas-bg__base,
+.saas-bg__aurora,
+.saas-bg__grid,
+.saas-bg__spotlight,
+.saas-bg__grain {
+  position: absolute;
+  inset: 0;
+}
+
+/* Base ambient mesh */
+.saas-bg__base {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 15% 10%, var(--accent-faint), transparent 42%),
+    radial-gradient(circle at 85% 0%, var(--accent-subtle), transparent 48%),
+    radial-gradient(circle at 75% 85%, rgba(var(--accent-rgb), 0.08), transparent 52%);
+}
+
+/* Aurora layer (animated) */
+.saas-bg__aurora {
+  opacity: 0.75;
+  background:
+    radial-gradient(60% 50% at 15% 30%, rgba(var(--accent-rgb), 0.16), transparent 55%),
+    radial-gradient(55% 45% at 70% 20%, rgba(37, 99, 235, 0.12), transparent 58%),
+    radial-gradient(65% 55% at 85% 80%, rgba(124, 58, 237, 0.12), transparent 60%);
+  filter: blur(30px);
+  transform: translate3d(0, 0, 0);
+  animation: saas-aurora 28s ease-in-out infinite;
+}
+
+/* Floating blobs */
+.saas-bg__blobs {
+  position: absolute;
+  inset: -10%;
+  opacity: 0.9;
+  filter: blur(40px);
+  transform: translate3d(0, 0, 0);
+}
+
+.saas-bg__blob {
+  position: absolute;
+  width: 460px;
+  height: 460px;
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.12);
+  transform: translate3d(0, 0, 0);
+  animation: saas-float 32s ease-in-out infinite;
+}
+
+.saas-bg__blob--a {
+  left: 6%;
+  top: 12%;
+  background: rgba(var(--accent-rgb), 0.12);
+}
+
+.saas-bg__blob--b {
+  right: 10%;
+  top: 6%;
+  width: 520px;
+  height: 520px;
+  background: rgba(37, 99, 235, 0.1);
+  animation-duration: 38s;
+  animation-direction: reverse;
+}
+
+.saas-bg__blob--c {
+  right: 16%;
+  bottom: 10%;
+  width: 560px;
+  height: 560px;
+  background: rgba(124, 58, 237, 0.1);
+  animation-duration: 44s;
+}
+
+/* Cursor-reactive spotlight (subtle) */
+.saas-bg__spotlight {
+  opacity: 0.55;
+  background: radial-gradient(
+    520px 520px at var(--spot-x) var(--spot-y),
+    rgba(var(--accent-rgb), 0.14),
+    transparent 65%
+  );
+  transition: opacity 240ms ease;
+}
+
+/* Dark-only subtle grid overlay */
+.saas-bg__grid {
+  opacity: 0;
+}
+
+html.dark .saas-bg__grid {
+  opacity: 0.18;
+  background-image:
+    linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 1), transparent 70%);
+}
+
+/* Subtle grain */
+.saas-bg__grain {
+  opacity: 0.06;
+  background-image:
+    radial-gradient(circle at 25% 30%, rgba(0, 0, 0, 0.9) 1px, transparent 1.2px),
+    radial-gradient(circle at 70% 60%, rgba(0, 0, 0, 0.65) 1px, transparent 1.2px);
+  background-size: 120px 120px;
+  mix-blend-mode: soft-light;
+}
+
+html.dark .saas-bg__grain {
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+}
+
+/* Tiny premium particles (dots) */
+.saas-bg__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 1;
+}
+
+.saas-bg__particle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.45);
+  opacity: var(--o1, 0.18);
+  filter: blur(0.15px);
+  will-change: transform, opacity;
+  animation-name: saas-particle-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-duration: var(--dur, 28s);
+}
+
+/* Light intensity */
+.saas-bg__particle {
+  --o1: 0.14;
+  --o2: 0.2;
+}
+
+/* Dark intensity */
+html.dark .saas-bg__particle {
+  --o1: 0.22;
+  --o2: 0.32;
+  background: rgba(var(--accent-rgb), 0.6);
+  filter: blur(0.25px);
+}
+
+@keyframes saas-particle-float {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: var(--o1);
+  }
+  50% {
+    transform: translate3d(var(--dx, 10px), var(--dy, -8px), 0) scale(1.15);
+    opacity: var(--o2);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: var(--o1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saas-bg__particle {
+    animation: none !important;
+  }
+}
+
+@keyframes saas-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(18px, -14px, 0) scale(1.05);
+  }
+}
+
+@keyframes saas-aurora {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate3d(-18px, 12px, 0) scale(1.06);
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saas-bg__aurora,
+  .saas-bg__blob {
+    animation: none !important;
+  }
+  .saas-bg__spotlight {
+    transition: none !important;
+  }
 }
 
 h1,

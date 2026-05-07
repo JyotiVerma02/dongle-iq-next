@@ -18,7 +18,7 @@ export function MetricsGrid({ stats, isDarkMode }: DashboardMetricsProps) {
       label: "Token Amount",
       value: stats.tokenAmount,
       icon: <Wallet size={22} />,
-      background: "linear-gradient(135deg, #1f7ff0, #1b75df)",
+      background: "linear-gradient(135deg, var(--accent), var(--accent-light))",
       textColor: "#ffffff",
     },
     {
@@ -32,14 +32,14 @@ export function MetricsGrid({ stats, isDarkMode }: DashboardMetricsProps) {
       label: "Total Commission",
       value: stats.totalCommission,
       icon: <IndianRupee size={22} />,
-      background: "linear-gradient(135deg, #27a5bb, #279fb4)",
+      background: "linear-gradient(135deg, var(--accent), var(--accent-secondary))",
       textColor: "#0b1220",
     },
     {
       label: "GST Paid Amount",
       value: stats.gstPaid,
       icon: <Receipt size={22} />,
-      background: "linear-gradient(135deg, #27a5bb, #279fb4)",
+      background: "linear-gradient(135deg, var(--accent), var(--accent-secondary))",
       textColor: "#0b1220",
     },
     {
@@ -106,7 +106,7 @@ function MetricCard({
     <div
       className="theme-transition rounded-xl border p-4 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       style={{
-        borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+        borderColor: "var(--border-soft)",
         background,
       }}
     >

@@ -150,10 +150,9 @@ export function DashboardHome({
               <div
                 className="mt-4 max-w-[560px] rounded-2xl px-5 py-3 text-sm italic"
                 style={{
-                  color: "#b91c1c",
-                  backgroundColor: isDarkMode
-                    ? "rgba(255,255,255,0.04)"
-                    : "rgba(255,255,255,0.7)",
+                  color: isDarkMode ? "rgba(234,240,255,0.86)" : colors.text,
+                  backgroundColor: isDarkMode ? "rgba(255,255,255,0.04)" : colors.panel,
+                  border: `1px solid ${colors.borderSoft}`,
                 }}
               >
                 Claim mTokens Rs315 (385-70 Cash Back scheme benefits for
@@ -245,7 +244,7 @@ export function DashboardHome({
         <div className="grid gap-4 text-sm lg:grid-cols-3 lg:items-center">
           <div style={{ color: colors.muted }}>
             <p className="font-semibold">All rights reserved by</p>
-            <p className="mt-1 text-xl font-black" style={{ color: "#1d7fd0" }}>
+            <p className="mt-1 text-xl font-black" style={{ color: colors.accent }}>
               DongleIQ
             </p>
           </div>
@@ -258,7 +257,7 @@ export function DashboardHome({
 
           <div
             className="break-words text-sm leading-7 lg:text-right"
-            style={{ color: "#2563eb" }}
+            style={{ color: colors.accent }}
           >
             <p>Support call 020-49105678, 7777090977</p>
             <p>Support Email: info@dongleiq.com</p>
@@ -281,9 +280,9 @@ function TopActionButton({
   return (
     <button
       onClick={onClick}
-      className="inline-flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border px-3 py-2 text-center text-base font-medium text-white shadow-[0_16px_30px_-18px_rgba(29,127,208,0.7)] transition hover:-translate-y-0.5 hover:brightness-105"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border px-3 py-2 text-center text-base font-medium text-white shadow-[0_16px_30px_-18px_var(--accent-shadow)] transition hover:-translate-y-0.5 hover:brightness-105"
       style={{
-        background: "linear-gradient(135deg, #1d7fd0, #2f92e8)",
+        background: "var(--brand-gradient)",
         borderColor: "transparent",
       }}
     >
@@ -321,14 +320,14 @@ function ServiceCard({
 }) {
   const buttonStyles = {
     blue: {
-      background: "linear-gradient(135deg, #3578f6, #2563eb)",
+      background: "var(--brand-gradient)",
       color: "#ffffff",
     },
     orange: {
       background: "linear-gradient(135deg, #ffb31a, #f59e0b)",
       color: "#ffffff",
     },
-    light: { background: "#ffffff", color: "#2563eb" },
+    light: { background: "var(--card)", color: "var(--accent)" },
   } as const;
 
   const iconStyles = highlighted
@@ -342,8 +341,8 @@ function ServiceCard({
           color: "#f59e0b",
         }
       : {
-          wrapper: "rgba(53,120,246,0.12)",
-          color: "#3578f6",
+          wrapper: "var(--accent-soft)",
+          color: "var(--accent)",
         };
 
   return (
@@ -352,7 +351,7 @@ function ServiceCard({
       style={{
         borderColor: colors.borderSoft,
         background: highlighted
-          ? "linear-gradient(180deg, #619cf4, #4f8ce9)"
+          ? "var(--brand-gradient)"
           : colors.panelStrong,
         color: highlighted ? "#ffffff" : colors.text,
         margin: highlighted ? "-6px" : undefined,

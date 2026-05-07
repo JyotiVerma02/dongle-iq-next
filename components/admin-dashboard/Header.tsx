@@ -55,7 +55,7 @@ export function Header({
     <header
       className="theme-transition sticky top-0 z-30 flex flex-col gap-3 border-b px-4 py-3 backdrop-blur-xl sm:flex-row sm:items-start sm:justify-between lg:px-6"
       style={{
-        borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+        borderColor: "var(--border-soft)",
         backgroundColor: colors.overlay,
         overflow: "visible",
       }}
@@ -63,11 +63,9 @@ export function Header({
       <div className="flex min-w-0 items-start gap-3">
         <button
           onClick={onSidebarToggle}
-          className="theme-transition flex h-10 w-10 items-center justify-center rounded-xl border transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.5)]"
+          className="theme-transition flex h-10 w-10 items-center justify-center rounded-xl border transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_var(--accent-shadow)]"
           style={{
-            borderColor: isDarkMode
-              ? "rgba(255,255,255,0.06)"
-              : "rgba(0,0,0,0.06)",
+            borderColor: "var(--border-soft)",
             backgroundColor: colors.panel,
             color: colors.text,
           }}
@@ -83,7 +81,7 @@ export function Header({
             Admin workspace
           </p>
           <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm">
-            <span className="break-words" style={{ color: "#16a34a" }}>
+            <span className="break-words" style={{ color: "var(--accent)" }}>
               Support call: 020-49105678, 7777090977
             </span>
             <span className="break-all" style={{ color: colors.muted }}>
@@ -96,11 +94,9 @@ export function Header({
       <div className="flex w-full flex-wrap items-center justify-end gap-2 self-stretch sm:w-auto sm:gap-3 sm:self-center lg:self-auto">
         <button
           onClick={toggleTheme}
-          className="theme-transition inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)]"
+          className="theme-transition inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_var(--accent-shadow)]"
           style={{
-            borderColor: isDarkMode
-              ? "rgba(255,255,255,0.06)"
-              : "rgba(0,0,0,0.06)",
+            borderColor: "var(--border-soft)",
             backgroundColor: colors.panel,
             color: colors.text,
           }}
@@ -112,11 +108,9 @@ export function Header({
         <button
           onClick={onRefresh}
           disabled={refreshing}
-          className="theme-transition inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_rgba(69,195,185,0.45)] disabled:cursor-not-allowed disabled:opacity-70"
+          className="theme-transition inline-flex min-h-10 items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_var(--accent-shadow)] disabled:cursor-not-allowed disabled:opacity-70"
           style={{
-            borderColor: isDarkMode
-              ? "rgba(255,255,255,0.06)"
-              : "rgba(0,0,0,0.06)",
+            borderColor: "var(--border-soft)",
             backgroundColor: colors.panel,
             color: colors.text,
           }}
@@ -132,9 +126,7 @@ export function Header({
         <div
           className="theme-transition rounded-xl border p-2.5"
           style={{
-            borderColor: isDarkMode
-              ? "rgba(255,255,255,0.06)"
-              : "rgba(0,0,0,0.06)",
+            borderColor: "var(--border-soft)",
             backgroundColor: colors.panel,
             color: colors.text,
           }}

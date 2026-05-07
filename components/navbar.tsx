@@ -38,11 +38,33 @@ export default function Navbar() {
   const pathname = usePathname();
   const { isDarkMode, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMenuOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    let raf = 0;
+
+    const update = () => {
+      raf = 0;
+      setIsScrolled(window.scrollY > 8);
+    };
+
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, []);
 
  if (
   pathname === "/admin/dashboard" ||
@@ -69,11 +91,11 @@ export default function Navbar() {
 
   return (
     <nav
-      className="theme-transition fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-4"
+      className="theme-transition fixed inset-x-0 top-0 z-50 px-3 pt-2 sm:px-4"
       style={{ color: colors.text }}
     >
       <div
-        className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-3xl border px-3 py-3 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:px-4"
+         className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-3xl border px-3 py-3 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:px-4"
         style={{
           backgroundColor: "var(--nav)",
           borderColor: colors.borderSoft,

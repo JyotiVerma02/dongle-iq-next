@@ -17,11 +17,16 @@ const STORAGE_KEY = "dongle-iq-theme";
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   // ✅ Read from HTML (set by Script) → prevents flicker
   const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "dark";
+    if (typeof window === "undefined") return "light";
 
-    return document.documentElement.classList.contains("dark")
-      ? "dark"
-      : "light";
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved === "dark" || saved === "light") return saved;
+    } catch {
+      // Ignore storage errors; fall back to HTML class.
+    }
+
+    return document.documentElement.classList.contains("dark") ? "dark" : "light";
   });
 
   // ✅ Apply theme + persist

@@ -20,6 +20,7 @@ import {
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import BackToPreviewButton from "./BackToPreviewButton";
+import { EmptyState, SkeletonBlock } from "@/components/admin-dashboard/ui";
 
 export interface DashboardUser {
   commission: number;
@@ -239,7 +240,7 @@ export default function UserLedgerView({
       </div>
 
       <div
-        className="theme-transition overflow-hidden rounded-lg border shadow-2xl"
+        className="theme-transition overflow-hidden rounded-2xl border shadow-[0_18px_50px_-34px_var(--accent-shadow)]"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
@@ -262,30 +263,57 @@ export default function UserLedgerView({
             </thead>
             <tbody className="text-sm">
               {loading ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-5 py-12 text-center text-sm"
-                    style={{ color: colors.muted }}
-                  >
-                    Loading user records...
-                  </td>
-                </tr>
+                Array.from({ length: 6 }).map((_, row) => (
+                  <tr key={`skeleton-${row}`} style={{ borderTop: `1px solid ${colors.borderSoft}` }}>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <SkeletonBlock className="h-10 w-10" />
+                        <div className="space-y-2">
+                          <SkeletonBlock className="h-3 w-44" />
+                          <SkeletonBlock className="h-3 w-28" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="space-y-2">
+                        <SkeletonBlock className="h-3 w-56" />
+                        <SkeletonBlock className="h-3 w-24" />
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="space-y-2">
+                        <SkeletonBlock className="h-3 w-28" />
+                        <SkeletonBlock className="h-3 w-44" />
+                      </div>
+                    </td>
+                    <td className="px-4 py-4">
+                      <SkeletonBlock className="h-6 w-24 rounded-full" />
+                    </td>
+                    <td className="px-4 py-4">
+                      <SkeletonBlock className="h-3 w-52" />
+                    </td>
+                    <td className="px-5 py-4 text-right">
+                      <SkeletonBlock className="ml-auto h-9 w-24" />
+                    </td>
+                  </tr>
+                ))
               ) : filteredUsers.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
-                    className="px-5 py-12 text-center text-sm"
-                    style={{ color: colors.muted }}
+                    className="px-5 py-10"
                   >
-                    No users matched your search.
+                    <EmptyState
+                      title="No orders found"
+                      description="Try adjusting your search filters or clear the search query to see all orders."
+                    />
                   </td>
                 </tr>
               ) : (
                 paginatedUsers.map((user, index) => (
                   <tr
                     key={user._id}
-                    className="transition-all duration-200 hover:scale-[1.01]"
+                    className="transition-colors duration-150 hover:bg-black/[0.02] dark:hover:bg-white/[0.03]"
                     style={{
                       borderTop: `1px solid ${colors.borderSoft}`,
                       backgroundColor:
@@ -364,7 +392,7 @@ export default function UserLedgerView({
                           setRejectReason(user.internalRemarks || "");
                           setActionError("");
                         }}
-                        className="theme-transition rounded-lg border px-4 py-2 text-xs font-semibold"
+                        className="theme-transition rounded-xl border px-4 py-2 text-xs font-semibold hover:-translate-y-0.5"
                         style={{
                           borderColor: colors.borderSoft,
                           backgroundColor: colors.panel,
@@ -854,11 +882,18 @@ function DocLink({
 }
 
 function StatusBadge({ status }: { status: DashboardUser["status"] }) {
-  const styles = {
-    pending: "border-amber-400/25 bg-amber-400/10 text-amber-300",
-    approved: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
-    rejected: "border-rose-400/25 bg-rose-400/10 text-rose-300",
-  };
+  const { isDarkMode } = useTheme();
+  const styles = isDarkMode
+    ? {
+        pending: "border-amber-400/25 bg-amber-400/10 text-amber-300",
+        approved: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
+        rejected: "border-rose-400/25 bg-rose-400/10 text-rose-300",
+      }
+    : {
+        pending: "border-amber-300 bg-amber-100 text-amber-800",
+        approved: "border-emerald-300 bg-emerald-100 text-emerald-800",
+        rejected: "border-rose-300 bg-rose-100 text-rose-800",
+      };
 
   return (
     <span

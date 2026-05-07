@@ -32,7 +32,7 @@ export function ChartsSection({
       <div
         className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
         style={{
-          borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+          borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
         }}
       >
@@ -47,7 +47,7 @@ export function ChartsSection({
           <ProgressRow
             label="Aadhaar verified"
             value={stats.verified}
-            accent="bg-gradient-to-r from-[#45c3b9] to-emerald-400"
+            accent="bg-gradient-to-r from-[var(--accent)] to-[var(--accent-light)]"
             total={stats.total}
             colors={colors}
           />
@@ -64,7 +64,7 @@ export function ChartsSection({
       <div
         className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
         style={{
-          borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+          borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
         }}
       >
@@ -97,7 +97,7 @@ export function ChartsSection({
       <div
         className="theme-transition rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
         style={{
-          borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+          borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
         }}
       >
@@ -106,7 +106,13 @@ export function ChartsSection({
         </p>
 
         <div className="mt-4 flex items-start gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-[#45c3b9]/15 text-xl font-black text-[#45c3b9]">
+          <div
+            className="flex h-14 w-14 items-center justify-center rounded-lg text-xl font-black"
+            style={{
+              backgroundColor: "var(--accent-soft)",
+              color: "var(--accent)",
+            }}
+          >
             {admin?.name?.charAt(0) || "A"}
           </div>
 
@@ -127,7 +133,7 @@ export function ChartsSection({
           onClick={() => onViewChange("admin")}
           className="theme-transition mt-5 inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-semibold transition"
           style={{
-            borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+            borderColor: colors.borderSoft,
             backgroundColor: colors.panel,
             color: colors.text,
           }}

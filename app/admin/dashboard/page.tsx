@@ -372,7 +372,14 @@ export default function DongleIQAdminHub() {
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-5 lg:px-6">
           {error ? (
-            <div className="mb-6 rounded-lg border border-rose-400/20 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            <div
+              className="mb-6 rounded-lg border px-4 py-3 text-sm"
+              style={{
+                borderColor: isDarkMode ? "rgba(251,113,133,0.35)" : "rgba(244,63,94,0.28)",
+                backgroundColor: isDarkMode ? "rgba(244,63,94,0.12)" : "rgba(244,63,94,0.08)",
+                color: isDarkMode ? "rgba(254,226,226,0.95)" : "#9f1239",
+              }}
+            >
               {error}
             </div>
           ) : null}

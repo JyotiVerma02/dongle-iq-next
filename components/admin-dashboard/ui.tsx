@@ -22,7 +22,7 @@ export function Panel({
 
   return (
     <section
-      className={`rounded-3xl border shadow-[0_24px_60px_-34px_rgba(15,23,42,0.35)] ${className}`}
+      className={`rounded-2xl border shadow-[0_18px_50px_-34px_var(--accent-shadow)] ${className}`}
       style={{
         borderColor: colors.borderSoft,
         background:
@@ -75,7 +75,8 @@ export function SkeletonBlock({
 }) {
   return (
     <div
-      className={`animate-pulse rounded-2xl bg-white/10 ${className}`}
+      className={`animate-pulse rounded-2xl ${className}`}
+      style={{ backgroundColor: "var(--skeleton)" }}
       aria-hidden="true"
     />
   );
@@ -92,7 +93,7 @@ export function EmptyState({
 
   return (
     <div
-      className="flex min-h-64 flex-col items-center justify-center rounded-3xl border border-dashed px-6 text-center"
+      className="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-dashed px-6 text-center"
       style={{
         borderColor: colors.borderSoft,
         backgroundColor: colors.panel,
