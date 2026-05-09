@@ -563,6 +563,27 @@ html:not([data-theme-ready]) * {
   backdrop-filter: blur(10px) saturate(125%);
 }
 
+
+/* =========================
+   TRANSPARENT SECTION WRAPPERS
+========================= */
+
+.split-band,
+.contact-shell,
+.section-muted {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* remove shiny top overlay */
+.split-band::before,
+.contact-shell::before,
+.section-muted::before {
+  display: none !important;
+}
+
 html.dark .hero-panel,
 html.dark .premium-card,
 html.dark .feature-tile,
