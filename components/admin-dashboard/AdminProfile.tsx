@@ -49,7 +49,7 @@ export function AdminProfileSection({
 
         <div className="flex items-center justify-between">
           <h1 className="mt-1 text-xl font-black lg:text-2xl" style={{ color: colors.text }}>
-            Admin Profile
+            <span className="text-gradient-cool">Admin Profile</span>
           </h1>
         </div>
 
@@ -72,7 +72,7 @@ export function AdminProfileSection({
                 Profile
               </p>
               <h2 className="mt-1 text-xl font-black lg:text-2xl" style={{ color: colors.text }}>
-                {admin?.name || "Admin"}
+                <span className="text-gradient-brand">{admin?.name || "Admin"}</span>
               </h2>
               <p className="mt-2 max-w-xl text-[13px] leading-5" style={{ color: colors.muted }}>
                 Keep your admin contact details updated so the panel always shows the correct owner and communication channel.
@@ -124,7 +124,7 @@ export function AdminProfileSection({
             Edit details
           </p>
           <h3 className="mt-1 text-xl font-black" style={{ color: colors.text }}>
-            Admin settings
+            <span className="text-gradient-cool">Admin settings</span>
           </h3>
 
           <div className="mt-4 space-y-3">

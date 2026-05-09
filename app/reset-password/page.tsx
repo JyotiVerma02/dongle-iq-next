@@ -57,7 +57,7 @@ export default function ResetPassword() {
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
               <h1 className="mb-8 text-5xl font-black uppercase leading-[0.9] tracking-tight xl:text-6xl" style={{ color: colors.text }}>
                 Update <br />
-                <span style={{ color: colors.accent }}>Credentials</span>
+                <span className="text-gradient-brand">Credentials</span>
               </h1>
               <p className="text-lg max-w-lg leading-relaxed font-medium mb-12 opacity-70" style={{ color: colors.muted }}>
                 Finalize your account recovery by establishing a new high-entropy access key.
@@ -82,7 +82,9 @@ export default function ResetPassword() {
               <div className="absolute inset-[-1.5px] rounded-lg opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
               <div className="auth-card relative w-full p-6 sm:p-8" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
                 <div className="mb-6 text-center">
-                  <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>New Access</h2>
+                  <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>
+                    New <span className="text-gradient-cool">Access</span>
+                  </h2>
                   <p className="mt-2 text-[9px] font-black uppercase tracking-[0.4em] opacity-50" style={{ color: colors.muted }}>Protocol Recovery</p>
                 </div>
 

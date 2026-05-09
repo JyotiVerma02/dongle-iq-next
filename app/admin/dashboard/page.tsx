@@ -341,8 +341,8 @@ export default function DongleIQAdminHub() {
       style={{
         color: colors.text,
         background: isDarkMode
-          ? "linear-gradient(180deg, #142033 0%, #0f172a 100%)"
-          : "linear-gradient(180deg, #f7fbff 0%, #edf4ff 100%)",
+          ? "linear-gradient(180deg, rgba(10,18,34,0.98) 0%, rgba(8,16,29,1) 100%)"
+          : "linear-gradient(180deg, rgba(246,249,253,1) 0%, rgba(234,240,248,1) 100%)",
       }}
     >
       <Sidebar

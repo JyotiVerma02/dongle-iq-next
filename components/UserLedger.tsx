@@ -240,7 +240,7 @@ export default function UserLedgerView({
       </div>
 
       <div
-        className="theme-transition overflow-hidden rounded-2xl border shadow-[0_18px_50px_-34px_var(--accent-shadow)]"
+        className="dashboard-shell-surface theme-transition overflow-hidden rounded-2xl shadow-[0_18px_50px_-34px_var(--accent-shadow)]"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,

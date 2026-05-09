@@ -57,6 +57,7 @@ export function Header({
       style={{
         borderColor: "var(--border-soft)",
         backgroundColor: colors.overlay,
+        boxShadow: "0 14px 36px -28px var(--accent-shadow)",
         overflow: "visible",
       }}
     >
@@ -159,7 +160,9 @@ export function Header({
                 borderColor: isDarkMode
                   ? "rgba(255,255,255,0.08)"
                   : "rgba(0,0,0,0.08)",
-                background: isDarkMode ? "#1f2937" : "#f3f4f6",
+                background: isDarkMode
+                  ? "linear-gradient(180deg, rgba(14,23,40,0.98), rgba(10,18,34,0.98))"
+                  : "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,247,251,0.98))",
                 boxShadow: isDarkMode
                   ? "0 10px 40px rgba(0,0,0,0.6)"
                   : "0 10px 25px rgba(0,0,0,0.08)",
@@ -216,7 +219,8 @@ export function Header({
                     setIsProfileOpen(false);
                     onOpenAdminSettings();
                   }}
-                  className="w-full rounded-xl px-4 py-2 text-sm font-medium bg-blue-500 text-white hover:bg-blue-600 transition"
+                  className="w-full rounded-xl px-4 py-2 text-sm font-medium text-white transition hover:brightness-110"
+                  style={{ background: "var(--brand-gradient)" }}
                 >
                   Change Password
                 </button>
@@ -226,7 +230,8 @@ export function Header({
                     setIsProfileOpen(false);
                     onLogout();
                   }}
-                  className="w-full rounded-xl px-4 py-2 text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition"
+                  className="w-full rounded-xl px-4 py-2 text-sm font-medium text-white transition hover:brightness-110"
+                  style={{ background: "linear-gradient(135deg, #ef4444, #be123c)" }}
                 >
                   Logout
                 </button>

@@ -128,20 +128,20 @@ export default function DSCRegistrationForm() {
   const statusTone =
     applicationStatus === "approved"
       ? {
-          badge: "bg-emerald-100 text-emerald-800",
+          badge: "border border-emerald-300/70 bg-emerald-50 text-emerald-700",
           accent: "#059669",
           title: "Approved by admin",
           note: "Your application has been reviewed and approved for the next step.",
         }
       : applicationStatus === "rejected"
         ? {
-            badge: "bg-rose-100 text-rose-800",
+            badge: "border border-rose-300/70 bg-rose-50 text-rose-700",
             accent: "#e11d48",
             title: "Changes required",
             note: "Admin reviewed your application and marked changes before approval.",
           }
         : {
-            badge: "bg-amber-100 text-amber-800",
+            badge: "border border-amber-300/70 bg-amber-50 text-amber-700",
             accent: "#d97706",
           title: "Pending admin review",
           note: "Your application is in the admin review queue right now.",

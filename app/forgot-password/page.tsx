@@ -46,7 +46,7 @@ export default function ForgotPassword() {
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
               <h1 className="mb-8 text-5xl font-black uppercase leading-[0.9] tracking-tight xl:text-6xl" style={{ color: colors.text }}>
                 Account <br />
-                <span style={{ color: colors.accent }}>Recovery</span>
+                <span className="text-gradient-brand">Recovery</span>
               </h1>
               <p className="text-lg max-w-lg leading-relaxed font-medium mb-12 opacity-70" style={{ color: colors.muted }}>
                 Reset your password securely and continue managing your digital signature applications through the encrypted portal.
@@ -71,7 +71,9 @@ export default function ForgotPassword() {
               <div className="absolute inset-[-1.5px] rounded-lg opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-80" style={{ background: premiumGradient }} />
               <div className="auth-card relative w-full p-6 sm:p-8" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
                 <div className="mb-6 text-center lg:text-left">
-                  <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>Forgot Access?</h2>
+                  <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>
+                    Forgot <span className="text-gradient-cool">Access?</span>
+                  </h2>
                   <p className="mt-2 text-[9px] font-black uppercase tracking-[0.5em] opacity-50" style={{ color: colors.muted }}>Verification Required</p>
                 </div>
 

@@ -246,7 +246,8 @@ export default function DongleIQLanding() {
               </div>
 
               <h1 className="hero-title max-w-3xl">
-                Secure digital identity, redesigned for speed and trust.
+                Secure digital identity, redesigned for{" "}
+                <span className="text-gradient-brand">speed and trust</span>.
               </h1>
 
               <p className="hero-copy mt-6 max-w-xl">
@@ -349,7 +350,15 @@ export default function DongleIQLanding() {
         <div className="container-shell">
           <SectionHeader
             label="Why teams choose DongleIQ"
-            title="A sharper experience for trust, speed, and conversion."
+            title={
+              <>
+                A sharper experience for{" "}
+                <span className="text-gradient-brand">
+                  trust, speed, and conversion
+                </span>
+                .
+              </>
+            }
             description="The design is tuned to reduce friction, look more professional, and help visitors understand what to do next without hesitation."
           />
 
@@ -375,7 +384,15 @@ export default function DongleIQLanding() {
               <SectionHeader
                 // align="center"
                 label="Platform highlights"
-                title="Every important interaction feels cleaner and more intentional."
+                title={
+                  <>
+                    Every important interaction feels{" "}
+                    <span className="text-gradient-cool">
+                      cleaner and more intentional
+                    </span>
+                    .
+                  </>
+                }
                 description="Better hierarchy, calmer surfaces, and stronger status cues make the product feel more premium while improving completion confidence."
               />
             </div>
@@ -405,7 +422,15 @@ export default function DongleIQLanding() {
         <div className="container-shell">
           <SectionHeader
             label="How it works"
-            title="A short path from application to activation."
+            title={
+              <>
+                A short path from{" "}
+                <span className="text-gradient-brand">
+                  application to activation
+                </span>
+                .
+              </>
+            }
             description="The process is designed to look reassuring, move quickly, and avoid the messy handoff feeling common in older service portals."
           />
 
@@ -429,7 +454,15 @@ export default function DongleIQLanding() {
         <div className="container-shell">
           <SectionHeader
             label="Who it is for"
-            title="Built for real operators, not just generic traffic."
+            title={
+              <>
+                Built for{" "}
+                <span className="text-gradient-cool">
+                  real operators
+                </span>
+                , not just generic traffic.
+              </>
+            }
             description="The audience sections now speak more directly to the people most likely to apply, which strengthens trust and makes the site feel more specific."
           />
 
@@ -451,7 +484,12 @@ export default function DongleIQLanding() {
         <div className="container-shell">
           <SectionHeader
             label="Common questions"
-            title="Answers that remove hesitation."
+            title={
+              <>
+                Answers that{" "}
+                <span className="text-gradient-brand">remove hesitation</span>.
+              </>
+            }
             description="A cleaner FAQ layout helps users find clarity faster and keeps the page feeling tidy even as more content is added later."
           />
 
@@ -477,7 +515,15 @@ export default function DongleIQLanding() {
               <SectionHeader
                 align="left"
                 label="Contact and conversion"
-                title="Give serious buyers a cleaner way to reach you."
+                title={
+                  <>
+                    Give serious buyers a{" "}
+                    <span className="text-gradient-cool">
+                      cleaner way to reach you
+                    </span>
+                    .
+                  </>
+                }
                 description="The contact area now works as a trust surface instead of an afterthought, with stronger hierarchy, clearer actions, and a more credible tone."
               />
 
@@ -674,7 +720,7 @@ function SectionHeader({
   align = "center",
 }: {
   label: string;
-  title: string;
+  title: React.ReactNode;
   description: string;
   align?: "left" | "center";
 }) {

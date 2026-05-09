@@ -88,13 +88,13 @@ export default function DashboardActions({ userId }: { userId?: string }) {
           <h3 className="font-semibold">Track DSC</h3>
         </div>
 
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-300/70">
           View the current status of your Digital Signature Certificate.
         </p>
 
         <button
           onClick={handleTrack}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg flex items-center gap-2"
+          className="mt-4 flex items-center gap-2 rounded-lg bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] px-4 py-2 text-white"
         >
           {loading === "track" && <Loader2 className="animate-spin" size={14} />}
           Track DSC
@@ -102,7 +102,7 @@ export default function DashboardActions({ userId }: { userId?: string }) {
       </div>
 
       {/* Claim mTokens */}
-      <div className="rounded-2xl p-5 text-white bg-linear-to-r from-blue-500 to-blue-600 shadow-sm hover:shadow-lg transition">
+      <div className="rounded-2xl bg-[linear-gradient(135deg,var(--accent),var(--accent-light),var(--accent-secondary))] p-5 text-white shadow-sm transition hover:shadow-lg">
         <div className="flex items-center gap-3">
           <IndianRupee />
           <h3 className="font-semibold">Claim mTokens</h3>
@@ -114,7 +114,7 @@ export default function DashboardActions({ userId }: { userId?: string }) {
 
         <button
           onClick={handleClaim}
-          className="mt-4 px-4 py-2 bg-white text-blue-600 rounded-lg flex items-center gap-2"
+          className="mt-4 flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-[var(--accent)]"
         >
           {loading === "claim" && <Loader2 className="animate-spin" size={14} />}
           Claim Now
@@ -128,13 +128,13 @@ export default function DashboardActions({ userId }: { userId?: string }) {
           <h3 className="font-semibold">Apply DSC</h3>
         </div>
 
-        <p className="mt-2 text-sm text-gray-500">
+        <p className="mt-2 text-sm text-slate-500 dark:text-slate-300/70">
           Register & apply for a new Digital Signature Certificate.
         </p>
 
         <button
           onClick={handleApply}
-          className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-lg flex items-center gap-2"
+          className="mt-4 flex items-center gap-2 rounded-lg bg-[linear-gradient(135deg,var(--accent-light),var(--accent-secondary))] px-4 py-2 text-white"
         >
           {loading === "apply" && <Loader2 className="animate-spin" size={14} />}
           Apply Now

@@ -35,7 +35,11 @@ export function Sidebar({
       style={{
         width: isCollapsed ? "5.5rem" : "18rem",
         borderColor: "var(--border-soft)",
-        backgroundColor: colors.overlay,
+        background:
+          isDarkMode
+            ? "linear-gradient(180deg, rgba(11,19,34,0.94), rgba(8,16,29,0.9))"
+            : "linear-gradient(180deg, rgba(255,255,255,0.92), rgba(244,247,251,0.9))",
+        boxShadow: isCollapsed ? "none" : "0 24px 54px -38px var(--accent-shadow)",
       }}
     >
       <div className="flex h-full flex-col">
@@ -66,6 +70,7 @@ export function Sidebar({
               style={{
                 borderColor: colors.borderSoft,
                 backgroundColor: colors.panel,
+                boxShadow: "0 14px 28px -26px var(--accent-shadow)",
               }}
             >
               <p className="text-[10px] uppercase tracking-[0.18em]" style={{ color: colors.subtleText }}>
@@ -129,6 +134,7 @@ export function Sidebar({
             style={{
               borderColor: "var(--border-soft)",
               backgroundColor: colors.panel,
+              boxShadow: "0 14px 28px -26px var(--accent-shadow)",
             }}
           >
             <p className="text-[11px] uppercase tracking-[0.16em]" style={{ color: colors.subtleText }}>

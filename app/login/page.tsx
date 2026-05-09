@@ -76,7 +76,7 @@ function LoginContent() {
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
               <h1 className="mb-5 text-4xl font-black uppercase leading-tight tracking-tight xl:text-5xl">
                 <span style={{ color: colors.text }}>Secure</span>{" "}
-                <span style={{ color: colors.accent }}>Access</span>
+                <span className="text-gradient-brand">Access</span>
               </h1>
               <p className="mb-7 max-w-lg text-sm font-medium leading-relaxed opacity-80" style={{ color: colors.muted }}>
                 Enter your credentials to manage your Digital Signature Certificates and IRCTC Agent registrations in our unified dashboard.
@@ -118,7 +118,9 @@ function LoginContent() {
                 }}
               >
                 <div className="mb-4 text-center lg:text-left">
-                  <h2 className="text-xl font-black uppercase tracking-tight" style={{ color: colors.text }}>Login</h2>
+                  <h2 className="text-xl font-black uppercase tracking-tight" style={{ color: colors.text }}>
+                    <span className="text-gradient-cool">Login</span>
+                  </h2>
                   <p className="mt-1.5 text-xs font-medium opacity-80" style={{ color: colors.muted }}>
                     See your growth and get consulting support.
                   </p>
@@ -215,7 +217,7 @@ function LoginContent() {
                   </button>
 
                   <div className="pt-2 text-center text-sm font-semibold" style={{ color: colors.subtleText }}>
-                    Not registered yet? <Link href="/signup"><span className="underline ml-1" style={{ color: colors.accent }}>Create an Account</span></Link>
+                    Not registered yet? <Link href="/signup"><span className="underline ml-1 text-gradient-brand">Create an Account</span></Link>
                   </div>
                 </form>
               </div>

@@ -57,7 +57,7 @@ export function SectionHeading({
           {eyebrow}
         </p>
         <h2 className="mt-2 text-2xl font-black" style={{ color: colors.text }}>
-          {title}
+          <span className="text-gradient-cool">{title}</span>
         </h2>
         <p className="mt-2 max-w-2xl text-sm" style={{ color: colors.muted }}>
           {description}

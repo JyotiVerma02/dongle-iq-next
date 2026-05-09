@@ -121,8 +121,8 @@ function Card({ icon, title, desc, button, onClick, highlight, loading }: any) {
     <div
       className={`rounded-2xl p-5 shadow-md transition hover:shadow-xl ${
         highlight
-          ? "bg-linear-to-r from-blue-500 to-blue-400 text-white"
-          : "bg-white dark:bg-gray-800"
+          ? "bg-[linear-gradient(135deg,var(--accent),var(--accent-light),var(--accent-secondary))] text-white"
+          : "bg-white dark:bg-slate-900"
       }`}
     >
       <div className="mb-3">{icon}</div>
@@ -132,7 +132,7 @@ function Card({ icon, title, desc, button, onClick, highlight, loading }: any) {
       <button
         onClick={onClick}
         disabled={loading}
-        className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white disabled:opacity-60"
+        className="mt-4 rounded-lg bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] px-4 py-2 text-white disabled:opacity-60"
       >
         {loading ? <Loader2 className="animate-spin" /> : button}
       </button>

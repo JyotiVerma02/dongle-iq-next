@@ -119,7 +119,7 @@ function RegisterContent() {
                 style={{ color: colors.text }}
               >
                 <span>Agent </span>
-                <span style={{ color: colors.accent }}>Network</span>
+                <span className="text-gradient-brand">Network</span>
               </h1>
               <p
                 className="mb-7 max-w-lg text-sm font-medium leading-relaxed opacity-80"
@@ -172,7 +172,9 @@ function RegisterContent() {
                 }}
               >
                 <div className="mb-4 text-center lg:text-left">
-                  <h2 className="text-xl font-black uppercase tracking-tight" style={{ color: colors.text }}>Register</h2>
+                  <h2 className="text-xl font-black uppercase tracking-tight" style={{ color: colors.text }}>
+                    <span className="text-gradient-cool">Register</span>
+                  </h2>
                   <p className="mt-1.5 text-xs font-medium opacity-80" style={{ color: colors.muted }}>
                     Create your agent account and manage applications securely.
                   </p>

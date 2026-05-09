@@ -127,7 +127,7 @@ export function DashboardHome({
   return (
     <div className="min-h-0 h-full space-y-6 overflow-y-auto overflow-x-visible pr-0 lg:pr-1">
       <section
-        className="rounded-[1.75rem] border p-6 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)]"
+        className="dashboard-shell-surface rounded-[1.75rem] p-6"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
@@ -152,7 +152,7 @@ export function DashboardHome({
                 className="mt-4 max-w-[560px] rounded-2xl px-5 py-3 text-sm italic"
                 style={{
                   color: isDarkMode ? "rgba(234,240,255,0.86)" : colors.text,
-                  backgroundColor: isDarkMode ? "rgba(255,255,255,0.04)" : colors.panel,
+                  backgroundColor: isDarkMode ? "rgba(255,255,255,0.045)" : colors.panel,
                   border: `1px solid ${colors.borderSoft}`,
                 }}
               >
@@ -166,7 +166,7 @@ export function DashboardHome({
                 type="button"
                 className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:scale-[1.03] sm:min-w-[180px] sm:w-auto"
                 style={{
-                  background: "linear-gradient(135deg, #ffb31a, #f59e0b)",
+                  background: "linear-gradient(135deg, var(--accent-light), var(--accent-secondary))",
                 }}
               >
                 <ImagePlus size={16} />
@@ -191,7 +191,7 @@ export function DashboardHome({
       <MetricsGrid stats={stats} isDarkMode={isDarkMode} />
 
       <section
-        className="rounded-[1.75rem] border p-6 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.35)]"
+        className="dashboard-shell-surface rounded-[1.75rem] p-6"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
@@ -234,7 +234,7 @@ export function DashboardHome({
       </section>
 
       <footer
-        className="rounded-[1.75rem] border px-6 py-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]"
+        className="dashboard-muted-surface rounded-[1.75rem] px-6 py-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: isDarkMode
@@ -325,7 +325,7 @@ function ServiceCard({
       color: "#ffffff",
     },
     orange: {
-      background: "linear-gradient(135deg, #ffb31a, #f59e0b)",
+      background: "linear-gradient(135deg, var(--accent-light), var(--accent-secondary))",
       color: "#ffffff",
     },
     light: { background: "var(--card)", color: "var(--accent)" },
