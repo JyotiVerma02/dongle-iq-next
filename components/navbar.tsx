@@ -95,7 +95,7 @@ export default function Navbar() {
       style={{ color: colors.text }}
     >
       <div
-         className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-3xl border px-3 py-3 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:px-4"
+         className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-2xl border px-3 py-3 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:px-4"
         style={{
           backgroundColor: "var(--nav)",
           borderColor: colors.borderSoft,
@@ -139,7 +139,7 @@ export default function Navbar() {
           {showAuthButtons ? (
             <button
               onClick={() => router.push("/login")}
-              className="hidden min-h-11 items-center gap-2 rounded-xl px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
+            className="hidden min-h-11 items-center gap-2 rounded-xl px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
               style={{
                 background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
                 boxShadow: `0 16px 28px -20px ${colors.accentShadow}`,
@@ -153,7 +153,7 @@ export default function Navbar() {
           {showLogout ? (
             <button
               onClick={handleLogout}
-              className="hidden min-h-11 items-center gap-2 rounded-full border px-4 text-[0.9rem] font-semibold sm:inline-flex"
+              className="hidden min-h-11 items-center gap-2 rounded-xl border px-4 text-[0.9rem] font-semibold sm:inline-flex"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.borderSoft,
@@ -168,7 +168,7 @@ export default function Navbar() {
             onClick={toggleTheme}
             aria-label="Toggle theme"
             title="Toggle theme"
-            className="flex h-11 w-11 items-center justify-center rounded-full border"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border"
             style={{
               backgroundColor: colors.card,
               borderColor: colors.borderSoft,
@@ -180,7 +180,7 @@ export default function Navbar() {
           <button
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="flex h-11 w-11 items-center justify-center rounded-full border lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border lg:hidden"
             style={{
               backgroundColor: colors.card,
               borderColor: colors.borderSoft,
@@ -193,7 +193,7 @@ export default function Navbar() {
 
       {isMenuOpen ? (
         <div
-          className="mx-auto mt-3 max-w-7xl rounded-3xl border p-3 backdrop-blur-2xl lg:hidden"
+          className="mx-auto mt-3 max-w-7xl rounded-2xl border p-3 backdrop-blur-2xl lg:hidden"
           style={{
             backgroundColor: "var(--overlay)",
             borderColor: colors.borderSoft,

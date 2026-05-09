@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import Admin from "@/model/admin";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
+import { setAuthCookie, signAuthToken } from "@/app/lib/auth";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -47,7 +47,9 @@ export async function GET(req: Request) {
     );
   }
 
-  const payload = jwt.decode(tokenData.id_token) as { email?: string; email_verified?: boolean; name?: string } | null;
+  const payload = JSON.parse(
+    Buffer.from(String(tokenData.id_token).split(".")[1] || "", "base64url").toString("utf8")
+  ) as { email?: string; email_verified?: boolean; name?: string } | null;
   const email = String(payload?.email || "").toLowerCase();
   const emailVerified = Boolean(payload?.email_verified);
 
@@ -64,18 +66,10 @@ export async function GET(req: Request) {
       await admin.save();
     }
 
-    const token = jwt.sign({ userId: admin._id, role: "admin" }, process.env.JWT_SECRET as string, {
-      expiresIn: "7d",
-    });
+    const token = signAuthToken({ userId: String(admin._id), role: "admin" }, "7d");
 
     const response = NextResponse.redirect("/admin/dashboard");
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
-      sameSite: "strict",
-    });
+    setAuthCookie(response, token, true);
 
     return response;
   }
@@ -87,18 +81,10 @@ export async function GET(req: Request) {
       await user.save();
     }
 
-    const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET as string, {
-      expiresIn: "7d",
-    });
+    const token = signAuthToken({ userId: String(user._id), role: user.role }, "7d");
 
     const response = NextResponse.redirect(user.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
-      sameSite: "strict",
-    });
+    setAuthCookie(response, token, true);
 
     return response;
   }

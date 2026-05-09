@@ -29,12 +29,7 @@ const NO_OFFSET_PATHS = new Set<string>([
   "/admin/dashboard",
 ]);
 
-const BACKGROUND_DISABLED_PATHS = new Set([
-  "/login",
-  "/signup",
-  "/forgot-password",
-  "/reset-password",
-]);
+const BACKGROUND_DISABLED_PATHS = new Set<string>();
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() || "";

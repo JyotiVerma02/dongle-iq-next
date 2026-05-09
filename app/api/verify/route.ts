@@ -2,9 +2,24 @@ import { NextResponse } from "next/server";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
+import { enforceRateLimit, getClientIp, verifyOtpHash } from "@/app/lib/security";
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `verify-mobile:${ip}`,
+      limit: 10,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { success: false, message: "Too many verification attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+      );
+    }
+
     const { mobile, otp } = await req.json();
     const normalizedMobile = normalizeIndianMobile(mobile);
     const enteredOtp = otp?.toString().trim();
@@ -34,7 +49,7 @@ export async function POST(req: Request) {
       );
     }
 
-    if (user.otp !== enteredOtp) {
+    if (!verifyOtpHash(user.otp, enteredOtp)) {
       return NextResponse.json(
         { success: false, message: "Incorrect OTP" },
         { status: 401 }

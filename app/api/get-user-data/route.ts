@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
+import { verifyAuthToken } from "@/app/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+    const decoded: any = verifyAuthToken(token);
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {

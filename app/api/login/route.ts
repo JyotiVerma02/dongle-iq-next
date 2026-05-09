@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import { z } from "zod";
 
 import User from "@/model/user";
@@ -9,6 +8,8 @@ import { connectDB } from "@/app/lib/mongodb";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
 import logger from "@/app/lib/logger";
+import { enforceRateLimit, getClientIp } from "@/app/lib/security";
+import { setAuthCookie, signAuthToken } from "@/app/lib/auth";
 
 const loginSchema = z.object({
   email: z.string().min(1).refine(
@@ -21,6 +22,20 @@ const loginSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `login:${ip}`,
+      limit: 10,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { message: "Too many login attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+      );
+    }
+
     await connectDB();
     await migrateLegacyAdminUser();
 
@@ -66,13 +81,12 @@ export async function POST(req: Request) {
         );
       }
 
-      const token = jwt.sign(
+      const token = signAuthToken(
         {
-          userId: admin._id,
+          userId: String(admin._id),
           role: "admin",
         },
-        process.env.JWT_SECRET as string,
-        { expiresIn: remember ? "7d" : "1h" }
+        remember ? "7d" : "1h"
       );
 
       const response = NextResponse.json({
@@ -80,13 +94,7 @@ export async function POST(req: Request) {
         role: "admin",
       });
 
-      response.cookies.set("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: remember ? 7 * 24 * 60 * 60 : 60 * 60,
-        path: "/",
-        sameSite: "strict",
-      });
+      setAuthCookie(response, token, remember);
 
       return response;
     }
@@ -119,15 +127,12 @@ export async function POST(req: Request) {
       );
     }
 
-    const token = jwt.sign(
+    const token = signAuthToken(
       {
-        userId: user._id,
+        userId: String(user._id),
         role: user.role,
       },
-      process.env.JWT_SECRET as string,
-      {
-        expiresIn: remember ? "7d" : "1h",
-      }
+      remember ? "7d" : "1h"
     );
 
     const response = NextResponse.json({
@@ -135,13 +140,7 @@ export async function POST(req: Request) {
       role: user.role,
     });
 
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: remember ? 7 * 24 * 60 * 60 : 60 * 60,
-      path: "/",
-      sameSite: "strict",
-    });
+    setAuthCookie(response, token, remember);
 
     return response;
   } catch (error) {

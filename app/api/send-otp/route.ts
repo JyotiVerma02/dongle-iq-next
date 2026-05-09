@@ -6,9 +6,27 @@ import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import { connectDB } from "@/app/lib/mongodb";
 import User from "@/model/user";
 import logger from "@/app/lib/logger";
+import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow } from "@/app/lib/security";
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `send-otp:${ip}`,
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json({
+        success: false,
+        message: "Too many OTP requests. Please try again later.",
+      }, {
+        status: 429,
+        headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) },
+      });
+    }
+
     const { mobile } = await req.json();
     const normalizedMobile = normalizeIndianMobile(mobile);
 
@@ -19,8 +37,8 @@ export async function POST(req: Request) {
       }, { status: 400 });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+    const otp = generateNumericOtp();
+    const otpExpiry = minutesFromNow(5);
 
     await connectDB();
 
@@ -39,17 +57,17 @@ export async function POST(req: Request) {
       });
     }
 
-    user.otp = otp;
+    user.otp = hashOtp(otp);
     user.otpExpiry = otpExpiry;
     await user.save();
 
-    logger.info(`[SEND-OTP] OTP for ${normalizedMobile}: ${otp}`);
-    console.log(`[SEND-OTP] OTP for ${normalizedMobile}: ${otp}`);
-    process.stdout.write(`[SEND-OTP] OTP for ${normalizedMobile}: ${otp}\n`);
+    if (process.env.NODE_ENV !== "production") {
+      logger.info(`[SEND-OTP][DEV ONLY] OTP for ${normalizedMobile}: ${otp}`);
+    }
 
     return NextResponse.json({
       success: true,
-      message: "OTP generated (check server console)",
+      message: "OTP sent successfully",
     });
   } catch (error) {
     console.error("Send OTP Error:", error);

@@ -5,7 +5,6 @@ import React, {
   createContext,
   useContext,
   useEffect,
-  useLayoutEffect,
   useState,
 } from "react";
 
@@ -42,12 +41,11 @@ const getResolvedTheme = (): Theme => {
 };
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() => getResolvedTheme());
   const [mounted, setMounted] = useState(false);
 
-  useLayoutEffect(() => {
-    const resolvedTheme = getResolvedTheme();
-    setTheme((current) => (current === resolvedTheme ? current : resolvedTheme));
+  useEffect(() => {
+    setTheme(getResolvedTheme());
     setMounted(true);
   }, []);
 

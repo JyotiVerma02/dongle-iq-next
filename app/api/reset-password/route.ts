@@ -6,6 +6,7 @@ import User from "@/model/user";
 import Admin from "@/model/admin";
 import { connectDB } from "@/app/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
+import { enforceRateLimit, getClientIp } from "@/app/lib/security";
 
 const resetPasswordSchema = z.object({
   token: z.string().trim().min(1, "Reset link is missing or invalid"),
@@ -14,6 +15,20 @@ const resetPasswordSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `reset-password:${ip}`,
+      limit: 8,
+      windowMs: 30 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { message: "Too many reset attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } },
+      );
+    }
+
     await connectDB();
     await migrateLegacyAdminUser();
 

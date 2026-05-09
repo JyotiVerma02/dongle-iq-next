@@ -6,32 +6,24 @@ import bcrypt from "bcryptjs";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 import logger from "@/app/lib/logger";
-
-const rateLimit = new Map<string, { count: number; timestamp: number }>();
-
-function checkRateLimit(identifier: string): boolean {
-  const now = Date.now();
-  const limit = rateLimit.get(identifier);
-
-  if (!limit) {
-    rateLimit.set(identifier, { count: 1, timestamp: now });
-    return true;
-  }
-
-  if (now - limit.timestamp > 15 * 60 * 1000) {
-    rateLimit.set(identifier, { count: 1, timestamp: now });
-    return true;
-  }
-
-  if (limit.count >= 3) return false;
-
-  limit.count++;
-  rateLimit.set(identifier, limit);
-  return true;
-}
+import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow, verifyOtpHash } from "@/app/lib/security";
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `verify-aadhaar:${ip}`,
+      limit: 8,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { success: false, message: "Too many requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } },
+      );
+    }
+
     const { mobile, otp, action = "send-otp" } = await req.json();
 
     await connectDB();
@@ -43,12 +35,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Keep helper for future tightening if needed.
-    void checkRateLimit;
-
     if (action === "send-otp") {
-      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-      const otpExpiry = new Date(Date.now() + 5 * 60 * 1000);
+      const generatedOtp = generateNumericOtp();
+      const otpExpiry = minutesFromNow(5);
 
       let user = await User.findOne({ number: mobile });
 
@@ -66,17 +55,17 @@ export async function POST(req: Request) {
         });
       }
 
-      user.aadhaarOtp = generatedOtp;
+      user.aadhaarOtp = hashOtp(generatedOtp);
       user.aadhaarOtpExpiry = otpExpiry;
       await user.save();
 
-      logger.info(`[VERIFY-AADHAAR] OTP for ${mobile}: ${generatedOtp}`);
-      console.log(`[VERIFY-AADHAAR] OTP for ${mobile}: ${generatedOtp}`);
-      process.stdout.write(`[VERIFY-AADHAAR] OTP for ${mobile}: ${generatedOtp}\n`);
+      if (process.env.NODE_ENV !== "production") {
+        logger.info(`[VERIFY-AADHAAR][DEV ONLY] OTP for ${mobile}: ${generatedOtp}`);
+      }
 
       return NextResponse.json({
         success: true,
-        message: "OTP generated (check server console)",
+        message: "OTP sent successfully",
       });
     }
 
@@ -97,7 +86,7 @@ export async function POST(req: Request) {
         );
       }
 
-      if (user.aadhaarOtp !== otp) {
+      if (!verifyOtpHash(user.aadhaarOtp, otp)) {
         return NextResponse.json(
           { success: false, message: "Wrong OTP" },
           { status: 401 },

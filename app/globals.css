@@ -6,49 +6,49 @@
   --app-shell-min-height: calc(100dvh - var(--app-navbar-offset));
 
   /* Premium SaaS light theme (cool-neutral) */
-  --background: #f8fafc;
-  --background-alt: #f1f5f9;
-  --foreground: #0f172a;
-  --muted: #475569;
-  --subtle-text: #64748b;
+  --background: #f6f8fc;
+  --background-alt: #edf2f9;
+  --foreground: #10203a;
+  --muted: #42526b;
+  --subtle-text: #66758f;
 
   /* ADD BELOW YOUR ACCENT COLORS */
 
   /* Modern indigo/blue/violet accent system */
-  --accent-rgb: 79, 70, 229;
+  --accent-rgb: 37, 99, 235;
 
   /* cursor */
-  --cursor-glow: rgba(79, 70, 229, 0.28);
-  --cursor-ripple: rgba(37, 99, 235, 0.2);
+  --cursor-glow: rgba(37, 99, 235, 0.2);
+  --cursor-ripple: rgba(8, 145, 178, 0.16);
 
-  --card: #ffffff;
+  --card: rgba(255, 255, 255, 0.92);
   --card-strong: #ffffff;
 
-  --border: rgba(15, 23, 42, 0.12);
-  --border-soft: rgba(15, 23, 42, 0.08);
+  --border: rgba(28, 47, 78, 0.12);
+  --border-soft: rgba(28, 47, 78, 0.08);
 
-  --accent: #4f46e5;
-  --accent-light: #2563eb;
-  --accent-secondary: #7c3aed;
-  --accent-soft: rgba(79, 70, 229, 0.14);
-  --accent-subtle: rgba(37, 99, 235, 0.12);
-  --accent-faint: rgba(124, 58, 237, 0.08);
-  --accent-strong: rgba(79, 70, 229, 0.9);
-  --accent-shadow: rgba(15, 23, 42, 0.18);
-  --accent-glow: rgba(79, 70, 229, 0.14);
+  --accent: #2563eb;
+  --accent-light: #0891b2;
+  --accent-secondary: #0f766e;
+  --accent-soft: rgba(37, 99, 235, 0.12);
+  --accent-subtle: rgba(8, 145, 178, 0.1);
+  --accent-faint: rgba(15, 118, 110, 0.08);
+  --accent-strong: rgba(37, 99, 235, 0.92);
+  --accent-shadow: rgba(37, 99, 235, 0.2);
+  --accent-glow: rgba(37, 99, 235, 0.14);
 
-  --input: rgba(255, 255, 255, 0.95);
-  --input-border: rgba(15, 23, 42, 0.14);
+  --input: rgba(255, 255, 255, 0.96);
+  --input-border: rgba(28, 47, 78, 0.14);
 
   /* Glass overlays (navbar/sidebar) */
-  --overlay: rgba(248, 250, 252, 0.82);
-  --nav: rgba(248, 250, 252, 0.72);
+  --overlay: rgba(246, 248, 252, 0.84);
+  --nav: rgba(246, 248, 252, 0.74);
 
   /* Brand gradient used sparingly */
   --brand-gradient: linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary));
 
   /* Skeleton */
-  --skeleton: rgba(15, 23, 42, 0.06);
+  --skeleton: rgba(28, 47, 78, 0.06);
 
   /* Cursor spotlight position (used by PremiumBackground) */
   --spot-x: 60vw;
@@ -105,8 +105,8 @@ html {
   margin: 0;
   padding: 0;
   background:
-    radial-gradient(circle at 20% 10%, var(--accent-faint), transparent 38%),
-    radial-gradient(circle at 80% 0%, var(--accent-subtle), transparent 42%),
+    radial-gradient(circle at 18% 8%, var(--accent-faint), transparent 40%),
+    radial-gradient(circle at 82% 0%, var(--accent-subtle), transparent 44%),
     linear-gradient(180deg, var(--background-alt) 0%, var(--background) 55%, var(--background-alt) 100%);
 }
 
@@ -162,18 +162,18 @@ html[data-theme-ready="true"] body {
 .saas-bg__base {
   opacity: 1;
   background:
-    radial-gradient(circle at 15% 10%, var(--accent-faint), transparent 42%),
-    radial-gradient(circle at 85% 0%, var(--accent-subtle), transparent 48%),
-    radial-gradient(circle at 75% 85%, rgba(var(--accent-rgb), 0.08), transparent 52%);
+    radial-gradient(circle at 14% 10%, var(--accent-faint), transparent 44%),
+    radial-gradient(circle at 88% 0%, var(--accent-subtle), transparent 50%),
+    radial-gradient(circle at 78% 84%, rgba(var(--accent-rgb), 0.08), transparent 54%);
 }
 
 /* Aurora layer (animated) */
 .saas-bg__aurora {
   opacity: 0.75;
   background:
-    radial-gradient(60% 50% at 15% 30%, rgba(var(--accent-rgb), 0.16), transparent 55%),
-    radial-gradient(55% 45% at 70% 20%, rgba(37, 99, 235, 0.12), transparent 58%),
-    radial-gradient(65% 55% at 85% 80%, rgba(124, 58, 237, 0.12), transparent 60%);
+    radial-gradient(60% 50% at 15% 30%, rgba(var(--accent-rgb), 0.14), transparent 55%),
+    radial-gradient(55% 45% at 70% 20%, rgba(8, 145, 178, 0.1), transparent 58%),
+    radial-gradient(65% 55% at 85% 80%, rgba(15, 118, 110, 0.1), transparent 60%);
   filter: blur(30px);
   transform: translate3d(0, 0, 0);
   animation: saas-aurora 28s ease-in-out infinite;
@@ -209,7 +209,7 @@ html[data-theme-ready="true"] body {
   top: 6%;
   width: 520px;
   height: 520px;
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(8, 145, 178, 0.1);
   animation-duration: 38s;
   animation-direction: reverse;
 }
@@ -219,7 +219,7 @@ html[data-theme-ready="true"] body {
   bottom: 10%;
   width: 560px;
   height: 560px;
-  background: rgba(124, 58, 237, 0.1);
+  background: rgba(15, 118, 110, 0.1);
   animation-duration: 44s;
 }
 
@@ -227,8 +227,8 @@ html[data-theme-ready="true"] body {
 .saas-bg__spotlight {
   opacity: 0.55;
   background: radial-gradient(
-    520px 520px at var(--spot-x) var(--spot-y),
-    rgba(var(--accent-rgb), 0.14),
+    560px 560px at var(--spot-x) var(--spot-y),
+    rgba(var(--accent-rgb), 0.12),
     transparent 65%
   );
   transition: opacity 240ms ease;
@@ -604,7 +604,7 @@ html.dark .split-band {
 }
 
 .hero-panel-contained {
-  border-radius: 1.25rem;
+  border-radius: 1rem;
 }
 
 .hero-section-full-bleed {
@@ -679,7 +679,7 @@ html.dark .quote-panel::before {
 
 .eyebrow-chip {
   padding: 0.72rem 1rem;
-  border-radius: 999px;
+  border-radius: 0.85rem;
   border: 1px solid var(--border);
   background: var(--card-strong);
   color: var(--foreground);
@@ -723,7 +723,7 @@ html.dark .quote-panel::before {
   gap: 0.7rem;
   min-height: 3.4rem;
   padding: 0.9rem 1.35rem;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   font-size: 0.92rem;
   font-weight: 600;
   text-align: center;
@@ -1065,7 +1065,7 @@ html.dark .metric-card {
 .footer-brand-icon {
   width: 3rem;
   height: 3rem;
-  border-radius: 1rem;
+  border-radius: 0.85rem;
   background: linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary));
   color: #ffffff;
   display: flex;
@@ -1108,7 +1108,7 @@ html.dark .metric-card {
   grid-template-columns: minmax(0, 1fr);
   gap: 2.5rem;
   padding: 1.25rem;
-  border-radius: 1.25rem;
+  border-radius: 1rem;
 }
 
 .contact-copy,
@@ -1154,7 +1154,7 @@ html.dark .metric-card {
 .field textarea {
   width: 100%;
   border: 1px solid var(--input-border);
-  border-radius: 1rem;
+  border-radius: 0.8rem;
   background: var(--input);
   padding: 0.95rem 1rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
@@ -1170,7 +1170,7 @@ html.dark .metric-card {
   gap: 0.9rem;
   margin-top: 1.4rem;
   padding: 1rem;
-  border-radius: 1rem;
+  border-radius: 0.85rem;
   background: var(--accent-soft);
   border: 1px solid transparent;
 }
@@ -1255,7 +1255,7 @@ html.dark .faq-button:hover {
 }
 
 .phone-field {
-  border-radius: 0.75rem;
+  border-radius: 0.7rem;
 }
 
 .phone-field:focus-within {
@@ -1287,9 +1287,9 @@ html:not(.dark) .glass-input,
 html:not(.dark) input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 html:not(.dark) textarea,
 html:not(.dark) select {
-  color: #132238;
+  color: #10203a;
   background: rgba(255, 255, 255, 0.98);
-  border-color: rgba(19, 34, 56, 0.14);
+  border-color: rgba(28, 47, 78, 0.14);
 }
 
 .site-footer {
@@ -1308,8 +1308,8 @@ html:not(.dark) select {
 /* Specifically ensures Auth pages (Login/Signup) feel balanced */
 .auth-page-shell .content-container {
   min-height: calc(100vh - 120px);
-  /* Centers content vertically in the viewport */
   align-content: center;
+  padding-block: clamp(1rem, 3vw, 2rem);
 }
 
 /* Fixes the text side to keep it readable */
@@ -1322,28 +1322,86 @@ html:not(.dark) select {
 .auth-card,
 .auth-aside-card {
   flex: 0 0 450px !important;
-  /* Prevents the card from stretching too wide */
   width: 100%;
   max-width: 100%;
 }
 
 .auth-card {
-  border-radius: 1.5rem;
+  border-radius: 1rem;
   border: 1px solid var(--border);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05)),
     var(--card);
   box-shadow:
-    0 28px 72px -42px rgba(15, 23, 42, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+    0 26px 60px -38px rgba(18, 35, 63, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26);
   backdrop-filter: blur(20px);
 }
 
 .auth-aside-card {
-  border-radius: 1.25rem;
+  border-radius: 0.95rem;
   border: 1px solid var(--border-soft);
-  background: var(--card);
-  box-shadow: 0 18px 42px -30px rgba(15, 23, 42, 0.35);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04)),
+    var(--card);
+  box-shadow: 0 16px 36px -28px rgba(18, 35, 63, 0.24);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--accent);
+  border: 1px solid var(--input-border);
+  box-shadow:
+    0 0 0 1000px var(--input) inset,
+    0 0 0 1px var(--input-border) inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
+@media (max-width: 767px) {
+  .saas-bg__blobs {
+    inset: -20%;
+    opacity: 0.72;
+  }
+
+  .saas-bg__blob {
+    width: 280px;
+    height: 280px;
+  }
+
+  .saas-bg__blob--b {
+    width: 320px;
+    height: 320px;
+  }
+
+  .saas-bg__blob--c {
+    width: 340px;
+    height: 340px;
+  }
+
+  .saas-bg__spotlight {
+    opacity: 0.36;
+  }
+
+  .content-container {
+    padding-inline: clamp(1rem, 4vw, 1.5rem);
+  }
+
+  .auth-card,
+  .auth-aside-card {
+    flex-basis: auto !important;
+  }
+
+  .auth-page-shell .content-container {
+    min-height: auto;
+  }
 }
 
 .footer-grid {

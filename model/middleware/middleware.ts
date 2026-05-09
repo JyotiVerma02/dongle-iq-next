@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { verifyAuthToken } from "@/app/lib/auth";
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -17,7 +17,7 @@ export function middleware(req: NextRequest) {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { role: string };
+    const decoded = verifyAuthToken(token) as { role: string };
 
     if (decoded.role !== "admin") {
       return NextResponse.redirect(new URL("/login", req.url));

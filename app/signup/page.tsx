@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 import OtpModal from "@/components/OtpModal";
-import { ThemeProvider, useTheme } from "@/components/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 function RegisterContent() {
@@ -104,13 +104,13 @@ function RegisterContent() {
       style={{ color: colors.text }}
     >
      
-      <div className="relative z-10 flex w-full app-page-min-height items-center justify-center">
+      <div className="relative z-10 flex w-full app-page-min-height items-center justify-center py-6 sm:py-8">
         {/* --- START OF ULTRA-WIDE FIX CONTAINER --- */}
-        <div className="content-container flex flex-col lg:flex-row items-center justify-center lg:gap-10 xl:gap-20">
+        <div className="content-container flex flex-col items-center justify-center lg:flex-row lg:gap-10 xl:gap-16">
           
           {/* ASIDE SECTION: Information */}
           <div
-            className="hidden lg:flex lg:flex-col lg:justify-center lg:w-full lg:max-w-125 lg:pr-10 xl:pr-16"
+            className="hidden lg:flex lg:w-full lg:max-w-[32rem] lg:flex-col lg:justify-center lg:pr-8 xl:max-w-[34rem] xl:pr-12"
             style={{ borderRight: `1px solid ${colors.borderSoft}` }}
           >
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
@@ -136,7 +136,7 @@ function RegisterContent() {
                 ].map((item, index) => (
                   <div
                     key={item.label}
-                    className={`auth-aside-card rounded-2xl p-4 ${index === 0 ? "float-slow" : "float-delay"}`}
+                    className={`auth-aside-card rounded-xl p-4 ${index === 0 ? "float-slow" : "float-delay"}`}
                     style={{
                       borderColor: colors.borderSoft,
                       backgroundColor: colors.card,
@@ -158,14 +158,14 @@ function RegisterContent() {
 
           {/* FORM SECTION: Register Card */}
           <div className="no-scrollbar flex w-full max-w-md items-center justify-center px-4 py-8 lg:px-0">
-            <div className="group relative w-full animate-[fadeIn_1.2s_ease-out]">
+            <div className="group relative w-full max-w-[32rem] animate-[fadeIn_1.2s_ease-out]">
               <div
-                className="absolute -inset-px rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100"
+                className="absolute -inset-px rounded-xl opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-90"
                 style={{ background: premiumGradient }}
               />
 
               <div
-                className="auth-card shine-border relative w-full overflow-hidden p-4 md:p-6"
+                className="auth-card shine-border relative w-full overflow-hidden p-4 sm:p-5 md:p-6"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -191,7 +191,7 @@ function RegisterContent() {
                       placeholder="First Name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="glass-input rounded-md border px-3 py-2.5 text-sm font-semibold outline-none"
+                      className="glass-input rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none"
                       style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                     />
                     <input
@@ -199,7 +199,7 @@ function RegisterContent() {
                       placeholder="Last Name"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="glass-input rounded-md border px-3 py-2.5 text-sm font-semibold outline-none"
+                      className="glass-input rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none"
                       style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                     />
                   </div>
@@ -210,14 +210,14 @@ function RegisterContent() {
                       placeholder="Email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value.toLowerCase())}
-                      className="glass-input w-full rounded-md border py-2.5 pl-9 pr-3 text-sm lowercase font-semibold outline-none"
+                      className="glass-input w-full rounded-lg border py-2.5 pl-9 pr-3 text-sm lowercase font-semibold outline-none"
                       style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                     />
                     <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }} />
                   </div>
 
                   <div
-                    className="phone-field flex h-11 items-center overflow-hidden rounded-md border sm:h-12"
+                    className="phone-field flex h-11 items-center overflow-hidden rounded-lg border sm:h-12"
                     style={{ backgroundColor: colors.input, borderColor: colors.inputBorder }}
                   >
                     <div
@@ -248,7 +248,7 @@ function RegisterContent() {
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="glass-input w-full rounded-md border px-3 py-2.5 pr-10 text-sm font-semibold outline-none"
+                        className="glass-input w-full rounded-lg border px-3 py-2.5 pr-10 text-sm font-semibold outline-none"
                         style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                       />
                       <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }}>
@@ -261,7 +261,7 @@ function RegisterContent() {
                         placeholder="Confirm"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="glass-input w-full rounded-md border px-3 py-2.5 pr-10 text-sm font-semibold outline-none"
+                        className="glass-input w-full rounded-lg border px-3 py-2.5 pr-10 text-sm font-semibold outline-none"
                         style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
                       />
                       <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }}>
@@ -273,8 +273,7 @@ function RegisterContent() {
                   <button
                     disabled={loading}
                     type="submit"
-                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-md py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
-                    style={{ backgroundColor: colors.accent }}
+                    className="theme-primary-btn mt-2 flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
                   >
                     {loading ? "Processing..." : "Create Account"} <UserPlus size={16} />
                   </button>

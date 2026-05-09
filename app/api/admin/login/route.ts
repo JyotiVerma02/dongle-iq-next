@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import { setAuthCookie, signAuthToken } from "@/app/lib/auth";
+import { enforceRateLimit, getClientIp } from "@/app/lib/security";
 
 const AdminSchema = new mongoose.Schema({
   name: String,
@@ -15,6 +16,20 @@ const Admin =
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `admin-login:${ip}`,
+      limit: 8,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { success: false, message: "Too many login attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+      );
+    }
+
     const { email, password } = await req.json();
 
     await connectDB();
@@ -38,13 +53,12 @@ export async function POST(req: Request) {
     }
 
     // 🔥 CREATE TOKEN
-    const token = jwt.sign(
+    const token = signAuthToken(
       {
-        userId: admin._id,
-        role: "admin", // important
+        userId: String(admin._id),
+        role: "admin",
       },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1d" }
+      "1h"
     );
 
     // 🔥 SET COOKIE
@@ -53,10 +67,7 @@ export async function POST(req: Request) {
       message: "Login successful",
     });
 
-    response.cookies.set("token", token, {
-      httpOnly: true,
-      path: "/",
-    });
+    setAuthCookie(response, token, false);
 
     return response;
 

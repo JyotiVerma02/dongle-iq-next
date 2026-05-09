@@ -7,6 +7,7 @@ import { connectDB } from "@/app/lib/mongodb";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import { transporter } from "@/app/lib/mailer";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
+import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow } from "@/app/lib/security";
 
 export async function GET() {
   try {
@@ -36,6 +37,20 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `admin-register:${ip}`,
+      limit: 3,
+      windowMs: 30 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { error: "Too many admin registration attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+      );
+    }
+
     await connectDB();
     await migrateLegacyAdminUser();
 
@@ -76,8 +91,8 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    const otp = generateNumericOtp();
+    const otpExpiry = minutesFromNow(10);
 
     await Admin.create({
       name: String(name).trim(),
@@ -87,7 +102,7 @@ export async function POST(req: Request) {
       role: "admin",
       isVerified: false,
       status: "pending",
-      otp,
+      otp: hashOtp(otp),
       otpExpiry,
     });
 

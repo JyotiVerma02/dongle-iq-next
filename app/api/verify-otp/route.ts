@@ -4,14 +4,30 @@ import User from "@/model/user";
 import Admin from "@/model/admin";
 import { connectDB } from "@/app/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
+import { enforceRateLimit, getClientIp, verifyOtpHash } from "@/app/lib/security";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `verify-otp:${ip}`,
+      limit: 10,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { message: "Too many verification attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+      );
+    }
+
     await connectDB();
     await migrateLegacyAdminUser();
 
     const { email, otp } = await req.json();
     const normalizedEmail = String(email || "").trim().toLowerCase();
+    const normalizedOtp = String(otp || "").trim();
 
     const user = await User.findOne({ email: normalizedEmail });
     const admin = user ? null : await Admin.findOne({ email: normalizedEmail });
@@ -25,7 +41,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Already verified" });
     }
 
-    if (String(account.otp) !== String(otp)) {
+    if (!/^\d{6}$/.test(normalizedOtp) || !verifyOtpHash(account.otp, normalizedOtp)) {
       return NextResponse.json({ message: "Invalid OTP" }, { status: 400 });
     }
 

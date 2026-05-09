@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import { z } from "zod";
 
@@ -7,6 +6,7 @@ import { connectDB } from "@/app/lib/mongodb";
 import { calculatePricing } from "@/app/lib/pricing";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import User from "@/model/user";
+import { verifyAuthToken } from "@/app/lib/auth";
 
 const applicationSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -79,10 +79,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const decoded = jwt.verify(
-        token,
-        process.env.JWT_SECRET!,
-      ) as DecodedToken;
+      const decoded = verifyAuthToken(token) as DecodedToken;
 
       targetUserId = decoded.userId;
       createdById = decoded.userId;

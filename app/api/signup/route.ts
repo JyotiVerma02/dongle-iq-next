@@ -5,6 +5,7 @@ import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
 import { transporter } from "@/app/lib/mailer";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
+import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow } from "@/app/lib/security";
 
 const signupSchema = z.object({
   name: z.string().trim().min(3, "Name must be at least 3 characters"),
@@ -15,6 +16,20 @@ const signupSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `signup:${ip}`,
+      limit: 5,
+      windowMs: 30 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { message: "Too many signup attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+      );
+    }
+
     await connectDB();
 
     const body = await req.json();
@@ -55,15 +70,15 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    const otp = generateNumericOtp();
+    const otpExpiry = minutesFromNow(10);
 
     const user = new User({
       name: String(name).trim(),
       email: normalizedEmail,
       number: normalizedNumber,
       password: hashedPassword,
-      otp,
+      otp: hashOtp(otp),
       otpExpiry,
       isVerified: false,
     });

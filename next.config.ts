@@ -23,12 +23,20 @@ const nextConfig: NextConfig = {
             value: "geolocation=(), microphone=(), camera=()",
           },
           {
-            key: "Strict-Transport-Security",
-            value: "max-age=31536000; includeSubDomains",
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
           },
           {
-            key: "Access-Control-Allow-Origin",
-            value: process.env.ALLOWED_ORIGINS || "https://yourdomain.com",
+            key: "Cross-Origin-Resource-Policy",
+            value: "same-origin",
+          },
+          {
+            key: "X-DNS-Prefetch-Control",
+            value: "off",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains",
           },
         ],
       },

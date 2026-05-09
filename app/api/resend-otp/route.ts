@@ -5,9 +5,24 @@ import Admin from "@/model/admin";
 import { connectDB } from "@/app/lib/mongodb";
 import { transporter } from "@/app/lib/mailer";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
+import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow } from "@/app/lib/security";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `resend-otp:${ip}`,
+      limit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { message: "Too many OTP requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+      );
+    }
+
     await connectDB();
     await migrateLegacyAdminUser();
 
@@ -26,10 +41,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "User already verified" }, { status: 400 });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = generateNumericOtp();
 
-    account.otp = otp;
-    account.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    account.otp = hashOtp(otp);
+    account.otpExpiry = minutesFromNow(10);
     await account.save();
 
     await transporter.sendMail({

@@ -5,9 +5,24 @@ import { connectDB } from "@/app/lib/mongodb";
 import { registerSchema } from "@/schemas/registerSchema";
 import { transporter } from "@/app/lib/mailer";
 import { normalizeIndianMobile } from "@/app/lib/phone";
+import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow } from "@/app/lib/security";
 
 export async function POST(req: Request) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `register:${ip}`,
+      limit: 5,
+      windowMs: 30 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { message: "Too many registration attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+      );
+    }
+
     await connectDB();
 
     const body = await req.json();
@@ -65,8 +80,8 @@ export async function POST(req: Request) {
       role = "admin";
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    const otp = generateNumericOtp();
+    const otpExpiry = minutesFromNow(10);
 
     await User.create({
       name,
@@ -74,7 +89,7 @@ export async function POST(req: Request) {
       password: hashedPassword,
       number,
       role,
-      otp,
+      otp: hashOtp(otp),
       otpExpiry,
     });
 

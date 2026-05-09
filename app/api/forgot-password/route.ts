@@ -7,6 +7,7 @@ import User from "@/model/user";
 import Admin from "@/model/admin";
 import { connectDB } from "@/app/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
+import { enforceRateLimit, getClientIp } from "@/app/lib/security";
 
 const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
@@ -14,6 +15,20 @@ const forgotPasswordSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `forgot-password:${ip}`,
+      limit: 5,
+      windowMs: 30 * 60 * 1000,
+    });
+
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { message: "Too many reset requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } },
+      );
+    }
+
     await connectDB();
     await migrateLegacyAdminUser();
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 type ParticleSpec = {
   left: number;
@@ -39,45 +39,6 @@ const buildParticles = (count: number): ParticleSpec[] => {
 };
 
 export default function PremiumBackground() {
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const finePointer = window.matchMedia("(pointer: fine)").matches;
-
-    if (prefersReducedMotion || !finePointer) {
-      return;
-    }
-
-    const root = document.documentElement;
-    let raf = 0;
-    let nextX = window.innerWidth * 0.6;
-    let nextY = window.innerHeight * 0.35;
-
-    const commit = () => {
-      raf = 0;
-      root.style.setProperty("--spot-x", `${Math.round(nextX)}px`);
-      root.style.setProperty("--spot-y", `${Math.round(nextY)}px`);
-    };
-
-    const onMove = (event: PointerEvent) => {
-      nextX = event.clientX;
-      nextY = event.clientY;
-      if (!raf) raf = window.requestAnimationFrame(commit);
-    };
-
-    root.style.setProperty("--spot-x", `${Math.round(nextX)}px`);
-    root.style.setProperty("--spot-y", `${Math.round(nextY)}px`);
-    window.addEventListener("pointermove", onMove, { passive: true });
-
-    return () => {
-      window.removeEventListener("pointermove", onMove);
-      if (raf) window.cancelAnimationFrame(raf);
-    };
-  }, []);
-
   const particles = useMemo(() => buildParticles(140), []);
 
   return (
@@ -111,7 +72,6 @@ export default function PremiumBackground() {
         ))}
       </div>
       <div className="saas-bg__grid" />
-      <div className="saas-bg__spotlight" />
       <div className="saas-bg__grain" />
     </div>
   );

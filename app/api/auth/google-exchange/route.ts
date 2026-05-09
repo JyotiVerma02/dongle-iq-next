@@ -1,18 +1,32 @@
 import { NextResponse } from "next/server";
 
-import jwt from "jsonwebtoken";
-
 import Admin from "@/model/admin";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
+import { enforceRateLimit, getClientIp } from "@/app/lib/security";
+import { setAuthCookie, signAuthToken } from "@/app/lib/auth";
 
 
 export async function POST(req: Request) {
   try {
-   const body = await req.json();
+    const ip = getClientIp(req);
+    const limiter = enforceRateLimit({
+      key: `google-exchange:${ip}`,
+      limit: 12,
+      windowMs: 15 * 60 * 1000,
+    });
 
-const email = String(body.email || "").toLowerCase().trim();
-const name = String(body.name || "").trim();
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        { success: false, message: "Too many login attempts. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } },
+      );
+    }
+
+    const body = await req.json();
+
+    const email = String(body.email || "").toLowerCase().trim();
+    const name = String(body.name || "").trim();
 
     if (!email) {
       return NextResponse.json(
@@ -30,10 +44,9 @@ const name = String(body.name || "").trim();
         await admin.save();
       }
 
-      const token = jwt.sign(
-        { userId: admin._id, role: "admin" },
-        process.env.JWT_SECRET as string,
-        { expiresIn: "7d" },
+      const token = signAuthToken(
+        { userId: String(admin._id), role: "admin" },
+        "7d",
       );
 
       const response = NextResponse.json({
@@ -41,13 +54,7 @@ const name = String(body.name || "").trim();
         redirectTo: "/admin/dashboard",
       });
 
-      response.cookies.set("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60,
-        path: "/",
-        sameSite: "strict",
-      });
+      setAuthCookie(response, token, true);
 
       return response;
     }
@@ -59,10 +66,9 @@ const name = String(body.name || "").trim();
         await user.save();
       }
 
-      const token = jwt.sign(
-        { userId: user._id, role: user.role },
-        process.env.JWT_SECRET as string,
-        { expiresIn: "7d" },
+      const token = signAuthToken(
+        { userId: String(user._id), role: user.role },
+        "7d",
       );
 
       const response = NextResponse.json({
@@ -70,18 +76,12 @@ const name = String(body.name || "").trim();
         redirectTo: user.role === "admin" ? "/admin/dashboard" : "/user/dashboard",
       });
 
-      response.cookies.set("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60,
-        path: "/",
-        sameSite: "strict",
-      });
+      setAuthCookie(response, token, true);
 
       return response;
     }
 
-const signupUrl = new URL("/signup", process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
+    const signupUrl = new URL("/signup", process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
     signupUrl.searchParams.set("email", email);
     if (name) {
       signupUrl.searchParams.set("name", name);
