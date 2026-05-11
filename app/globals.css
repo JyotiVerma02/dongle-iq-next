@@ -923,7 +923,7 @@ html.dark .inline-trust-pill {
 
 .dashboard-preview {
   position: relative;
-  padding: 1.35rem;
+  padding: 1rem;
   border-radius: 1.25rem;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08)),
@@ -970,7 +970,7 @@ html.dark .inline-trust-pill {
 
 .preview-row {
   gap: 0.95rem;
-  padding: 1rem;
+  padding: 0.75rem ;
   border-radius: 1rem;
   border: 1px solid var(--border-soft);
   background: rgba(255, 255, 255, 0.44);
@@ -1016,9 +1016,9 @@ html.dark .preview-row {
 .footer-links h4,
 .footer-contact h4,
 .faq-button span {
-  font-size: 1.08rem;
-  line-height: 1.3;
-  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 500;
 }
 
 .preview-row-copy p,
@@ -1034,7 +1034,7 @@ html.dark .preview-row {
 .section-header p,
 .info-card-subtext {
   color: var(--muted);
-  line-height: 1.75;
+  line-height: 1.5;
 }
 
 .status-pill {
@@ -1150,7 +1150,7 @@ html.dark .metric-card {
 .process-card,
 .audience-card,
 .quote-panel {
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 .premium-card:hover,
@@ -1621,6 +1621,41 @@ background: radial-gradient(
   transition: transform 90ms linear;
   z-index: 0;
 } */
+ .quote-panel {
+  width: 100%;
+  max-width: 480px;   /* reduce overall width */
+  padding: 20px;      /* smaller inner spacing */
+  border-radius: 10px;
+  margin: 0 auto;
+}
+
+.quote-form {
+  gap: 14px;          /* reduce spacing between fields */
+}
+
+.field input,
+.field textarea {
+  padding: 10px 12px; /* smaller input size */
+  font-size: 14px;
+}
+
+.quote-intro h3 {
+  font-size: 24px;
+}
+
+.quote-intro p {
+  font-size: 14px;
+}
+
+.button-primary {
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.support-note {
+  margin-top: 10px;
+  padding: 10px;
+}
 
 .cursor-glow {
   position: fixed;
