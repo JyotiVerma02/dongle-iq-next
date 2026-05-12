@@ -1,0 +1,396 @@
+/**
+ * responsive-ever.css
+ * Shared responsive layout + rhythm for the site (especially user dashboard).
+ * Import from globals.css — use these classes instead of scattering one-off breakpoints.
+ */
+
+:root {
+  --re-space-xs: clamp(0.75rem, 2.5vw, 1rem);
+  --re-space-sm: clamp(1rem, 3.5vw, 1.35rem);
+  --re-space-md: clamp(1rem, 4.5vw, 1.85rem);
+  --re-sidebar-width: min(88vw, 20rem);
+  --re-content-max: min(72rem, 100%);
+  --re-touch-min: 44px;
+  /* Matches .app-shell-content navbar offset so sidebar aligns with main column */
+  --ud-navbar-clearance: 52px;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --ud-navbar-clearance: 84px;
+  }
+}
+
+/* ——— Site-wide horizontal padding helper ——— */
+.re-page-x {
+  padding-inline: var(--re-space-xs);
+}
+
+@media (min-width: 640px) {
+  .re-page-x {
+    padding-inline: var(--re-space-sm);
+  }
+}
+
+@media (min-width: 1024px) {
+  .re-page-x {
+    padding-inline: var(--re-space-md);
+  }
+}
+
+/* ——— User dashboard shell ——— */
+/* No page-level background: uses global html/body gradient from globals.css */
+.ud-dashboard-root {
+  color: inherit;
+  background: transparent;
+}
+
+/*
+ * Sidebar: same glass language as top navbar (--nav + heavy blur).
+ * Inset edge separates from body gradient without a flat “second bg”.
+ */
+.ud-sidebar-surface {
+  background-color: var(--nav);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  /* Stable compositing layer — reduces backdrop flicker while scrolling */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  box-shadow:
+    inset -1px 0 0 var(--border-soft),
+    6px 0 36px -24px rgba(15, 23, 42, 0.4);
+}
+
+html.dark .ud-sidebar-surface {
+  box-shadow:
+    inset -1px 0 0 var(--border-soft),
+    8px 0 40px -20px rgba(0, 0, 0, 0.55);
+}
+
+/* One viewport slice below global navbar — avoids body + inner double scroll */
+.ud-shell {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  height: calc(100dvh - var(--ud-navbar-clearance));
+  max-height: calc(100dvh - var(--ud-navbar-clearance));
+  overflow: hidden;
+}
+
+.ud-sidebar {
+  width: var(--re-sidebar-width);
+}
+
+@media (min-width: 1024px) {
+  .ud-sidebar {
+    width: 18rem;
+    flex-shrink: 0;
+    align-self: stretch;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ud-sidebar.ud-sidebar--collapsed {
+    width: 5.5rem;
+    min-width: 5.5rem;
+  }
+}
+
+.ud-sidebar-track {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 35%, transparent) transparent;
+  overscroll-behavior-y: contain;
+}
+
+.ud-sidebar-track::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ud-sidebar-track::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* Drawer (fixed): pad below fixed navbar. Desktop (static): shell already below navbar — no double offset */
+.ud-sidebar-inner {
+  padding-inline: clamp(0.65rem, 2vw, 0.8rem);
+  padding-top: calc(
+    env(safe-area-inset-top, 0px) + var(--ud-navbar-clearance) + clamp(0.4rem, 1.2vw, 0.65rem)
+  );
+  padding-bottom: clamp(0.85rem, 2.5vw, 1.1rem);
+}
+
+@media (min-width: 1024px) {
+  .ud-sidebar-inner {
+    padding-inline: 0.65rem;
+    padding-top: 0.65rem;
+    padding-bottom: 0.75rem;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .ud-sidebar-inner.ud-sidebar-inner--collapsed {
+    padding-inline: 0.35rem;
+  }
+}
+
+/* Grouped nav: reads like navbar pills / main cards */
+.ud-sidebar-nav-shell {
+  border-radius: 1rem;
+  border: 1px solid var(--border-soft);
+  background: color-mix(in srgb, var(--card) 42%, transparent);
+  padding: 0.45rem;
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+html.dark .ud-sidebar-nav-shell {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+.ud-sidebar-nav-gap > * + * {
+  margin-top: 0.85rem;
+}
+
+.ud-sidebar-brand-ring {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent),
+    0 14px 32px -18px var(--accent-shadow);
+}
+
+.ud-main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ud-main-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  transform: translateZ(0);
+  padding-inline: var(--re-space-xs);
+  padding-top: var(--re-space-xs);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(2rem, 7vw, 3rem));
+}
+
+@media (min-width: 640px) {
+  .ud-main-scroll {
+    padding-inline: var(--re-space-sm);
+    padding-top: var(--re-space-sm);
+  }
+}
+
+@media (min-width: 1024px) {
+  /* Tighter gutter beside sidebar so main shell visually connects */
+  .ud-main-scroll {
+    padding-inline: clamp(0.55rem, 1.4vw, 0.95rem) clamp(1rem, 2.5vw, 1.75rem);
+    padding-top: clamp(1rem, 2vw, 1.35rem);
+  }
+}
+
+.ud-page-inner {
+  width: 100%;
+  max-width: var(--re-content-max);
+  margin-inline: auto;
+}
+
+/* Mobile drawer header (below global navbar) */
+.ud-mobile-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem var(--re-space-xs);
+  padding-left: max(var(--re-space-xs), env(safe-area-inset-left));
+  padding-right: max(var(--re-space-xs), env(safe-area-inset-right));
+  border-bottom: 1px solid var(--border-soft);
+  background-color: var(--nav);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  box-shadow: 0 12px 32px -28px rgba(15, 23, 42, 0.35);
+}
+
+@media (min-width: 1024px) {
+  .ud-mobile-bar {
+    display: none;
+  }
+}
+
+/* Desktop toolbar (collapse sidebar — same role as admin dashboard menu) */
+.ud-desktop-bar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .ud-desktop-bar {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem clamp(1rem, 2vw, 1.35rem);
+    border-bottom: 1px solid var(--border-soft);
+    background-color: var(--nav);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    box-shadow: 0 12px 32px -28px rgba(15, 23, 42, 0.35);
+  }
+}
+
+.ud-menu-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: var(--re-touch-min);
+  min-height: var(--re-touch-min);
+  border-radius: 0.85rem;
+  border: 1px solid var(--border-soft);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@media (hover: hover) {
+  .ud-menu-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px -20px var(--accent-shadow);
+  }
+}
+
+.ud-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+@media (min-width: 1024px) {
+  .ud-backdrop {
+    display: none !important;
+  }
+}
+
+/* Overview metric tiles */
+.ud-stat-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .ud-stat-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+/* Form fields / meta blocks */
+.ud-meta-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+@media (min-width: 640px) {
+  .ud-meta-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+}
+
+/* Card surfaces */
+.ud-surface {
+  border-radius: clamp(0.85rem, 2vw, 1.05rem);
+  border: 1px solid var(--border-soft);
+  transition:
+    box-shadow 0.28s ease,
+    border-color 0.28s ease,
+    transform 0.28s ease;
+}
+
+@media (hover: hover) {
+  .ud-surface--lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 26px 60px -34px var(--accent-shadow);
+  }
+}
+
+.ud-surface-glass {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--card) 92%, transparent),
+    color-mix(in srgb, var(--card-strong, var(--card)) 78%, transparent)
+  );
+  backdrop-filter: blur(12px) saturate(130%);
+}
+
+html.dark .ud-surface-glass {
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--card) 88%, transparent),
+    color-mix(in srgb, var(--card-strong, var(--card)) 55%, transparent)
+  );
+}
+
+/* Sidebar navigation hit targets */
+.ud-nav-hit {
+  min-height: var(--re-touch-min);
+  padding-inline: 0.65rem;
+  border-radius: 0.75rem;
+}
+
+/* Main column entrance */
+@keyframes ud-enter {
+  from {
+    opacity: 0.97;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ud-enter {
+  animation: ud-enter 0.22s ease-out both;
+}
+
+/* Registration column: keep form readable on narrow phones */
+.ud-registration-scope {
+  width: 100%;
+}
+
+@media (max-width: 639px) {
+  .ud-registration-scope :where(input, select, textarea, button) {
+    font-size: max(16px, 0.95rem);
+  }
+}
+
+/* Document action links — comfortable tap targets on phones */
+.ud-doc-actions a {
+  min-height: var(--re-touch-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

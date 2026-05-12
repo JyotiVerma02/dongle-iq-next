@@ -25,6 +25,8 @@ type ApplicationFormProps = {
   submitLabel: string;
   mode: "client" | "admin";
   readOnly?: boolean;
+  /** Use inside user dashboard / nested shells — avoids double horizontal padding + extra decorative layers */
+  embedded?: boolean;
   onSubmit: (payload: ApplicationFormData & { totalAmount: number }) => Promise<void>;
 };
 
@@ -48,6 +50,7 @@ export default function ApplicationForm({
   submitLabel,
   mode,
   readOnly = false,
+  embedded = false,
   onSubmit,
 }: ApplicationFormProps) {
   const { isDarkMode } = useTheme();
@@ -162,14 +165,31 @@ export default function ApplicationForm({
           "Upload documents and preview",
         ];
 
+  const heroSectionSurface =
+    embedded
+      ? "rounded-xl border shadow-[0_20px_55px_rgba(0,0,0,0.14)]"
+      : "shine-border theme-transition rounded-lg border shadow-[0_24px_80px_rgba(0,0,0,0.16)]";
+  const lowerSectionSurface =
+    embedded
+      ? "rounded-xl border shadow-[0_20px_55px_rgba(0,0,0,0.14)]"
+      : "shine-border theme-transition rounded-lg border shadow-[0_24px_80px_rgba(0,0,0,0.16)]";
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="page-max-shell relative z-10 flex w-full flex-col gap-8 px-4 sm:px-6"
+      className={
+        embedded
+          ? "relative z-10 flex w-full max-w-full flex-col gap-8"
+          : "page-max-shell relative z-10 flex w-full flex-col gap-8 px-4 sm:px-6"
+      }
     >
       <section
-        className="shine-border theme-transition grid items-center gap-8 rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8 md:grid-cols-[0.95fr_1.05fr] lg:p-10"
-        style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
+        className={`${heroSectionSurface} grid items-center gap-8 p-5 sm:p-8 md:grid-cols-[0.95fr_1.05fr] lg:p-10`}
+        style={{
+          backgroundColor: shellBackground,
+          borderColor: strongBorderColor,
+          ...(embedded ? { isolation: "isolate" } : {}),
+        }}
       >
         <div className="flex justify-center">
           <div
@@ -268,8 +288,12 @@ export default function ApplicationForm({
       </section>
 
       <section
-        className="shine-border theme-transition rounded-lg border p-5 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-8 md:p-10 lg:p-14"
-        style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
+        className={`${lowerSectionSurface} p-5 sm:p-8 md:p-10 lg:p-14`}
+        style={{
+          backgroundColor: shellBackground,
+          borderColor: strongBorderColor,
+          ...(embedded ? { isolation: "isolate" } : {}),
+        }}
       >
         <h2
           className="mb-10 text-center text-xs font-black uppercase tracking-[0.4em]"

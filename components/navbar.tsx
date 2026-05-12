@@ -26,7 +26,6 @@ const AUTH_ROUTES = new Set([
 ]);
 
 const LOGOUT_ROUTES = new Set([
-  "/user/dashboard",
   "/verify",
   "/verify-aadhaar",
   "/bank-telecom-form",
@@ -99,6 +98,8 @@ export default function Navbar() {
         style={{
           backgroundColor: "var(--nav)",
           borderColor: colors.borderSoft,
+          transform: "translateZ(0)",
+          backfaceVisibility: "hidden",
         }}
       >
         <Link href="/" className="flex min-w-0 items-center gap-3">
