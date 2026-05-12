@@ -21,7 +21,7 @@ function RegisterContent() {
   const searchParams = useSearchParams();
   const googleEmail = (searchParams.get("email") || "").toLowerCase();
   const googleName = searchParams.get("name") || "";
-  
+
   const [prefillFirstName, ...prefillLastNameParts] = googleName.split(" ");
   const prefillLastName = prefillLastNameParts.join(" ");
 
@@ -52,7 +52,14 @@ function RegisterContent() {
     const effectiveLastName = lastName.trim();
     const effectiveEmail = email.toLowerCase().trim();
 
-    if (!effectiveName || !effectiveLastName || !effectiveEmail || !number || !password || !confirmPassword) {
+    if (
+      !effectiveName ||
+      !effectiveLastName ||
+      !effectiveEmail ||
+      !number ||
+      !password ||
+      !confirmPassword
+    ) {
       setError("Incomplete handshake. All fields required.");
       return;
     }
@@ -79,7 +86,9 @@ function RegisterContent() {
       if (!res.ok) {
         if (data.message === "Email already registered") {
           setError("Email is already registered. Please login instead.");
-          setTimeout(() => { router.push("/login"); }, 2000);
+          setTimeout(() => {
+            router.push("/login");
+          }, 2000);
           setLoading(false);
           return;
         }
@@ -92,7 +101,8 @@ function RegisterContent() {
       setEmail(effectiveEmail);
       setLoading(false);
     } catch {
-      setError("System handshake error occurred.");
+      console.error(error);
+      setError("Something went wrong.");
       setLoading(false);
     }
   };
@@ -103,11 +113,9 @@ function RegisterContent() {
       className="auth-page-shell theme-transition relative overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-     
       <div className="relative z-10 flex w-full app-page-min-height items-center justify-center py-6 sm:py-8">
         {/* --- START OF ULTRA-WIDE FIX CONTAINER --- */}
         <div className="content-container flex flex-col items-center justify-center lg:flex-row lg:gap-10 xl:gap-16">
-          
           {/* ASIDE SECTION: Information */}
           <div
             className="hidden lg:flex lg:w-full lg:max-w-[32rem] lg:flex-col lg:justify-center lg:pr-8 xl:max-w-[34rem] xl:pr-12"
@@ -148,8 +156,18 @@ function RegisterContent() {
                     >
                       <ShieldCheck size={18} />
                     </div>
-                    <p className="text-xl font-black uppercase" style={{ color: colors.text }}>{item.value}</p>
-                    <p className="mt-1 text-[10px] font-black uppercase tracking-[0.22em]" style={{ color: colors.muted }}>{item.label}</p>
+                    <p
+                      className="text-xl font-black uppercase"
+                      style={{ color: colors.text }}
+                    >
+                      {item.value}
+                    </p>
+                    <p
+                      className="mt-1 text-[10px] font-black uppercase tracking-[0.22em]"
+                      style={{ color: colors.muted }}
+                    >
+                      {item.label}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -172,10 +190,16 @@ function RegisterContent() {
                 }}
               >
                 <div className="mb-4 text-center lg:text-left">
-                  <h2 className="text-xl font-black uppercase tracking-tight" style={{ color: colors.text }}>
+                  <h2
+                    className="text-xl font-black uppercase tracking-tight"
+                    style={{ color: colors.text }}
+                  >
                     <span className="text-gradient-cool">Register</span>
                   </h2>
-                  <p className="mt-1.5 text-xs font-medium opacity-80" style={{ color: colors.muted }}>
+                  <p
+                    className="mt-1.5 text-xs font-medium opacity-80"
+                    style={{ color: colors.muted }}
+                  >
                     Create your agent account and manage applications securely.
                   </p>
                 </div>
@@ -194,7 +218,11 @@ function RegisterContent() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="glass-input rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none"
-                      style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                      style={{
+                        backgroundColor: colors.input,
+                        borderColor: colors.inputBorder,
+                        color: colors.text,
+                      }}
                     />
                     <input
                       type="text"
@@ -202,7 +230,11 @@ function RegisterContent() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       className="glass-input rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none"
-                      style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                      style={{
+                        backgroundColor: colors.input,
+                        borderColor: colors.inputBorder,
+                        color: colors.text,
+                      }}
                     />
                   </div>
 
@@ -213,14 +245,25 @@ function RegisterContent() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value.toLowerCase())}
                       className="glass-input w-full rounded-lg border py-2.5 pl-9 pr-3 text-sm lowercase font-semibold outline-none"
-                      style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                      style={{
+                        backgroundColor: colors.input,
+                        borderColor: colors.inputBorder,
+                        color: colors.text,
+                      }}
                     />
-                    <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }} />
+                    <Mail
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2"
+                      style={{ color: colors.muted }}
+                    />
                   </div>
 
                   <div
                     className="phone-field flex h-11 items-center overflow-hidden rounded-lg border sm:h-12"
-                    style={{ backgroundColor: colors.input, borderColor: colors.inputBorder }}
+                    style={{
+                      backgroundColor: colors.input,
+                      borderColor: colors.inputBorder,
+                    }}
                   >
                     <div
                       className="phone-prefix flex h-full items-center gap-2 px-3"
@@ -237,7 +280,9 @@ function RegisterContent() {
                       inputMode="numeric"
                       placeholder="Phone Number"
                       value={number}
-                      onChange={(e) => setNumber(sanitizeNumber(e.target.value))}
+                      onChange={(e) =>
+                        setNumber(sanitizeNumber(e.target.value))
+                      }
                       className="h-full w-full bg-transparent px-3 text-sm font-semibold outline-none"
                       style={{ color: colors.text }}
                     />
@@ -251,10 +296,23 @@ function RegisterContent() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="glass-input w-full rounded-lg border px-3 py-2.5 pr-10 text-sm font-semibold outline-none"
-                        style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                        style={{
+                          backgroundColor: colors.input,
+                          borderColor: colors.inputBorder,
+                          color: colors.text,
+                        }}
                       />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }}>
-                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2"
+                        style={{ color: colors.muted }}
+                      >
+                        {showPassword ? (
+                          <EyeOff size={16} />
+                        ) : (
+                          <Eye size={16} />
+                        )}
                       </button>
                     </div>
                     <div className="relative">
@@ -264,10 +322,25 @@ function RegisterContent() {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className="glass-input w-full rounded-lg border px-3 py-2.5 pr-10 text-sm font-semibold outline-none"
-                        style={{ backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }}
+                        style={{
+                          backgroundColor: colors.input,
+                          borderColor: colors.inputBorder,
+                          color: colors.text,
+                        }}
                       />
-                      <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }}>
-                        {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowConfirmPassword(!showConfirmPassword)
+                        }
+                        className="absolute right-3 top-1/2 -translate-y-1/2"
+                        style={{ color: colors.muted }}
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff size={16} />
+                        ) : (
+                          <Eye size={16} />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -277,12 +350,17 @@ function RegisterContent() {
                     type="submit"
                     className="theme-primary-btn mt-2 flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
                   >
-                    {loading ? "Processing..." : "Create Account"} <UserPlus size={16} />
+                    {loading ? "Processing..." : "Create Account"}{" "}
+                    <UserPlus size={16} />
                   </button>
                 </form>
 
                 <div className="pt-4 text-center">
-                  <Link href="/login" className="text-[9px] uppercase tracking-widest underline underline-offset-4" style={{ color: colors.muted }}>
+                  <Link
+                    href="/login"
+                    className="text-[9px] uppercase tracking-widest underline underline-offset-4"
+                    style={{ color: colors.muted }}
+                  >
                     Already have account? Login
                   </Link>
                 </div>
@@ -303,7 +381,8 @@ function RegisterContent() {
             body: JSON.stringify({ email, otp }),
           });
           const data = await res.json();
-          if (!res.ok) throw new Error(data.message || "OTP verification failed");
+          if (!res.ok)
+            throw new Error(data.message || "OTP verification failed");
           router.push("/login?registered=true");
         }}
         onResend={async () => {
@@ -318,12 +397,24 @@ function RegisterContent() {
 
       <style jsx global>{`
         @keyframes fadeInLeft {
-          from { transform: translateX(-50px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
+          from {
+            transform: translateX(-50px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
         }
         @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.95); }
-          to { opacity: 1; transform: scale(1); }
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
         }
       `}</style>
     </div>

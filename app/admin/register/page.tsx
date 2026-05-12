@@ -30,8 +30,9 @@ export default function AdminRegister() {
   const premiumGradient =
     "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
-  const sanitizeNumber = (value: string) =>
-    value.replace(/\D/g, "").slice(0, 10);
+  const sanitizeNumber = (value: string) => {
+    return value.replace(/\D/g, "").slice(0, 10);
+  };
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -57,7 +58,14 @@ export default function AdminRegister() {
     e.preventDefault();
     setError("");
 
-    if (!name || !lastName || !email || !number || !password || !confirmPassword) {
+    if (
+      !name ||
+      !lastName ||
+      !email ||
+      !number ||
+      !password ||
+      !confirmPassword
+    ) {
       setError("All fields are required");
       return;
     }
@@ -81,18 +89,20 @@ export default function AdminRegister() {
 
       const data = await res.json();
       if (!res.ok) {
-        if (data.error === "Admin already exists") {
+        if (res.status === 409) {
           setAdminExists(true);
-          setExistingAdminEmail(email.toLowerCase());
+          setExistingAdminEmail(data.email || email.toLowerCase());
         }
+
         setError(data.error || "Registration failed");
         return;
       }
 
       setShowOtp(true);
-    } catch {
-      setError("System handshake error occurred");
-    }
+    } catch (error) {
+  console.error(error);
+  setError("Something went wrong");
+}
   };
 
   return (
@@ -127,8 +137,8 @@ export default function AdminRegister() {
               className="mb-7 max-w-lg text-sm font-medium leading-relaxed opacity-80"
               style={{ color: colors.muted }}
             >
-              Create the primary administrator profile and unlock secure dashboard
-              access with verified email onboarding.
+              Create the primary administrator profile and unlock secure
+              dashboard access with verified email onboarding.
             </p>
             <div className="grid max-w-xl grid-cols-2 gap-4">
               {[
@@ -312,14 +322,28 @@ export default function AdminRegister() {
                     />
                   </div>
 
-                  <div>
+                  <div className="relative flex items-center">
+                    <span
+                      className="absolute left-4 z-10 border-r pr-3 text-sm font-bold"
+                      style={{
+                        color: colors.muted,
+                        borderColor: colors.inputBorder,
+                      }}
+                    >
+                      +91
+                    </span>
+
                     <input
                       type="tel"
                       inputMode="numeric"
+                      autoComplete="tel"
+                      maxLength={10}
                       value={number}
-                      onChange={(e) => setNumber(sanitizeNumber(e.target.value))}
-                      placeholder="Phone (+91)"
-                      className="glass-input w-full rounded-md border px-3 py-2.5 text-sm font-semibold outline-none"
+                      onChange={(e) =>
+                        setNumber(sanitizeNumber(e.target.value))
+                      }
+                      placeholder="7295014037"
+                      className="glass-input w-full rounded-md border py-2.5 pl-20 pr-4 text-sm font-semibold outline-none"
                       style={{
                         backgroundColor: colors.input,
                         borderColor: colors.inputBorder,
@@ -348,9 +372,15 @@ export default function AdminRegister() {
                           className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1"
                           style={{ color: colors.muted }}
                           onClick={() => setShowPassword(!showPassword)}
-                          aria-label={showPassword ? "Hide password" : "Show password"}
+                          aria-label={
+                            showPassword ? "Hide password" : "Show password"
+                          }
                         >
-                          {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                          {showPassword ? (
+                            <EyeOff size={14} />
+                          ) : (
+                            <Eye size={14} />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -373,10 +403,20 @@ export default function AdminRegister() {
                           type="button"
                           className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1"
                           style={{ color: colors.muted }}
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          aria-label={
+                            showConfirmPassword
+                              ? "Hide confirm password"
+                              : "Show confirm password"
+                          }
                         >
-                          {showConfirmPassword ? <EyeOff size={14} /> : <Eye size={14} />}
+                          {showConfirmPassword ? (
+                            <EyeOff size={14} />
+                          ) : (
+                            <Eye size={14} />
+                          )}
                         </button>
                       </div>
                     </div>

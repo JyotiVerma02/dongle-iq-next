@@ -38,7 +38,8 @@ export default function ResetPassword() {
       const data = await res.json();
       setMessage(data.message);
       if (res.ok) setTimeout(() => router.push("/login"), 2000);
-    } catch {
+    } catch (error) {
+      console.error(error);
       setMessage("System handshake error occurred");
     } finally {
       setLoading(false);

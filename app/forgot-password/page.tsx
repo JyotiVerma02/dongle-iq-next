@@ -28,9 +28,9 @@ export default function ForgotPassword() {
       });
       const data = await res.json();
       setMessage(data.message);
-    } catch {
-      setMessage("System handshake error occurred");
-    }
+        } catch {
+          setMessage("System handshake error occurred");
+        }
     setLoading(false);
   };
 

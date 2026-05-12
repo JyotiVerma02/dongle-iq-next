@@ -131,6 +131,8 @@ const PUBLIC_PATHS = [
   "/verify-aadhaar",
   "/admin/register",
   "/api/login",
+  "/api/admin/register",
+  "/api/admin/login",
   "/api/signup",
   "/api/register",
   "/api/send-otp",

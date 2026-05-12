@@ -17,7 +17,7 @@ if (!JWT_SECRET) {
 export function signAuthToken(
   payload: AuthTokenPayload,
   expiresIn: "1h" | "7d" = "1h",
-) {
+) { 
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn,
     issuer: JWT_ISSUER,
@@ -38,7 +38,7 @@ export function setAuthCookie(
   remember = false,
 ) {
   response.cookies.set("token", token, {
-    httpOnly: true,
+    // httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",
@@ -48,7 +48,7 @@ export function setAuthCookie(
 
 export function clearAuthCookie(response: NextResponse) {
   response.cookies.set("token", "", {
-    httpOnly: true,
+    // httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
     path: "/",

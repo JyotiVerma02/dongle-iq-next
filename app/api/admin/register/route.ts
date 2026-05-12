@@ -75,10 +75,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
     }
 
-    const existingAdmin = await Admin.findOne();
-    if (existingAdmin) {
-      return NextResponse.json({ error: "Admin already exists" }, { status: 400 });
-    }
+   const existingAdmin = await Admin.findOne();
+
+if (existingAdmin) {
+  return NextResponse.json(
+    {
+      error: "Admin already exists",
+      email: existingAdmin.email,
+    },
+    { status: 409 }
+  );
+}
 
     const existingUserByEmail = await User.findOne({ email: normalizedEmail });
     if (existingUserByEmail) {
