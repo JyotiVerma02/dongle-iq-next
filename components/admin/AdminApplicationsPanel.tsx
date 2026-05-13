@@ -3,18 +3,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ArrowLeft,
-  ArrowUpDown,
-  Eye,
-  Loader2,
-  Pencil,
-  Search,
-  UserPlus,
-  Users,
-  X,
-} from "lucide-react";
+import { ArrowUpDown, Eye, Loader2, Pencil, Search, UserPlus, Users, X } from "lucide-react";
 
 import { type ApplicationFormData } from "@/components/ApplicationForm";
 import { useTheme } from "@/components/ThemeContext";
@@ -23,7 +12,6 @@ import type { DashboardUser } from "@/components/UserLedger";
 import { ArrowUp, ArrowDown } from "lucide-react";
 import AdminApplicationPreview from "@/components/admin/AdminApplicationPreview";
 import AdminApplicationEditor from "@/components/admin/AdminApplicationEditor";
-import BackToPreviewButton from "@/components/BackToPreviewButton";
 
 type ApplicationFetch = {
   _id: string;
@@ -56,12 +44,6 @@ type ApplicationFetch = {
   updatedAt: string;
 };
 
-type ApplicantDraft = {
-  name: string;
-  email: string;
-  number: string;
-};
-
 const BASE_INITIAL_VALUES: ApplicationFormData = {
   name: "",
   email: "",
@@ -73,12 +55,6 @@ const BASE_INITIAL_VALUES: ApplicationFormData = {
   tokenType: "Not Required",
   assistedService: "Not Required",
   ekycType: "PAN",
-};
-
-const EMPTY_APPLICANT: ApplicantDraft = {
-  name: "",
-  email: "",
-  number: "",
 };
 
 type AdminApplicationsPanelProps = {
@@ -107,18 +83,12 @@ export default function AdminApplicationsPanel({
     direction: "asc",
   });
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [mode, setMode] = useState<"view" | "edit">("edit");
+  const [mode, setMode] = useState<"view" | "edit" | "create">("edit");
   const [, setFormInitialValues] =
     useState<ApplicationFormData>(BASE_INITIAL_VALUES);
   const [savingApplication, setSavingApplication] = useState(false);
   const [selectedUserDetails, setSelectedUserDetails] =
     useState<DashboardUser | null>(null);
-
-  const [isApplicantModalOpen, setApplicantModalOpen] = useState(false);
-  const [applicantDraft, setApplicantDraft] =
-    useState<ApplicantDraft>(EMPTY_APPLICANT);
-  const [creatingApplicant, setCreatingApplicant] = useState(false);
-  const [createApplicantError, setCreateApplicantError] = useState("");
   const [isFormModalOpen, setFormModalOpen] = useState(false);
 
   const selectedUser = useMemo(
@@ -244,47 +214,7 @@ export default function AdminApplicationsPanel({
     setSelectedUserDetails(null);
   };
 
-  const handleCreateApplicant = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setCreateApplicantError("");
-    setCreatingApplicant(true);
-
-    try {
-      const response = await fetch("/api/admin/create-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(applicantDraft),
-      });
-
-      const data = (await response.json().catch(() => null)) as {
-        success?: boolean;
-        message?: string;
-        user?: DashboardUser;
-      } | null;
-
-      if (!response.ok || !data?.success || !data.user?._id) {
-        throw new Error(data?.message || "Unable to create applicant");
-      }
-
-      setApplicantModalOpen(false);
-      setApplicantDraft(EMPTY_APPLICANT);
-      setCreateApplicantError("");
-      await refreshUsers(data.user._id);
-      toast.success("Applicant created. You can complete the application now.");
-    } catch (error) {
-      setCreateApplicantError(
-        error instanceof Error ? error.message : "Unable to create applicant",
-      );
-    } finally {
-      setCreatingApplicant(false);
-    }
-  };
-
   const handleApplicationSubmit = async (payload: Record<string, string>) => {
-    if (!selectedUserDetails) {
-      throw new Error("Select an applicant before saving the application.");
-    }
-
     if (mode === "view") {
       return;
     }
@@ -297,7 +227,7 @@ export default function AdminApplicationsPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...payload,
-          userId: selectedUserDetails._id,
+          userId: mode === "create" ? "" : selectedUserDetails?._id || "",
         }),
       });
 
@@ -310,10 +240,19 @@ export default function AdminApplicationsPanel({
         throw new Error(data?.message || "Unable to save application");
       }
 
-      await refreshUsers(selectedUserDetails._id);
-      await refreshUserInitialValues(selectedUserDetails._id);
+      const savedUserId = data.user?._id || selectedUserDetails?._id;
+
+      await refreshUsers(savedUserId);
+      if (savedUserId) {
+        await refreshUserInitialValues(savedUserId);
+      }
       setFormModalOpen(false);
-      toast.success("Application saved successfully.");
+      toast.success(
+        mode === "create"
+          ? "Applicant and DSC application created successfully."
+          : "Application saved successfully.",
+      );
+      setMode("edit");
     } finally {
       setSavingApplication(false);
     }
@@ -323,12 +262,6 @@ export default function AdminApplicationsPanel({
     <>
       <div className="relative h-full overflow-y-auto min-h-0">
         <div className="mb-4 flex flex-col gap-3">
-          {/* Back Button (TOP) */}
-          <div className="flex items-center">
-            <BackToPreviewButton />
-          </div>
-
-          {/* Title */}
           <div>
             <h1
               className="text-xl font-black lg:text-2xl"
@@ -393,8 +326,21 @@ export default function AdminApplicationsPanel({
             <button
               type="button"
               onClick={() => {
-                setApplicantModalOpen(true);
-                setCreateApplicantError("");
+                setSelectedUserId(null);
+                setSelectedUserDetails({
+                  _id: "",
+                  name: "",
+                  email: "",
+                  number: "",
+                  role: "user",
+                  status: "pending",
+                  isVerified: false,
+                  isAadhaarVerified: false,
+                  createdAt: "",
+                  updatedAt: "",
+                });
+                setMode("create");
+                setFormModalOpen(true);
               }}
               className="theme-transition inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 sm:w-auto"
               style={{
@@ -644,12 +590,11 @@ export default function AdminApplicationsPanel({
         </section>
       </div>
 
-      {isFormModalOpen && selectedUser ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-md">
+      {isFormModalOpen && (selectedUser || mode === "create") ? (
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md">
           <div
-            className="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-4xl border shadow-[0_28px_80px_-40px_rgba(15,23,42,0.6)]"
+            className="flex h-screen w-screen max-w-none flex-col overflow-hidden rounded-none border-0 shadow-none"
             style={{
-              borderColor: colors.borderSoft,
               backgroundColor: colors.panelStrong,
             }}
           >
@@ -662,11 +607,19 @@ export default function AdminApplicationsPanel({
                   className="text-[10px] font-black uppercase tracking-[0.24em]"
                   style={{ color: colors.accent }}
                 >
-                  {mode === "view" ? "Application View" : "Application Edit"}
+                  {mode === "view"
+                    ? "Application View"
+                    : mode === "create"
+                      ? "New Applicant + DSC"
+                      : "Application Edit"}
                 </p>
-                <h3 className="mt-2 text-xl font-black">{selectedUser.name}</h3>
+                <h3 className="mt-2 text-xl font-black">
+                  {mode === "create" ? "Create DSC Application" : selectedUser.name}
+                </h3>
                 <p className="mt-1 text-sm" style={{ color: colors.muted }}>
-                  {selectedUser.email} | {selectedUser.number}
+                  {mode === "create"
+                    ? "Fill all required fields once to create the applicant and DSC record together."
+                    : `${selectedUser.email} | ${selectedUser.number}`}
                 </p>
               </div>
 
@@ -691,7 +644,8 @@ export default function AdminApplicationsPanel({
                 <AdminApplicationPreview user={selectedUserDetails} />
               ) : (
                 <AdminApplicationEditor
-                  user={selectedUserDetails ?? selectedUser}
+                  user={selectedUserDetails ?? selectedUser ?? null}
+                  mode={mode === "create" ? "create" : "edit"}
                   saving={savingApplication}
                   onSubmit={handleApplicationSubmit}
                 />
@@ -700,173 +654,7 @@ export default function AdminApplicationsPanel({
           </div>
         </div>
       ) : null}
-
-      {isApplicantModalOpen ? (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-md">
-          <div
-            className="w-full max-w-lg rounded-4xl border p-6 shadow-[0_28px_80px_-40px_rgba(15,23,42,0.6)]"
-            style={{
-              borderColor: colors.borderSoft,
-              backgroundColor: colors.panelStrong,
-            }}
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p
-                  className="text-[10px] font-black uppercase tracking-[0.24em]"
-                  style={{ color: colors.accent }}
-                >
-                  New Applicant
-                </p>
-                <h3 className="mt-2 text-2xl font-black">
-                  Create applicant record
-                </h3>
-                <p className="mt-2 text-sm" style={{ color: colors.muted }}>
-                  Add the applicant first, then complete the application on the
-                  same screen.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setApplicantModalOpen(false);
-                  setCreateApplicantError("");
-                }}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border"
-                style={{
-                  borderColor: isDarkMode
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(0,0,0,0.06)",
-                  backgroundColor: colors.panel,
-                }}
-                aria-label="Close new applicant form"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateApplicant} className="mt-6 space-y-4">
-              <ModalField label="Full name" colors={colors}>
-                <input
-                  type="text"
-                  value={applicantDraft.name}
-                  onChange={(event) =>
-                    setApplicantDraft((current) => ({
-                      ...current,
-                      name: event.target.value,
-                    }))
-                  }
-                  placeholder="Enter applicant name"
-                  className="w-full rounded-xl border px-4 py-3 text-sm outline-none"
-                  style={{
-                    borderColor: isDarkMode
-                      ? "rgba(255,255,255,0.06)"
-                      : "rgba(0,0,0,0.06)",
-                    backgroundColor: colors.input,
-                    color: colors.text,
-                  }}
-                />
-              </ModalField>
-
-              <ModalField label="Email address" colors={colors}>
-                <input
-                  type="email"
-                  value={applicantDraft.email}
-                  onChange={(event) =>
-                    setApplicantDraft((current) => ({
-                      ...current,
-                      email: event.target.value,
-                    }))
-                  }
-                  placeholder="Enter email address"
-                  className="w-full rounded-xl border px-4 py-3 text-sm outline-none"
-                  style={{
-                    borderColor: isDarkMode
-                      ? "rgba(255,255,255,0.06)"
-                      : "rgba(0,0,0,0.06)",
-                    backgroundColor: colors.input,
-                    color: colors.text,
-                  }}
-                />
-              </ModalField>
-
-              <ModalField label="Mobile number" colors={colors}>
-                <input
-                  type="tel"
-                  value={applicantDraft.number}
-                  onChange={(event) =>
-                    setApplicantDraft((current) => ({
-                      ...current,
-                      number: event.target.value,
-                    }))
-                  }
-                  placeholder="Enter mobile number"
-                  className="w-full rounded-xl border px-4 py-3 text-sm outline-none"
-                  style={{
-                    borderColor: isDarkMode
-                      ? "rgba(255,255,255,0.06)"
-                      : "rgba(0,0,0,0.06)",
-                    backgroundColor: colors.input,
-                    color: colors.text,
-                  }}
-                />
-              </ModalField>
-
-              {createApplicantError ? (
-                <p className="text-sm font-semibold text-rose-500">
-                  {createApplicantError}
-                </p>
-              ) : null}
-
-              <button
-                type="submit"
-                disabled={creatingApplicant}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
-                style={{
-                  background:
-                    "linear-gradient(135deg, var(--accent), var(--accent-light))",
-                }}
-              >
-                {creatingApplicant ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    Creating applicant...
-                  </>
-                ) : (
-                  <>
-                    <UserPlus size={16} />
-                    Create Applicant
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      ) : null}
     </>
-  );
-}
-
-function ModalField({
-  label,
-  colors,
-  children,
-}: {
-  label: string;
-  colors: ReturnType<typeof getThemePalette>;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="block">
-      <span
-        className="mb-2 block text-[11px] font-bold uppercase tracking-[0.18em]"
-        style={{ color: colors.muted }}
-      >
-        {label}
-      </span>
-      {children}
-    </label>
   );
 }
 

@@ -62,6 +62,8 @@ interface UserLedgerProps {
   onBack: () => void;
   users: DashboardUser[];
   loading: boolean;
+  title?: string;
+  description?: string;
   onStatusChange: (
     userId: string,
     status: "approved" | "rejected",
@@ -75,6 +77,8 @@ export default function UserLedgerView({
   onBack,
   users,
   loading,
+  title = "User Ledger",
+  description = "Review applications, documents, and approval status from live backend data.",
   onStatusChange,
   onPaymentChange,
 }: UserLedgerProps) {
@@ -175,11 +179,10 @@ export default function UserLedgerView({
             className="text-3xl font-black tracking-tight"
             style={{ color: colors.text }}
           >
-            User Ledger
+            {title}
           </h2>
           <p className="mt-1 text-sm" style={{ color: colors.muted }}>
-            Review applications, documents, and approval status from live
-            backend data.
+            {description}
           </p>
         </div>
 

@@ -41,7 +41,9 @@ const getResolvedTheme = (): Theme => {
 };
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>(() => getResolvedTheme());
+  // Keep the initial client render aligned with the server render.
+  // The real stored/system theme is applied immediately after mount.
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

@@ -406,12 +406,28 @@ export default function DongleIQAdminHub() {
             />
           ) : null}
 
-          {view === "ledger" || view === "ledger-new" ? (
+          {view === "ledger" ? (
+            <div className="h-full overflow-y-auto min-h-0">
+              <UserLedgerView
+                onBack={() => setView("home")}
+                users={sortedOrders}
+                loading={loading}
+                title="All Applicants"
+                description="See every applicant first, then use the sidebar to switch into new and old order groups."
+                onStatusChange={handleStatusChange}
+                onPaymentChange={handlePaymentChange}
+              />
+            </div>
+          ) : null}
+
+          {view === "ledger-new" ? (
             <div className="h-full overflow-y-auto min-h-0">
               <UserLedgerView
                 onBack={() => setView("home")}
                 users={newOrders}
                 loading={loading}
+                title="New Orders"
+                description="Latest applicants are grouped here so the newest submissions are easy to review first."
                 onStatusChange={handleStatusChange}
                 onPaymentChange={handlePaymentChange}
               />
@@ -424,6 +440,8 @@ export default function DongleIQAdminHub() {
                 onBack={() => setView("home")}
                 users={oldOrders}
                 loading={loading}
+                title="Old Orders"
+                description="Earlier applicants are grouped here after the newest submissions."
                 onStatusChange={handleStatusChange}
                 onPaymentChange={handlePaymentChange}
               />

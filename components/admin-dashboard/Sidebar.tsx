@@ -97,7 +97,7 @@ export function Sidebar({
                 const next = !effectiveOrdersOpen;
                 setOrdersOpen(next);
                 if (next && !isLedgerView) {
-                  onViewChange("ledger-new");
+                  onViewChange("ledger");
                 }
               }}
               icon={<Users size={18} />}
@@ -107,8 +107,13 @@ export function Sidebar({
             {!isCollapsed && effectiveOrdersOpen ? (
               <div className="ml-2 mt-1 space-y-1 border-l pl-3" style={{ borderColor: colors.borderSoft }}>
                 <SubNavItem
+                  label="All Applicants"
+                  active={view === "ledger"}
+                  onClick={() => onViewChange("ledger")}
+                />
+                <SubNavItem
                   label="New Orders"
-                  active={view === "ledger-new" || view === "ledger"}
+                  active={view === "ledger-new"}
                   onClick={() => onViewChange("ledger-new")}
                 />
                 <SubNavItem

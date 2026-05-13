@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 import { connectDB } from "@/app/lib/mongodb";
+import { calculatePricing } from "@/app/lib/pricing";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import User from "@/model/user";
 
@@ -49,28 +51,35 @@ export async function POST(req: NextRequest) {
     const body = (await req.json()) as Record<string, unknown>;
     const userId = String(body.userId || "").trim();
 
-    if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-      return NextResponse.json(
-        { success: false, message: "Invalid userId" },
-        { status: 400 },
-      );
-    }
-
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User not found" },
-        { status: 404 },
-      );
-    }
-
     const nextEmail = String(body.email || "").trim().toLowerCase();
     const nextNumber = normalizeIndianMobile(body.number);
+    const nextName = String(body.name || "").trim();
+    const nextPan = String(body.pan || "").trim().toUpperCase();
+    const nextAddress = String(body.address || "").trim();
+    const nextPincode = String(body.pincode || "").trim();
+    const nextCity = String(body.city || "").trim();
+    const nextState = String(body.state || "").trim();
+    const nextCertificateClass = String(body.certificateClass || "").trim();
+    const nextCertType = String(body.certType || "").trim();
+    const nextValidity = String(body.validity || "").trim();
+    const nextTokenType = String(body.tokenType || "").trim() || "Not Required";
 
-    if (!String(body.name || "").trim() || !nextEmail || !nextNumber) {
+    if (
+      !nextName ||
+      !nextEmail ||
+      !nextNumber ||
+      !nextPan ||
+      !nextAddress ||
+      !nextPincode ||
+      !nextCity ||
+      !nextState ||
+      !nextCertificateClass ||
+      !nextCertType ||
+      !nextValidity ||
+      !nextTokenType
+    ) {
       return NextResponse.json(
-        { success: false, message: "Name, email, and mobile are required" },
+        { success: false, message: "Fill all required applicant and DSC fields" },
         { status: 400 },
       );
     }
@@ -82,10 +91,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let user = null;
+
+    if (userId) {
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return NextResponse.json(
+          { success: false, message: "Invalid userId" },
+          { status: 400 },
+        );
+      }
+
+      user = await User.findById(userId);
+
+      if (!user) {
+        return NextResponse.json(
+          { success: false, message: "User not found" },
+          { status: 404 },
+        );
+      }
+    }
+
     const emailOwner = await User.findOne({
       email: nextEmail,
       role: { $ne: "admin" },
-      _id: { $ne: user._id },
+      ...(user ? { _id: { $ne: user._id } } : {}),
     });
 
     if (emailOwner) {
@@ -98,7 +127,7 @@ export async function POST(req: NextRequest) {
     const numberOwner = await User.findOne({
       number: nextNumber,
       role: { $ne: "admin" },
-      _id: { $ne: user._id },
+      ...(user ? { _id: { $ne: user._id } } : {}),
     });
 
     if (numberOwner) {
@@ -108,30 +137,54 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    user.name = String(body.name || "").trim();
+    const nextPrice = calculatePricing({
+      certType: nextCertType,
+      validity: nextValidity,
+      tokenType: nextTokenType,
+      assistedService: "Not Required",
+    }).total;
+
+    if (!user) {
+      const password = await bcrypt.hash("temp123", 10);
+
+      user = new User({
+        password,
+        role: "user",
+        createdBy: "admin",
+        createdById: "admin-panel",
+        isVerified: false,
+        isAadhaarVerified: false,
+        status: "pending",
+      });
+    }
+
+    user.name = nextName;
     user.email = nextEmail;
     user.number = nextNumber;
     user.gender = String(body.gender || "").trim();
     user.dob = String(body.dob || "").trim();
-    user.pan = String(body.pan || "").trim().toUpperCase();
+    user.pan = nextPan;
     user.ekycId = String(body.ekycId || "").trim();
     user.ekycPin = String(body.ekycPin || "").trim();
     user.bpCode = String(body.bpCode || "").trim();
-    user.address = String(body.address || "").trim();
-    user.pincode = String(body.pincode || "").trim();
-    user.city = String(body.city || "").trim();
-    user.state = String(body.state || "").trim();
-    user.certificateClass = String(body.certificateClass || "").trim();
-    user.certType = String(body.certType || "").trim();
-    user.validity = String(body.validity || "").trim();
-    user.tokenType = String(body.tokenType || "").trim();
+    user.address = nextAddress;
+    user.pincode = nextPincode;
+    user.city = nextCity;
+    user.state = nextState;
+    user.certificateClass = nextCertificateClass;
+    user.certType = nextCertType;
+    user.validity = nextValidity;
+    user.tokenType = nextTokenType;
     user.internalRemarks = String(body.internalRemarks || "").trim();
+    user.price = nextPrice;
+    user.clientId = user.clientId || String(user._id);
+    user.status = "pending";
 
     await user.save();
 
     return NextResponse.json({
       success: true,
-      message: "Application updated successfully",
+      message: userId ? "Application updated successfully" : "Applicant and DSC application created successfully",
       user,
     });
   } catch (error) {
