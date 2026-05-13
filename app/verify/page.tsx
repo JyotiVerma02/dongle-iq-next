@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Moon, SunMedium } from "lucide-react";
 
 import { ThemeProvider, useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function VerifyPage() {
   const router = useRouter();
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
 
   const [mobile, setMobile] = useState("");
@@ -133,6 +133,21 @@ export default function VerifyPage() {
 
   return (
     <main className="theme-transition hero-grid relative flex app-page-min-height items-center justify-center px-2 py-2 sm:px-3 sm:py-3" style={{ color: colors.text }}>
+      {/* Fixed Theme Toggle */}
+      <button
+        onClick={toggleTheme}
+        className="fixed bottom-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95"
+        style={{
+          backgroundColor: colors.card,
+          borderColor: colors.borderSoft,
+          color: colors.accent,
+          boxShadow: `0 8px 20px -12px ${colors.accentShadow}`,
+        }}
+        title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        aria-label="Toggle theme"
+      >
+        {isDarkMode ? <SunMedium size={20} /> : <Moon size={20} />}
+      </button>
       <div className="relative z-10 w-full max-w-sm">
         <div
           className="pointer-events-none absolute -inset-px rounded-lg blur-sm"

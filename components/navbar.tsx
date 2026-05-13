@@ -37,7 +37,6 @@ export default function Navbar() {
   const pathname = usePathname();
   const { isDarkMode, mounted, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -49,7 +48,6 @@ export default function Navbar() {
 
     const update = () => {
       raf = 0;
-      setIsScrolled(window.scrollY > 8);
     };
 
     const onScroll = () => {

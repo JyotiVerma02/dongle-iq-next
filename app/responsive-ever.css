@@ -41,8 +41,10 @@
 /* ——— User dashboard shell ——— */
 /* No page-level background: uses global html/body gradient from globals.css */
 .ud-dashboard-root {
+  --ud-navbar-clearance: 0px;
   color: inherit;
   background: transparent;
+  min-height: 100dvh;
 }
 
 /*

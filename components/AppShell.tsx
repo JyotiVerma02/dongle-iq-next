@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import type { ReactNode } from "react";
@@ -22,14 +21,27 @@ const EFFECTS_DISABLED_PATHS = new Set([
 ]);
 
 const HIDE_NAVBAR_PATHS = new Set([
-  "/admin/dashboard",
-]);
-
-const NO_OFFSET_PATHS = new Set<string>([
+  "/verify",
+  "/verify-aadhaar",
+  "/bank-telecom-form",
+  "/preview",
+  "/user/dashboard",
   "/admin/dashboard",
 ]);
 
 const BACKGROUND_DISABLED_PATHS = new Set<string>();
+
+const HIDE_NAVBAR_PREFIXES = ["/admin/dashboard", "/admin/create-application", "/user"];
+
+function shouldHideNavbar(pathname: string) {
+  if (HIDE_NAVBAR_PATHS.has(pathname)) {
+    return true;
+  }
+
+  return HIDE_NAVBAR_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() || "";
@@ -38,11 +50,8 @@ export default function AppShell({ children }: { children: ReactNode }) {
   const cleanPath = pathname.split("?")[0].replace(/\/$/, "");
 
   const showEffects = !EFFECTS_DISABLED_PATHS.has(cleanPath);
-  const showNavbar = !HIDE_NAVBAR_PATHS.has(cleanPath);
+  const showNavbar = !shouldHideNavbar(cleanPath);
   const showBackground = !BACKGROUND_DISABLED_PATHS.has(cleanPath);
-
-  const useShellOffset =
-    showNavbar && !NO_OFFSET_PATHS.has(cleanPath);
 
   return (
     <>
@@ -50,9 +59,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
       {showNavbar && <Navbar />}
 
       <main
-        className={`relative z-10 transition-all duration-300 ${
-          useShellOffset ? "app-shell-content" : ""
-        }`}
+        className={`relative z-10 transition-all duration-300 ${showNavbar ? "app-shell-content" : ""}`}
       >
         {children}
       </main>

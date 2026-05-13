@@ -106,7 +106,7 @@ export function UserSidebar({
 
   return (
     <aside
-      className={`ud-sidebar-surface theme-transition ud-sidebar relative fixed inset-y-0 left-0 z-50 flex transform flex-col border-r transition-[transform,width] duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
+      className={`ud-sidebar-surface theme-transition ud-sidebar fixed inset-y-0 left-0 z-50 flex transform flex-col border-r transition-[transform,width] duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       } ${collapsed ? "ud-sidebar--collapsed" : ""}`}
       style={{ borderColor: "var(--border-soft)" }}
@@ -251,7 +251,7 @@ export function UserSidebar({
               <button
                 type="button"
                 onClick={onLogout}
-                className="theme-transition flex min-h-[var(--re-touch-min)] w-full items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-22px_var(--accent-shadow)]"
+                className="theme-transition flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-22px_var(--accent-shadow)]"
                 style={{
                   borderColor: colors.borderSoft,
                   backgroundColor: colors.card,

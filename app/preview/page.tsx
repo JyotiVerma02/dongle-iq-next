@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Moon, SunMedium } from "lucide-react";
 
 import {
   clearPreviewDraft,
@@ -11,12 +12,12 @@ import {
   type PreviewDraft,
 } from "@/app/lib/applicationPreview";
 import { calculatePricing } from "@/app/lib/pricing";
-import { ThemeProvider, useTheme } from "@/components/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function PreviewPage() {
   const router = useRouter();
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const [draft, setDraft] = useState<PreviewDraft | null>(null);
   const [loading, setLoading] = useState(false);
@@ -106,13 +107,30 @@ export default function PreviewPage() {
                 Check all details and documents one final time before saving them to the backend.
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
-                Final Amount
-              </p>
-              <p className="text-3xl font-black" style={{ color: colors.accent }}>
-                INR {pricing.total}
-              </p>
+            <div className="flex items-center justify-between gap-3 md:justify-end">
+              <div className="text-right">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+                  Final Amount
+                </p>
+                <p className="text-3xl font-black" style={{ color: colors.accent }}>
+                  INR {pricing.total}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="theme-transition inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-xs font-bold transition hover:-translate-y-0.5"
+                style={{
+                  backgroundColor: colors.panelStrong,
+                  borderColor: colors.borderSoft,
+                  color: colors.text,
+                }}
+                title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                aria-label="Toggle theme"
+              >
+                {isDarkMode ? <SunMedium size={16} /> : <Moon size={16} />}
+                {isDarkMode ? "Light" : "Dark"}
+              </button>
             </div>
           </div>
         </div>

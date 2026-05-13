@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
@@ -9,6 +8,8 @@ import {
   PencilLine,
   ShieldCheck,
   Sparkles,
+  Moon,
+  SunMedium,
 } from "lucide-react";
 
 import {
@@ -100,7 +101,7 @@ function hasCompletedApplication(user: UserData | null) {
 
 export default function DSCRegistrationForm() {
   const router = useRouter();
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const premiumGradient =
     "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
@@ -150,6 +151,7 @@ export default function DSCRegistrationForm() {
       }
     };
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSidebarOpen(mediaQuery.matches);
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
@@ -385,7 +387,7 @@ export default function DSCRegistrationForm() {
       <p className="mt-2 max-w-lg text-sm font-semibold leading-relaxed" style={{ color: colors.muted }}>
         Finish the registration flow and upload all required proofs. Once your DSC application is complete,
         admin review, certificate summary, personal details, and documents appear in the sidebar under{" "}
-        <span className="font-black text-[color:var(--foreground)]">After submission</span>.
+        <span className="font-black">After submission</span>.
       </p>
       <button
         type="button"
@@ -566,7 +568,7 @@ export default function DSCRegistrationForm() {
         </h3>
         <p className="mt-2 text-sm font-semibold leading-relaxed" style={{ color: colors.muted }}>
           Submitted on {submittedOn}. Use{" "}
-          <span className="font-black text-[color:var(--foreground)]">After submission</span> in the sidebar for
+          <span className="font-black">After submission</span> in the sidebar for
           admin updates and documents.
         </p>
         {canEditApplication ? (
@@ -783,6 +785,21 @@ export default function DSCRegistrationForm() {
       className="theme-transition ud-dashboard-root ud-shell overflow-hidden"
       style={{ color: colors.text }}
     >
+      {/* Fixed Theme Toggle */}
+      <button
+        onClick={toggleTheme}
+        className="fixed bottom-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95"
+        style={{
+          backgroundColor: colors.card,
+          borderColor: colors.borderSoft,
+          color: colors.accent,
+          boxShadow: `0 8px 20px -12px ${colors.accentShadow}`,
+        }}
+        title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        aria-label="Toggle theme"
+      >
+        {isDarkMode ? <SunMedium size={20} /> : <Moon size={20} />}
+      </button>
       {!loading ? (
         <>
           <UserSidebar
