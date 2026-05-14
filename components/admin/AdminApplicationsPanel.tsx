@@ -1,20 +1,31 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import { ArrowUpDown, Eye, Loader2, Pencil, Search, UserPlus, Users, X } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  Download,
+  Eye,
+  FileSpreadsheet,
+  Pencil,
+  Search,
+  Trash2,
+  UserPlus,
+  X,
+} from "lucide-react";
 
-import { type ApplicationFormData } from "@/components/ApplicationForm";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 import type { DashboardUser } from "@/components/UserLedger";
-import { ArrowUp, ArrowDown } from "lucide-react";
 import AdminApplicationPreview from "@/components/admin/AdminApplicationPreview";
 import AdminApplicationEditor from "@/components/admin/AdminApplicationEditor";
+import { EmptyState, SkeletonBlock } from "@/components/admin-dashboard/ui";
 
 type ApplicationFetch = {
   _id: string;
+  dscId?: string;
   name: string;
   email: string;
   number: string;
@@ -38,23 +49,33 @@ type ApplicationFetch = {
   internalRemarks?: string;
   isVerified?: boolean;
   isAadhaarVerified?: boolean;
-  status: "approved" | "pending" | "rejected";
+  status: DashboardUser["status"];
   price?: number;
   createdAt: string;
   updatedAt: string;
 };
 
-const BASE_INITIAL_VALUES: ApplicationFormData = {
-  name: "",
-  email: "",
-  mobile: "",
-  userType: "Individual",
-  classType: "Class III",
-  certType: "",
-  validity: "",
-  tokenType: "Not Required",
-  assistedService: "Not Required",
-  ekycType: "PAN",
+type ApplicantsResponse = {
+  success?: boolean;
+  users?: DashboardUser[];
+  message?: string;
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+  filters?: {
+    certTypes: string[];
+    validities: string[];
+  };
+  stats?: {
+    total: number;
+    pending: number;
+    approved: number;
+    rejected: number;
+    issued: number;
+  };
 };
 
 type AdminApplicationsPanelProps = {
@@ -64,65 +85,131 @@ type AdminApplicationsPanelProps = {
   onUsersChange: (users: DashboardUser[]) => void;
 };
 
+const PAGE_SIZE = 10;
+const STATUS_OPTIONS = [
+  "all",
+  "pending",
+  "approved",
+  "rejected",
+  "issued",
+] as const;
+
 export default function AdminApplicationsPanel({
   users,
   loading,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onBack,
   onUsersChange,
 }: AdminApplicationsPanelProps) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
 
+  const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] =
+    useState<(typeof STATUS_OPTIONS)[number]>("all");
+  const [validityFilter, setValidityFilter] = useState("all");
+  const [certTypeFilter, setCertTypeFilter] = useState("all");
   const [sortConfig, setSortConfig] = useState<{
-    key: "name" | "email" | "certType" | "status";
+    key: "createdAt" | "name" | "email" | "certType" | "status" | "validity";
     direction: "asc" | "desc";
   }>({
-    key: "name",
-    direction: "asc",
+    key: "createdAt",
+    direction: "desc",
   });
+  const [page, setPage] = useState(1);
+  const [tableLoading, setTableLoading] = useState(true);
+  const [tableUsers, setTableUsers] = useState<DashboardUser[]>(users);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: PAGE_SIZE,
+    total: users.length,
+    pages: Math.max(1, Math.ceil(users.length / PAGE_SIZE)),
+  });
+  const [filterOptions, setFilterOptions] = useState({
+    certTypes: [] as string[],
+    validities: [] as string[],
+  });
+  const [stats, setStats] = useState({
+    total: users.length,
+    pending: users.filter((user) => user.status === "pending").length,
+    approved: users.filter((user) => user.status === "approved").length,
+    rejected: users.filter((user) => user.status === "rejected").length,
+    issued: users.filter((user) => user.status === "issued").length,
+  });
+
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [mode, setMode] = useState<"view" | "edit" | "create">("edit");
-  const [, setFormInitialValues] =
-    useState<ApplicationFormData>(BASE_INITIAL_VALUES);
   const [savingApplication, setSavingApplication] = useState(false);
   const [selectedUserDetails, setSelectedUserDetails] =
     useState<DashboardUser | null>(null);
   const [isFormModalOpen, setFormModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<DashboardUser | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   const selectedUser = useMemo(
-    () => users.find((user) => user._id === selectedUserId) ?? null,
-    [selectedUserId, users],
+    () => tableUsers.find((user) => user._id === selectedUserId) ?? null,
+    [selectedUserId, tableUsers],
   );
 
-  const filteredUsers = useMemo(() => {
-    const term = searchQuery.trim().toLowerCase();
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setSearchQuery(searchInput.trim());
+      setPage(1);
+    }, 250);
 
-    const filtered = users.filter((user) => {
-      if (!term) return true;
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
 
-      return (
-        user.name?.toLowerCase().includes(term) ||
-        user.email?.toLowerCase().includes(term) ||
-        user.number?.includes(term) ||
-        user.certType?.toLowerCase().includes(term)
-      );
-    });
+  useEffect(() => {
+    setPage(1);
+  }, [statusFilter, validityFilter, certTypeFilter]);
 
-    const { key, direction } = sortConfig;
+  const fetchApplicants = async () => {
+    setTableLoading(true);
 
-    return [...filtered].sort((a, b) => {
-      const aValue = (a[key] ?? "").toString().toLowerCase();
-      const bValue = (b[key] ?? "").toString().toLowerCase();
+    try {
+      const params = new URLSearchParams({
+        q: searchQuery,
+        status: statusFilter,
+        validity: validityFilter,
+        certType: certTypeFilter,
+        page: String(page),
+        limit: String(PAGE_SIZE),
+        sortKey: sortConfig.key,
+        sortDir: sortConfig.direction,
+      });
 
-      if (direction === "asc") {
-        return aValue.localeCompare(bValue);
-      } else {
-        return bValue.localeCompare(aValue);
+      const response = await fetch(`/api/admin/users?${params.toString()}`, {
+        cache: "no-store",
+      });
+      const data = (await response
+        .json()
+        .catch(() => null)) as ApplicantsResponse | null;
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.message || "Unable to load applicants");
       }
-    });
-  }, [users, searchQuery, sortConfig]);
+
+      setTableUsers(data.users ?? []);
+      setPagination(data.pagination ?? pagination);
+      setFilterOptions(data.filters ?? { certTypes: [], validities: [] });
+      setStats(
+        data.stats ?? {
+          total: 0,
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+          issued: 0,
+        },
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to load applicants",
+      );
+    } finally {
+      setTableLoading(false);
+    }
+  };
+
   const refreshUsers = async (preferredUserId?: string) => {
     try {
       const response = await fetch("/api/get-users", { cache: "no-store" });
@@ -136,12 +223,13 @@ export default function AdminApplicationsPanel({
         throw new Error(data?.message || "Unable to load applicants");
       }
 
-      const nextUsers = data.users ?? [];
-      onUsersChange(nextUsers);
+      onUsersChange(data.users ?? []);
 
       if (preferredUserId) {
         setSelectedUserId(preferredUserId);
       }
+
+      await fetchApplicants();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Unable to load applicants",
@@ -149,57 +237,53 @@ export default function AdminApplicationsPanel({
     }
   };
 
-  const handleSort = (key: "name" | "email" | "certType" | "status") => {
-    setSortConfig((prev) => ({
-      key,
-      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
-    }));
-  };
   const refreshUserInitialValues = async (userId: string) => {
-    setFormInitialValues(BASE_INITIAL_VALUES);
     setSelectedUserDetails(null);
 
     try {
       const response = await fetch(
         `/api/admin/application-details?userId=${userId}`,
-        {
-          cache: "no-store",
-        },
+        { cache: "no-store" },
       );
       const data = (await response.json().catch(() => null)) as {
         success?: boolean;
         user?: ApplicationFetch;
       } | null;
 
-      if (!response.ok || !data?.success || !data.user) {
-        return;
-      }
+      if (!response.ok || !data?.success || !data.user) return;
 
-      const application = data.user;
-      setSelectedUserDetails(application as DashboardUser);
-      setFormInitialValues({
-        ...BASE_INITIAL_VALUES,
-        name: application.name || "",
-        email: application.email || "",
-        mobile: application.number || "",
-        classType: application.certificateClass || "Class III",
-        certType: application.certType || "",
-        validity: application.validity || "",
-        tokenType: application.tokenType || "Not Required",
-      });
+      setSelectedUserDetails(data.user as DashboardUser);
     } catch (error) {
-      console.error("Failed to fetch applicant initial values:", error);
+      console.error("Failed to fetch applicant details:", error);
     }
   };
 
   useEffect(() => {
-    if (!selectedUserId) {
-      setFormInitialValues(BASE_INITIAL_VALUES);
-      return;
-    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void fetchApplicants();
+  }, [
+    searchQuery,
+    statusFilter,
+    validityFilter,
+    certTypeFilter,
+    page,
+    sortConfig,
+  ]);
 
+  useEffect(() => {
+    if (!selectedUserId) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refreshUserInitialValues(selectedUserId);
   }, [selectedUserId]);
+
+  const handleSort = (
+    key: "createdAt" | "name" | "email" | "certType" | "status" | "validity",
+  ) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  };
 
   const handleUserSelection = (userId: string, nextMode: "view" | "edit") => {
     setSelectedUserId(userId);
@@ -215,9 +299,7 @@ export default function AdminApplicationsPanel({
   };
 
   const handleApplicationSubmit = async (payload: Record<string, string>) => {
-    if (mode === "view") {
-      return;
-    }
+    if (mode === "view") return;
 
     setSavingApplication(true);
 
@@ -234,6 +316,7 @@ export default function AdminApplicationsPanel({
       const data = (await response.json().catch(() => null)) as {
         success?: boolean;
         message?: string;
+        user?: DashboardUser;
       } | null;
 
       if (!response.ok || !data?.success) {
@@ -241,88 +324,134 @@ export default function AdminApplicationsPanel({
       }
 
       const savedUserId = data.user?._id || selectedUserDetails?._id;
-
       await refreshUsers(savedUserId);
       if (savedUserId) {
         await refreshUserInitialValues(savedUserId);
       }
+
       setFormModalOpen(false);
       toast.success(
         mode === "create"
           ? "Applicant and DSC application created successfully."
-          : "Application saved successfully.",
+          : "Application updated successfully.",
       );
       setMode("edit");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to save application",
+      );
     } finally {
       setSavingApplication(false);
     }
   };
 
+  const handleDeleteApplicant = async () => {
+    if (!deleteTarget?._id) return;
+
+    setDeletingUserId(deleteTarget._id);
+
+    try {
+      const response = await fetch("/api/admin/users", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: deleteTarget._id }),
+      });
+      const data = (await response.json().catch(() => null)) as {
+        success?: boolean;
+        message?: string;
+      } | null;
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.message || "Unable to delete applicant");
+      }
+
+      setDeleteTarget(null);
+      toast.success("Applicant deleted successfully");
+      await refreshUsers();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Unable to delete applicant",
+      );
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
+  const exportApplicants = (format: "csv" | "excel") => {
+    const dataset = users.map((user) => ({
+      "DSC ID": user.dscId || "",
+      Applicant: user.name || "",
+      Email: user.email || "",
+      Mobile: user.number || "",
+      PAN: user.pan || "",
+      Status: user.status || "",
+      "Certificate Type": user.certType || "",
+      Validity: user.validity || "",
+      "Created At": user.createdAt || "",
+    }));
+
+    if (!dataset.length) {
+      toast.error("No applicants available to export");
+      return;
+    }
+
+    const headers = Object.keys(dataset[0]);
+    const separator = format === "excel" ? "\t" : ",";
+    const rows = dataset.map((row) =>
+      headers
+        .map(
+          (header) =>
+            `"${String(row[header as keyof typeof row] ?? "").replace(/"/g, '""')}"`,
+        )
+        .join(separator),
+    );
+    const fileContent = [headers.join(separator), ...rows].join("\n");
+    const blob = new Blob([fileContent], {
+      type:
+        format === "excel"
+          ? "application/vnd.ms-excel;charset=utf-8;"
+          : "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `dongleiq-applicants-${new Date().toISOString().slice(0, 10)}.${format === "excel" ? "xls" : "csv"}`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Applicants exported as ${format.toUpperCase()}`);
+  };
+
+  const analyticsCards = [
+    { label: "Total Applicants", value: stats.total, tone: "var(--accent)" },
+    { label: "Issued DSCs", value: stats.issued, tone: "#2563eb" },
+    { label: "Pending", value: stats.pending, tone: "#d97706" },
+    { label: "Rejected", value: stats.rejected, tone: "#e11d48" },
+  ];
+
   return (
     <>
-      <div className="relative h-full overflow-y-auto min-h-0">
-        <div className="mb-4 flex flex-col gap-3">
-          <div>
-            <h1
-              className="text-xl font-black lg:text-2xl"
-              style={{ color: colors.text }}
-            >
-              Applications
-            </h1>
-
-            <p className="mt-1 text-[13px]" style={{ color: colors.muted }}>
-              Manage applicants, create new applications, and edit records in
-              the same dashboard flow.
-            </p>
-          </div>
-        </div>
-
-        <section
-          className="rounded-xl border p-4 shadow-[0_18px_36px_-28px_rgba(15,23,42,0.35)]"
-          style={{
-            borderColor: isDarkMode
-              ? "rgba(255,255,255,0.06)"
-              : "rgba(0,0,0,0.06)",
-            backgroundColor: colors.panelStrong,
-          }}
-        >
-          {/* <div>
-              <p
-                className="text-[10px] uppercase tracking-[0.2em]"
-                style={{ color: colors.subtleText }}
+      <div className="admin-compact-shell relative min-h-0 overflow-y-auto overflow-x-hidden">
+        <div className="mb-4 flex flex-col gap-2">
+          <p
+            className="text-[10px] font-black uppercase tracking-[0.24em]"
+            style={{ color: colors.accent }}
+          >
+            Application Workspace
+          </p>
+          <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h1
+                className="text-xl font-black lg:text-2xl"
+                style={{ color: colors.text }}
               >
-                Applicant Directory
+                Applications
+              </h1>
+              <p className="mt-1 text-[13px]" style={{ color: colors.muted }}>
+                Compact applicant management with create, review, edit, filters,
+                and exports in one admin flow.
               </p>
-              <h2 className="mt-1 text-lg font-bold tracking-tight">
-                Application records
-              </h2>
-            </div> */}
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            {/* 🔍 Search (Left) */}
-            <div className="relative w-full max-w-md">
-              <Search
-                className="absolute left-4 top-1/2 -translate-y-1/2"
-                size={16}
-                style={{ color: colors.muted }}
-              />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search by applicant, email, mobile or service"
-                className="w-full rounded-xl border px-3 py-2 pl-10 text-[13px] outline-none"
-                style={{
-                  borderColor: isDarkMode
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(0,0,0,0.06)",
-                  backgroundColor: colors.panel,
-                  color: colors.text,
-                }}
-              />
             </div>
 
-            {/* ➕ Button (Right) */}
             <button
               type="button"
               onClick={() => {
@@ -342,173 +471,253 @@ export default function AdminApplicationsPanel({
                 setMode("create");
                 setFormModalOpen(true);
               }}
-              className="theme-transition inline-flex w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-white transition hover:-translate-y-0.5 sm:w-auto"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--accent), var(--accent-light))",
-              }}
+              className="theme-transition inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-xs font-black uppercase tracking-[0.16em] text-white shadow-[0_20px_30px_-22px_var(--accent-shadow)] transition hover:-translate-y-0.5 active:scale-[0.99] sm:w-auto"
+              style={{ background: "var(--brand-gradient)" }}
             >
-              <UserPlus size={14} />
+              <UserPlus size={15} />
               New Applicant
             </button>
           </div>
+        </div>
 
-          <div className="mt-4">
-            {loading ? (
-              <div className="flex min-h-56 items-center justify-center">
-                <Loader2
-                  size={34}
-                  className="animate-spin"
-                  style={{ color: colors.accent }}
+        <section className="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {analyticsCards.map((card) => (
+            <div
+              key={card.label}
+              className="admin-compact-panel rounded-lg px-4 py-4 transition duration-200 hover:-translate-y-0.5"
+            >
+              <p
+                className="text-[10px] font-black uppercase tracking-[0.18em]"
+                style={{ color: colors.subtleText }}
+              >
+                {card.label}
+              </p>
+              <p
+                className="mt-3 text-2xl font-black"
+                style={{ color: card.tone }}
+              >
+                {card.value}
+              </p>
+            </div>
+          ))}
+        </section>
+
+        <section
+          className="admin-compact-panel rounded-lg p-3 sm:p-4"
+          style={{ borderColor: colors.borderSoft }}
+        >
+          <div
+            className="sticky top-0 z-10 -mx-3 mb-4 border-b px-3 pb-3 pt-0 backdrop-blur sm:-mx-4 sm:px-4"
+            style={{
+              borderColor: colors.borderSoft,
+              backgroundColor: isDarkMode
+                ? "rgba(10,19,30,0.78)"
+                : "rgba(255,255,255,0.82)",
+            }}
+          >
+            <div className="grid gap-3 xl:grid-cols-[minmax(0,1.5fr)_repeat(4,minmax(0,0.75fr))]">
+              <div className="relative min-w-0">
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2"
+                  size={15}
+                  style={{ color: colors.muted }}
+                />
+                <input
+                  type="text"
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  placeholder="Search by name, email, mobile, PAN or DSC ID"
+                  className="h-11 w-full rounded-lg border bg-transparent pl-9 pr-3 text-sm outline-none"
+                  style={{
+                    borderColor: colors.borderSoft,
+                    backgroundColor: colors.panel,
+                    color: colors.text,
+                  }}
                 />
               </div>
-            ) : filteredUsers.length === 0 ? (
-              <div
-                className="flex min-h-56 flex-col items-center justify-center rounded-xl border border-dashed px-6 text-center"
-                style={{
-                  borderColor: colors.borderSoft,
-                  backgroundColor: colors.panel,
-                }}
-              >
-                <Users size={26} style={{ color: colors.accent }} />
-                <p className="mt-4 text-base font-bold">No applicant found</p>
-                <p className="mt-2 text-sm" style={{ color: colors.muted }}>
-                  Create a new applicant to begin the application flow.
-                </p>
-              </div>
-            ) : (
-              <div
-                className="overflow-hidden rounded-xl border"
-                style={{
-                  borderColor: isDarkMode
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(0,0,0,0.06)",
-                  backgroundColor: colors.panel,
-                }}
-              >
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[880px] border-collapse text-left">
-                    <thead>
-                      <tr
-                        className="text-[11px] font-black uppercase tracking-[0.18em]"
-                        style={{
-                          backgroundColor: isDarkMode
-                            ? "rgba(255,255,255,0.04)"
-                            : "#eef4ff",
-                          color: colors.muted,
-                        }}
-                      >
-                        <th
-                          className="px-4 py-4 cursor-pointer"
-                          onClick={() => handleSort("name")}
-                        >
-                          <div className="flex items-center gap-1">
-                            Applicant
-                            {sortConfig.key === "name" ? (
-                              sortConfig.direction === "asc" ? (
-                                <ArrowUp size={12} />
-                              ) : (
-                                <ArrowDown size={12} />
-                              )
-                            ) : (
-                              <ArrowUpDown size={12} className="opacity-40" />
-                            )}
-                          </div>
-                        </th>
-                        <th
-                          className="px-4 py-4 cursor-pointer"
-                          onClick={() => handleSort("email")}
-                        >
-                          <div className="flex items-center gap-1">
-                            Contact
-                            {sortConfig.key === "email" ? (
-                              sortConfig.direction === "asc" ? (
-                                <ArrowUp size={12} />
-                              ) : (
-                                <ArrowDown size={12} />
-                              )
-                            ) : (
-                              <ArrowUpDown size={12} className="opacity-40" />
-                            )}
-                          </div>
-                        </th>
-                        <th
-                          className="px-4 py-4 cursor-pointer"
-                          onClick={() => handleSort("certType")}
-                        >
-                          <div className="flex items-center gap-1">
-                            Service
-                            {sortConfig.key === "certType" ? (
-                              sortConfig.direction === "asc" ? (
-                                <ArrowUp size={12} />
-                              ) : (
-                                <ArrowDown size={12} />
-                              )
-                            ) : (
-                              <ArrowUpDown size={12} className="opacity-40" />
-                            )}
-                          </div>
-                        </th>
 
-                        <th
-                          className="px-4 py-4 cursor-pointer"
+              <FilterSelect
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={STATUS_OPTIONS.map((value) => ({
+                  label: capitalizeValue(value),
+                  value,
+                }))}
+              />
+              <FilterSelect
+                value={validityFilter}
+                onChange={setValidityFilter}
+                options={[
+                  { label: "All Validities", value: "all" },
+                  ...filterOptions.validities.map((value) => ({
+                    label: value,
+                    value,
+                  })),
+                ]}
+              />
+              <FilterSelect
+                value={certTypeFilter}
+                onChange={setCertTypeFilter}
+                options={[
+                  { label: "All Certificate Types", value: "all" },
+                  ...filterOptions.certTypes.map((value) => ({
+                    label: value,
+                    value,
+                  })),
+                ]}
+              />
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => exportApplicants("csv")}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-bold uppercase tracking-[0.12em]"
+                  style={{
+                    borderColor: colors.borderSoft,
+                    backgroundColor: colors.panel,
+                    color: colors.text,
+                  }}
+                >
+                  <Download size={14} />
+                  CSV
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportApplicants("excel")}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-bold uppercase tracking-[0.12em]"
+                  style={{
+                    borderColor: colors.borderSoft,
+                    backgroundColor: colors.panel,
+                    color: colors.text,
+                  }}
+                >
+                  <FileSpreadsheet size={14} />
+                  Excel
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {loading || tableLoading ? (
+            <div className="space-y-3">
+              {Array.from({ length: 8 }).map((_, index) => (
+                <div
+                  key={`applicant-skeleton-${index}`}
+                  className="grid gap-3 rounded-lg border px-3 py-3 md:grid-cols-[1.2fr_1fr_0.9fr_0.7fr_0.8fr]"
+                  style={{
+                    borderColor: colors.borderSoft,
+                    backgroundColor: colors.panel,
+                  }}
+                >
+                  <SkeletonBlock className="h-10 w-full rounded-lg" />
+                  <SkeletonBlock className="h-10 w-full rounded-lg" />
+                  <SkeletonBlock className="h-10 w-full rounded-lg" />
+                  <SkeletonBlock className="h-10 w-full rounded-lg" />
+                  <SkeletonBlock className="h-10 w-full rounded-lg" />
+                </div>
+              ))}
+            </div>
+          ) : tableUsers.length === 0 ? (
+            <EmptyState
+              title="No applicants found"
+              description="Try adjusting the filters or create a new applicant to start a fresh DSC workflow."
+            />
+          ) : (
+            <>
+              <div
+                className="overflow-hidden rounded-lg border"
+                style={{ borderColor: colors.borderSoft }}
+              >
+                <div className="hide-scrollbar overflow-x-auto">
+                  <table className="w-full min-w-[920px] border-collapse text-left">
+                    <thead
+                      style={{
+                        backgroundColor: isDarkMode
+                          ? "rgba(255,255,255,0.04)"
+                          : "rgba(15,118,110,0.06)",
+                        color: colors.muted,
+                      }}
+                    >
+                      <tr className="text-[10px] font-black uppercase tracking-[0.18em]">
+                        <SortableHead
+                          label="Applicant"
+                          active={sortConfig.key === "name"}
+                          direction={sortConfig.direction}
+                          onClick={() => handleSort("name")}
+                        />
+                        <SortableHead
+                          label="Contact"
+                          active={sortConfig.key === "email"}
+                          direction={sortConfig.direction}
+                          onClick={() => handleSort("email")}
+                        />
+                        <SortableHead
+                          label="Service"
+                          active={sortConfig.key === "certType"}
+                          direction={sortConfig.direction}
+                          onClick={() => handleSort("certType")}
+                        />
+                        <SortableHead
+                          label="Validity"
+                          active={sortConfig.key === "validity"}
+                          direction={sortConfig.direction}
+                          onClick={() => handleSort("validity")}
+                        />
+                        <SortableHead
+                          label="Status"
+                          active={sortConfig.key === "status"}
+                          direction={sortConfig.direction}
                           onClick={() => handleSort("status")}
-                        >
-                          <div className="flex items-center gap-1">
-                            Status
-                            {sortConfig.key === "status" ? (
-                              sortConfig.direction === "asc" ? (
-                                <ArrowUp size={12} />
-                              ) : (
-                                <ArrowDown size={12} />
-                              )
-                            ) : (
-                              <ArrowUpDown size={12} className="opacity-40" />
-                            )}
-                          </div>
-                        </th>
-                        <th className="px-4 py-4 text-center">Actions</th>
+                        />
+                        <SortableHead
+                          label="Created"
+                          active={sortConfig.key === "createdAt"}
+                          direction={sortConfig.direction}
+                          onClick={() => handleSort("createdAt")}
+                        />
+                        <th className="px-4 py-3 text-center">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {filteredUsers.map((user, index) => {
-                        const isActive = user._id === selectedUserId;
 
+                    <tbody>
+                      {tableUsers.map((user, index) => {
+                        const isActive = user._id === selectedUserId;
                         return (
                           <tr
                             key={user._id}
-                            className=" transition-transform duration-200 hover:scale-[1.01] hover:z-10"
+                            className="transition duration-200 hover:bg-black/[0.03] dark:hover:bg-white/[0.03]"
                             style={{
                               backgroundColor: isActive
-                                ? `${colors.accent}12`
+                                ? `${colors.accent}10`
                                 : index % 2 === 0
                                   ? colors.panel
                                   : isDarkMode
-                                    ? "rgba(255,255,255,0.02)"
-                                    : "#f8fbff",
+                                    ? "rgba(255,255,255,0.015)"
+                                    : "rgba(15,23,42,0.015)",
+                              borderTop: `1px solid ${colors.borderSoft}`,
                             }}
                           >
-                            <td className="px-4 py-4 align-top">
+                            <td className="min-w-0 px-4 py-3 align-top">
                               <button
                                 type="button"
                                 onClick={() =>
                                   handleUserSelection(user._id, "edit")
                                 }
-                                className="text-left"
+                                className="w-full text-left"
                               >
-                                <p className="text-sm font-black">
+                                <p className="truncate text-sm font-black">
                                   {user.name}
                                 </p>
                                 <p
-                                  className="mt-1 text-xs"
+                                  className="mt-1 truncate text-xs"
                                   style={{ color: colors.subtleText }}
                                 >
-                                  {user.certificateClass || "Class III"}
+                                  {user.dscId || "DSC ID pending"}
                                 </p>
                               </button>
                             </td>
-                            <td className="px-4 py-4 align-top">
-                              <p className="text-sm font-semibold">
+                            <td className="px-4 py-3 align-top">
+                              <p className="truncate text-sm font-semibold">
                                 {user.email}
                               </p>
                               <p
@@ -518,7 +727,7 @@ export default function AdminApplicationsPanel({
                                 {user.number}
                               </p>
                             </td>
-                            <td className="px-4 py-4 align-top">
+                            <td className="px-4 py-3 align-top">
                               <p className="text-sm font-semibold">
                                 {user.certType || "No service selected"}
                               </p>
@@ -526,56 +735,43 @@ export default function AdminApplicationsPanel({
                                 className="mt-1 text-xs"
                                 style={{ color: colors.subtleText }}
                               >
-                                {user.validity || "No validity"}
+                                {user.certificateClass || "Class III"}
                               </p>
                             </td>
-                            <td className="px-4 py-4 align-top">
-                              <span
-                                className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em]"
-                                style={{
-                                  backgroundColor: getStatusBackground(
-                                    user.status,
-                                  ),
-                                  color: getStatusText(user.status),
-                                }}
-                              >
-                                {user.status}
-                              </span>
+                            <td className="px-4 py-3 align-top text-sm font-semibold">
+                              {user.validity || "Not selected"}
                             </td>
-                            <td className="px-4 py-4 align-top">
+                            <td className="px-4 py-3 align-top">
+                              <StatusBadge status={user.status} />
+                            </td>
+                            <td
+                              className="px-4 py-3 align-top text-xs"
+                              style={{ color: colors.subtleText }}
+                            >
+                              {formatDate(user.createdAt)}
+                            </td>
+                            <td className="px-4 py-3 align-top">
                               <div className="flex items-center justify-center gap-2">
-                                <button
-                                  type="button"
+                                <ActionIconButton
+                                  label={`View ${user.name}`}
                                   onClick={() =>
                                     handleUserSelection(user._id, "view")
                                   }
-                                  className="inline-flex h-9 w-9 items-center justify-center rounded-xl border"
-                                  style={{
-                                    borderColor: isDarkMode
-                                      ? "rgba(255,255,255,0.06)"
-                                      : "rgba(0,0,0,0.06)",
-                                    backgroundColor: colors.panelStrong,
-                                  }}
-                                  aria-label={`View ${user.name}`}
-                                >
-                                  <Eye size={15} />
-                                </button>
-                                <button
-                                  type="button"
+                                  icon={<Eye size={15} />}
+                                />
+                                <ActionIconButton
+                                  label={`Edit ${user.name}`}
                                   onClick={() =>
                                     handleUserSelection(user._id, "edit")
                                   }
-                                  className="inline-flex h-9 w-9 items-center justify-center rounded-xl border"
-                                  style={{
-                                    borderColor: isDarkMode
-                                      ? "rgba(255,255,255,0.06)"
-                                      : "rgba(0,0,0,0.06)",
-                                    backgroundColor: colors.panelStrong,
-                                  }}
-                                  aria-label={`Edit ${user.name}`}
-                                >
-                                  <Pencil size={15} />
-                                </button>
+                                  icon={<Pencil size={15} />}
+                                />
+                                <ActionIconButton
+                                  label={`Delete ${user.name}`}
+                                  onClick={() => setDeleteTarget(user)}
+                                  icon={<Trash2 size={15} />}
+                                  danger
+                                />
                               </div>
                             </td>
                           </tr>
@@ -585,21 +781,72 @@ export default function AdminApplicationsPanel({
                   </table>
                 </div>
               </div>
-            )}
-          </div>
+
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm" style={{ color: colors.muted }}>
+                  Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
+                  {Math.min(
+                    pagination.page * pagination.limit,
+                    pagination.total,
+                  )}{" "}
+                  of {pagination.total} applicants
+                </p>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPage((current) => Math.max(1, current - 1))
+                    }
+                    disabled={pagination.page === 1}
+                    className="inline-flex h-10 items-center justify-center rounded-lg border px-4 text-sm font-semibold disabled:opacity-50"
+                    style={{
+                      borderColor: colors.borderSoft,
+                      backgroundColor: colors.panel,
+                      color: colors.text,
+                    }}
+                  >
+                    Previous
+                  </button>
+                  <span
+                    className="px-2 text-sm font-semibold"
+                    style={{ color: colors.text }}
+                  >
+                    Page {pagination.page} of {pagination.pages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPage((current) =>
+                        Math.min(pagination.pages, current + 1),
+                      )
+                    }
+                    disabled={pagination.page === pagination.pages}
+                    className="inline-flex h-10 items-center justify-center rounded-lg border px-4 text-sm font-semibold disabled:opacity-50"
+                    style={{
+                      borderColor: colors.borderSoft,
+                      backgroundColor: colors.panel,
+                      color: colors.text,
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </section>
       </div>
 
-      {isFormModalOpen && (selectedUser || mode === "create") ? (
+      {isFormModalOpen &&
+      (selectedUser || selectedUserDetails || mode === "create") ? (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md">
           <div
             className="flex h-screen w-screen max-w-none flex-col overflow-hidden rounded-none border-0 shadow-none"
-            style={{
-              backgroundColor: colors.panelStrong,
-            }}
+            style={{ backgroundColor: colors.panelStrong }}
           >
             <div
-              className="flex items-start justify-between gap-4 border-b px-5 py-4 sm:px-6"
+              className="admin-sticky-footer flex items-start justify-between gap-4 border-b px-5 py-4 sm:px-6"
               style={{ borderColor: colors.borderSoft }}
             >
               <div>
@@ -614,23 +861,23 @@ export default function AdminApplicationsPanel({
                       : "Application Edit"}
                 </p>
                 <h3 className="mt-2 text-xl font-black">
-                  {mode === "create" ? "Create DSC Application" : selectedUser.name}
+                  {mode === "create"
+                    ? "Create DSC Application"
+                    : selectedUser?.name}
                 </h3>
                 <p className="mt-1 text-sm" style={{ color: colors.muted }}>
                   {mode === "create"
-                    ? "Fill all required fields once to create the applicant and DSC record together."
-                    : `${selectedUser.email} | ${selectedUser.number}`}
+                    ? "Fill the full applicant and DSC details in one fast workflow."
+                    : `${selectedUser?.email || ""} | ${selectedUser?.number || ""}`}
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={handleCloseFormModal}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-xl border"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-lg border"
                 style={{
-                  borderColor: isDarkMode
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(0,0,0,0.06)",
+                  borderColor: colors.borderSoft,
                   backgroundColor: colors.panel,
                 }}
                 aria-label="Close application form"
@@ -639,7 +886,7 @@ export default function AdminApplicationsPanel({
               </button>
             </div>
 
-            <div className="overflow-y-auto py-4">
+            <div className="min-h-0 flex-1 overflow-y-auto">
               {mode === "view" && selectedUserDetails ? (
                 <AdminApplicationPreview user={selectedUserDetails} />
               ) : (
@@ -654,18 +901,195 @@ export default function AdminApplicationsPanel({
           </div>
         </div>
       ) : null}
+
+      {deleteTarget ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+          <div
+            className="w-full max-w-md rounded-lg border p-5 shadow-2xl"
+            style={{
+              borderColor: colors.borderSoft,
+              backgroundColor: colors.panelStrong,
+            }}
+          >
+            <p
+              className="text-[10px] font-black uppercase tracking-[0.22em]"
+              style={{ color: "#e11d48" }}
+            >
+              Delete Applicant
+            </p>
+            <h3
+              className="mt-2 text-lg font-black"
+              style={{ color: colors.text }}
+            >
+              Remove {deleteTarget.name}?
+            </h3>
+            <p
+              className="mt-2 text-sm leading-6"
+              style={{ color: colors.muted }}
+            >
+              This action will delete the applicant record from the admin list.
+              Please confirm before continuing.
+            </p>
+
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="inline-flex h-10 items-center justify-center rounded-lg border px-4 text-sm font-semibold"
+                style={{
+                  borderColor: colors.borderSoft,
+                  backgroundColor: colors.panel,
+                  color: colors.text,
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteApplicant}
+                disabled={deletingUserId === deleteTarget._id}
+                className="inline-flex h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold text-white disabled:opacity-60"
+                style={{
+                  background: "linear-gradient(135deg, #ef4444, #be123c)",
+                }}
+              >
+                {deletingUserId === deleteTarget._id
+                  ? "Deleting..."
+                  : "Delete Applicant"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
 
-function getStatusBackground(status: DashboardUser["status"]) {
-  if (status === "approved") return "rgba(34,197,94,0.16)";
-  if (status === "rejected") return "rgba(244,63,94,0.16)";
-  return "rgba(245,158,11,0.18)";
+function FilterSelect({
+  value,
+  onChange,
+  options,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: Array<{ label: string; value: string }>;
+}) {
+  return (
+    <select
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      className="h-11 w-full rounded-lg border px-3 text-sm font-semibold outline-none"
+      style={{
+        borderColor: "var(--border-soft)",
+        backgroundColor: "var(--card)",
+        color: "var(--foreground)",
+      }}
+    >
+      {options.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  );
 }
 
-function getStatusText(status: DashboardUser["status"]) {
-  if (status === "approved") return "#16a34a";
-  if (status === "rejected") return "#e11d48";
-  return "#d97706";
+function SortableHead({
+  label,
+  active,
+  direction,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  direction: "asc" | "desc";
+  onClick: () => void;
+}) {
+  return (
+    <th className="cursor-pointer px-4 py-3" onClick={onClick}>
+      <div className="flex items-center gap-1">
+        <span>{label}</span>
+        {active ? (
+          direction === "asc" ? (
+            <ArrowUp size={12} />
+          ) : (
+            <ArrowDown size={12} />
+          )
+        ) : (
+          <ArrowUpDown size={12} className="opacity-40" />
+        )}
+      </div>
+    </th>
+  );
+}
+
+function ActionIconButton({
+  label,
+  onClick,
+  icon,
+  danger = false,
+}: {
+  label: string;
+  onClick: () => void;
+  icon: React.ReactNode;
+  danger?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border transition hover:-translate-y-0.5 active:scale-95"
+      style={{
+        borderColor: danger ? "rgba(225,29,72,0.16)" : "var(--border-soft)",
+        backgroundColor: "var(--card)",
+        color: danger ? "#e11d48" : "var(--foreground)",
+      }}
+      aria-label={label}
+      title={label}
+    >
+      {icon}
+    </button>
+  );
+}
+
+function StatusBadge({ status }: { status: DashboardUser["status"] }) {
+  const toneMap: Record<
+    DashboardUser["status"],
+    { bg: string; color: string }
+  > = {
+    pending: { bg: "rgba(245,158,11,0.16)", color: "#d97706" },
+    approved: { bg: "rgba(34,197,94,0.16)", color: "#16a34a" },
+    rejected: { bg: "rgba(244,63,94,0.16)", color: "#e11d48" },
+    issued: { bg: "rgba(37,99,235,0.16)", color: "#2563eb" },
+  };
+
+  return (
+    <span
+      className="inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em]"
+      style={{
+        backgroundColor: toneMap[status].bg,
+        color: toneMap[status].color,
+      }}
+    >
+      {status}
+    </span>
+  );
+}
+
+function formatDate(value?: string) {
+  if (!value) return "N/A";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "N/A";
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+function capitalizeValue(value: string) {
+  if (value === "all") return "All Statuses";
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }

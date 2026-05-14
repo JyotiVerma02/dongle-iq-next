@@ -23,6 +23,7 @@ import BackToPreviewButton from "./BackToPreviewButton";
 import { EmptyState, SkeletonBlock } from "@/components/admin-dashboard/ui";
 
 export interface DashboardUser {
+  dscId?: string;
   commission: number;
   gst: number;
   paymentStatus: string;
@@ -32,7 +33,7 @@ export interface DashboardUser {
   email: string;
   number: string;
   role: string;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "issued";
   isVerified: boolean;
   isAadhaarVerified: boolean;
   city?: string;
@@ -893,12 +894,14 @@ function StatusBadge({ status }: { status: DashboardUser["status"] }) {
     ? {
         pending: "border-amber-400/25 bg-amber-400/10 text-amber-300",
         approved: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
-        rejected: "border-rose-400/25 bg-rose-400/10 text-rose-300",
-      }
+      rejected: "border-rose-400/25 bg-rose-400/10 text-rose-300",
+      issued: "border-sky-400/25 bg-sky-400/10 text-sky-300",
+    }
     : {
         pending: "border-amber-300 bg-amber-100 text-amber-800",
         approved: "border-emerald-300 bg-emerald-100 text-emerald-800",
         rejected: "border-rose-300 bg-rose-100 text-rose-800",
+        issued: "border-sky-300 bg-sky-100 text-sky-800",
       };
 
   return (

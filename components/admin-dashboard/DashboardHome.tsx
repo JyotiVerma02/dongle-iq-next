@@ -125,9 +125,9 @@ export function DashboardHome({
   };
 
   return (
-    <div className="min-h-0 h-full space-y-6 overflow-y-auto overflow-x-visible pr-0 lg:pr-1">
+    <div className="min-h-0 h-full space-y-5 overflow-y-auto overflow-x-hidden pr-0 lg:pr-1">
       <section
-        className="dashboard-shell-surface rounded-[1.75rem] p-6"
+        className="dashboard-shell-surface rounded-lg p-5 sm:p-6"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
@@ -149,7 +149,7 @@ export function DashboardHome({
                 Commission and approval summary
               </h1>
               <div
-                className="mt-4 max-w-[560px] rounded-2xl px-5 py-3 text-sm italic"
+                className="mt-4 max-w-[560px] rounded-lg px-4 py-3 text-sm italic"
                 style={{
                   color: isDarkMode ? "rgba(234,240,255,0.86)" : colors.text,
                   backgroundColor: isDarkMode ? "rgba(255,255,255,0.045)" : colors.panel,
@@ -191,7 +191,7 @@ export function DashboardHome({
       <MetricsGrid stats={stats} isDarkMode={isDarkMode} />
 
       <section
-        className="dashboard-shell-surface rounded-[1.75rem] p-6"
+        className="dashboard-shell-surface rounded-lg p-5 sm:p-6"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panelStrong,
@@ -234,7 +234,7 @@ export function DashboardHome({
       </section>
 
       <footer
-        className="dashboard-muted-surface rounded-[1.75rem] px-6 py-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]"
+        className="dashboard-muted-surface rounded-lg px-5 py-5 shadow-[0_18px_40px_-28px_rgba(15,23,42,0.2)]"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: isDarkMode
@@ -281,7 +281,7 @@ function TopActionButton({
   return (
     <button
       onClick={onClick}
-      className="inline-flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border px-3 py-2 text-center text-base font-medium text-white shadow-[0_16px_30px_-18px_var(--accent-shadow)] transition hover:-translate-y-0.5 hover:brightness-105"
+      className="inline-flex min-h-11 w-full items-center justify-center gap-3 rounded-lg border px-3 py-2 text-center text-base font-medium text-white shadow-[0_16px_30px_-18px_var(--accent-shadow)] transition hover:-translate-y-0.5 hover:brightness-105"
       style={{
         background: "var(--brand-gradient)",
         borderColor: "transparent",
@@ -348,7 +348,7 @@ function ServiceCard({
 
   return (
     <div
-      className="rounded-2xl border px-6 py-8 shadow-[0_25px_60px_-40px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:px-7 sm:py-9"
+      className="rounded-lg border px-5 py-6 shadow-[0_25px_60px_-40px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl sm:px-6 sm:py-7"
       style={{
         borderColor: colors.borderSoft,
         background: highlighted
@@ -360,7 +360,7 @@ function ServiceCard({
     >
       <div className="mt-2 flex items-center gap-3">
         <div
-          className="flex h-10 w-10 items-center justify-center rounded-full"
+          className="flex h-10 w-10 items-center justify-center rounded-lg"
           style={{
             backgroundColor: iconStyles.wrapper,
             color: iconStyles.color,

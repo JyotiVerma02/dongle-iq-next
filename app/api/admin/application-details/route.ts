@@ -7,6 +7,14 @@ import { calculatePricing } from "@/app/lib/pricing";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import User from "@/model/user";
 
+const VALID_STATUSES = new Set(["pending", "approved", "rejected", "issued"]);
+
+function createDscId() {
+  const year = new Date().getFullYear();
+  const suffix = Math.floor(10000 + Math.random() * 90000);
+  return `DIQ-${year}-${suffix}`;
+}
+
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
@@ -59,10 +67,14 @@ export async function POST(req: NextRequest) {
     const nextPincode = String(body.pincode || "").trim();
     const nextCity = String(body.city || "").trim();
     const nextState = String(body.state || "").trim();
+    const nextBpCode = String(body.bpCode || "").trim();
     const nextCertificateClass = String(body.certificateClass || "").trim();
     const nextCertType = String(body.certType || "").trim();
     const nextValidity = String(body.validity || "").trim();
     const nextTokenType = String(body.tokenType || "").trim() || "Not Required";
+    const requestedStatus = String(body.status || "pending").trim().toLowerCase();
+    const nextStatus = VALID_STATUSES.has(requestedStatus) ? requestedStatus : "pending";
+    const requestedDscId = String(body.dscId || "").trim().toUpperCase();
 
     if (
       !nextName ||
@@ -87,6 +99,20 @@ export async function POST(req: NextRequest) {
     if (!isValidIndianMobile(nextNumber)) {
       return NextResponse.json(
         { success: false, message: "Enter a valid Indian mobile number" },
+        { status: 400 },
+      );
+    }
+
+    if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(nextPan)) {
+      return NextResponse.json(
+        { success: false, message: "Enter a valid PAN number" },
+        { status: 400 },
+      );
+    }
+
+    if (!/^[0-9]{6}$/.test(nextPincode)) {
+      return NextResponse.json(
+        { success: false, message: "Enter a valid 6 digit pincode" },
         { status: 400 },
       );
     }
@@ -137,12 +163,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const panOwner = await User.findOne({
+      pan: nextPan,
+      role: { $ne: "admin" },
+      ...(user ? { _id: { $ne: user._id } } : {}),
+    });
+
+    if (panOwner) {
+      return NextResponse.json(
+        { success: false, message: "PAN already exists" },
+        { status: 400 },
+      );
+    }
+
     const nextPrice = calculatePricing({
       certType: nextCertType,
       validity: nextValidity,
       tokenType: nextTokenType,
       assistedService: "Not Required",
     }).total;
+
+    const nextDscId = requestedDscId || user?.dscId || createDscId();
+
+    const dscIdOwner = await User.findOne({
+      dscId: nextDscId,
+      role: { $ne: "admin" },
+      ...(user ? { _id: { $ne: user._id } } : {}),
+    });
+
+    if (dscIdOwner) {
+      return NextResponse.json(
+        { success: false, message: "DSC ID already exists. Try again." },
+        { status: 400 },
+      );
+    }
 
     if (!user) {
       const password = await bcrypt.hash("temp123", 10);
@@ -161,12 +215,13 @@ export async function POST(req: NextRequest) {
     user.name = nextName;
     user.email = nextEmail;
     user.number = nextNumber;
+    user.dscId = nextDscId;
     user.gender = String(body.gender || "").trim();
     user.dob = String(body.dob || "").trim();
     user.pan = nextPan;
     user.ekycId = String(body.ekycId || "").trim();
     user.ekycPin = String(body.ekycPin || "").trim();
-    user.bpCode = String(body.bpCode || "").trim();
+    user.bpCode = nextBpCode;
     user.address = nextAddress;
     user.pincode = nextPincode;
     user.city = nextCity;
@@ -178,7 +233,7 @@ export async function POST(req: NextRequest) {
     user.internalRemarks = String(body.internalRemarks || "").trim();
     user.price = nextPrice;
     user.clientId = user.clientId || String(user._id);
-    user.status = "pending";
+    user.status = nextStatus;
 
     await user.save();
 

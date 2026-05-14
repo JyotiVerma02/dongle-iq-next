@@ -106,6 +106,7 @@ export default function DongleIQAdminHub() {
     let pending = 0;
     let approved = 0;
     let rejected = 0;
+    let issued = 0;
     let verified = 0;
     let dscCommission = 0;
     let tokenAmount = 0;
@@ -119,6 +120,7 @@ export default function DongleIQAdminHub() {
       if (user.status === "pending") pending++;
       if (user.status === "approved") approved++;
       if (user.status === "rejected") rejected++;
+      if (user.status === "issued") issued++;
       if (user.isAadhaarVerified) verified++;
 
       const commission = Number(user.commission || 0);
@@ -145,6 +147,7 @@ export default function DongleIQAdminHub() {
       pending,
       approved,
       rejected,
+      issued,
       verified,
       dscCommission,
       tokenAmount,
@@ -331,8 +334,9 @@ export default function DongleIQAdminHub() {
       { name: "Approved", value: stats.approved },
       { name: "Pending", value: stats.pending },
       { name: "Rejected", value: stats.rejected },
+      { name: "Issued", value: stats.issued },
     ],
-    [stats.approved, stats.pending, stats.rejected],
+    [stats.approved, stats.pending, stats.rejected, stats.issued],
   );
 
   return (

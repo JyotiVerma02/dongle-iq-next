@@ -21,6 +21,7 @@ export type DashboardStats = {
   approved: number;
   pending: number;
   rejected: number;
+  issued: number;
   verified: number;
   dscCommission: number;
   tokenAmount: number;

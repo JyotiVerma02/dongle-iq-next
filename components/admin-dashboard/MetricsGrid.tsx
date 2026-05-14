@@ -104,7 +104,7 @@ function MetricCard({
 }) {
   return (
     <div
-      className="theme-transition rounded-xl border p-4 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+      className="theme-transition rounded-lg border p-4 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
       style={{
         borderColor: "var(--border-soft)",
         background,

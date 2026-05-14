@@ -38,19 +38,29 @@ const UserSchema = new mongoose.Schema(
     },
     createdById: { type: String },
     clientId: { type: String },
+    dscId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      uppercase: true,
+    },
 
     isVerified: { type: Boolean, default: false },
     isAadhaarVerified: { type: Boolean, default: false },
 
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected", "issued"],
       default: "pending",
     },
 
     pan: {
       type: String,
       uppercase: true,
+      unique: true,
+      sparse: true,
+      trim: true,
       match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"],
     },
 

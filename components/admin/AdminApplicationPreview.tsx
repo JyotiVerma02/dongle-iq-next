@@ -29,6 +29,7 @@ export default function AdminApplicationPreview({
   );
 
   const details = [
+    { label: "DSC ID", value: user.dscId },
     { label: "Full Name", value: user.name },
     { label: "Email", value: user.email },
     { label: "Mobile", value: user.number },
@@ -55,9 +56,9 @@ export default function AdminApplicationPreview({
     .join(", ");
 
   return (
-    <div className="space-y-6 px-5 pb-6 sm:px-6">
+    <div className="space-y-4 px-4 pb-5 sm:px-6">
       <section
-        className="rounded-3xl border p-5"
+        className="rounded-lg border p-5"
         style={{
           borderColor: colors.borderSoft,
           backgroundColor: colors.panel,
@@ -78,7 +79,7 @@ export default function AdminApplicationPreview({
           </div>
 
           <div
-            className="rounded-2xl border px-4 py-3"
+            className="rounded-lg border px-4 py-3"
             style={{
               borderColor: colors.borderSoft,
               backgroundColor: colors.panelStrong,
@@ -99,7 +100,7 @@ export default function AdminApplicationPreview({
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
         <section
-          className="rounded-3xl border p-5"
+          className="rounded-lg border p-5"
           style={{
             borderColor: colors.borderSoft,
             backgroundColor: colors.panel,
@@ -137,7 +138,7 @@ export default function AdminApplicationPreview({
 
         <section className="space-y-6">
           <div
-            className="rounded-3xl border p-5"
+            className="rounded-lg border p-5"
             style={{
               borderColor: colors.borderSoft,
               backgroundColor: colors.panel,
@@ -158,7 +159,7 @@ export default function AdminApplicationPreview({
           </div>
 
           <div
-            className="rounded-3xl border p-5"
+            className="rounded-lg border p-5"
             style={{
               borderColor: colors.borderSoft,
               backgroundColor: colors.panel,

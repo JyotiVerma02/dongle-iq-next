@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     const normalizedStatus = String(status).toLowerCase();
     const remarks = typeof internalRemarks === "string" ? internalRemarks.trim() : "";
 
-    if (!["pending", "approved", "rejected"].includes(normalizedStatus)) {
+    if (!["pending", "approved", "rejected", "issued"].includes(normalizedStatus)) {
       return NextResponse.json(
         { success: false, message: "Invalid status" },
         { status: 400 }
