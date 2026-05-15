@@ -286,7 +286,7 @@ export default function DongleIQAdminHub() {
 
       setUsers((prev) =>
         prev.map((user) =>
-          user._id === userId ? { ...user, paymentStatus } : user,
+          user._id === userId ? data.user : user,
         ),
       );
       toast.success(`Marked as ${paymentStatus}`);

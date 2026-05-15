@@ -116,10 +116,30 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
     }
 
     const updatedUser = await User.findById(userId);
+    const updatedPayment = await Payment.findOne({ userId }).sort({ createdAt: -1 });
 
     return NextResponse.json({
       success: true,
-      user: updatedUser,
+      user: updatedUser
+        ? {
+            ...updatedUser.toObject(),
+            latestPayment: updatedPayment
+              ? {
+                  _id: String(updatedPayment._id),
+                  amount: updatedPayment.amount,
+                  status: updatedPayment.status,
+                  method: updatedPayment.method,
+                  invoiceNumber: updatedPayment.invoiceNumber,
+                  invoiceDate: updatedPayment.invoiceDate,
+                  invoiceUrl: updatedPayment.invoiceUrl,
+                  razorpayOrderId: updatedPayment.razorpayOrderId,
+                  razorpayPaymentId: updatedPayment.razorpayPaymentId,
+                  createdAt: updatedPayment.createdAt,
+                  updatedAt: updatedPayment.updatedAt,
+                }
+              : null,
+          }
+        : null,
     });
   } catch (error) {
     console.error("PAYMENT UPDATE ERROR:", error);

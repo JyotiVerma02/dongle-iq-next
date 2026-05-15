@@ -578,6 +578,29 @@ export default function DSCRegistrationForm() {
     ],
   );
 
+  const pricingPreview = useMemo(
+    () =>
+      calculatePricing({
+        certType: userData?.certType,
+        validity: userData?.validity,
+        tokenType: userData?.tokenType,
+        assistedService: userData?.assistedService,
+      }),
+    [
+      userData?.assistedService,
+      userData?.certType,
+      userData?.tokenType,
+      userData?.validity,
+    ],
+  );
+
+  const baseSubtotal =
+    typeof userData?.price === "number" && userData.price > 0
+      ? userData.price
+      : pricingPreview.total;
+  const estimatedGst = Number(((baseSubtotal * 18) / 100).toFixed(2));
+  const payableAmount = paymentSummary?.amount || baseSubtotal + estimatedGst;
+
   const handleApplicationStart = async (
     formData: ApplicationFormData & { totalAmount: number },
   ) => {
@@ -1034,7 +1057,13 @@ export default function DSCRegistrationForm() {
                 className="mt-2 text-3xl font-black"
                 style={{ color: colors.accent }}
               >
-                INR {typeof userData.price === "number" ? userData.price : 0}
+                INR {payableAmount.toFixed(2)}
+              </p>
+              <p
+                className="mt-2 text-xs font-semibold"
+                style={{ color: colors.muted }}
+              >
+                Includes estimated GST of INR {estimatedGst.toFixed(2)}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">

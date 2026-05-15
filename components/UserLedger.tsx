@@ -23,6 +23,19 @@ import BackToPreviewButton from "./BackToPreviewButton";
 import { EmptyState, SkeletonBlock } from "@/components/admin-dashboard/ui";
 
 export interface DashboardUser {
+  latestPayment?: {
+    _id: string;
+    amount: number;
+    status: string;
+    method?: string;
+    invoiceNumber?: string;
+    invoiceDate?: string;
+    invoiceUrl?: string;
+    razorpayOrderId?: string;
+    razorpayPaymentId?: string;
+    createdAt?: string;
+    updatedAt?: string;
+  } | null;
   dscId?: string;
   commission: number;
   gst: number;
@@ -123,6 +136,9 @@ export default function UserLedgerView({
   const selectedUserFromList = selectedUser
     ? (users.find((user) => user._id === selectedUser._id) ?? selectedUser)
     : null;
+  const isApplicationApproved = selectedUserFromList?.status === "approved";
+  const isApplicationRejected = selectedUserFromList?.status === "rejected";
+  const isPaymentPaid = selectedUserFromList?.paymentStatus === "paid";
 
   const handleApprove = async () => {
     if (!selectedUserFromList) return;
@@ -649,12 +665,174 @@ export default function UserLedgerView({
                   />
                 </SectionCard>
 
+                <SectionCard title="Payment" colors={colors}>
+                  <DetailItem
+                    icon={<FileText size={14} />}
+                    label="Payment status"
+                    value={selectedUserFromList.paymentStatus || "pending"}
+                    colors={colors}
+                  />
+                  <DetailItem
+                    icon={<Hash size={14} />}
+                    label="Gateway status"
+                    value={selectedUserFromList.latestPayment?.status || "No payment record"}
+                    colors={colors}
+                  />
+                  <DetailItem
+                    icon={<FileText size={14} />}
+                    label="Amount"
+                    value={formatCurrency(selectedUserFromList.latestPayment?.amount || selectedUserFromList.price || 0)}
+                    colors={colors}
+                  />
+                  <DetailItem
+                    icon={<Hash size={14} />}
+                    label="Invoice"
+                    value={selectedUserFromList.latestPayment?.invoiceNumber || "Not generated"}
+                    colors={colors}
+                  />
+                  {selectedUserFromList.latestPayment?.invoiceUrl ? (
+                    <a
+                      href={`${selectedUserFromList.latestPayment.invoiceUrl}?download=1`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex w-fit items-center rounded-lg border px-3 py-2 text-xs font-semibold"
+                      style={{
+                        borderColor: colors.borderSoft,
+                        backgroundColor: colors.panelStrong,
+                        color: colors.text,
+                      }}
+                    >
+                      Download Invoice
+                    </a>
+                  ) : null}
+                </SectionCard>
+
                 <SectionCard title="Decision" colors={colors}>
+                  <div
+                    className="rounded-lg border px-4 py-3"
+                    style={{
+                      borderColor: colors.borderSoft,
+                      backgroundColor: colors.panelStrong,
+                    }}
+                  >
+                    <p
+                      className="text-[11px] font-semibold uppercase tracking-[0.14em]"
+                      style={{ color: colors.subtleText }}
+                    >
+                      Current status
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <InlineBadge
+                        label={`Application: ${selectedUserFromList.status}`}
+                        tone={
+                          selectedUserFromList.status === "approved"
+                            ? "green"
+                            : selectedUserFromList.status === "rejected"
+                              ? "red"
+                              : "amber"
+                        }
+                      />
+                      <InlineBadge
+                        label={`Payment: ${selectedUserFromList.paymentStatus || "pending"}`}
+                        tone={isPaymentPaid ? "green" : "amber"}
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    className="rounded-lg border px-4 py-4"
+                    style={{
+                      borderColor: colors.borderSoft,
+                      backgroundColor: colors.panelStrong,
+                    }}
+                  >
+                    <p
+                      className="text-[11px] font-semibold uppercase tracking-[0.14em]"
+                      style={{ color: colors.subtleText }}
+                    >
+                      Application decision
+                    </p>
+                    <p className="mt-2 text-sm" style={{ color: colors.muted }}>
+                      Review the submitted documents and decide whether the application can move ahead.
+                    </p>
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                      <button
+                        onClick={handleApprove}
+                        disabled={actionLoading !== null || isApplicationApproved}
+                        className="flex-1 rounded-lg px-4 py-3 text-sm font-black text-[#0d171a] disabled:cursor-not-allowed disabled:opacity-60"
+                        style={{ backgroundColor: "#45c3b9" }}
+                      >
+                        {actionLoading === "approved"
+                          ? "Approving..."
+                          : isApplicationApproved
+                            ? "Application Approved"
+                            : "Approve Application"}
+                      </button>
+                      <button
+                        onClick={handleReject}
+                        disabled={actionLoading !== null || isApplicationRejected}
+                        className="flex-1 rounded-lg border px-4 py-3 text-sm font-black disabled:cursor-not-allowed disabled:opacity-60"
+                        style={{
+                          borderColor: "#f87171",
+                          backgroundColor: isDarkMode
+                            ? "rgba(248,113,113,0.18)"
+                            : "rgba(251,113,133,0.2)",
+                          color: isDarkMode ? "#fee2e2" : "#9f1239",
+                        }}
+                      >
+                        {actionLoading === "rejected"
+                          ? "Rejecting..."
+                          : isApplicationRejected
+                            ? "Application Rejected"
+                            : "Reject Application"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    className="rounded-lg border px-4 py-4"
+                    style={{
+                      borderColor: colors.borderSoft,
+                      backgroundColor: colors.panelStrong,
+                    }}
+                  >
+                    <p
+                      className="text-[11px] font-semibold uppercase tracking-[0.14em]"
+                      style={{ color: colors.subtleText }}
+                    >
+                      Payment decision
+                    </p>
+                    <p className="mt-2 text-sm" style={{ color: colors.muted }}>
+                      Use this only when you need to manually confirm or reopen the payment state.
+                    </p>
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                      <button
+                        onClick={() =>
+                          onPaymentChange(selectedUserFromList._id, "paid")
+                        }
+                        disabled={isPaymentPaid}
+                        className="flex-1 rounded-lg bg-green-500 px-4 py-3 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isPaymentPaid ? "Payment Received" : "Mark Payment Received"}
+                      </button>
+
+                      <button
+                        onClick={() =>
+                          onPaymentChange(selectedUserFromList._id, "unpaid")
+                        }
+                        disabled={!isPaymentPaid}
+                        className="flex-1 rounded-lg bg-red-500 px-4 py-3 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {!isPaymentPaid ? "Payment Pending" : "Mark Payment Pending"}
+                      </button>
+                    </div>
+                  </div>
+
                   <label
                     className="block text-xs font-semibold uppercase tracking-[0.16em]"
                     style={{ color: colors.muted }}
                   >
-                    Reject reason
+                    Rejection note
                   </label>
                   <textarea
                     value={rejectReason}
@@ -671,54 +849,6 @@ export default function UserLedgerView({
                   {actionError ? (
                     <p className="mt-3 text-sm text-rose-300">{actionError}</p>
                   ) : null}
-                  <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                    <button
-                      onClick={handleApprove}
-                      disabled={actionLoading !== null}
-                      className="flex-1 rounded-lg px-4 py-3 text-sm font-black text-[#0d171a] disabled:opacity-70"
-                      style={{ backgroundColor: "#45c3b9" }}
-                    >
-                      {actionLoading === "approved"
-                        ? "Approving..."
-                        : "Approve"}
-                    </button>
-                    <button
-                      onClick={handleReject}
-                      disabled={actionLoading !== null}
-                      className="flex-1 rounded-lg border px-4 py-3 text-sm font-black disabled:opacity-70"
-                      style={{
-                        borderColor: "#f87171",
-                        backgroundColor: isDarkMode
-                          ? "rgba(248,113,113,0.18)"
-                          : "rgba(251,113,133,0.2)",
-                        color: isDarkMode ? "#fee2e2" : "#9f1239",
-                      }}
-                    >
-                      {actionLoading === "rejected" ? "Rejecting..." : "Reject"}
-                    </button>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        onClick={() =>
-                          onPaymentChange(selectedUserFromList._id, "paid")
-                        }
-                        className="rounded bg-green-500 px-3 py-2 text-xs text-white"
-                      >
-                        Mark Paid
-                      </button>
-
-                      <button
-                        onClick={() =>
-                          onPaymentChange(
-                            selectedUserFromList._id,
-                            "unpaid",
-                          )
-                        }
-                        className="rounded bg-red-500 px-3 py-2 text-xs text-white"
-                      >
-                        Mark Unpaid
-                      </button>
-                    </div>
-                  </div>
                 </SectionCard>
               </div>
             </div>
@@ -909,6 +1039,28 @@ function StatusBadge({ status }: { status: DashboardUser["status"] }) {
       className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold capitalize ${styles[status]}`}
     >
       {status}
+    </span>
+  );
+}
+
+function InlineBadge({
+  label,
+  tone,
+}: {
+  label: string;
+  tone: "green" | "amber" | "red";
+}) {
+  const toneClasses = {
+    green: "border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
+    amber: "border-amber-400/25 bg-amber-400/10 text-amber-300",
+    red: "border-rose-400/25 bg-rose-400/10 text-rose-300",
+  };
+
+  return (
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold capitalize ${toneClasses[tone]}`}
+    >
+      {label}
     </span>
   );
 }
