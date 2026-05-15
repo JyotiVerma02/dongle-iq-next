@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import Admin from "@/model/admin";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
+import { createAdminOtpEmail } from "@/app/lib/emailTemplates";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import { transporter } from "@/app/lib/mailer";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
@@ -113,16 +114,12 @@ if (existingAdmin) {
       otpExpiry,
     });
 
+    const verificationEmail = createAdminOtpEmail({ otp, name });
     await transporter.sendMail({
-      from: `"DongleIQ Support" <${process.env.EMAIL_USER}>`,
       to: normalizedEmail,
-      subject: "Verify Admin Email",
-      html: `
-        <h2>Admin Email Verification</h2>
-        <p>Your OTP is:</p>
-        <h1>${otp}</h1>
-        <p>This OTP expires in 10 minutes.</p>
-      `,
+      subject: verificationEmail.subject,
+      text: verificationEmail.text,
+      html: verificationEmail.html,
     });
 
     return NextResponse.json({

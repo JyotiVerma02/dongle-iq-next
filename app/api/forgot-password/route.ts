@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { z } from "zod";
 
+import { createPasswordResetEmail } from "@/app/lib/emailTemplates";
 import { transporter } from "@/app/lib/mailer";
 import User from "@/model/user";
 import Admin from "@/model/admin";
@@ -63,26 +64,24 @@ export async function POST(req: NextRequest) {
 
     const resetLink = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
 
+    const resetEmail = createPasswordResetEmail({ resetLink });
     await transporter.sendMail({
-      from: `"DongleIQ Support" <${process.env.EMAIL_USER}>`,
       to: normalizedEmail,
-      subject: "Reset Password",
-      html: `
-        <h2>Password Reset</h2>
-        <p>Click below to reset your password</p>
-        <a href="${resetLink}"
-        style="background:#16a34a;color:white;padding:10px 20px;text-decoration:none;border-radius:6px;">
-        Reset Password
-        </a>
-        <p>This link expires in 1 hour</p>
-      `,
+      subject: resetEmail.subject,
+      text: resetEmail.text,
+      html: resetEmail.html,
     });
 
     return NextResponse.json({ message: "Reset link sent to your email" });
   } catch (error) {
-    console.log(error);
+    console.error("Forgot password error:", error);
+
+    const message = error instanceof Error && error.message.includes("verified sender identity")
+      ? "Unable to send reset email because the configured SendGrid sender address is not verified. Check SENDGRID_FROM_EMAIL and verify the sender in SendGrid."
+      : "Unable to send reset email right now. Please try again.";
+
     return NextResponse.json(
-      { message: "Unable to send reset email right now. Please try again." },
+      { message },
       { status: 500 },
     );
   }

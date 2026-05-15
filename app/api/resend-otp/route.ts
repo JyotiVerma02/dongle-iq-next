@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import User from "@/model/user";
 import Admin from "@/model/admin";
+import { createResendOtpEmail } from "@/app/lib/emailTemplates";
 import { connectDB } from "@/app/lib/mongodb";
 import { transporter } from "@/app/lib/mailer";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
@@ -47,16 +48,15 @@ export async function POST(req: NextRequest) {
     account.otpExpiry = minutesFromNow(10);
     await account.save();
 
+    const otpEmail = createResendOtpEmail({
+      otp,
+      accountType: admin ? "admin" : "user",
+    });
     await transporter.sendMail({
-      from: `"DongleIQ Support" <${process.env.EMAIL_USER}>`,
       to: normalizedEmail,
-      subject: "Resend OTP",
-      html: `
-      <h2>DongleIQ Verification</h2>
-      <p>Your new OTP:</p>
-      <h1>${otp}</h1>
-      <p>Valid for 10 minutes</p>
-      `,
+      subject: otpEmail.subject,
+      text: otpEmail.text,
+      html: otpEmail.html,
     });
 
     return NextResponse.json({ message: "OTP resent successfully" });

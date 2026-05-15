@@ -67,7 +67,8 @@ export async function GET(
       await payment.save();
     }
 
-    const html = buildInvoiceHtml({ payment, user });
+    const safeUser = user || {};
+    const html = buildInvoiceHtml({ payment, user: safeUser });
     const download = req.nextUrl.searchParams.get("download") === "1";
     const filename = `${payment.invoiceNumber || "invoice"}.html`;
 

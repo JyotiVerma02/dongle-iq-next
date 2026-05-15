@@ -147,7 +147,7 @@ export async function markUserPaymentState(
 
 export async function finalizeCapturedPayment(params: {
   paymentDocument: PaymentDocumentLike;
-  gatewayPayment: RazorpayPayment;
+  gatewayPayment: Pick<RazorpayPayment, "id" | "order_id"> & Record<string, unknown>;
   source: "webhook" | "checkout-verification" | "admin";
 }) {
   const { paymentDocument, gatewayPayment, source } = params;

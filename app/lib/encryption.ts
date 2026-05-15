@@ -150,12 +150,12 @@ export function isEncrypted(value: string | null | undefined): boolean {
 export function encryptFields(
   data: Record<string, string | null | undefined>,
   fieldsToEncrypt: string[]
-): Record<string, string> {
-  const encrypted: Record<string, string> = { ...data };
+): Record<string, string | null | undefined> {
+  const encrypted: Record<string, string | null | undefined> = { ...data };
 
   for (const field of fieldsToEncrypt) {
-    if (field in encrypted) {
-      encrypted[field] = encryptField(encrypted[field]);
+    if (field in encrypted && encrypted[field]) {
+      encrypted[field] = encryptField(encrypted[field] as string);
     }
   }
 
@@ -168,12 +168,12 @@ export function encryptFields(
 export function decryptFields(
   data: Record<string, string | null | undefined>,
   fieldsToDecrypt: string[]
-): Record<string, string> {
-  const decrypted: Record<string, string> = { ...data };
+): Record<string, string | null | undefined> {
+  const decrypted: Record<string, string | null | undefined> = { ...data };
 
   for (const field of fieldsToDecrypt) {
-    if (field in decrypted && isEncrypted(decrypted[field])) {
-      decrypted[field] = decryptField(decrypted[field]);
+    if (field in decrypted && decrypted[field] && isEncrypted(decrypted[field])) {
+      decrypted[field] = decryptField(decrypted[field] as string);
     }
   }
 

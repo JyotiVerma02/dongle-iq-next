@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { connectDB } from "@/app/lib/mongodb";
 import { verifyAuthToken } from "@/app/lib/auth";
+import { createAdminInviteEmail } from "@/app/lib/emailTemplates";
 import { transporter } from "@/app/lib/mailer";
 import { enforceRateLimit, getClientIp } from "@/app/lib/security";
 import Admin from "@/model/admin";
@@ -143,25 +144,15 @@ export async function POST(req: NextRequest) {
     // Send invite email
     const inviteLink = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/admin/accept-invite?token=${inviteToken}`;
 
+    const inviteEmailContent = createAdminInviteEmail({
+      inviteLink,
+      invitingAdminName: invitingAdmin.name,
+    });
     await transporter.sendMail({
-      from: `"DongleIQ Admin" <${process.env.EMAIL_USER}>`,
       to: normalizedEmail,
-      subject: "Admin Invitation - DongleIQ",
-      html: `
-        <h2>You're Invited to DongleIQ Admin Panel</h2>
-        <p>You have been invited to join DongleIQ as an administrator by ${invitingAdmin.name}.</p>
-        
-        <p>Click the link below to accept the invitation:</p>
-        <a href="${inviteLink}"
-           style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-          Accept Invitation
-        </a>
-        
-        <p style="color: #666; margin-top: 20px; font-size: 12px;">
-          This invitation will expire in 7 days.<br/>
-          If you didn't expect this invitation, you can safely ignore this email.
-        </p>
-      `,
+      subject: inviteEmailContent.subject,
+      text: inviteEmailContent.text,
+      html: inviteEmailContent.html,
     });
 
     return NextResponse.json(

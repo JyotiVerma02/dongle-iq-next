@@ -8,6 +8,7 @@ import Admin from "@/model/admin";
 import AdminInvite from "@/model/adminInvite";
 import { verifyInviteTokenHash } from "@/app/lib/adminInvite";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
+import { createAdminWelcomeEmail } from "@/app/lib/emailTemplates";
 import { transporter } from "@/app/lib/mailer";
 import { setAuthCookie, signAuthToken } from "@/app/lib/auth";
 
@@ -71,9 +72,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Find the invite
-    const adminInvite = await AdminInvite.findOne({ inviteTokenHash: undefined });
-    
     // Get all pending, non-expired invites and verify token
     const pendingInvites = await AdminInvite.find({
       status: "pending",
@@ -131,24 +129,16 @@ export async function POST(req: NextRequest) {
     await validInvite.save();
 
     // Send welcome email
+    const dashboardUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/admin/dashboard`;
+    const welcomeEmail = createAdminWelcomeEmail({
+      name,
+      dashboardUrl,
+    });
     await transporter.sendMail({
-      from: `"DongleIQ Admin" <${process.env.EMAIL_USER}>`,
       to: validInvite.email,
-      subject: "Welcome to DongleIQ Admin Panel",
-      html: `
-        <h2>Welcome, ${name}!</h2>
-        <p>Your admin account has been successfully created.</p>
-        
-        <p>You can now log in to the admin dashboard:</p>
-        <a href="${process.env.NEXTAUTH_URL || "http://localhost:3000"}/admin/dashboard"
-           style="background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-          Go to Admin Dashboard
-        </a>
-        
-        <p style="color: #666; margin-top: 20px; font-size: 12px;">
-          Keep your credentials secure. Never share your password with anyone.
-        </p>
-      `,
+      subject: welcomeEmail.subject,
+      text: welcomeEmail.text,
+      html: welcomeEmail.html,
     });
 
     // Create JWT token

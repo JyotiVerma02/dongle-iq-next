@@ -515,7 +515,7 @@ function HeaderStat({
   );
 }
 
-function SectionHeader({ title, color }: { title: string; color: string }) {
+function SectionHeader({ title, color = "#0f766e" }: { title: string; color?: string }) {
   return (
     <h3 
       className="text-[9px] font-black uppercase tracking-[0.15em]" 

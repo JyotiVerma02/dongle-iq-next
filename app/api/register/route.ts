@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
+import { createUserOtpEmail } from "@/app/lib/emailTemplates";
 import { registerSchema } from "@/schemas/registerSchema";
 import { transporter } from "@/app/lib/mailer";
 import { normalizeIndianMobile } from "@/app/lib/phone";
@@ -93,16 +94,12 @@ export async function POST(req: Request) {
       otpExpiry,
     });
 
+    const verificationEmail = createUserOtpEmail({ otp, name });
     await transporter.sendMail({
-      from: `"DongleIQ Support" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Verify Your Email",
-      html: `
-        <h2>Email Verification</h2>
-        <p>Your OTP is:</p>
-        <h1>${otp}</h1>
-        <p>This OTP expires in 10 minutes.</p>
-      `,
+      subject: verificationEmail.subject,
+      text: verificationEmail.text,
+      html: verificationEmail.html,
     });
 
     return NextResponse.json(
