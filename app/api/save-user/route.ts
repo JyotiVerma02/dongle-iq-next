@@ -5,6 +5,7 @@ import streamifier from "streamifier";
 
 import { connectDB } from "@/app/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/app/lib/admin";
+import { hashField } from "@/app/lib/encryption";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import { calculatePricing } from "@/app/lib/pricing";
 import cloudinary from "@/app/lib/cloudinary";
@@ -59,6 +60,9 @@ export async function POST(req: Request) {
     const tokenType = String(formData.get("tokenType") || "").trim();
     const certType = String(formData.get("certType") || "").trim();
     const validity = String(formData.get("validity") || "").trim();
+    const assistedService = String(
+      formData.get("assistedService") || "Not Required",
+    ).trim();
 
     const internalRemarks = String(
       formData.get("internalRemarks") || "",
@@ -71,7 +75,7 @@ export async function POST(req: Request) {
       certType,
       validity,
       tokenType,
-      assistedService: String(formData.get("assistedService") || "").trim(),
+      assistedService,
     }).total;
 
     if (!name || !pan || !email || !mobile) {
@@ -154,6 +158,22 @@ export async function POST(req: Request) {
         );
       }
 
+      const panTakenByAnotherUser = await User.findOne({
+        panHash: hashField(pan),
+        role: { $ne: "admin" },
+        _id: { $ne: existingUser._id },
+      });
+
+      if (panTakenByAnotherUser) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "PAN already exists",
+          },
+          { status: 400 },
+        );
+      }
+
       existingUser.name = name;
       existingUser.email = email;
       existingUser.gender = gender;
@@ -170,6 +190,7 @@ export async function POST(req: Request) {
       existingUser.tokenType = tokenType;
       existingUser.certType = certType;
       existingUser.validity = validity;
+      existingUser.assistedService = assistedService;
       existingUser.internalRemarks = internalRemarks;
       existingUser.price = price;
 
@@ -185,9 +206,22 @@ export async function POST(req: Request) {
       });
     }
 
- 
-
     const hashedPassword = await bcrypt.hash("temp123", 10);
+
+    const panTakenByAnotherUser = await User.findOne({
+      panHash: hashField(pan),
+      role: { $ne: "admin" },
+    });
+
+    if (panTakenByAnotherUser) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "PAN already exists",
+        },
+        { status: 400 },
+      );
+    }
 
     await User.create({
       name,
@@ -208,6 +242,7 @@ export async function POST(req: Request) {
       tokenType,
       certType,
       validity,
+      assistedService,
       internalRemarks,
       price,
       photo: photoUrl,

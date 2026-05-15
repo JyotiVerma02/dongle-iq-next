@@ -1,8 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
+import {
+  buildPaymentBreakdown,
+  createInvoiceNumber,
+  markUserPaymentState,
+} from "@/app/lib/payments";
+import { adminOnly } from "@/app/lib/withAuth";
+import Payment from "@/model/payment";
 import User from "@/model/user";
 
-export async function POST(req: Request) {
+const handler = async (req: NextRequest, decoded: { userId: string; role: string }) => {
   try {
     await connectDB();
 
@@ -11,26 +18,117 @@ export async function POST(req: Request) {
     if (!userId || !paymentStatus) {
       return NextResponse.json(
         { success: false, message: "Missing fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { paymentStatus },
-      { new: true }
-    );
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, message: "User not found" },
+        { status: 404 },
+      );
+    }
+
+    const breakdown = buildPaymentBreakdown(user);
+    const latestPayment = await Payment.findOne({ userId }).sort({ createdAt: -1 });
+
+    if (paymentStatus === "paid") {
+      if (latestPayment) {
+        latestPayment.status = "verified";
+        latestPayment.method = latestPayment.method || "cash";
+        latestPayment.invoiceNumber =
+          latestPayment.invoiceNumber || createInvoiceNumber();
+        latestPayment.invoiceDate = latestPayment.invoiceDate || new Date();
+        latestPayment.invoiceUrl =
+          latestPayment.invoiceUrl || `/api/payments/${String(latestPayment._id)}/invoice`;
+        latestPayment.breakdown = latestPayment.breakdown || breakdown;
+        latestPayment.amount = latestPayment.amount || breakdown.total;
+        latestPayment.processedBy = decoded.userId;
+        latestPayment.processedDate = new Date();
+        latestPayment.notes = [
+          ...(latestPayment.notes || []),
+          {
+            timestamp: new Date(),
+            action: "payment_marked_paid",
+            by: "admin",
+            details: "Payment marked paid from admin dashboard",
+          },
+        ];
+        await latestPayment.save();
+      } else {
+        const createdPayment = await Payment.create({
+          userId: user._id,
+          applicationId: user._id,
+          dscId: user.dscId || `DIQ-PENDING-${String(user._id).slice(-6).toUpperCase()}`,
+          amount: breakdown.total,
+          currency: "INR",
+          breakdown,
+          status: "verified",
+          method: "cash",
+          invoiceNumber: createInvoiceNumber(),
+          invoiceDate: new Date(),
+          description: "Manual admin payment update",
+          processedBy: decoded.userId,
+          processedDate: new Date(),
+          orderDetails: {
+            certificateType: user.certType,
+            certificateValidity: user.validity,
+            tokenType: user.tokenType,
+            assistedService: user.assistedService || "Not Required",
+            description: "Manual admin payment update",
+          },
+          notes: [
+            {
+              timestamp: new Date(),
+              action: "payment_marked_paid",
+              by: "admin",
+              details: "Payment created from admin dashboard as paid",
+            },
+          ],
+        });
+
+        createdPayment.invoiceUrl = `/api/payments/${String(createdPayment._id)}/invoice`;
+        await createdPayment.save();
+      }
+
+      await markUserPaymentState(userId, "paid", breakdown.gst);
+    } else {
+      if (latestPayment) {
+        latestPayment.status = paymentStatus === "pending" ? "pending" : "failed";
+        latestPayment.notes = [
+          ...(latestPayment.notes || []),
+          {
+            timestamp: new Date(),
+            action: "payment_marked_unpaid",
+            by: "admin",
+            details: `Payment marked ${paymentStatus} from admin dashboard`,
+          },
+        ];
+        await latestPayment.save();
+      }
+
+      await markUserPaymentState(
+        userId,
+        paymentStatus === "pending" ? "pending" : "unpaid",
+      );
+    }
+
+    const updatedUser = await User.findById(userId);
 
     return NextResponse.json({
       success: true,
-      user,
+      user: updatedUser,
     });
   } catch (error) {
     console.error("PAYMENT UPDATE ERROR:", error);
 
     return NextResponse.json(
       { success: false, message: "Failed to update payment" },
-      { status: 500 }
+      { status: 500 },
     );
   }
-}
+};
+
+export const POST = adminOnly(handler);

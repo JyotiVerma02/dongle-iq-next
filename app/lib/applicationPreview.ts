@@ -2,23 +2,33 @@ export const APPLICATION_CONFIG_KEY = "dongle-iq-application-config";
 export const PREVIEW_DRAFT_KEY = "dongle-iq-preview-draft";
 export const FORM_STATE_KEY = "dongle-iq-form-state";
 
+let memoryFiles: PreviewDraft["files"] | null = null;
+
 export type StoredFile = {
   name: string;
   type: string;
-  dataUrl: string;
+  preview: string;
+  file?: File;
 };
 
 export type FormStateStorage = Record<string, string>;
 
 export function saveFormState(state: FormStateStorage) {
   if (typeof window === "undefined") return;
-  window.sessionStorage.setItem(FORM_STATE_KEY, JSON.stringify(state));
+
+  window.sessionStorage.setItem(
+    FORM_STATE_KEY,
+    JSON.stringify(state),
+  );
 }
 
 export function readFormState(): FormStateStorage | null {
   if (typeof window === "undefined") return null;
+
   const raw = window.sessionStorage.getItem(FORM_STATE_KEY);
+
   if (!raw) return null;
+
   try {
     return JSON.parse(raw) as FormStateStorage;
   } catch {
@@ -28,9 +38,9 @@ export function readFormState(): FormStateStorage | null {
 
 export function clearFormState() {
   if (typeof window === "undefined") return;
+
   window.sessionStorage.removeItem(FORM_STATE_KEY);
 }
-
 
 export type PreviewDraft = {
   formData: Record<string, string>;
@@ -41,42 +51,99 @@ export type PreviewDraft = {
   };
 };
 
-export async function fileToStoredFile(file: File): Promise<StoredFile> {
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
-    reader.readAsDataURL(file);
-  });
-
+export async function fileToStoredFile(
+  file: File,
+): Promise<StoredFile> {
   return {
     name: file.name,
     type: file.type,
-    dataUrl,
+    preview: URL.createObjectURL(file),
+    file,
   };
 }
 
-export async function storedFileToFile(storedFile: StoredFile): Promise<File> {
-  const response = await fetch(storedFile.dataUrl);
+export async function storedFileToFile(
+  storedFile: StoredFile,
+): Promise<File> {
+  if (storedFile.file) {
+    return storedFile.file;
+  }
+
+  const response = await fetch(storedFile.preview);
+
   const blob = await response.blob();
-  return new File([blob], storedFile.name, { type: storedFile.type });
+
+  return new File(
+    [blob],
+    storedFile.name,
+    {
+      type: storedFile.type,
+    },
+  );
 }
 
-export function savePreviewDraft(draft: PreviewDraft) {
-  window.sessionStorage.setItem(PREVIEW_DRAFT_KEY, JSON.stringify(draft));
+export function savePreviewDraft(
+  draft: PreviewDraft,
+) {
+  memoryFiles = draft.files;
+
+  const lightweightDraft = {
+    ...draft,
+    files: {
+      photo: {
+        name: draft.files.photo.name,
+        type: draft.files.photo.type,
+        preview: draft.files.photo.preview,
+      },
+      idProof: {
+        name: draft.files.idProof.name,
+        type: draft.files.idProof.type,
+        preview: draft.files.idProof.preview,
+      },
+      addressProof: {
+        name: draft.files.addressProof.name,
+        type: draft.files.addressProof.type,
+        preview: draft.files.addressProof.preview,
+      },
+    },
+  };
+
+  window.sessionStorage.setItem(
+    PREVIEW_DRAFT_KEY,
+    JSON.stringify(lightweightDraft),
+  );
+}
+
+export function getMemoryFiles() {
+  return memoryFiles;
 }
 
 export function readPreviewDraft(): PreviewDraft | null {
-  const raw = window.sessionStorage.getItem(PREVIEW_DRAFT_KEY);
+  const raw =
+    window.sessionStorage.getItem(
+      PREVIEW_DRAFT_KEY,
+    );
+
   if (!raw) return null;
 
   try {
-    return JSON.parse(raw) as PreviewDraft;
+    const parsed =
+      JSON.parse(raw) as PreviewDraft;
+
+    if (memoryFiles) {
+      parsed.files = memoryFiles;
+    }
+
+    return parsed;
   } catch {
     return null;
   }
 }
 
 export function clearPreviewDraft() {
-  window.sessionStorage.removeItem(PREVIEW_DRAFT_KEY);
+  window.sessionStorage.removeItem(
+    PREVIEW_DRAFT_KEY,
+  );
+
+  memoryFiles = null;
 }

@@ -19,6 +19,7 @@ import { getThemePalette } from "@/app/lib/themePalette";
 export type UserDashboardView =
   | "overview"
   | "registration"
+  | "payment"
   | "admin-review"
   | "certificate-summary"
   | "personal-details"
@@ -43,6 +44,12 @@ const NAV_ENTRIES: NavEntry[] = [
     label: "Start registration",
     icon: <Plus size={17} strokeWidth={2.25} />,
     phase: "before",
+  },
+  {
+    view: "payment",
+    label: "Payment",
+    icon: <Sparkles size={17} strokeWidth={2.25} />,
+    phase: "after",
   },
   {
     view: "admin-review",

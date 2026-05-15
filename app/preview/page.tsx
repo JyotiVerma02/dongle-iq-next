@@ -33,51 +33,69 @@ export default function PreviewPage() {
     setDraft(savedDraft);
   }, [router]);
 
-  const handleConfirm = async () => {
-    if (!draft) return;
+const handleConfirm = async () => {
+  if (!draft) return;
 
-    setLoading(true);
+  // ADD THIS HERE
+  if (
+    !draft.files.photo.file ||
+    !draft.files.idProof.file ||
+    !draft.files.addressProof.file
+  ) {
+    alert("Please re-upload files.");
+    router.push("/bank-telecom-form");
+    return;
+  }
 
-    try {
-      const form = new FormData();
+  setLoading(true);
 
-      Object.entries(draft.formData).forEach(([key, value]) => {
-        if (key !== "photo" && key !== "idProof" && key !== "addressProof") {
-          form.append(key, value);
-        }
-      });
+  try {
+    const form = new FormData();
 
-      const [photoFile, idProofFile, addressProofFile] = await Promise.all([
+    Object.entries(draft.formData).forEach(([key, value]) => {
+      if (
+        key !== "photo" &&
+        key !== "idProof" &&
+        key !== "addressProof"
+      ) {
+        form.append(key, value);
+      }
+    });
+
+    const [photoFile, idProofFile, addressProofFile] =
+      await Promise.all([
         storedFileToFile(draft.files.photo),
         storedFileToFile(draft.files.idProof),
         storedFileToFile(draft.files.addressProof),
       ]);
 
-      form.append("photo", photoFile);
-      form.append("idProofFile", idProofFile);
-      form.append("addressProofFile", addressProofFile);
+    form.append("photo", photoFile);
+    form.append("idProofFile", idProofFile);
+    form.append("addressProofFile", addressProofFile);
 
-      const response = await fetch("/api/save-user", {
-        method: "POST",
-        body: form,
-      });
+    const response = await fetch("/api/save-user", {
+      method: "POST",
+      body: form,
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!data.success) {
-        alert(`Error: ${data.message}`);
-        return;
-      }
-
-      clearPreviewDraft();
-      alert("Form submitted successfully.");
-      router.push("/user/dashboard");
-    } catch {
-      alert("Could not submit the form. Please try again.");
-    } finally {
-      setLoading(false);
+    if (!data.success) {
+      alert(`Error: ${data.message}`);
+      return;
     }
-  };
+
+    clearPreviewDraft();
+
+    alert("Form submitted successfully.");
+
+    router.push("/user/dashboard?stage=payment");
+  } catch {
+    alert("Could not submit the form. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (!draft) {
     return null;
@@ -279,19 +297,20 @@ function DocumentCard({
 
       {isPdf ? (
         <iframe
-          src={file.dataUrl}
+         src={file.preview}
           title={`${label} PDF preview`}
           className="h-72 w-full rounded-lg border"
           style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
         />
       ) : (
         <img
-          src={file.dataUrl}
+       src={file.preview}
           alt={label}
           className="h-48 w-full rounded-lg object-contain"
           style={{ boxShadow: `0 16px 32px -24px ${colors.accentShadow}` }}
         />
       )}
+      
     </div>
   );
 }

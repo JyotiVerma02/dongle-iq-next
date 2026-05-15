@@ -149,14 +149,30 @@ export async function POST(req: NextRequest) {
     existingUser.certType = payload.certType;
     existingUser.validity = payload.validity;
     existingUser.tokenType = payload.tokenType;
+    existingUser.assistedService = payload.assistedService;
     existingUser.price = pricing.total;
     existingUser.status = "pending";
     existingUser.createdBy = payload.isAdmin ? "admin" : "client";
     existingUser.createdById = createdById;
     existingUser.clientId = String(existingUser._id);
 
-    await existingUser.save();
+try {
+  await existingUser.save();
+} catch (saveError) {
+  console.error("USER SAVE ERROR:", saveError);
 
+  return NextResponse.json(
+    {
+      success: false,
+      message: "Database save failed",
+      error:
+        saveError instanceof Error
+          ? saveError.message
+          : "Unknown save error",
+    },
+    { status: 500 }
+  );
+}
     return NextResponse.json({
       success: true,
       message: "Application created successfully",

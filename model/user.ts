@@ -1,5 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose from "mongoose";
+import {
+  encryptField,
+  decryptField,
+  hashField,
+  isEncrypted,
+} from "@/app/lib/encryption";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -58,10 +63,15 @@ const UserSchema = new mongoose.Schema(
     pan: {
       type: String,
       uppercase: true,
-      unique: true,
       sparse: true,
       trim: true,
       match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"],
+    },
+    panHash: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
     },
 
     gender: { type: String },
@@ -83,6 +93,11 @@ const UserSchema = new mongoose.Schema(
     tokenType: { type: String },
     certType: { type: String },
     validity: { type: String },
+    assistedService: {
+      type: String,
+      enum: ["Required", "Not Required"],
+      default: "Not Required",
+    },
 
     addressProof: { type: String },
     idProof: { type: String },
@@ -125,6 +140,81 @@ serviceType: {
   },
   { timestamps: true }
 );
+
+/**
+ * Pre-save middleware: Encrypt sensitive fields before saving
+ * Only encrypts PAN if not already encrypted
+ */
+UserSchema.pre("save", async function () {
+  try {
+    if (this.pan) {
+      const plainPan = isEncrypted(this.pan)
+        ? decryptField(this.pan)
+        : this.pan;
+
+      this.panHash = hashField(plainPan);
+
+      if (!isEncrypted(this.pan)) {
+        this.pan = encryptField(plainPan);
+      }
+    } else {
+      this.panHash = undefined;
+    }
+  } catch (error) {
+    console.error("PAN encryption failed:", error);
+    throw error;
+  }
+});
+
+/**
+ * Post-find middleware: Decrypt sensitive fields after retrieval
+ * Automatically decrypts PAN for all find operations
+ */
+UserSchema.post("find", function (docs: Array<{ pan?: string }> | { pan?: string } | null) {
+  if (!docs) return;
+
+  const decryptDoc = (doc: { pan?: string } | null) => {
+    if (doc && doc.pan && isEncrypted(doc.pan)) {
+      try {
+        doc.pan = decryptField(doc.pan);
+      } catch (error) {
+        console.error("Failed to decrypt PAN:", error);
+      }
+    }
+  };
+
+  if (Array.isArray(docs)) {
+    docs.forEach(decryptDoc);
+  } else {
+    decryptDoc(docs);
+  }
+});
+
+/**
+ * Post-findOne middleware: Decrypt sensitive fields
+ */
+UserSchema.post("findOne", function (doc: { pan?: string } | null) {
+  if (doc && doc.pan && isEncrypted(doc.pan)) {
+    try {
+      doc.pan = decryptField(doc.pan);
+    } catch (error) {
+      console.error("Failed to decrypt PAN:", error);
+    }
+  }
+});
+
+/**
+ * Post-findOneAndUpdate middleware: Decrypt sensitive fields
+ */
+UserSchema.post("findOneAndUpdate", function (doc: { pan?: string } | null) {
+  if (doc && doc.pan && isEncrypted(doc.pan)) {
+    try {
+      doc.pan = decryptField(doc.pan);
+    } catch (error) {
+      console.error("Failed to decrypt PAN:", error);
+    }
+  }
+});
 
 const User = mongoose.models.User || mongoose.model("User", UserSchema);
 

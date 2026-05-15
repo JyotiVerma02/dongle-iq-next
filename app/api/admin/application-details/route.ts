@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 
 import { connectDB } from "@/app/lib/mongodb";
 import { calculatePricing } from "@/app/lib/pricing";
+import { hashField } from "@/app/lib/encryption";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import User from "@/model/user";
 
@@ -72,6 +73,8 @@ export async function POST(req: NextRequest) {
     const nextCertType = String(body.certType || "").trim();
     const nextValidity = String(body.validity || "").trim();
     const nextTokenType = String(body.tokenType || "").trim() || "Not Required";
+    const nextAssistedService =
+      String(body.assistedService || "Not Required").trim() || "Not Required";
     const requestedStatus = String(body.status || "pending").trim().toLowerCase();
     const nextStatus = VALID_STATUSES.has(requestedStatus) ? requestedStatus : "pending";
     const requestedDscId = String(body.dscId || "").trim().toUpperCase();
@@ -164,7 +167,7 @@ export async function POST(req: NextRequest) {
     }
 
     const panOwner = await User.findOne({
-      pan: nextPan,
+      panHash: hashField(nextPan),
       role: { $ne: "admin" },
       ...(user ? { _id: { $ne: user._id } } : {}),
     });
@@ -180,7 +183,7 @@ export async function POST(req: NextRequest) {
       certType: nextCertType,
       validity: nextValidity,
       tokenType: nextTokenType,
-      assistedService: "Not Required",
+      assistedService: nextAssistedService,
     }).total;
 
     const nextDscId = requestedDscId || user?.dscId || createDscId();
@@ -230,6 +233,7 @@ export async function POST(req: NextRequest) {
     user.certType = nextCertType;
     user.validity = nextValidity;
     user.tokenType = nextTokenType;
+    user.assistedService = nextAssistedService;
     user.internalRemarks = String(body.internalRemarks || "").trim();
     user.price = nextPrice;
     user.clientId = user.clientId || String(user._id);

@@ -37,9 +37,11 @@ export function setAuthCookie(
   token: string,
   remember = false,
 ) {
+  const isProduction = process.env.NODE_ENV === "production";
+
   response.cookies.set("token", token, {
-    // httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    secure: isProduction,
     sameSite: "strict",
     path: "/",
     maxAge: remember ? 7 * 24 * 60 * 60 : 60 * 60,
@@ -47,9 +49,11 @@ export function setAuthCookie(
 }
 
 export function clearAuthCookie(response: NextResponse) {
+  const isProduction = process.env.NODE_ENV === "production";
+
   response.cookies.set("token", "", {
-    // httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    secure: isProduction,
     sameSite: "strict",
     path: "/",
     expires: new Date(0),
