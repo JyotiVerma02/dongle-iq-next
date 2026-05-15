@@ -102,6 +102,8 @@ function MetricCard({
   textColor: string;
   isDarkMode: boolean;
 }) {
+  const displayValue = formatMetricValue(value);
+
   return (
     <div
       className="theme-transition rounded-lg border p-4 shadow-[0_16px_32px_-24px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
@@ -116,7 +118,7 @@ function MetricCard({
             {label}
           </p>
           <p className="mt-4 text-4xl font-black leading-none" style={{ color: textColor }}>
-            {value}
+            {displayValue}
           </p>
         </div>
         <div
@@ -132,4 +134,11 @@ function MetricCard({
       </div>
     </div>
   );
+}
+
+function formatMetricValue(value: number) {
+  return new Intl.NumberFormat("en-IN", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(Number.isFinite(value) ? value : 0);
 }
