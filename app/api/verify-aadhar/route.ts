@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 import User from "@/model/user";
 import { connectDB } from "@/app/lib/mongodb";
-import logger from "@/app/lib/logger";
+import { sendOtpViaSms } from "@/app/lib/notifications";
 import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow, verifyOtpHash } from "@/app/lib/security";
 
 export async function POST(req: Request) {
@@ -59,9 +59,11 @@ export async function POST(req: Request) {
       user.aadhaarOtpExpiry = otpExpiry;
       await user.save();
 
-      if (process.env.NODE_ENV !== "production") {
-        logger.info(`[VERIFY-AADHAAR][DEV ONLY] OTP for ${mobile}: ${generatedOtp}`);
-      }
+      await sendOtpViaSms({
+        mobileNumber: mobile,
+        otp: generatedOtp,
+        expiryMinutes: 5,
+      });
 
       return NextResponse.json({
         success: true,

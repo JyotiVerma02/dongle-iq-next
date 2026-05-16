@@ -31,7 +31,7 @@ import {
 import { FaInstagram, FaLinkedinIn } from "react-icons/fa6";
 
 import LiveChat from "@/components/LiveChat";
-import { ThemeProvider, useTheme } from "@/components/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 type FaqEntry = {

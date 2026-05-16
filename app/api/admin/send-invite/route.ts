@@ -22,6 +22,23 @@ type DecodedToken = {
   role: string;
 };
 
+function getAppBaseUrl(req: NextRequest) {
+  const origin = req.nextUrl.origin;
+
+  if (origin && origin !== "null") {
+    return origin;
+  }
+
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  const protocol = req.headers.get("x-forwarded-proto") || "http";
+
+  if (host) {
+    return `${protocol}://${host}`;
+  }
+
+  return process.env.NEXTAUTH_URL || "http://localhost:3000";
+}
+
 export async function POST(req: NextRequest) {
   try {
     const ip = getClientIp(req);
@@ -142,7 +159,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Send invite email
-    const inviteLink = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/admin/accept-invite?token=${inviteToken}`;
+    const inviteLink = `${getAppBaseUrl(req)}/admin/accept-invite?token=${inviteToken}`;
 
     const inviteEmailContent = createAdminInviteEmail({
       inviteLink,

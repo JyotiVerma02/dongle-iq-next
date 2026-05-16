@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, Moon, SunMedium } from "lucide-react";
 
-import { ThemeProvider, useTheme } from "@/components/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/app/lib/themePalette";
 
 export default function AadhaarVerifyPage() {

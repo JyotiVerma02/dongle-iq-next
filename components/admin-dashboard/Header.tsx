@@ -4,12 +4,9 @@ import { useMemo, useState } from "react";
 import {
   Bell,
   Loader2,
-  LogOut,
   Menu,
   Moon,
   RefreshCw,
-  Settings,
-  ShieldCheck,
   SunMedium,
 } from "lucide-react";
 
@@ -259,19 +256,6 @@ export function Header({
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3 text-[13px] leading-6">
-      <span className="inline-flex items-center gap-2 font-medium text-slate-500">
-        <ShieldCheck size={14} />
-        {label}
-      </span>
-      <span className="text-right font-semibold text-slate-800 dark:text-slate-100">
-        {value}
-      </span>
-    </div>
-  );
-}
 function ProfileRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between text-[13px]">

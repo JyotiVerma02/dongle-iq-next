@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -127,6 +128,14 @@ function hasCompletedApplication(user: UserData | null) {
 }
 
 export default function DSCRegistrationForm() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[var(--background)]" />}>
+      <UserDashboardPage />
+    </Suspense>
+  );
+}
+
+function UserDashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isDarkMode, toggleTheme } = useTheme();

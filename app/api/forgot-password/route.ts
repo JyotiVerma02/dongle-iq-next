@@ -14,6 +14,23 @@ const forgotPasswordSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
 });
 
+function getAppBaseUrl(req: NextRequest) {
+  const origin = req.nextUrl.origin;
+
+  if (origin && origin !== "null") {
+    return origin;
+  }
+
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  const protocol = req.headers.get("x-forwarded-proto") || "http";
+
+  if (host) {
+    return `${protocol}://${host}`;
+  }
+
+  return process.env.NEXTAUTH_URL || "http://localhost:3000";
+}
+
 export async function POST(req: NextRequest) {
   try {
     const ip = getClientIp(req);
@@ -45,8 +62,16 @@ export async function POST(req: NextRequest) {
 
     const normalizedEmail = validation.data.email.toLowerCase();
 
-    const user = await User.findOne({ email: normalizedEmail });
-    const admin = user ? null : await Admin.findOne({ email: normalizedEmail });
+    const user = await User.findOne(
+      { email: normalizedEmail },
+      { _id: 1, email: 1 },
+    );
+    const admin = user
+      ? null
+      : await Admin.findOne(
+          { email: normalizedEmail },
+          { _id: 1, email: 1 },
+        );
     const account = user || admin;
 
     if (!account) {
@@ -57,12 +82,20 @@ export async function POST(req: NextRequest) {
     }
 
     const token = crypto.randomBytes(32).toString("hex");
+    const resetTokenExpiry = new Date(Date.now() + 3600000);
 
-    account.resetToken = token;
-    account.resetTokenExpiry = new Date(Date.now() + 3600000);
-    await account.save();
+    const accountModel = user ? User : Admin;
+    await accountModel.updateOne(
+      { _id: account._id },
+      {
+        $set: {
+          resetToken: token,
+          resetTokenExpiry,
+        },
+      },
+    );
 
-    const resetLink = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
+    const resetLink = `${getAppBaseUrl(req)}/reset-password?token=${token}`;
 
     const resetEmail = createPasswordResetEmail({ resetLink });
     await transporter.sendMail({
@@ -78,7 +111,9 @@ export async function POST(req: NextRequest) {
 
     const message = error instanceof Error && error.message.includes("verified sender identity")
       ? "Unable to send reset email because the configured SendGrid sender address is not verified. Check SENDGRID_FROM_EMAIL and verify the sender in SendGrid."
-      : "Unable to send reset email right now. Please try again.";
+      : error instanceof Error && error.message.includes("SendGrid connection timed out")
+        ? "Unable to reach SendGrid right now. Please try again in a moment."
+        : "Unable to send reset email right now. Please try again.";
 
     return NextResponse.json(
       { message },

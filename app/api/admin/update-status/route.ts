@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/app/lib/mongodb";
+import { sendStatusNotifications } from "@/app/lib/notifications";
 import User from "@/model/user";
 
 export async function POST(req: Request) {
@@ -47,6 +48,13 @@ export async function POST(req: Request) {
         { status: 404 }
       );
     }
+
+    await sendStatusNotifications({
+      mobileNumber: updatedUser.number,
+      name: updatedUser.name,
+      status: normalizedStatus,
+      remarks,
+    });
 
     return NextResponse.json({
       success: true,

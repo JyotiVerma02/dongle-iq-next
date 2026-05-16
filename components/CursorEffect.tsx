@@ -3,7 +3,7 @@
 
 import React, { useEffect, useRef } from "react";
 
-import { ThemeProvider, useTheme } from "@/components/ThemeContext";
+import { useTheme } from "@/components/ThemeContext";
 
 class Ripple {
   x: number;

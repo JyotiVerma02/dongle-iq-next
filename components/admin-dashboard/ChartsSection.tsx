@@ -9,14 +9,12 @@ export function ChartsSection({
   stats,
   chartData,
   admin,
-  isDarkMode,
   colors,
   onViewChange,
 }: {
   stats: DashboardStats;
   chartData: Array<{ name: string; value: number }>;
   admin: AdminProfile | null;
-  isDarkMode: boolean;
   colors: {
     borderSoft: string;
     subtleText: string;

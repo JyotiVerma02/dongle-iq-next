@@ -11,8 +11,10 @@ import {
   isMockPaymentGatewayEnabled,
   verifyPaymentSignature,
 } from "@/app/lib/razorpay";
+import { sendPaymentNotifications } from "@/app/lib/notifications";
 import { withAuth } from "@/app/lib/withAuth";
 import Payment from "@/model/payment";
+import User from "@/model/user";
 
 const handler = async (req: NextRequest) => {
   try {
@@ -120,6 +122,18 @@ const handler = async (req: NextRequest) => {
         paymentDocument,
         gatewayPayment: paymentDetails.payment,
         source: "checkout-verification",
+      });
+
+      const paymentUser = await User.findById(paymentDocument.userId, {
+        _id: 1,
+        number: 1,
+        dscId: 1,
+      });
+
+      await sendPaymentNotifications({
+        mobileNumber: paymentUser?.number,
+        amount: paymentDocument.amount || 0,
+        dscId: paymentDocument.dscId || paymentUser?.dscId,
       });
     } else if (paymentDetails.payment.status === "failed") {
       await markPaymentFailed({

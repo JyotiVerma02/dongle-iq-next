@@ -29,8 +29,16 @@ export async function POST(req: NextRequest) {
     const normalizedEmail = String(email || "").trim().toLowerCase();
     const normalizedOtp = String(otp || "").trim();
 
-    const user = await User.findOne({ email: normalizedEmail });
-    const admin = user ? null : await Admin.findOne({ email: normalizedEmail });
+    const user = await User.findOne(
+      { email: normalizedEmail },
+      { _id: 1, isVerified: 1, otp: 1, otpExpiry: 1 },
+    );
+    const admin = user
+      ? null
+      : await Admin.findOne(
+          { email: normalizedEmail },
+          { _id: 1, isVerified: 1, otp: 1, otpExpiry: 1 },
+        );
     const account = user || admin;
 
     if (!account) {
@@ -49,10 +57,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "OTP expired" }, { status: 400 });
     }
 
-    account.isVerified = true;
-    account.otp = undefined;
-    account.otpExpiry = undefined;
-    await account.save();
+    const accountModel = user ? User : Admin;
+    await accountModel.updateOne(
+      { _id: account._id },
+      {
+        $set: { isVerified: true },
+        $unset: { otp: "", otpExpiry: "" },
+      },
+    );
 
     return NextResponse.json({ success: true, message: "Email verified successfully" });
   } catch (error) {

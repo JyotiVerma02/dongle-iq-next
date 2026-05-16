@@ -30,8 +30,16 @@ export async function POST(req: NextRequest) {
     const { email } = await req.json();
     const normalizedEmail = String(email || "").trim().toLowerCase();
 
-    const user = await User.findOne({ email: normalizedEmail });
-    const admin = user ? null : await Admin.findOne({ email: normalizedEmail });
+    const user = await User.findOne(
+      { email: normalizedEmail },
+      { _id: 1, email: 1, isVerified: 1 },
+    );
+    const admin = user
+      ? null
+      : await Admin.findOne(
+          { email: normalizedEmail },
+          { _id: 1, email: 1, isVerified: 1 },
+        );
     const account = user || admin;
 
     if (!account) {
@@ -43,10 +51,16 @@ export async function POST(req: NextRequest) {
     }
 
     const otp = generateNumericOtp();
-
-    account.otp = hashOtp(otp);
-    account.otpExpiry = minutesFromNow(10);
-    await account.save();
+    const accountModel = user ? User : Admin;
+    await accountModel.updateOne(
+      { _id: account._id },
+      {
+        $set: {
+          otp: hashOtp(otp),
+          otpExpiry: minutesFromNow(10),
+        },
+      },
+    );
 
     const otpEmail = createResendOtpEmail({
       otp,

@@ -18,15 +18,33 @@ const DEFAULT_OPTIONS: AuthMiddlewareOptions = {
   allowPublic: false,
 };
 
+type AuthenticatedHandler<ResponseType> = (
+  req: NextRequest,
+  decoded: AuthToken,
+) => Promise<ResponseType>;
+
+type PublicHandler<ResponseType> = (
+  req: NextRequest,
+  decoded: AuthToken | null,
+) => Promise<ResponseType>;
+
 /**
  * withAuth middleware - Protects API routes with JWT authentication
  * Usage:
  *   const handler = async (req, decoded) => { ... }
  *   export const POST = withAuth(handler, { requireRoles: ["admin"] })
  */
-export function withAuth<T extends (...args: any[]) => Promise<any>>(
-  handler: (req: NextRequest, decoded: AuthToken) => Promise<any>,
-  options: AuthMiddlewareOptions = {}
+export function withAuth<ResponseType>(
+  handler: PublicHandler<ResponseType>,
+  options: AuthMiddlewareOptions & { allowPublic: true; requireAuth?: false },
+): (req: NextRequest) => Promise<ResponseType | NextResponse>;
+export function withAuth<ResponseType>(
+  handler: AuthenticatedHandler<ResponseType>,
+  options?: AuthMiddlewareOptions,
+): (req: NextRequest) => Promise<ResponseType | NextResponse>;
+export function withAuth<ResponseType>(
+  handler: AuthenticatedHandler<ResponseType> | PublicHandler<ResponseType>,
+  options: AuthMiddlewareOptions = {},
 ) {
   const config = { ...DEFAULT_OPTIONS, ...options };
 
@@ -44,7 +62,7 @@ export function withAuth<T extends (...args: any[]) => Promise<any>>(
 
       // If public access is allowed and no token, proceed without auth
       if (config.allowPublic && !token) {
-        return handler(req, null as any);
+        return (handler as PublicHandler<ResponseType>)(req, null);
       }
 
       // Verify token
@@ -94,8 +112,8 @@ export function withAuth<T extends (...args: any[]) => Promise<any>>(
  * Variant: For GET requests
  */
 export function withAuthGET<
-  T extends (req: NextRequest, decoded: AuthToken) => Promise<any>
->(handler: T, options: AuthMiddlewareOptions = {}) {
+  ResponseType
+>(handler: AuthenticatedHandler<ResponseType>, options: AuthMiddlewareOptions = {}) {
   return withAuth(handler, options);
 }
 
@@ -103,8 +121,8 @@ export function withAuthGET<
  * Variant: For POST requests
  */
 export function withAuthPOST<
-  T extends (req: NextRequest, decoded: AuthToken) => Promise<any>
->(handler: T, options: AuthMiddlewareOptions = {}) {
+  ResponseType
+>(handler: AuthenticatedHandler<ResponseType>, options: AuthMiddlewareOptions = {}) {
   return withAuth(handler, options);
 }
 
@@ -112,8 +130,8 @@ export function withAuthPOST<
  * Variant: Admin-only routes
  */
 export function adminOnly<
-  T extends (req: NextRequest, decoded: AuthToken) => Promise<any>
->(handler: T) {
+  ResponseType
+>(handler: AuthenticatedHandler<ResponseType>) {
   return withAuth(handler, { requireAuth: true, requireRoles: ["admin", "superadmin"] });
 }
 
@@ -121,8 +139,8 @@ export function adminOnly<
  * Variant: User-only routes
  */
 export function userOnly<
-  T extends (req: NextRequest, decoded: AuthToken) => Promise<any>
->(handler: T) {
+  ResponseType
+>(handler: AuthenticatedHandler<ResponseType>) {
   return withAuth(handler, {
     requireAuth: true,
     requireRoles: ["user"],
@@ -133,9 +151,9 @@ export function userOnly<
  * Variant: Public routes (no auth required, but token optional)
  */
 export function publicRoute<
-  T extends (req: NextRequest, decoded: AuthToken | null) => Promise<any>
->(handler: T) {
-  return withAuth(handler as any, {
+  ResponseType
+>(handler: PublicHandler<ResponseType>) {
+  return withAuth(handler, {
     requireAuth: false,
     allowPublic: true,
   });

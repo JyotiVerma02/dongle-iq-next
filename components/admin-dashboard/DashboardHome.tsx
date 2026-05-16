@@ -8,18 +8,23 @@ import {
   ImagePlus,
   IndianRupee,
   MapPinned,
+  MessageCircle,
   Search,
+  Send,
+  Smartphone,
   Truck,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import { MetricsGrid } from "@/components/admin-dashboard/MetricsGrid";
 import type {
+  AdminProfile,
   DashboardStats,
   DashboardView,
 } from "@/components/admin-dashboard/types";
 
 export function DashboardHome({
+  admin,
   stats,
   latestUsers,
   filteredUsers,
@@ -29,7 +34,7 @@ export function DashboardHome({
   onSearchChange,
   onViewChange,
 }: {
-  admin: unknown;
+  admin: AdminProfile | null;
   stats: DashboardStats;
   loading: boolean;
   search: string;
@@ -55,9 +60,14 @@ export function DashboardHome({
   onExpandedUserIdChange: (value: string | null) => void;
   onViewChange: (view: DashboardView) => void;
 }) {
+  void search;
+  void onSearchChange;
   const [actionLoading, setActionLoading] = useState<
     "track" | "claim" | "apply" | null
   >(null);
+  const [testMobile, setTestMobile] = useState(admin?.number || "");
+  const [testMessage, setTestMessage] = useState("DongleIQ test notification");
+  const [testingChannel, setTestingChannel] = useState<"sms" | "whatsapp" | null>(null);
 
   const topButtons = [
     {
@@ -122,6 +132,44 @@ export function DashboardHome({
       onViewChange("applications");
       toast.success("Open applications to apply for DSC");
     }, 250);
+  };
+
+  const handleNotificationTest = async (channel: "sms" | "whatsapp") => {
+    if (!testMobile.trim()) {
+      toast.error("Enter a mobile number first");
+      return;
+    }
+
+    setTestingChannel(channel);
+    try {
+      const response = await fetch("/api/admin/test-notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel,
+          mobileNumber: testMobile,
+          message: testMessage.trim() || undefined,
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.message || `Unable to send test ${channel}`);
+      }
+
+      toast.success(
+        channel === "sms"
+          ? "Test SMS sent successfully"
+          : "Test WhatsApp message sent successfully",
+      );
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : `Unable to send test ${channel}`,
+      );
+    } finally {
+      setTestingChannel(null);
+    }
   };
 
   return (
@@ -230,6 +278,115 @@ export function DashboardHome({
             onClick={handleApply}
             colors={colors}
           />
+        </div>
+      </section>
+
+      <section
+        className="dashboard-shell-surface rounded-lg p-5 sm:p-6"
+        style={{
+          borderColor: colors.borderSoft,
+          backgroundColor: colors.panelStrong,
+          color: colors.text,
+        }}
+      >
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <p
+              className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: colors.subtleText }}
+            >
+              Notification Testing
+            </p>
+            <h2 className="mt-2 text-xl font-black" style={{ color: colors.text }}>
+              Test MSG91 SMS and WhatsApp
+            </h2>
+            <p className="mt-2 text-sm leading-7" style={{ color: colors.muted }}>
+              Use this to verify your MSG91 configuration before relying on OTP
+              or status notifications in the main flow.
+            </p>
+          </div>
+
+          <div className="grid w-full gap-3 lg:max-w-3xl lg:grid-cols-[1.2fr,1.8fr,auto,auto]">
+            <label className="flex min-w-0 flex-col gap-2">
+              <span
+                className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: colors.subtleText }}
+              >
+                Mobile Number
+              </span>
+              <div
+                className="flex min-h-11 items-center gap-2 rounded-xl border px-3"
+                style={{
+                  borderColor: colors.borderSoft,
+                  backgroundColor: colors.panel,
+                }}
+              >
+                <Smartphone size={16} style={{ color: colors.muted }} />
+                <input
+                  type="text"
+                  value={testMobile}
+                  onChange={(event) => setTestMobile(event.target.value)}
+                  placeholder="9876543210"
+                  className="w-full bg-transparent text-sm outline-none"
+                  style={{ color: colors.text }}
+                />
+              </div>
+            </label>
+
+            <label className="flex min-w-0 flex-col gap-2">
+              <span
+                className="text-[10px] font-semibold uppercase tracking-[0.18em]"
+                style={{ color: colors.subtleText }}
+              >
+                Test Message
+              </span>
+              <div
+                className="flex min-h-11 items-center gap-2 rounded-xl border px-3"
+                style={{
+                  borderColor: colors.borderSoft,
+                  backgroundColor: colors.panel,
+                }}
+              >
+                <MessageCircle size={16} style={{ color: colors.muted }} />
+                <input
+                  type="text"
+                  value={testMessage}
+                  onChange={(event) => setTestMessage(event.target.value)}
+                  placeholder="DongleIQ test notification"
+                  className="w-full bg-transparent text-sm outline-none"
+                  style={{ color: colors.text }}
+                />
+              </div>
+            </label>
+
+            <button
+              type="button"
+              onClick={() => void handleNotificationTest("sms")}
+              disabled={testingChannel !== null}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-white transition disabled:opacity-70"
+              style={{ background: "var(--brand-gradient)" }}
+            >
+              <Send size={15} />
+              {testingChannel === "sms" ? "Sending SMS..." : "Test SMS"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => void handleNotificationTest("whatsapp")}
+              disabled={testingChannel !== null}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border px-4 text-sm font-semibold transition disabled:opacity-70"
+              style={{
+                borderColor: colors.borderSoft,
+                backgroundColor: colors.panel,
+                color: colors.text,
+              }}
+            >
+              <MessageCircle size={15} />
+              {testingChannel === "whatsapp"
+                ? "Sending WhatsApp..."
+                : "Test WhatsApp"}
+            </button>
+          </div>
         </div>
       </section>
 

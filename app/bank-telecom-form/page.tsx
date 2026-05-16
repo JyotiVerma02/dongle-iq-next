@@ -46,6 +46,8 @@ type FormState = {
 interface ThemeProps {
   colors: ReturnType<typeof getThemePalette>;
 }
+
+type ThemeColors = ThemeProps["colors"];
 interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement>, ThemeProps {
   label: string;
@@ -123,7 +125,7 @@ function DongleIQForm() {
       if (rawConfig) {
         try {
           Object.assign(nextState, JSON.parse(rawConfig));
-        } catch (e) {}
+        } catch {}
       }
       const pricing = calculatePricing({
         certType: nextState.certType,
@@ -519,7 +521,6 @@ function SectionHeader({ title, color }: { title: string; color: string }) {
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Label({
   text,
   required,
@@ -527,7 +528,7 @@ function Label({
 }: {
   text: string;
   required?: boolean;
-  colors: any;
+  colors: ThemeColors;
 }) {
   return (
     <label className="mb-1 block text-[9px] font-black uppercase opacity-60">
@@ -582,7 +583,6 @@ function ThemeSelect({
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function FileBox({
   label,
   file,
@@ -592,7 +592,7 @@ function FileBox({
   label: string;
   file: File | null;
   onClick: () => void;
-  colors: any;
+  colors: ThemeColors;
 }) {
   return (
     <div className="w-full">

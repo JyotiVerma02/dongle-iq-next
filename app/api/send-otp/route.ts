@@ -4,8 +4,8 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/app/lib/phone";
 import { connectDB } from "@/app/lib/mongodb";
+import { sendOtpViaSms } from "@/app/lib/notifications";
 import User from "@/model/user";
-import logger from "@/app/lib/logger";
 import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow } from "@/app/lib/security";
 
 export async function POST(req: Request) {
@@ -61,9 +61,11 @@ export async function POST(req: Request) {
     user.otpExpiry = otpExpiry;
     await user.save();
 
-    if (process.env.NODE_ENV !== "production") {
-      logger.info(`[SEND-OTP][DEV ONLY] OTP for ${normalizedMobile}: ${otp}`);
-    }
+    await sendOtpViaSms({
+      mobileNumber: normalizedMobile,
+      otp,
+      expiryMinutes: 5,
+    });
 
     return NextResponse.json({
       success: true,

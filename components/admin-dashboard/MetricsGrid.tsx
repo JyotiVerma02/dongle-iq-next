@@ -6,6 +6,7 @@ import { CheckCircle2, Clock3, IndianRupee, Receipt, Wallet, XCircle } from "luc
 import type { DashboardStats } from "@/components/admin-dashboard/types";
 
 export function MetricsGrid({ stats, isDarkMode }: DashboardMetricsProps) {
+  void isDarkMode;
   const cards = [
     {
       label: "DSC Commission",
@@ -75,7 +76,6 @@ export function MetricsGrid({ stats, isDarkMode }: DashboardMetricsProps) {
           icon={card.icon}
           background={card.background}
           textColor={card.textColor}
-          isDarkMode={isDarkMode}
         />
       ))}
     </section>
@@ -93,14 +93,12 @@ function MetricCard({
   icon,
   background,
   textColor,
-  isDarkMode,
 }: {
   label: string;
   value: number;
   icon: React.ReactNode;
   background: string;
   textColor: string;
-  isDarkMode: boolean;
 }) {
   const displayValue = formatMetricValue(value);
 

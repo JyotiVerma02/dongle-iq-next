@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import type {
-  CSSProperties,
   ChangeEvent,
   FormEvent,
   InputHTMLAttributes,
+  SelectHTMLAttributes,
 } from "react";
 import toast from "react-hot-toast";
 
@@ -37,12 +37,56 @@ type FormFields = {
   internalRemarks: string;
 };
 
+type InputStyle = {
+  backgroundColor: string;
+  borderColor: string;
+  color: string;
+};
+
+type ThemeInputProps = InputHTMLAttributes<HTMLInputElement> & {
+  label: string;
+  style: InputStyle;
+};
+
+type ThemeSelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
+  label: string;
+  options: string[];
+  style: InputStyle;
+};
+
 type AdminApplicationEditorProps = {
   user: Partial<DashboardUser> | null;
   saving: boolean;
   mode?: "create" | "edit";
   onSubmit: (payload: Record<string, string>) => Promise<void>;
 };
+
+function getInitialFormData(
+  user: Partial<DashboardUser> | null,
+): FormFields {
+  return {
+    dscId: user?.dscId || "",
+    status: user?.status || "pending",
+    name: user?.name || "",
+    email: user?.email || "",
+    number: user?.number || "",
+    gender: user?.gender || "",
+    dob: user?.dob || "",
+    pan: user?.pan || "",
+    ekycId: user?.ekycId || "",
+    ekycPin: user?.ekycPin || "",
+    bpCode: user?.bpCode || "",
+    address: user?.address || "",
+    pincode: user?.pincode || "",
+    city: user?.city || "",
+    state: user?.state || "",
+    certificateClass: user?.certificateClass || "Class III",
+    certType: user?.certType || "",
+    validity: user?.validity || "",
+    tokenType: user?.tokenType || "Not Required",
+    internalRemarks: user?.internalRemarks || "",
+  };
+}
 
 export default function AdminApplicationEditor({
   user,
@@ -53,55 +97,17 @@ export default function AdminApplicationEditor({
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
 
-  const [formData, setFormData] = useState<FormFields>({
-    dscId: "",
-    status: "pending",
-    name: "",
-    email: "",
-    number: "",
-    gender: "",
-    dob: "",
-    pan: "",
-    ekycId: "",
-    ekycPin: "",
-    bpCode: "",
-    address: "",
-    pincode: "",
-    city: "",
-    state: "",
-    certificateClass: "Class III",
-    certType: "",
-    validity: "",
-    tokenType: "Not Required",
-    internalRemarks: "",
-  });
+  const [formData, setFormData] = useState<FormFields>(getInitialFormData(user));
   const [formError, setFormError] = useState("");
 
   useEffect(() => {
     if (!user && mode === "edit") return;
-    setFormData({
-      dscId: user?.dscId || "",
-      status: user?.status || "pending",
-      name: user?.name || "",
-      email: user?.email || "",
-      number: user?.number || "",
-      gender: user?.gender || "",
-      dob: user?.dob || "",
-      pan: user?.pan || "",
-      ekycId: user?.ekycId || "",
-      ekycPin: user?.ekycPin || "",
-      bpCode: user?.bpCode || "",
-      address: user?.address || "",
-      pincode: user?.pincode || "",
-      city: user?.city || "",
-      state: user?.state || "",
-      certificateClass: user?.certificateClass || "Class III",
-      certType: user?.certType || "",
-      validity: user?.validity || "",
-      tokenType: user?.tokenType || "Not Required",
-      internalRemarks: user?.internalRemarks || "",
-    });
-    setFormError("");
+    const timer = window.setTimeout(() => {
+      setFormData(getInitialFormData(user));
+      setFormError("");
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [user, mode]);
 
   const handleChange = (
@@ -534,7 +540,14 @@ function Label({ text }: { text: string }) {
   );
 }
 
-function ThemeInput({ label, name, value, onChange, style, ...props }: any) {
+function ThemeInput({
+  label,
+  name,
+  value,
+  onChange,
+  style,
+  ...props
+}: ThemeInputProps) {
   return (
     <div className="w-full">
       <Label text={label} />
@@ -550,7 +563,14 @@ function ThemeInput({ label, name, value, onChange, style, ...props }: any) {
   );
 }
 
-function ThemeSelect({ label, name, value, options, onChange, style }: any) {
+function ThemeSelect({
+  label,
+  name,
+  value,
+  options,
+  onChange,
+  style,
+}: ThemeSelectProps) {
   return (
     <div className="w-full">
       <Label text={label} />

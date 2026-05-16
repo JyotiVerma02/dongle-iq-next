@@ -221,7 +221,11 @@ export default function AdminApplicationsPanel({
 
   // Single effect — was duplicated in your previous version, causing double fetches.
   useEffect(() => {
-    void fetchApplicants();
+    const timer = window.setTimeout(() => {
+      void fetchApplicants();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [fetchApplicants]);
 
   // ─── Refresh helpers ──────────────────────────────────────────────────────
@@ -273,7 +277,11 @@ export default function AdminApplicationsPanel({
 
   useEffect(() => {
     if (!selectedUserId) return;
-    void refreshUserInitialValues(selectedUserId);
+    const timer = window.setTimeout(() => {
+      void refreshUserInitialValues(selectedUserId);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [selectedUserId, refreshUserInitialValues]);
 
   // ─── Stable table callbacks ───────────────────────────────────────────────

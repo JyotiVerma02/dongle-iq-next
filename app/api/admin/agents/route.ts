@@ -12,7 +12,7 @@ export async function GET() {
       success: true,
       agents,
     });
-  } catch (error) {
+  } catch {
     return Response.json(
       { error: "Failed to fetch agents" },
       { status: 500 }

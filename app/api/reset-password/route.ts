@@ -44,17 +44,23 @@ export async function POST(req: NextRequest) {
 
     const { token, password } = validation.data;
 
-    const user = await User.findOne({
-      resetToken: token,
-      resetTokenExpiry: { $gt: Date.now() },
-    });
+    const user = await User.findOne(
+      {
+        resetToken: token,
+        resetTokenExpiry: { $gt: Date.now() },
+      },
+      { _id: 1 },
+    );
 
     const admin = user
       ? null
-      : await Admin.findOne({
-          resetToken: token,
-          resetTokenExpiry: { $gt: Date.now() },
-        });
+      : await Admin.findOne(
+          {
+            resetToken: token,
+            resetTokenExpiry: { $gt: Date.now() },
+          },
+          { _id: 1 },
+        );
 
     const account = user || admin;
 
@@ -66,11 +72,14 @@ export async function POST(req: NextRequest) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    account.password = hashedPassword;
-    account.resetToken = undefined;
-    account.resetTokenExpiry = undefined;
-    await account.save();
+    const accountModel = user ? User : Admin;
+    await accountModel.updateOne(
+      { _id: account._id },
+      {
+        $set: { password: hashedPassword },
+        $unset: { resetToken: "", resetTokenExpiry: "" },
+      },
+    );
 
     return NextResponse.json({ message: "Password reset successful" });
   } catch (error) {

@@ -23,6 +23,7 @@ export type ThemePalette = {
 };
 
 export function getThemePalette(isDarkMode: boolean): ThemePalette {
+  void isDarkMode;
   return {
     shell: "var(--background)",
     shellAlt: "var(--background-alt)",

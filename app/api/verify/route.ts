@@ -40,7 +40,10 @@ export async function POST(req: Request) {
 
     await connectDB();
 
-    const user = await User.findOne({ number: normalizedMobile });
+    const user = await User.findOne(
+      { number: normalizedMobile },
+      { _id: 1, otp: 1, otpExpiry: 1 },
+    );
 
     if (!user) {
       return NextResponse.json(
@@ -63,12 +66,19 @@ export async function POST(req: Request) {
       );
     }
 
-    user.isVerified = true;
-    user.status = "pending";
-    user.otp = undefined;
-    user.otpExpiry = undefined;
-
-    await user.save();
+    await User.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          isVerified: true,
+          status: "pending",
+        },
+        $unset: {
+          otp: "",
+          otpExpiry: "",
+        },
+      },
+    );
 
     return NextResponse.json({
       success: true,
