@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { DashboardStats } from "../../types";
 
@@ -18,7 +19,7 @@ const revenueData = [
   { name: "Jun", value: 30000 },
 ];
 
-export function PerformanceCharts({ stats }: PerformanceChartsProps) {
+export const PerformanceCharts = memo(function PerformanceCharts({ stats }: PerformanceChartsProps) {
   const statusData = [
     { name: "Approved", value: stats.approved },
     { name: "Pending", value: stats.pending },
@@ -114,4 +115,4 @@ export function PerformanceCharts({ stats }: PerformanceChartsProps) {
       </div>
     </div>
   );
-}
+});

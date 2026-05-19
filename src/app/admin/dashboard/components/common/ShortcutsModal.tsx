@@ -5,18 +5,24 @@ import { X, Keyboard } from "lucide-react";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 
+export interface ShortcutItem {
+  keys: string[];
+  description: string;
+}
+
 interface ShortcutsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  shortcuts?: ShortcutItem[];
 }
 
-const SHORTCUTS = [
+const DEFAULT_SHORTCUTS: ShortcutItem[] = [
   { keys: ["g", "h"], description: "Go to Dashboard" },
   { keys: ["g", "a"], description: "Go to All Applications" },
   { keys: ["g", "r"], description: "Go to Reports" },
   { keys: ["g", "t"], description: "Go to Track DSC" },
   { keys: ["g", "s"], description: "Go to Admin Settings" },
-  { keys: ["?"], description: "Show this keyboard shortcuts help" },
+  { keys: ["Ctrl", "?"], description: "Show keyboard shortcuts" },
   { keys: ["Esc"], description: "Close this panel / cancel chord" },
 ];
 
@@ -24,7 +30,8 @@ const SHORTCUTS = [
  * Modal overlay displaying all available keyboard shortcuts.
  * Dismissed on Escape or clicking outside.
  */
-export function ShortcutsModal({ isOpen, onClose }: ShortcutsModalProps) {
+export function ShortcutsModal({ isOpen, onClose, shortcuts }: ShortcutsModalProps) {
+  const list = shortcuts || DEFAULT_SHORTCUTS;
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
 
@@ -79,7 +86,7 @@ export function ShortcutsModal({ isOpen, onClose }: ShortcutsModalProps) {
 
         {/* Shortcut list */}
         <ul className="space-y-2">
-          {SHORTCUTS.map(({ keys, description }) => (
+          {list.map(({ keys, description }) => (
             <li
               key={keys.join("+")}
               className="flex items-center justify-between gap-3"

@@ -25,15 +25,27 @@ export async function GET(req: NextRequest) {
       .sort({ createdAt: -1 })
       .lean();
 
+    // Count applications ahead in queue
+    const queueLength = await User.countDocuments({
+      status: { $in: ["pending", "approved"] },
+      createdAt: { $lt: user.createdAt },
+      role: { $ne: "admin" }
+    });
+
+    const estimatedTimeMinutes = Math.max(15, queueLength * 15);
+
     return NextResponse.json({
       success: true,
       user: {
-         _id: String(user._id),
+        _id: String(user._id),
         name: user.name,
         email: user.email,
         number: user.number,
         status: user.status,
         internalRemarks: user.internalRemarks,
+        remarksViewed: user.remarksViewed || false,
+        resubmissionDocs: user.resubmissionDocs || { photo: false, idProof: false, addressProof: false },
+        actionHistory: user.actionHistory || [],
         isVerified: user.isVerified,
         isAadhaarVerified: user.isAadhaarVerified,
         pan: user.pan,
@@ -71,9 +83,12 @@ export async function GET(req: NextRequest) {
         price: user.price,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+        queueLength,
+        estimatedTimeMinutes,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("get-user-data error:", error);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 },

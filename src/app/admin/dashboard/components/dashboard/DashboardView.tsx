@@ -1,7 +1,32 @@
+import dynamic from "next/dynamic";
 import { DashboardStats, User, DashboardView } from "../../types";
 import { StatsOverview } from "./StatsOverview";
-import { PerformanceCharts } from "./PerformanceCharts";
-import { RecentActivity } from "./RecentActivity";
+
+const PerformanceCharts = dynamic(
+  () => import("./PerformanceCharts").then((mod) => mod.PerformanceCharts),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="h-[300px] w-full animate-pulse rounded-xl"
+        style={{ backgroundColor: "var(--skeleton)", border: "1px solid var(--border-soft)" }}
+      />
+    ),
+  }
+);
+
+const RecentActivity = dynamic(
+  () => import("./RecentActivity").then((mod) => mod.RecentActivity),
+  {
+    ssr: false,
+    loading: () => (
+      <div
+        className="h-[200px] w-full animate-pulse rounded-xl"
+        style={{ backgroundColor: "var(--skeleton)", border: "1px solid var(--border-soft)" }}
+      />
+    ),
+  }
+);
 
 interface DashboardViewProps {
   stats: DashboardStats;

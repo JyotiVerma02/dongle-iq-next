@@ -104,6 +104,20 @@ const UserSchema = new mongoose.Schema(
     photo: { type: String },
 
     internalRemarks: { type: String },
+    remarksViewed: { type: Boolean, default: false },
+    resubmissionDocs: {
+      photo: { type: Boolean, default: false },
+      idProof: { type: Boolean, default: false },
+      addressProof: { type: Boolean, default: false },
+    },
+    actionHistory: [
+      {
+        action: { type: String },
+        performedBy: { type: String },
+        timestamp: { type: Date, default: Date.now },
+        remarks: { type: String },
+      },
+    ],
 
     price: {
       type: Number,

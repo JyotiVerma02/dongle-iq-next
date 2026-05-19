@@ -35,13 +35,12 @@ export default function PreviewPage() {
 const handleConfirm = async () => {
   if (!draft) return;
 
-  // ADD THIS HERE
-  if (
-    !draft.files.photo.file ||
-    !draft.files.idProof.file ||
-    !draft.files.addressProof.file
-  ) {
-    alert("Please re-upload files.");
+  const photoIsRequiredAndMissing = !draft.files.photo.file && !draft.files.photo.isExisting;
+  const idIsRequiredAndMissing = !draft.files.idProof.file && !draft.files.idProof.isExisting;
+  const addressIsRequiredAndMissing = !draft.files.addressProof.file && !draft.files.addressProof.isExisting;
+
+  if (photoIsRequiredAndMissing || idIsRequiredAndMissing || addressIsRequiredAndMissing) {
+    alert("Please re-upload missing files.");
     router.push("/bank-telecom-form");
     return;
   }
@@ -61,16 +60,18 @@ const handleConfirm = async () => {
       }
     });
 
-    const [photoFile, idProofFile, addressProofFile] =
-      await Promise.all([
-        storedFileToFile(draft.files.photo),
-        storedFileToFile(draft.files.idProof),
-        storedFileToFile(draft.files.addressProof),
-      ]);
-
-    form.append("photo", photoFile);
-    form.append("idProofFile", idProofFile);
-    form.append("addressProofFile", addressProofFile);
+    if (draft.files.photo.file) {
+      const photoFile = await storedFileToFile(draft.files.photo);
+      form.append("photo", photoFile);
+    }
+    if (draft.files.idProof.file) {
+      const idProofFile = await storedFileToFile(draft.files.idProof);
+      form.append("idProofFile", idProofFile);
+    }
+    if (draft.files.addressProof.file) {
+      const addressProofFile = await storedFileToFile(draft.files.addressProof);
+      form.append("addressProofFile", addressProofFile);
+    }
 
     const response = await fetch("/api/save-user", {
       method: "POST",

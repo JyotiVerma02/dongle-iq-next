@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed:dummy-users": "node scripts/seed-dummy-users.mjs"
+    "seed:dummy-users": "node scripts/seed-dummy-users.mjs",
+    "test": "npx tsx scripts/run-tests.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",

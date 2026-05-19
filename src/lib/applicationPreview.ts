@@ -9,6 +9,7 @@ export type StoredFile = {
   type: string;
   preview: string;
   file?: File;
+  isExisting?: boolean;
 };
 
 export type FormStateStorage = Record<string, string>;
@@ -51,14 +52,69 @@ export type PreviewDraft = {
   };
 };
 
+async function compressImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/")) {
+    return file;
+  }
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxDim = 1200;
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            const compressedFile = new File([blob], file.name, {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          },
+          "image/jpeg",
+          0.82
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
 export async function fileToStoredFile(
   file: File,
 ): Promise<StoredFile> {
+  const optimizedFile = await compressImage(file);
   return {
-    name: file.name,
-    type: file.type,
-    preview: URL.createObjectURL(file),
-    file,
+    name: optimizedFile.name,
+    type: optimizedFile.type,
+    preview: URL.createObjectURL(optimizedFile),
+    file: optimizedFile,
   };
 }
 

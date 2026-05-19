@@ -80,12 +80,18 @@ export async function POST(req: NextRequest) {
       }
 
       const decoded = verifyAuthToken(token) as DecodedToken;
+      console.log("DEBUG CREATE_APPLICATION:", {
+        decoded,
+        tokenExisted: !!token,
+        isAdminPayload: payload.isAdmin
+      });
 
       targetUserId = decoded.userId;
       createdById = decoded.userId;
     }
 
     if (!targetUserId || !mongoose.Types.ObjectId.isValid(targetUserId)) {
+      console.log("DEBUG: Invalid or missing targetUserId:", targetUserId);
       return NextResponse.json(
         {
           success: false,
@@ -101,6 +107,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (!existingUser) {
+      console.log("DEBUG: existingUser is null for targetUserId:", targetUserId);
       return NextResponse.json(
         {
           success: false,

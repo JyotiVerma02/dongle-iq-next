@@ -55,10 +55,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <>
+      <a href="#main-content" className="skip-to-content">
+        Skip to content
+      </a>
       {showBackground && <PremiumBackground />}
       {showNavbar && <Navbar />}
 
-      <main
+      <main id="main-content"
         className={`relative z-10 transition-all duration-300 ${showNavbar ? "app-shell-content" : ""}`}
       >
         {children}

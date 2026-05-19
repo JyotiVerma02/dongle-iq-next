@@ -14,6 +14,7 @@ import {
 import { calculatePricing } from "@/lib/pricing";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
+import { telemetry } from "@/lib/telemetry";
 
 // Types and Initial State remain same
 type FormState = {
@@ -112,6 +113,55 @@ function DongleIQForm() {
   const [idFile, setIdFile] = useState<File | null>(null);
   const [addressFile, setAddressFile] = useState<File | null>(null);
 
+  const [resubmissionFlags, setResubmissionFlags] = useState<{
+    photo: boolean;
+    idProof: boolean;
+    addressProof: boolean;
+  } | null>(null);
+
+  const [existingUserUrls, setExistingUserUrls] = useState<{
+    photo?: string;
+    idProof?: string;
+    addressProof?: string;
+  }>({});
+
+  useEffect(() => {
+    fetch("/api/get-user-data")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.user) {
+          if (data.user.status === "rejected") {
+            setResubmissionFlags(
+              data.user.resubmissionDocs || { photo: true, idProof: true, addressProof: true }
+            );
+            setExistingUserUrls({
+              photo: data.user.photo,
+              idProof: data.user.idProof,
+              addressProof: data.user.addressProof,
+            });
+
+            setFormData((prev) => ({
+              ...prev,
+              name: data.user.name || prev.name,
+              email: data.user.email || prev.email,
+              gender: data.user.gender || prev.gender,
+              dob: data.user.dob || prev.dob,
+              address: data.user.address || prev.address,
+              pincode: data.user.pincode || prev.pincode,
+              city: data.user.city || prev.city,
+              state: data.user.state || prev.state,
+              certificateClass: data.user.certificateClass || prev.certificateClass,
+              certType: data.user.certType || prev.certType,
+              validity: data.user.validity || prev.validity,
+              tokenType: data.user.tokenType || prev.tokenType,
+              assistedService: data.user.assistedService || prev.assistedService,
+            }));
+          }
+        }
+      })
+      .catch((err) => console.error("Error fetching user data in bank-telecom-form:", err));
+  }, []);
+
   useEffect(() => {
     const mobile =
       searchParams.get("mobile") ||
@@ -160,19 +210,50 @@ function DongleIQForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!photoFile || !idFile || !addressFile)
-      return alert("All files required.");
+
+    const photoRequired = !existingUserUrls.photo || resubmissionFlags?.photo;
+    const idRequired = !existingUserUrls.idProof || resubmissionFlags?.idProof;
+    const addressRequired = !existingUserUrls.addressProof || resubmissionFlags?.addressProof;
+
+    if (photoRequired && !photoFile) return alert("Photo file is required.");
+    if (idRequired && !idFile) return alert("ID Proof file is required.");
+    if (addressRequired && !addressFile) return alert("Address Proof file is required.");
+
     setLoading(true);
+    const startFileProcessing = performance.now();
     try {
+      telemetry.trackEvent({
+        name: "form_submit_start",
+        category: "Application",
+        label: formData.certType,
+        metadata: { hasExistingFiles: !!existingUserUrls.photo },
+      });
+
       const [photo, idProof, addressProof] = await Promise.all([
-        fileToStoredFile(photoFile),
-        fileToStoredFile(idFile),
-        fileToStoredFile(addressFile),
+        photoFile
+          ? fileToStoredFile(photoFile)
+          : { name: "Existing Photo", type: "image/jpeg", preview: existingUserUrls.photo || "", isExisting: true },
+        idFile
+          ? fileToStoredFile(idFile)
+          : { name: "Existing ID Proof", type: "image/jpeg", preview: existingUserUrls.idProof || "", isExisting: true },
+        addressFile
+          ? fileToStoredFile(addressFile)
+          : { name: "Existing Address Proof", type: "image/jpeg", preview: existingUserUrls.addressProof || "", isExisting: true },
       ]);
+
+      telemetry.trackPerformance("process_form_files", performance.now() - startFileProcessing, {
+        photoSize: photoFile?.size,
+        idSize: idFile?.size,
+        addressSize: addressFile?.size,
+      });
+
       savePreviewDraft({ formData, files: { photo, idProof, addressProof } });
       router.push("/preview");
     } catch (error) {
       console.error("FILE PROCESS ERROR:", error);
+      telemetry.captureError(error instanceof Error ? error : String(error), {
+        action: "file_processing",
+      });
 
       alert(error instanceof Error ? error.message : "Error processing files.");
     } finally {
@@ -436,10 +517,20 @@ function DongleIQForm() {
                           className="h-full w-full object-cover"
                         />
                       )
+                    ) : existingUserUrls.photo && resubmissionFlags && !resubmissionFlags.photo ? (
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-emerald-500/10 p-2 text-center">
+                        <span className="text-[11px] font-extrabold uppercase text-emerald-550">Verified ✅</span>
+                        <span className="text-[9px] font-semibold text-emerald-600 mt-0.5">Existing photo will be reused</span>
+                      </div>
                     ) : (
-                      <p className="text-[10px] font-black uppercase opacity-60">
-                        Photo
-                      </p>
+                      <div className="flex flex-col items-center gap-1.5 p-2 text-center">
+                        <p className="text-[10px] font-black uppercase opacity-60">
+                          Photo
+                        </p>
+                        {resubmissionFlags?.photo && (
+                          <span className="px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wider rounded bg-rose-500/10 text-rose-500 animate-pulse">Resubmission Required</span>
+                        )}
+                      </div>
                     )}
                   </div>
                   <FileBox
@@ -447,6 +538,8 @@ function DongleIQForm() {
                     file={idFile}
                     onClick={() => idProofRef.current?.click()}
                     colors={colors}
+                    isVerified={!!(existingUserUrls.idProof && resubmissionFlags && !resubmissionFlags.idProof)}
+                    isResubmission={!!resubmissionFlags?.idProof}
                   />
                   <input
                     type="file"
@@ -460,6 +553,8 @@ function DongleIQForm() {
                     file={addressFile}
                     onClick={() => addressRef.current?.click()}
                     colors={colors}
+                    isVerified={!!(existingUserUrls.addressProof && resubmissionFlags && !resubmissionFlags.addressProof)}
+                    isResubmission={!!resubmissionFlags?.addressProof}
                   />
                   <input
                     type="file"
@@ -533,24 +628,28 @@ function Label({
   text,
   required,
   colors,
+  htmlFor,
 }: {
   text: string;
   required?: boolean;
   colors: ThemeColors;
+  htmlFor?: string;
 }) {
   return (
-    <label className="mb-1 block text-[9px] font-black uppercase opacity-60">
+    <label htmlFor={htmlFor} className="mb-1 block text-[9px] font-black uppercase opacity-60">
       {text} {required && <span style={{ color: colors.accent }}>*</span>}
     </label>
   );
 }
 
 function ThemeInput({ label, required, colors, muted, ...props }: InputProps) {
+  const inputId = label.toLowerCase().replace(/\s+/g, "-");
   return (
     <div className="w-full">
-      <Label text={label} required={required} colors={colors} />
+      <Label text={label} required={required} colors={colors} htmlFor={inputId} />
       <input
         {...props}
+        id={inputId}
         className="h-9 w-full rounded-md border px-3 text-[13px] font-bold outline-none"
         style={{
           backgroundColor: colors.input,
@@ -569,14 +668,17 @@ function ThemeSelect({
   colors,
   ...props
 }: SelectProps) {
+  const selectId = label.toLowerCase().replace(/\s+/g, "-");
   return (
     <div className="w-full">
-      <Label text={label} required={required} colors={colors} />
+      <Label text={label} required={required} colors={colors} htmlFor={selectId} />
       <select
         {...props}
+        id={selectId}
         className="h-9 w-full rounded-md border px-3 text-[13px] font-bold outline-none"
         style={{
           backgroundColor: colors.input,
+
           borderColor: colors.inputBorder,
           color: colors.text,
         }}
@@ -596,11 +698,15 @@ function FileBox({
   file,
   onClick,
   colors,
+  isVerified,
+  isResubmission,
 }: {
   label: string;
   file: File | null;
   onClick: () => void;
   colors: ThemeColors;
+  isVerified?: boolean;
+  isResubmission?: boolean;
 }) {
   return (
     <div className="w-full">
@@ -609,18 +715,20 @@ function FileBox({
         onClick={onClick}
         className="flex h-10 w-full cursor-pointer items-center justify-between rounded-md border px-3"
         style={{
-          borderColor: colors.inputBorder,
-          backgroundColor: colors.input,
+          borderColor: isResubmission && !file ? "rgba(244, 63, 94, 0.4)" : colors.inputBorder,
+          backgroundColor: isVerified && !file ? "rgba(16, 185, 129, 0.08)" : colors.input,
         }}
       >
         <span className="truncate text-[9px] font-bold opacity-60">
-          {file ? file.name : "Choose File..."}
+          {file ? file.name : isVerified ? "Existing file verified ✅" : "Choose File..."}
         </span>
         <span
           className="text-[8px] font-black uppercase px-2 py-1 rounded text-white"
-          style={{ backgroundColor: "#10b981" }}
+          style={{
+            backgroundColor: isResubmission && !file ? "#f43f5e" : isVerified && !file ? "#10b981" : colors.accent,
+          }}
         >
-          Upload
+          {isResubmission && !file ? "Fix Needed" : isVerified && !file ? "Verified" : "Upload"}
         </span>
       </div>
     </div>

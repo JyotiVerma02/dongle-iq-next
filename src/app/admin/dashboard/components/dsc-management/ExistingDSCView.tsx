@@ -41,6 +41,12 @@ interface DSCApplication {
   status: string;
   createdAt: string;
   internalRemarks?: string;
+  remarksViewed?: boolean;
+  resubmissionDocs?: {
+    photo: boolean;
+    idProof: boolean;
+    addressProof: boolean;
+  };
   __v?: number;
   address?: string;
   addressProof?: string;
@@ -80,8 +86,18 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
 
   const [applications, setApplications] = useState<DSCApplication[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      setSearchQuery(searchInput);
+      setCurrentPage(1);
+    }, 400);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchInput]);
   const [totalPages, setTotalPages] = useState(1);
 
   // Edit Modal State
@@ -98,6 +114,11 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
     tokenType: "",
     status: "",
     reason: "",
+  });
+  const [resubDocs, setResubDocs] = useState({
+    photo: false,
+    idProof: false,
+    addressProof: false,
   });
 
   const fetchApplications = useCallback(async () => {
@@ -172,6 +193,11 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
       status: app.status || "pending",
       reason: reason,
     });
+    setResubDocs({
+      photo: app.resubmissionDocs?.photo || false,
+      idProof: app.resubmissionDocs?.idProof || false,
+      addressProof: app.resubmissionDocs?.addressProof || false,
+    });
     setIsEditModalOpen(true);
   };
 
@@ -194,7 +220,10 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(editFormData),
+        body: JSON.stringify({
+          ...editFormData,
+          resubmissionDocs: resubDocs,
+        }),
       });
       const data = await response.json();
 
@@ -245,8 +274,8 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
             <input
               type="text"
               placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="bg-transparent text-xs outline-none w-full md:w-48"
               style={{ color: colors.text }}
             />
@@ -574,6 +603,52 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                     placeholder="Enter reason for approval or rejection..."
                   />
                 </div>
+
+                {editFormData.status === "rejected" && (
+                  <div className="p-3.5 rounded-lg border border-red-500/20 bg-red-500/5 space-y-2.5">
+                    <p className="text-xs font-black uppercase tracking-wider text-rose-500">Flag Documents for Resubmission</p>
+                    <div className="flex flex-wrap gap-4 text-xs font-semibold">
+                      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={resubDocs.photo}
+                          onChange={(e) => setResubDocs(prev => ({ ...prev, photo: e.target.checked }))}
+                          className="accent-rose-500 h-4 w-4"
+                        />
+                        <span>Require Photo</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={resubDocs.idProof}
+                          onChange={(e) => setResubDocs(prev => ({ ...prev, idProof: e.target.checked }))}
+                          className="accent-rose-500 h-4 w-4"
+                        />
+                        <span>Require ID Proof</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={resubDocs.addressProof}
+                          onChange={(e) => setResubDocs(prev => ({ ...prev, addressProof: e.target.checked }))}
+                          className="accent-rose-500 h-4 w-4"
+                        />
+                        <span>Require Address Proof</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {editingApp?.status === "rejected" && (
+                  <div className="text-xs font-semibold" style={{ color: colors.text }}>
+                    <span>Remarks viewed by user: </span>
+                    {editingApp.remarksViewed ? (
+                      <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold uppercase tracking-wider">Yes</span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-bold uppercase tracking-wider animate-pulse">Not Yet</span>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex justify-end gap-3 pt-2">
                   <button
