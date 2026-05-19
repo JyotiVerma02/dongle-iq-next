@@ -462,7 +462,6 @@ select:focus {
   outline: none;
   border-color: var(--accent) !important;
   box-shadow:
-    0 0 0 4px var(--accent-soft),
     0 18px 40px -24px var(--accent-shadow) !important;
 }
 
@@ -1421,7 +1420,6 @@ html.dark .faq-button:hover {
 .phone-field:focus-within {
   border-color: var(--accent) !important;
   box-shadow:
-    0 0 0 4px var(--accent-soft),
     0 18px 40px -24px var(--accent-shadow) !important;
 }
 
@@ -1439,7 +1437,6 @@ html.dark .faq-button:hover {
 
 .live-chat-input:focus {
   box-shadow:
-    0 0 0 4px var(--accent-soft),
     0 14px 28px -20px var(--accent-shadow);
 }
 
@@ -2108,9 +2105,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid var(--accent-light);
-  outline-offset: 4px;
-  box-shadow: 0 0 0 4px var(--accent-soft) !important;
+  outline: none;
 }
 
 /* Screen reader utilities (Task 5.1 / 5.3) */
