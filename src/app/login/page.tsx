@@ -289,7 +289,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-row items-center justify-between gap-2">
                     <label
                       className="flex cursor-pointer items-center gap-2 text-xs font-semibold whitespace-nowrap"
                       style={{ color: colors.subtleText }}

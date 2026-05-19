@@ -1469,6 +1469,21 @@ html:not(.dark) select {
   padding-block: clamp(1rem, 3vw, 2rem);
 }
 
+@media (max-width: 480px) {
+  .auth-page-shell {
+    align-items: flex-start !important;
+  }
+
+  .auth-page-shell .content-container {
+    min-height: auto;
+    padding-block: 1rem;
+  }
+
+  .auth-card {
+    border-radius: 0.85rem;
+  }
+}
+
 /* Fixes the text side to keep it readable */
 .auth-page-shell .contact-copy {
   max-width: 500px;
@@ -1478,7 +1493,7 @@ html:not(.dark) select {
 /* Fixes the card side */
 .auth-card,
 .auth-aside-card {
-  flex: 0 0 450px !important;
+  flex: 0 0 auto !important;
   width: 100%;
   max-width: 100%;
 }
