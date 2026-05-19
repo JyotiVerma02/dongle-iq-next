@@ -6,12 +6,12 @@
   --app-navbar-offset: calc(72px + 8px);
   --app-shell-min-height: calc(100dvh - var(--app-navbar-offset));
 
-  /* Clean software-agency light theme */
-  --background: #f6fbfa;
-  --background-alt: #e8f5f1;
-  --foreground: #102132;
-  --muted: #4b6374;
-  --subtle-text: #70879a;
+  /* Premium crisp light theme */
+  --background: #fdfdfd;
+  --background-alt: #f1f5f9;
+  --foreground: #0f172a;
+  --muted: #64748b;
+  --subtle-text: #94a3b8;
 
   /* ADD BELOW YOUR ACCENT COLORS */
 
@@ -59,12 +59,12 @@
 html.dark {
   color-scheme: dark;
 
-  /* Clean software-agency dark theme */
-  --background: #07121a;
-  --background-alt: #0d1d28;
-  --foreground: #e8fbff;
-  --muted: rgba(232, 251, 255, 0.72);
-  --subtle-text: rgba(232, 251, 255, 0.56);
+  /* Deep premium dark theme */
+  --background: #020617;
+  --background-alt: #0f172a;
+  --foreground: #f8fafc;
+  --muted: #94a3b8;
+  --subtle-text: #64748b;
 
   --card: rgba(11, 23, 32, 0.78);
   --card-strong: rgba(10, 19, 28, 0.92);
@@ -122,7 +122,7 @@ body {
   padding: 0;
   overflow-x: hidden;
   color: var(--foreground);
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   background: transparent;
   text-rendering: optimizeLegibility;
@@ -368,7 +368,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Inter", var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-outfit), var(--font-sans), system-ui, sans-serif;
   letter-spacing: -0.02em;
   letter-spacing: 0;
 }
@@ -634,12 +634,10 @@ html.dark .process-card,
 html.dark .audience-card,
 html.dark .stat-surface,
 html.dark .dashboard-preview,
-html.dark .contact-shell,
 html.dark .quote-panel,
 html.dark .info-card,
 html.dark .faq-card,
-html.dark .site-footer,
-html.dark .split-band {
+html.dark .site-footer {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
     var(--card);
@@ -1193,7 +1191,7 @@ html.dark .metric-card {
 .process-card,
 .audience-card,
 .quote-panel {
-  padding: 1rem;
+  padding: clamp(1.2rem, 4vw, 1.8rem);
 }
 
 .premium-card:hover,
@@ -1216,9 +1214,9 @@ html.dark .metric-card {
 .info-card-icon,
 .support-badge,
 .footer-brand-icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.85rem;
+  width: clamp(2.5rem, 5vw, 3.2rem);
+  height: clamp(2.5rem, 5vw, 3.2rem);
+  border-radius: clamp(0.75rem, 2vw, 0.85rem);
   background: linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary));
   color: #ffffff;
   display: flex;
@@ -1270,12 +1268,21 @@ html.dark .metric-card {
 }
 
 .info-card {
-  gap: 0.95rem;
-  padding: 1rem;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+  padding: clamp(1rem, 3vw, 1.5rem);
 }
 
 .info-card-text {
   font-weight: 700;
+  font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.info-card-subtext {
+  font-size: clamp(0.8rem, 1.2vw, 0.9rem);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .quote-intro p:last-child {
@@ -1666,10 +1673,8 @@ background: radial-gradient(
 } */
  .quote-panel {
   width: 100%;
-  max-width: 480px;   /* reduce overall width */
   padding: 20px;      /* smaller inner spacing */
   border-radius: 10px;
-  margin: 0 auto;
 }
 
 .quote-form {
@@ -2022,7 +2027,7 @@ html.dark label {
   }
 
   .contact-shell {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.15fr 0.85fr;
     align-items: start;
     gap: 3rem;
   }
@@ -2143,4 +2148,68 @@ textarea:focus-visible {
 .skip-to-content:focus {
   top: 1.5rem;
   outline: none;
+}
+
+/* =========================
+   PREMIUM MICRO-ANIMATIONS & HOVER STATES
+========================= */
+
+/* Glassmorphism deep card */
+.glass-panel-premium {
+  background: color-mix(in srgb, var(--card-strong) 60%, transparent);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 16px 32px -12px var(--accent-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.glass-panel-premium:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 48px -12px var(--accent-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border-color: var(--accent-subtle);
+}
+
+/* Premium Button Hover */
+.button-primary:hover, .button-secondary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 24px -8px var(--accent-shadow);
+  filter: brightness(1.05);
+}
+
+.button-primary:active, .button-secondary:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Floating Animations */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes floatDelay {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.float-delay {
+  animation: floatDelay 6s ease-in-out infinite;
+  animation-delay: 3s;
+}
+
+/* Enhanced Reveal */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(30px) scale(0.98);
+  animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes revealUp {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

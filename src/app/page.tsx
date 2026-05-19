@@ -233,7 +233,7 @@ export default function DongleIQLanding() {
 
   return (
     <main
-      className="page-shell min-h-screen"
+      className="page-shell min-h-screen theme-transition"
       style={{ color: colors.text }}
     >
       <section className="section hero-section hero-section-full-bleed">
@@ -748,7 +748,7 @@ function FeatureCard({
 }) {
   return (
     <div
-      className="premium-card reveal-up"
+      className="premium-card glass-panel-premium reveal-up"
       style={{ animationDelay: `${index * 80}ms` }}
     >
       <div
@@ -779,7 +779,7 @@ function AudienceCard({
 }) {
   return (
     <div
-      className="audience-card reveal-up"
+      className="audience-card glass-panel-premium reveal-up"
       style={{ animationDelay: `${index * 75}ms` }}
     >
       <div className="audience-icon">{icon}</div>

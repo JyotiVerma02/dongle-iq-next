@@ -174,7 +174,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               />
 
               <div
-                className="auth-card shine-border relative w-full overflow-hidden p-3.5 md:p-5"
+                className="auth-card glass-panel-premium shine-border relative w-full overflow-hidden p-3.5 md:p-5"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
