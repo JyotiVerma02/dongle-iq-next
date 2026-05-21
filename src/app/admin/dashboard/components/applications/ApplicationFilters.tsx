@@ -30,9 +30,9 @@ export function ApplicationFilters({
   };
 
   return (
-    <div className="border-b border-[var(--border-soft)] p-4 sm:p-6 mb-4">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)] flex items-center">
+    <div className="mb-4 border-b border-[var(--border-soft)] p-4 sm:p-6">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <h3 className="flex items-center text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)]">
           <Filter className="mr-2 h-3 w-3" />
           ADVANCED FILTERS
         </h3>
@@ -90,16 +90,16 @@ export function ApplicationFilters({
         </select>
       </div>
       
-      <div className="mt-4 flex justify-end space-x-3">
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:justify-end">
         <button
           onClick={handleReset}
-          className="theme-transition inline-flex items-center gap-2 rounded-lg border border-[var(--border-soft)] bg-[var(--card)] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--foreground)] hover:bg-[var(--background-alt)]"
+          className="theme-transition inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--border-soft)] bg-[var(--card)] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--foreground)] hover:bg-[var(--background-alt)] sm:w-auto"
         >
           <RotateCcw className="h-3 w-3" />
           Reset
         </button>
         <button
-          className="theme-primary-btn theme-transition inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white"
+          className="theme-primary-btn theme-transition inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white sm:w-auto"
         >
           <Save className="h-3 w-3" />
           Save Filter

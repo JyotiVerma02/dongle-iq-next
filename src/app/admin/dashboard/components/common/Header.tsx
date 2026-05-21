@@ -1,4 +1,4 @@
-import { Menu, Bell, ChevronDown } from "lucide-react";
+import { Menu, Bell, ChevronDown, PanelLeft, PanelLeftClose } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { AdminProfile, DashboardView } from "../../types";
 import { useTheme } from "@/components/ThemeContext";
@@ -6,12 +6,21 @@ import { getThemePalette } from "@/lib/themePalette";
 
 interface HeaderProps {
   admin: AdminProfile | null;
-  setMobileOpen: (open: boolean) => void;
+  onMenuClick: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
   logout: () => void;
   onViewChange: (view: DashboardView) => void;
 }
 
-export function Header({ admin, setMobileOpen, logout, onViewChange }: HeaderProps) {
+export function Header({
+  admin,
+  onMenuClick,
+  isCollapsed,
+  onToggleCollapse,
+  logout,
+  onViewChange,
+}: HeaderProps) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -40,34 +49,42 @@ export function Header({ admin, setMobileOpen, logout, onViewChange }: HeaderPro
 
   return (
     <header 
-      className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b px-4 backdrop-blur-md sm:px-6"
+      className="sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-3 border-b px-3 backdrop-blur-md sm:px-4 lg:px-6"
       style={{
-        backgroundColor: `${colors.panel}E6`,
+        background: "linear-gradient(90deg, rgba(10,19,31,0.96), rgba(15,40,56,0.92))",
         borderColor: colors.borderSoft,
       }}
     >
-      <div className="flex items-center">
+      <div className="flex min-w-0 items-center">
         <button
-          onClick={() => setMobileOpen(true)}
+          onClick={onMenuClick}
           data-testid="header-mobile-menu"
-          className="mr-4 rounded-lg p-2 lg:hidden"
+          className="mr-2 shrink-0 rounded-xl p-2 lg:hidden"
           style={{ color: colors.muted }}
         >
           <Menu className="h-5 w-5" />
         </button>
-
-        {/* Logo / Brand */}
-        <div className="hidden sm:block">
-          <h1 className="text-lg font-bold" style={{ color: colors.text }}>
-            Dongle<span style={{ color: colors.accent }}>IQ</span>
-          </h1>
-        </div>
+        <button
+          onClick={onToggleCollapse}
+          data-testid="header-sidebar-toggle"
+          className="hidden h-10 w-10 items-center justify-center rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 lg:inline-flex"
+          style={{
+            backgroundColor: colors.card,
+            borderColor: colors.borderSoft,
+            color: colors.accent,
+            boxShadow: `0 8px 20px -12px ${colors.accentShadow}`,
+          }}
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {isCollapsed ? <PanelLeft size={18} /> : <PanelLeftClose size={18} />}
+        </button>
       </div>
 
-      <div className="flex items-center space-x-4">
+      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
         <button 
           data-testid="header-notifications"
-          className="relative flex items-center justify-center rounded-full p-2"
+          className="relative flex h-10 w-10 items-center justify-center rounded-full"
           style={{ color: colors.muted }}
         >
           <Bell className="h-5 w-5" />
@@ -79,8 +96,12 @@ export function Header({ admin, setMobileOpen, logout, onViewChange }: HeaderPro
             onClick={handleDropdownClick}
             onDoubleClick={handleDropdownDoubleClick}
             data-testid="header-admin-dropdown"
-            className="flex items-center space-x-3 rounded-full border p-1 pr-3"
-            style={{ borderColor: colors.borderSoft }}
+            className="flex h-12 items-center gap-2 rounded-full border pl-1 pr-2 sm:pr-3"
+            style={{
+              borderColor: colors.borderSoft,
+              backgroundColor: colors.card,
+              boxShadow: `0 12px 30px -24px ${colors.accentShadow}`,
+            }}
           >
             <div 
               className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-black text-white shadow-sm"
@@ -88,7 +109,7 @@ export function Header({ admin, setMobileOpen, logout, onViewChange }: HeaderPro
             >
               {admin?.name?.charAt(0) || "A"}
             </div>
-            <div className="hidden text-left sm:block">
+            <div className="hidden min-w-0 max-w-32 text-left sm:block">
               <p className="text-xs font-bold uppercase tracking-wider" style={{ color: colors.text }}>
                 {admin?.name || "Admin"}
               </p>

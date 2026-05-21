@@ -30,13 +30,13 @@ export function Table<T>({
 }: TableProps<T>) {
   return (
     <div className={`overflow-x-auto ${className}`}>
-      <table className="w-full text-left text-xs">
+      <table className="min-w-[36rem] w-full text-left text-xs">
         <thead>
           <tr className="border-b border-[var(--border-soft)] text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)]">
             {columns.map((column, index) => (
               <th
                 key={index}
-                className={`pt-2.5 pb-2 px-2 first:pl-6 last:pr-6 ${
+                className={`px-2 pb-2 pt-2.5 first:pl-3 last:pr-3 sm:first:pl-6 sm:last:pr-6 ${
                   column.align === "right"
                     ? "text-right"
                     : column.align === "center"
@@ -63,7 +63,7 @@ export function Table<T>({
                   {columns.map((column, index) => (
                     <td
                       key={index}
-                      className={`py-2 px-2 first:pl-6 last:pr-6 ${
+                      className={`px-2 py-2 first:pl-3 last:pr-3 sm:first:pl-6 sm:last:pr-6 ${
                         column.align === "right"
                           ? "text-right"
                           : column.align === "center"

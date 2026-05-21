@@ -1,8 +1,11 @@
 /**
  * responsive-ever.css
- * Shared responsive layout + rhythm for the site (especially user dashboard).
- * Import from globals.css — use these classes instead of scattering one-off breakpoints.
+ * Complete responsive system - all breakpoints, grids, and mobile-first styles
  */
+
+/* ========================================
+   ROOT VARIABLES & RESPONSIVE SPACING
+   ======================================== */
 
 :root {
   --re-space-xs: clamp(0.75rem, 2.5vw, 1rem);
@@ -13,6 +16,29 @@
   --re-touch-min: 44px;
   /* Matches .app-shell-content navbar offset so sidebar aligns with main column */
   --ud-navbar-clearance: 52px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saas-bg__particle {
+    animation: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saas-bg__aurora,
+  .saas-bg__blob {
+    animation: none !important;
+  }
+
+  .saas-bg__spotlight {
+    transition: none !important;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --app-navbar-offset: calc(72px + 12px);
+  }
 }
 
 @media (min-width: 1024px) {
@@ -39,21 +65,16 @@
 }
 
 /* ——— User dashboard shell ——— */
-/* No page-level background: uses global html/body gradient from globals.css */
 .ud-dashboard-root {
   --ud-navbar-clearance: 0px;
   color: inherit;
   position: relative;
-  background:
-    radial-gradient(circle at 14% 12%, rgba(var(--accent-rgb), 0.14), transparent 28%),
-    radial-gradient(circle at 84% 8%, rgba(56, 189, 248, 0.12), transparent 30%),
-    radial-gradient(circle at 60% 100%, rgba(20, 184, 166, 0.08), transparent 34%);
   min-height: 100dvh;
 }
 
 /*
  * Sidebar: same glass language as top navbar (--nav + heavy blur).
- * Inset edge separates from body gradient without a flat “second bg”.
+ * Inset edge separates from body gradient without a flat "second bg".
  */
 .ud-sidebar-surface {
   background-color: var(--nav);
@@ -178,9 +199,6 @@ html.dark .ud-sidebar-nav-shell {
   flex-direction: column;
   overflow: hidden;
   isolation: isolate;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 18%),
-    transparent;
 }
 
 .ud-main-scroll {
@@ -471,4 +489,306 @@ html.dark .ud-spot-card {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS FROM GLOBALS.CSS
+   ======================================== */
+
+/* Mobile fixes */
+@media (max-width: 768px) {
+  .section {
+    padding-top: 2rem;
+  }
+
+  .content-container {
+    justify-content: flex-start !important;
+    align-items: stretch;
+    gap: 1.5rem;
+    padding-inline: 1rem;
+  }
+
+  .hero-panel {
+    border-radius: 1.5rem;
+  }
+
+  .hero-panel-full-bleed {
+    border-radius: 0;
+  }
+
+  .hero-panel-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .preview-row .status-pill {
+    width: 100%;
+  }
+
+  .dashboard-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
+  }
+
+  .contact-shell,
+  .quote-form {
+    grid-template-columns: 1fr;
+  }
+
+  .support-note {
+    flex-direction: column;
+  }
+
+  .auth-page-shell .content-container {
+    min-height: auto;
+  }
+
+  .auth-card,
+  .auth-aside-card {
+    flex: 1 1 auto !important;
+  }
+
+  .footer-contact {
+    max-width: none;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .footer-grid > div:first-child {
+    grid-column: span 1;
+  }
+
+  .metric-card {
+    flex: 1 1 100%;
+  }
+
+  .split-band {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Small mobile (under 420px) */
+@media (max-width: 420px) {
+  .dashboard-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablet (768px to 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container-shell {
+    width: calc(100% - 1.5rem);
+  }
+
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .footer-grid > div:first-child {
+    grid-column: span 2;
+  }
+
+  .metric-card {
+    flex: 1 1 48%;
+  }
+
+  .hero-title {
+    font-size: clamp(2.2rem, 4vw, 3.2rem);
+  }
+}
+
+/* Desktop (1024px and up) */
+@media (min-width: 1024px) {
+  .app-shell-content {
+    padding-top: 84px;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    align-items: start;
+    gap: 4rem;
+  }
+
+  .footer-grid > div:first-child {
+    grid-column: span 1;
+  }
+
+  .split-band {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hero-panel-inner {
+    grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+  }
+}
+
+/* Small laptop (1024px to 1279px) */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .container-shell {
+    max-width: 1080px;
+  }
+
+  .split-band {
+    grid-template-columns: 0.9fr 1.1fr;
+  }
+
+  .contact-shell {
+    grid-template-columns: 1.15fr 0.85fr;
+    align-items: start;
+    gap: 3rem;
+  }
+
+  .footer-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+
+  .footer-grid > div:first-child {
+    grid-column: span 1;
+  }
+}
+
+/* Large screens (1280px to 1439px) */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .container-shell {
+    max-width: 1200px;
+  }
+
+  .hero-title {
+    font-size: clamp(3rem, 4vw, 4.2rem);
+  }
+
+  .contact-shell {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: start;
+    gap: 4rem;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  }
+}
+
+/* Ultra wide (1440px+) */
+@media (min-width: 1440px) {
+  .container-shell {
+    max-width: 1320px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+    gap: 12rem;
+  }
+
+  .hero-title {
+    font-size: 4.8rem;
+  }
+
+  .hero-copy {
+    max-width: 46rem;
+    font-size: 1.25rem;
+  }
+
+  .contact-shell {
+    grid-template-columns: 1.15fr 0.85fr;
+    align-items: start;
+    gap: 5rem;
+  }
+
+  .footer-grid {
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+  }
+}
+
+/* Auth page responsive fixes */
+@media (max-width: 480px) {
+  .auth-page-shell {
+    align-items: flex-start !important;
+  }
+
+  .auth-page-shell .content-container {
+    min-height: auto;
+    padding-block: 1rem;
+  }
+
+  .auth-card {
+    border-radius: 0.85rem;
+  }
+}
+
+/* Auth page container */
+.auth-page-shell {
+  min-height: var(--app-shell-min-height);
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100%;
+}
+
+/* Ensure auth pages feel balanced */
+.auth-page-shell .content-container {
+  min-height: calc(100vh - 120px);
+  align-content: center;
+  padding-block: clamp(1rem, 3vw, 2rem);
+}
+
+/* Fix text side to keep it readable */
+.auth-page-shell .contact-copy {
+  max-width: 500px;
+  flex: 0 1 auto !important;
+}
+
+/* Fix card side */
+.auth-card,
+.auth-aside-card {
+  flex: 0 0 auto !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+.auth-card {
+  border-radius: 1rem;
+}
+
+.auth-aside-card {
+  border-radius: 0.95rem;
+}
+
+/* Responsive blobs for mobile */
+@media (max-width: 767px) {
+  .saas-bg__blobs {
+    inset: -20%;
+    opacity: 0.72;
+  }
+
+  .saas-bg__blob {
+    width: 280px;
+    height: 280px;
+  }
+
+  .saas-bg__blob--b {
+    width: 320px;
+    height: 320px;
+  }
+
+  .saas-bg__blob--c {
+    width: 340px;
+    height: 340px;
+  }
+
+  .saas-bg__spotlight {
+    opacity: 0.36;
+  }
 }

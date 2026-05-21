@@ -242,6 +242,7 @@ function AdminDashboard() {
           isCollapsed={isCollapsed}
           isSidebarOpen={isSidebarOpen}
           onToggleCollapse={handleToggleCollapse}
+          onClose={() => setIsSidebarOpen(false)}
           admin={admin}
         />
 
@@ -249,7 +250,9 @@ function AdminDashboard() {
         <div ref={mainRef} className="ud-main relative flex-1">
           <Header
             admin={admin}
-            setMobileOpen={() => setIsSidebarOpen(!isSidebarOpen)}
+            onMenuClick={() => setIsSidebarOpen((current) => !current)}
+            isCollapsed={isCollapsed}
+            onToggleCollapse={handleToggleCollapse}
             logout={logout}
             onViewChange={navigateTo}
           />

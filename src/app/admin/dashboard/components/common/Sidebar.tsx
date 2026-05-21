@@ -5,7 +5,6 @@ import {
   Settings,
   MapPin,
   ChevronRight,
-  PanelLeftClose,
   PanelLeft,
   Search,
 
@@ -21,6 +20,7 @@ interface SidebarProps {
   isCollapsed: boolean;
   isSidebarOpen: boolean;
   onToggleCollapse: () => void;
+  onClose: () => void;
   admin?: AdminProfile | null;
 }
 
@@ -39,12 +39,19 @@ export function Sidebar({
   isCollapsed, 
   isSidebarOpen,
   onToggleCollapse,
+  onClose,
   admin 
 }: SidebarProps) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const [searchQuery, setSearchQuery] = useState("");
-  const [openSubmenus, setOpenSubmenus] = useState<string[]>(["dsc-management"]);
+
+  const handleNavigation = (nextView: DashboardView) => {
+    onViewChange(nextView);
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      onClose();
+    }
+  };
 
   return (
     <>
@@ -52,7 +59,7 @@ export function Sidebar({
       {isSidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-          onClick={() => onViewChange(view)}
+          onClick={onClose}
         />
       )}
 
@@ -70,7 +77,7 @@ export function Sidebar({
         }}
       >
         {/* Header with logo and collapse button */}
-        <div className={`flex h-16 items-center border-b ${isCollapsed ? "justify-center px-2" : "justify-between px-4"}`} style={{ borderColor: colors.borderSoft }}>
+        <div className={`flex h-16 items-center border-b ${isCollapsed ? "justify-center px-2" : "px-4"}`} style={{ borderColor: colors.borderSoft }}>
           {!isCollapsed && (
             <div className="flex items-center gap-2">
               <h1 className="text-gradient-brand text-xl font-bold uppercase tracking-tight">
@@ -78,22 +85,6 @@ export function Sidebar({
               </h1>
             </div>
           )}
-
-          {/* Collapse Toggle Button - Always visible, styled like Theme Toggle */}
-          <button
-            onClick={onToggleCollapse}
-            data-testid="sidebar-collapse-toggle"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95"
-            style={{ 
-              backgroundColor: colors.card,
-              borderColor: colors.borderSoft,
-              color: colors.accent,
-              boxShadow: `0 8px 20px -12px ${colors.accentShadow}`,
-            }}
-            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {isCollapsed ? <PanelLeft size={18} /> : <PanelLeftClose size={18} />}
-          </button>
         </div>
 
         {/* Search Bar - Only when not collapsed */}
@@ -135,9 +126,7 @@ export function Sidebar({
               return (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    onViewChange(item.id as DashboardView);
-                  }}
+                  onClick={() => handleNavigation(item.id as DashboardView)}
                   title={isCollapsed ? item.label : undefined}
                   data-testid={`sidebar-nav-${item.id}`}
                   className={`group flex w-full items-center rounded-lg px-3 py-3 text-sm font-medium transition-all duration-200 ${
@@ -170,7 +159,8 @@ export function Sidebar({
             className="mx-4 mb-4 rounded-xl border p-3"
             style={{
               borderColor: colors.borderSoft,
-              backgroundColor: colors.panel,
+              backgroundColor: colors.card,
+              boxShadow: `0 14px 28px -24px ${colors.accentShadow}`,
             }}
           >
             <p className="text-[10px] uppercase tracking-[0.16em]" style={{ color: colors.subtleText }}>

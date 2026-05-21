@@ -49,7 +49,7 @@ export function ApplicationsView({ users, onUpdateStatus }: ApplicationsViewProp
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-black uppercase tracking-tight text-[var(--foreground)]">
             All Applications
@@ -58,16 +58,16 @@ export function ApplicationsView({ users, onUpdateStatus }: ApplicationsViewProp
             Manage and process customer applications.
           </p>
         </div>
-        <div className="mt-4 flex space-x-3 sm:mt-0">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <button
-            className="theme-transition inline-flex items-center gap-2 rounded-lg border border-[var(--border-soft)] bg-[var(--card)] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--foreground)] hover:bg-[var(--background-alt)]"
+            className="theme-transition inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--border-soft)] bg-[var(--card)] px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--foreground)] hover:bg-[var(--background-alt)] sm:w-auto"
           >
             <CheckSquare className="h-3 w-3" />
             Bulk Action
           </button>
           <button
             onClick={handleExport}
-            className="theme-primary-btn theme-transition inline-flex items-center gap-2 rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white"
+            className="theme-primary-btn theme-transition inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-white sm:w-auto"
           >
             <Download className="h-3 w-3" />
             Export
