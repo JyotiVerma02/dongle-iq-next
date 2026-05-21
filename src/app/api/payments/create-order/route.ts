@@ -14,6 +14,7 @@ import {
 import { withAuth } from "@/lib/withAuth";
 import Payment from "@/models/payment";
 import User from "@/models/user";
+import { isAdminRole } from "@/lib/adminRoles";
 
 const handler = async (
   req: NextRequest,
@@ -28,7 +29,7 @@ const handler = async (
     };
 
     const targetUserId =
-      decoded.role === "admin" || decoded.role === "superadmin"
+      isAdminRole(decoded.role)
         ? body.userId || decoded.userId
         : decoded.userId;
 
@@ -95,7 +96,7 @@ const handler = async (
       notes: [
         {
           action: "payment_created",
-          by: decoded.role === "admin" ? "admin" : "user",
+          by: isAdminRole(decoded.role) ? "admin" : "user",
           details: "Payment initialized before Razorpay order creation",
         },
       ],

@@ -9,8 +9,8 @@ interface StatusBadgeProps {
 export function StatusBadge({ status, type = "application" }: StatusBadgeProps) {
   const isPayment = type === "payment";
   const colors = isPayment 
-    ? PAYMENT_COLORS[status as PaymentStatus] 
-    : STATUS_COLORS[status as ApplicationStatus];
+    ? PAYMENT_COLORS[status as PaymentStatus] || "text-slate-500"
+    : STATUS_COLORS[status as ApplicationStatus] || "text-slate-500 bg-slate-500/10 border-slate-500/20";
     
   const label = status.charAt(0).toUpperCase() + status.slice(1);
 
@@ -23,7 +23,7 @@ export function StatusBadge({ status, type = "application" }: StatusBadgeProps) 
       }`}
     >
       {isPayment && (
-        <span className={`mr-1.5 flex h-2 w-2 rounded-full ${status === 'paid' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+        <span className={`mr-1.5 flex h-2 w-2 rounded-full ${status === 'paid' ? 'bg-emerald-500' : status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'}`} />
       )}
       {!isPayment && (
         <span className="mr-1.5 flex h-1.5 w-1.5 rounded-full bg-current" />

@@ -6,9 +6,21 @@ export type DashboardView =
   | "admin-settings"
   | "create-dsc";
 
-export type ApplicationStatus = "pending" | "approved" | "rejected" | "issued";
-export type PaymentStatus = "paid" | "unpaid";
+export type ApplicationStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "dispatched"
+  | "delivered"
+  | "issued";
+export type PaymentStatus = "paid" | "pending" | "unpaid";
 export type ServiceType = "dsc" | "token" | "assisted";
+export type AdminRole =
+  | "super_admin"
+  | "reviewer"
+  | "dispatcher"
+  | "support_team"
+  | "finance_admin";
 
 export interface User {
   _id: string;
@@ -32,7 +44,7 @@ export interface AdminProfile {
   name: string;
   email: string;
   number: string;
-  role: "super_admin" | "admin" | "viewer" | string;
+  role: AdminRole | string;
   avatar?: string;
   twoFactorEnabled?: boolean;
 }

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
+import { buildChanges, createAuditEntry } from "@/lib/adminAudit";
+import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { connectDB } from "@/lib/mongodb";
+import { adminOnly } from "@/lib/withAuth";
+import type { AuthToken } from "@/lib/withAuth";
+import Admin from "@/models/admin";
 import User from "@/models/user";
 
 const listParamsSchema = z.object({
@@ -19,7 +24,7 @@ const deleteSchema = z.object({
   userId: z.string().min(1, "User ID is required"),
 });
 
-const STATUS_VALUES = ["pending", "approved", "rejected", "issued"] as const;
+const STATUS_VALUES = ["pending", "approved", "rejected", "dispatched", "delivered", "issued"] as const;
 
 function buildApplicantQuery(params: z.infer<typeof listParamsSchema>) {
   const query: Record<string, unknown> = {
@@ -52,7 +57,7 @@ function buildApplicantQuery(params: z.infer<typeof listParamsSchema>) {
   return query;
 }
 
-export async function GET(req: NextRequest) {
+const getHandler = async (req: NextRequest) => {
   try {
     await connectDB();
 
@@ -114,6 +119,8 @@ export async function GET(req: NextRequest) {
         pending: stats.pending || 0,
         approved: stats.approved || 0,
         rejected: stats.rejected || 0,
+        dispatched: stats.dispatched || 0,
+        delivered: stats.delivered || 0,
         issued: stats.issued || 0,
       },
     });
@@ -125,11 +132,27 @@ export async function GET(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+};
 
-export async function DELETE(req: NextRequest) {
+const deleteHandler = async (req: NextRequest, decoded: AuthToken) => {
   try {
     await connectDB();
+
+    const admin = await Admin.findById(decoded.userId).select("name email role");
+    if (!admin) {
+      return NextResponse.json(
+        { success: false, message: "Admin not found" },
+        { status: 404 },
+      );
+    }
+
+    const adminRole = normalizeAdminRole(admin.role);
+    if (!hasAdminPermission(adminRole, "delete_application")) {
+      return NextResponse.json(
+        { success: false, message: "You do not have permission to delete applications" },
+        { status: 403 },
+      );
+    }
 
     const parsed = deleteSchema.safeParse(await req.json());
 
@@ -140,7 +163,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    const deletedUser = await User.findOneAndDelete({
+    const deletedUser = await User.findOne({
       _id: parsed.data.userId,
       role: { $ne: "admin" },
     }).select("-password");
@@ -151,6 +174,26 @@ export async function DELETE(req: NextRequest) {
         { status: 404 },
       );
     }
+
+    deletedUser.auditTrail.push(
+      createAuditEntry({
+        action: "application_deleted",
+        actor: {
+          id: String(admin._id),
+          name: admin.name,
+          email: admin.email,
+          role: adminRole,
+        },
+        changes: buildChanges(
+          { deleted: false, status: deletedUser.status },
+          { deleted: true, status: deletedUser.status },
+          ["deleted", "status"],
+        ),
+        remarks: "Application deleted by admin",
+      }),
+    );
+    await deletedUser.save();
+    await User.deleteOne({ _id: deletedUser._id });
 
     return NextResponse.json({
       success: true,
@@ -165,4 +208,7 @@ export async function DELETE(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+};
+
+export const GET = adminOnly(getHandler);
+export const DELETE = adminOnly(deleteHandler);

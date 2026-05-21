@@ -28,6 +28,10 @@ export function buildStatusNotificationMessage(params: {
       ? `${prefix}your DSC application has been approved.`
       : normalizedStatus === "rejected"
         ? `${prefix}your DSC application needs changes before approval.`
+        : normalizedStatus === "dispatched"
+          ? `${prefix}your DSC application dispatch has been initiated.`
+          : normalizedStatus === "delivered"
+            ? `${prefix}your DSC application has been marked delivered.`
         : normalizedStatus === "issued"
           ? `${prefix}your DSC application has been issued successfully.`
           : `${prefix}your DSC application status is now ${normalizedStatus}.`;

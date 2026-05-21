@@ -10,6 +10,7 @@ import { migrateLegacyAdminUser } from "@/lib/admin";
 import logger from "@/lib/logger";
 import { enforceRateLimit, getClientIp } from "@/lib/security";
 import { setAuthCookie, signAuthToken } from "@/lib/auth";
+import { normalizeAdminRole } from "@/lib/adminRoles";
 
 const loginSchema = z.object({
   email: z.string().min(1).refine(
@@ -84,14 +85,15 @@ export async function POST(req: Request) {
       const token = signAuthToken(
         {
           userId: String(admin._id),
-          role: "admin",
+          role: normalizeAdminRole(admin.role),
+          accountType: "admin",
         },
         remember ? "7d" : "1h"
       );
 
       const response = NextResponse.json({
         message: "Login successful",
-        role: "admin",
+        role: normalizeAdminRole(admin.role),
       });
 
       setAuthCookie(response, token, remember);
@@ -131,6 +133,7 @@ export async function POST(req: Request) {
       {
         userId: String(user._id),
         role: user.role,
+        accountType: "user",
       },
       remember ? "7d" : "1h"
     );

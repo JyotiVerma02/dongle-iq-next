@@ -5,6 +5,8 @@ import {
   hashField,
   isEncrypted,
 } from "@/lib/encryption";
+import { APPLICATION_STATUSES } from "@/lib/applicationWorkflow";
+import { ADMIN_ROLES } from "@/lib/adminRoles";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -56,7 +58,7 @@ const UserSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "issued"],
+      enum: APPLICATION_STATUSES,
       default: "pending",
     },
 
@@ -116,6 +118,39 @@ const UserSchema = new mongoose.Schema(
         performedBy: { type: String },
         timestamp: { type: Date, default: Date.now },
         remarks: { type: String },
+      },
+    ],
+    statusHistory: [
+      {
+        fromStatus: { type: String, enum: APPLICATION_STATUSES },
+        toStatus: { type: String, enum: APPLICATION_STATUSES },
+        changedById: { type: String },
+        changedByName: { type: String },
+        changedByEmail: { type: String },
+        changedByRole: { type: String, enum: ADMIN_ROLES },
+        remarks: { type: String },
+        changedAt: { type: Date, default: Date.now },
+      },
+    ],
+    auditTrail: [
+      {
+        action: { type: String, required: true },
+        actorId: { type: String, required: true },
+        actorName: { type: String, required: true },
+        actorEmail: { type: String, required: true },
+        actorRole: { type: String, enum: ADMIN_ROLES, required: true },
+        timestamp: { type: Date, default: Date.now },
+        changes: [
+          {
+            field: { type: String, required: true },
+            previousValue: { type: mongoose.Schema.Types.Mixed },
+            newValue: { type: mongoose.Schema.Types.Mixed },
+          },
+        ],
+        fromStatus: { type: String, enum: APPLICATION_STATUSES },
+        toStatus: { type: String, enum: APPLICATION_STATUSES },
+        remarks: { type: String },
+        metadata: { type: mongoose.Schema.Types.Mixed, default: {} },
       },
     ],
 

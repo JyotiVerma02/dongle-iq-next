@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAuthToken } from "@/lib/auth";
+import { getTokenAdminRole, verifyAuthToken } from "@/lib/auth";
+import type { AdminRole } from "@/lib/adminRoles";
 
 export type AuthToken = {
   userId: string;
-  role: "user" | "admin" | "operator" | "superadmin";
+  role: string;
+  accountType?: "admin" | "user";
 };
 
 export type AuthMiddlewareOptions = {
   requireAuth?: boolean;
-  requireRoles?: Array<"user" | "admin" | "operator" | "superadmin">;
+  requireRoles?: string[];
   allowPublic?: boolean;
 };
 
@@ -132,8 +134,25 @@ export function withAuthPOST<
 export function adminOnly<
   ResponseType
 >(handler: AuthenticatedHandler<ResponseType>) {
-  // TEMPORARY FIX: Allow all authenticated users to fix the "Forbidden" error in development
-  return withAuth(handler, { requireAuth: true });
+  return withAuth(async (req, decoded) => {
+    const adminRole = getTokenAdminRole(decoded);
+
+    if (!adminRole) {
+      return NextResponse.json(
+        { success: false, message: "Forbidden - Admin access required" },
+        { status: 403 }
+      );
+    }
+
+    return handler(
+      req,
+      {
+        ...decoded,
+        role: adminRole,
+        accountType: "admin",
+      } as AuthToken & { role: AdminRole; accountType: "admin" }
+    );
+  }, { requireAuth: true });
 }
 
 /**

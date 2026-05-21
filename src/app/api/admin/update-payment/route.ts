@@ -6,6 +6,9 @@ import {
   markUserPaymentState,
 } from "@/lib/payments";
 import { adminOnly } from "@/lib/withAuth";
+import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
+import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
+import Admin from "@/models/admin";
 import Payment from "@/models/payment";
 import User from "@/models/user";
 
@@ -22,6 +25,22 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
       );
     }
 
+    const admin = await Admin.findById(decoded.userId).select("name email role");
+    if (!admin) {
+      return NextResponse.json(
+        { success: false, message: "Admin not found" },
+        { status: 404 },
+      );
+    }
+
+    const adminRole = normalizeAdminRole(admin.role);
+    if (!hasAdminPermission(adminRole, "update_payment")) {
+      return NextResponse.json(
+        { success: false, message: "You do not have permission to update payment status" },
+        { status: 403 },
+      );
+    }
+
     const user = await User.findById(userId);
 
     if (!user) {
@@ -30,6 +49,11 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
         { status: 404 },
       );
     }
+
+    const previousState = {
+      paymentStatus: user.paymentStatus,
+      gst: user.gst,
+    };
 
     const breakdown = buildPaymentBreakdown(user);
     const latestPayment = await Payment.findOne({ userId }).sort({ createdAt: -1 });
@@ -117,6 +141,40 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
 
     const updatedUser = await User.findById(userId);
     const updatedPayment = await Payment.findOne({ userId }).sort({ createdAt: -1 });
+
+    if (updatedUser) {
+      const actor = {
+        id: String(admin._id),
+        name: admin.name,
+        email: admin.email,
+        role: adminRole,
+      };
+      const nextState = {
+        paymentStatus: updatedUser.paymentStatus,
+        gst: updatedUser.gst,
+      };
+
+      updatedUser.actionHistory.push(
+        createLegacyActionHistoryEntry({
+          action: "payment_status_changed",
+          actor,
+          remarks: `Payment status updated to ${updatedUser.paymentStatus}`,
+        }),
+      );
+      updatedUser.auditTrail.push(
+        createAuditEntry({
+          action: "payment_status_changed",
+          actor,
+          changes: buildChanges(previousState, nextState, ["paymentStatus", "gst"]),
+          remarks: `Payment status updated to ${updatedUser.paymentStatus}`,
+          metadata: {
+            paymentStatus,
+            paymentId: updatedPayment ? String(updatedPayment._id) : null,
+          },
+        }),
+      );
+      await updatedUser.save();
+    }
 
     return NextResponse.json({
       success: true,

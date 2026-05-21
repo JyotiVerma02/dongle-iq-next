@@ -1,9 +1,11 @@
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
+import { isAdminRole, normalizeAdminRole, type AdminRole } from "@/lib/adminRoles";
 
-type AuthTokenPayload = {
+export type AuthTokenPayload = {
   userId: string;
   role: string;
+  accountType?: "admin" | "user";
 };
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
@@ -30,6 +32,17 @@ export function verifyAuthToken(token: string) {
     issuer: JWT_ISSUER,
     audience: JWT_AUDIENCE,
   }) as AuthTokenPayload;
+}
+
+export function isAdminTokenPayload(payload: AuthTokenPayload | null | undefined) {
+  if (!payload) return false;
+  if (payload.accountType === "admin") return true;
+  return isAdminRole(payload.role);
+}
+
+export function getTokenAdminRole(payload: AuthTokenPayload | null | undefined): AdminRole | null {
+  if (!isAdminTokenPayload(payload)) return null;
+  return normalizeAdminRole(payload?.role);
 }
 
 export function setAuthCookie(

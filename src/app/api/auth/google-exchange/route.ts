@@ -5,6 +5,7 @@ import User from "@/models/user";
 import { connectDB } from "@/lib/mongodb";
 import { enforceRateLimit, getClientIp } from "@/lib/security";
 import { setAuthCookie, signAuthToken } from "@/lib/auth";
+import { normalizeAdminRole, isAdminRole } from "@/lib/adminRoles";
 
 
 export async function POST(req: Request) {
@@ -45,7 +46,11 @@ export async function POST(req: Request) {
       }
 
       const token = signAuthToken(
-        { userId: String(admin._id), role: "admin" },
+        {
+          userId: String(admin._id),
+          role: normalizeAdminRole(admin.role),
+          accountType: "admin",
+        },
         "7d",
       );
 
@@ -67,13 +72,13 @@ export async function POST(req: Request) {
       }
 
       const token = signAuthToken(
-        { userId: String(user._id), role: user.role },
+        { userId: String(user._id), role: user.role, accountType: "user" },
         "7d",
       );
 
       const response = NextResponse.json({
         success: true,
-        redirectTo: user.role === "admin" ? "/admin/dashboard" : "/user/dashboard",
+        redirectTo: isAdminRole(user.role) ? "/admin/dashboard" : "/user/dashboard",
       });
 
       setAuthCookie(response, token, true);

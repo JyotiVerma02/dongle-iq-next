@@ -11,6 +11,7 @@ import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { createAdminWelcomeEmail } from "@/lib/emailTemplates";
 import { transporter } from "@/lib/mailer";
 import { setAuthCookie, signAuthToken } from "@/lib/auth";
+import { ADMIN_ROLES, normalizeAdminRole } from "@/lib/adminRoles";
 
 const acceptInviteSchema = z.object({
   token: z.string().trim().min(1, "Invite token is required"),
@@ -23,6 +24,7 @@ const acceptInviteSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/,
       "Password must include uppercase, lowercase, number, and special character"
     ),
+  role: z.enum(ADMIN_ROLES).optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -117,7 +119,7 @@ export async function POST(req: NextRequest) {
       email: validInvite.email,
       number: normalizedNumber,
       password: hashedPassword,
-      role: "admin",
+      role: normalizeAdminRole(validInvite.role),
       isVerified: true, // Auto-verified via email invitation
       status: "active",
     });
@@ -145,7 +147,8 @@ export async function POST(req: NextRequest) {
     const jwtToken = signAuthToken(
       {
         userId: String(newAdmin._id),
-        role: "admin",
+        role: normalizeAdminRole(newAdmin.role),
+        accountType: "admin",
       },
       "7d"
     );

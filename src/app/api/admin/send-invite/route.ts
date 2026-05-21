@@ -2,25 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { connectDB } from "@/lib/mongodb";
-import { verifyAuthToken } from "@/lib/auth";
 import { createAdminInviteEmail } from "@/lib/emailTemplates";
 import { transporter } from "@/lib/mailer";
 import { enforceRateLimit, getClientIp } from "@/lib/security";
 import Admin from "@/models/admin";
 import AdminInvite from "@/models/adminInvite";
+import { adminOnly } from "@/lib/withAuth";
+import type { AuthToken } from "@/lib/withAuth";
 import {
   generateInviteToken,
   getInviteExpiryDate,
 } from "@/lib/adminInvite";
+import {
+  ADMIN_ROLES,
+  hasAdminPermission,
+  normalizeAdminRole,
+} from "@/lib/adminRoles";
 
 const inviteSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
+  role: z.enum(ADMIN_ROLES).default("reviewer"),
 });
-
-type DecodedToken = {
-  userId: string;
-  role: string;
-};
 
 function getAppBaseUrl(req: NextRequest) {
   const origin = req.nextUrl.origin;
@@ -39,7 +41,7 @@ function getAppBaseUrl(req: NextRequest) {
   return process.env.NEXTAUTH_URL || "http://localhost:3000";
 }
 
-export async function POST(req: NextRequest) {
+const postHandler = async (req: NextRequest, decoded: AuthToken) => {
   try {
     const ip = getClientIp(req);
     const limiter = enforceRateLimit({
@@ -62,28 +64,9 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
-    // Verify admin token
-    const token = req.cookies.get("token")?.value;
-    if (!token) {
+    if (!hasAdminPermission(decoded.role, "invite_admin")) {
       return NextResponse.json(
-        { error: "Unauthorized - Admin token required" },
-        { status: 401 }
-      );
-    }
-
-    let decoded: DecodedToken;
-    try {
-      decoded = verifyAuthToken(token) as DecodedToken;
-    } catch {
-      return NextResponse.json(
-        { error: "Invalid or expired token" },
-        { status: 401 }
-      );
-    }
-
-    if (decoded.role !== "admin") {
-      return NextResponse.json(
-        { error: "Forbidden - Admin access required" },
+        { error: "Forbidden - You do not have permission to invite admins" },
         { status: 403 }
       );
     }
@@ -111,7 +94,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { email: inviteEmail } = validation.data;
+    const { email: inviteEmail, role } = validation.data;
     const normalizedEmail = inviteEmail.toLowerCase();
 
     // Check if email already has admin account
@@ -155,6 +138,7 @@ export async function POST(req: NextRequest) {
       inviteToken,
       inviteTokenHash,
       invitedBy: decoded.userId,
+      role: normalizeAdminRole(role),
       expiresAt,
     });
 
@@ -190,32 +174,13 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+};
 
-export async function GET(req: NextRequest) {
+const getHandler = async (req: NextRequest, decoded: AuthToken) => {
   try {
     await connectDB();
 
-    // Verify admin token
-    const token = req.cookies.get("token")?.value;
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    let decoded: DecodedToken;
-    try {
-      decoded = verifyAuthToken(token) as DecodedToken;
-    } catch {
-      return NextResponse.json(
-        { error: "Invalid or expired token" },
-        { status: 401 }
-      );
-    }
-
-    if (decoded.role !== "admin") {
+    if (!hasAdminPermission(decoded.role, "invite_admin")) {
       return NextResponse.json(
         { error: "Forbidden" },
         { status: 403 }
@@ -246,4 +211,7 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+};
+
+export const POST = adminOnly(postHandler);
+export const GET = adminOnly(getHandler);

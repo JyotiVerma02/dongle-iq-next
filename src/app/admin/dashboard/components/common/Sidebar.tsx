@@ -13,6 +13,7 @@ import { useState } from "react";
 import { DashboardView, AdminProfile } from "../../types";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
+import { getAdminRoleLabel, hasAdminPermission } from "@/lib/adminRoles";
 
 interface SidebarProps {
   view: DashboardView;
@@ -25,12 +26,11 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { id: "home", label: "Dashboard", icon: LayoutDashboard },
-  { id: "applications", label: "All Applications", icon: Files },
-
-  { id: "track-dsc", label: "Track DSC", icon: MapPin },
-  { id: "reports", label: "Reports", icon: BarChart3 },
-  { id: "admin-settings", label: "Admin Settings", icon: Settings },
+  { id: "home", label: "Dashboard", icon: LayoutDashboard, permission: "view_applications" },
+  { id: "applications", label: "All Applications", icon: Files, permission: "view_applications" },
+  { id: "track-dsc", label: "Track DSC", icon: MapPin, permission: "view_applications" },
+  { id: "reports", label: "Reports", icon: BarChart3, permission: "view_applications" },
+  { id: "admin-settings", label: "Admin Settings", icon: Settings, permission: "invite_admin" },
 ] as const;
 
 export function Sidebar({ 
@@ -45,6 +45,9 @@ export function Sidebar({
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const [searchQuery, setSearchQuery] = useState("");
+  const visibleNavItems = navItems.filter((item) =>
+    !admin?.role || hasAdminPermission(admin.role, item.permission)
+  );
 
   const handleNavigation = (nextView: DashboardView) => {
     onViewChange(nextView);
@@ -77,7 +80,7 @@ export function Sidebar({
         }}
       >
         {/* Header with logo and collapse button */}
-        <div className={`flex h-16 items-center border-b ${isCollapsed ? "justify-center px-2" : "px-4"}`} style={{ borderColor: colors.borderSoft }}>
+        <div className={`flex h-16 min-h-16 max-h-16 shrink-0 items-center border-b ${isCollapsed ? "justify-center px-2" : "px-4"}`} style={{ borderColor: colors.borderSoft }}>
           {!isCollapsed && (
             <div className="flex items-center gap-2">
               <h1 className="text-gradient-brand text-xl font-bold uppercase tracking-tight">
@@ -113,7 +116,7 @@ export function Sidebar({
 
         {/* Navigation */}
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {navItems
+          {visibleNavItems
             .filter((item) => 
               searchQuery === "" || 
               item.label.toLowerCase().includes(searchQuery.toLowerCase())
@@ -180,7 +183,7 @@ export function Sidebar({
                   color: colors.accent,
                 }}
               >
-                {admin.role || "admin"}
+                {getAdminRoleLabel(admin.role)}
               </span>
               <span 
                 className="text-[10px] px-2 py-0.5 rounded-full"

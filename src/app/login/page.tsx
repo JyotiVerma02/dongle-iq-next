@@ -7,6 +7,7 @@ import { LogIn, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
+import { isAdminRole } from "@/lib/adminRoles";
 
 function LoginContent() {
   const router = useRouter();
@@ -25,81 +26,82 @@ function LoginContent() {
   const premiumGradient =
     "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  setError("");
+    setError("");
 
-  if (!email || !password) {
-    setError("Credentials required to initialize session.");
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const normalizedEmail = email.toLowerCase().trim();
-
-    const res = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: normalizedEmail,
-        password,
-        remember: rememberMe,
-      }),
-    });
-
-    const contentType = res.headers.get("content-type");
-
-    if (!contentType || !contentType.includes("application/json")) {
-      const text = await res.text();
-
-      setError(
-        `Server returned unexpected response: ${
-          text.startsWith("<") ? "HTML page" : text || "unknown format"
-        }`
-      );
-
+    if (!email || !password) {
+      setError("Credentials required to initialize session.");
       return;
     }
-
-    let data: { message?: string; role?: string } | null = null;
 
     try {
-      data = await res.json();
-    } catch (jsonError) {
-      const text = await res.text();
-      console.error("Login JSON parse failed:", jsonError, text);
-      setError("Server returned invalid JSON response.");
-      return;
-    }
+      setLoading(true);
 
-    if (!data) {
-      setError("Empty server response");
-      return;
-    }
+      const normalizedEmail = email.toLowerCase().trim();
 
-    if (!res.ok) {
-      setError(data.message || "Authentication failed");
-      return;
-    }
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: normalizedEmail,
+          password,
+          remember: rememberMe,
+        }),
+      });
 
-    if (data.role === "admin") {
-      router.push("/admin/dashboard");
-    } else {
-      router.push("/user/dashboard");
-    }
-  } catch (err) {
-    console.error("LOGIN ERROR:", err);
+      const contentType = res.headers.get("content-type");
 
-    setError("Something went wrong");
-  } finally {
-    setLoading(false);
-  }
-};
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await res.text();
+
+        setError(
+          `Server returned unexpected response: ${
+            text.startsWith("<") ? "HTML page" : text || "unknown format"
+          }`,
+        );
+
+        return;
+      }
+
+      let data: { message?: string; role?: string } | null = null;
+
+      try {
+        data = await res.json();
+      } catch (jsonError) {
+        const text = await res.text();
+        console.error("Login JSON parse failed:", jsonError, text);
+        setError("Server returned invalid JSON response.");
+        return;
+      }
+
+      if (!data) {
+        setError("Empty server response");
+        return;
+      }
+
+      if (!res.ok) {
+        setError(data.message || "Authentication failed");
+        return;
+      }
+
+      // Check if role exists and is admin
+      if (data.role && data.role !== "user") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/user/dashboard");
+      }
+    } catch (err) {
+      console.error("LOGIN ERROR:", err);
+
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div

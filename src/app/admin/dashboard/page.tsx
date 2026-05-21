@@ -288,6 +288,7 @@ function AdminDashboard() {
                           <ExistingDSCView
                             onBack={() => navigateTo("home")}
                             onCreateNew={() => navigateTo("create-dsc")}
+                            admin={admin}
                           />
                         )}
                       {view === "reports" &&

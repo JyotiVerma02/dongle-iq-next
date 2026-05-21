@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
+import { adminOnly } from "@/lib/withAuth";
 import User from "@/models/user";
 
-export async function GET(req: NextRequest) {
+const handler = async (req: NextRequest) => {
   try {
     await connectDB();
 
@@ -49,4 +50,6 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+};
+
+export const GET = adminOnly(handler);

@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { connectDB } from "@/lib/mongodb";
-import User from "@/models/user";
-import Admin from "@/models/admin";
 import { z } from "zod";
-import { verifyAuthToken } from "@/lib/auth";
+
 import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
+import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
+import { getStatusPermission, validateStatusTransition } from "@/lib/applicationWorkflow";
+import { connectDB } from "@/lib/mongodb";
+import { adminOnly } from "@/lib/withAuth";
+import type { AuthToken } from "@/lib/withAuth";
+import Admin from "@/models/admin";
+import User from "@/models/user";
 
 const updateDscSchema = z.object({
   name: z.string().trim().optional(),
@@ -24,10 +28,11 @@ const updateDscSchema = z.object({
   }).optional(),
 }).strict();
 
-export async function PUT(
+const putHandler = async (
   req: NextRequest,
+  decoded: AuthToken,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const { id } = await params;
     const body = await req.json();
@@ -45,23 +50,16 @@ export async function PUT(
 
     await connectDB();
 
-    const payload = validation.data;
-
-    // Fetch admin details from cookie token
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
-    let adminNameAndEmail = "Admin";
-    if (token) {
-      try {
-        const decoded = verifyAuthToken(token) as { userId: string };
-        const adminUser = await Admin.findById(decoded.userId);
-        if (adminUser) {
-          adminNameAndEmail = `${adminUser.name} (${adminUser.email})`;
-        }
-      } catch (err) {
-        console.error("Token verification failed in PUT dsc-applications route:", err);
-      }
+    const adminUser = await Admin.findById(decoded.userId).select("name email role");
+    if (!adminUser) {
+      return NextResponse.json(
+        { success: false, message: "Admin not found" },
+        { status: 404 }
+      );
     }
+
+    const adminRole = normalizeAdminRole(adminUser.role);
+    const payload = validation.data;
 
     const user = await User.findById(id);
     if (!user) {
@@ -71,7 +69,29 @@ export async function PUT(
       );
     }
 
-    // Apply basic info edits
+    const previousState = {
+      name: user.name,
+      email: user.email,
+      number: user.number,
+      certificateClass: user.certificateClass,
+      certType: user.certType,
+      validity: user.validity,
+      tokenType: user.tokenType,
+      status: user.status,
+      internalRemarks: user.internalRemarks,
+      remarksViewed: user.remarksViewed,
+      resubmissionDocs: user.resubmissionDocs?.toObject?.() || user.resubmissionDocs,
+    };
+
+    if (payload.name || payload.email || payload.mobile || payload.certificateClass || payload.certType || payload.validity || payload.tokenType) {
+      if (!hasAdminPermission(adminRole, "manage_application_details")) {
+        return NextResponse.json(
+          { success: false, message: "You do not have permission to edit applicant details" },
+          { status: 403 }
+        );
+      }
+    }
+
     if (payload.name) user.name = payload.name;
     if (payload.email) user.email = payload.email.toLowerCase();
     if (payload.mobile) user.number = payload.mobile;
@@ -80,14 +100,30 @@ export async function PUT(
     if (payload.validity) user.validity = payload.validity;
     if (payload.tokenType) user.tokenType = payload.tokenType;
 
-    // Handle status change & internalRemarks
     if (payload.status) {
       const normalizedStatus = payload.status.toLowerCase();
-      user.status = normalizedStatus;
-      user.remarksViewed = false; // Reset viewed status when status changes
+      if (!hasAdminPermission(adminRole, getStatusPermission(normalizedStatus))) {
+        return NextResponse.json(
+          { success: false, message: "You do not have permission for this workflow action" },
+          { status: 403 }
+        );
+      }
 
-      let remarks = payload.reason || "";
-      user.internalRemarks = normalizedStatus === "approved" ? "" : remarks;
+      const workflowValidation = validateStatusTransition(user.toObject(), normalizedStatus);
+      if (!workflowValidation.ok) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: workflowValidation.message,
+            missingFields: workflowValidation.missingFields || [],
+          },
+          { status: 400 }
+        );
+      }
+
+      user.status = normalizedStatus;
+      user.remarksViewed = false;
+      user.internalRemarks = payload.reason || "";
 
       if (normalizedStatus === "rejected" && payload.resubmissionDocs) {
         user.resubmissionDocs = {
@@ -102,20 +138,85 @@ export async function PUT(
           addressProof: false,
         };
       }
-
-      user.actionHistory.push({
-        action: normalizedStatus,
-        performedBy: adminNameAndEmail,
-        timestamp: new Date(),
-        remarks: remarks || `Application status set to ${normalizedStatus}`,
-      });
     } else if (payload.reason !== undefined) {
+      if (!hasAdminPermission(adminRole, "leave_internal_note")) {
+        return NextResponse.json(
+          { success: false, message: "You do not have permission to add internal notes" },
+          { status: 403 }
+        );
+      }
       user.internalRemarks = payload.reason;
     }
 
-    await user.save();
+    const actor = {
+      id: String(adminUser._id),
+      name: adminUser.name,
+      email: adminUser.email,
+      role: adminRole,
+    };
 
-    // Broadcast cache invalidation to client dashboard
+    const nextState = {
+      name: user.name,
+      email: user.email,
+      number: user.number,
+      certificateClass: user.certificateClass,
+      certType: user.certType,
+      validity: user.validity,
+      tokenType: user.tokenType,
+      status: user.status,
+      internalRemarks: user.internalRemarks,
+      remarksViewed: user.remarksViewed,
+      resubmissionDocs: user.resubmissionDocs?.toObject?.() || user.resubmissionDocs,
+    };
+
+    const changes = buildChanges(previousState, nextState, [
+      "name",
+      "email",
+      "number",
+      "certificateClass",
+      "certType",
+      "validity",
+      "tokenType",
+      "status",
+      "internalRemarks",
+      "remarksViewed",
+      "resubmissionDocs",
+    ]);
+
+    user.actionHistory.push(
+      createLegacyActionHistoryEntry({
+        action: payload.status ? "status_changed" : "application_updated",
+        actor,
+        fromStatus: previousState.status,
+        toStatus: user.status,
+        remarks: payload.reason || "Application details updated",
+      })
+    );
+    user.auditTrail.push(
+      createAuditEntry({
+        action: payload.status ? "status_changed" : "application_updated",
+        actor,
+        changes,
+        fromStatus: previousState.status,
+        toStatus: user.status,
+        remarks: payload.reason,
+      })
+    );
+
+    if (payload.status && previousState.status !== user.status) {
+      user.statusHistory.push({
+        fromStatus: previousState.status,
+        toStatus: user.status,
+        changedById: actor.id,
+        changedByName: actor.name,
+        changedByEmail: actor.email,
+        changedByRole: adminRole,
+        remarks: payload.reason || "",
+        changedAt: new Date(),
+      });
+    }
+
+    await user.save();
     broadcastRealtimeEvent("STATUS_UPDATE", { userId: id });
 
     return NextResponse.json({
@@ -133,18 +234,35 @@ export async function PUT(
       { status: 500 }
     );
   }
-}
+};
 
-export async function DELETE(
-  req: NextRequest,
+const deleteHandler = async (
+  _req: NextRequest,
+  decoded: AuthToken,
   { params }: { params: Promise<{ id: string }> }
-) {
+) => {
   try {
     const { id } = await params;
 
     await connectDB();
 
-    const deletedUser = await User.findByIdAndDelete(id);
+    const adminUser = await Admin.findById(decoded.userId).select("name email role");
+    if (!adminUser) {
+      return NextResponse.json(
+        { success: false, message: "Admin not found" },
+        { status: 404 }
+      );
+    }
+
+    const adminRole = normalizeAdminRole(adminUser.role);
+    if (!hasAdminPermission(adminRole, "delete_application")) {
+      return NextResponse.json(
+        { success: false, message: "You do not have permission to delete applications" },
+        { status: 403 }
+      );
+    }
+
+    const deletedUser = await User.findById(id);
 
     if (!deletedUser) {
       return NextResponse.json(
@@ -152,6 +270,28 @@ export async function DELETE(
         { status: 404 }
       );
     }
+
+    deletedUser.auditTrail.push(
+      createAuditEntry({
+        action: "application_deleted",
+        actor: {
+          id: String(adminUser._id),
+          name: adminUser.name,
+          email: adminUser.email,
+          role: adminRole,
+        },
+        changes: [
+          {
+            field: "deleted",
+            previousValue: false,
+            newValue: true,
+          },
+        ],
+        remarks: "Application deleted by admin",
+      })
+    );
+    await deletedUser.save();
+    await User.deleteOne({ _id: deletedUser._id });
 
     return NextResponse.json({
       success: true,
@@ -167,4 +307,20 @@ export async function DELETE(
       { status: 500 }
     );
   }
+};
+
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const handler = adminOnly((innerReq, decoded) => putHandler(innerReq, decoded, context));
+  return handler(req);
+}
+
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const handler = adminOnly((innerReq, decoded) => deleteHandler(innerReq, decoded, context));
+  return handler(req);
 }

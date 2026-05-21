@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { AdminProfile, DashboardView } from "../../types";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
+import { getAdminRoleLabel } from "@/lib/adminRoles";
 
 interface HeaderProps {
   admin: AdminProfile | null;
@@ -49,9 +50,13 @@ export function Header({
 
   return (
     <header 
-      className="sticky top-0 z-30 flex h-16 w-full items-center justify-between gap-3 border-b px-3 backdrop-blur-md sm:px-4 lg:px-6"
+      className="sticky top-0 z-30 flex h-16 min-h-16 max-h-16 shrink-0 w-full items-center justify-between gap-3 border-b px-3 backdrop-blur-md sm:px-4 lg:px-6"
       style={{
-        background: "linear-gradient(90deg, rgba(10,19,31,0.96), rgba(15,40,56,0.92))",
+        backgroundColor: isDarkMode
+          ? "rgba(10,19,31,0.96)"
+          : "rgba(255,255,255,0.92)",
+        backdropFilter: "blur(12px) saturate(150%)",
+        WebkitBackdropFilter: "blur(12px) saturate(150%)",
         borderColor: colors.borderSoft,
       }}
     >
@@ -112,6 +117,9 @@ export function Header({
             <div className="hidden min-w-0 max-w-32 text-left sm:block">
               <p className="text-xs font-bold uppercase tracking-wider" style={{ color: colors.text }}>
                 {admin?.name || "Admin"}
+              </p>
+              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: colors.muted }}>
+                {getAdminRoleLabel(admin?.role)}
               </p>
             </div>
             <ChevronDown 

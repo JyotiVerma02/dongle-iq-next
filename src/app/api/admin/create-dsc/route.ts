@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectDB } from "@/lib/mongodb";
 import User from "@/models/user";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
+
+import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
+import { connectDB } from "@/lib/mongodb";
+import { adminOnly } from "@/lib/withAuth";
+import type { AuthToken } from "@/lib/withAuth";
+import Admin from "@/models/admin";
 
 const createDscSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -19,8 +25,31 @@ const createDscSchema = z.object({
   circle: z.string().optional(),
 }).strict();
 
-export async function POST(req: NextRequest) {
+const handler = async (req: NextRequest, decoded: AuthToken) => {
   try {
+    await connectDB();
+
+    const admin = await Admin.findById(decoded.userId).select("role");
+    if (!admin) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Admin not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    if (!hasAdminPermission(normalizeAdminRole(admin.role), "manage_application_details")) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "You do not have permission to create DSC applications",
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
     const validation = createDscSchema.safeParse(body);
 
@@ -33,9 +62,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-
-    await connectDB();
-
     const payload = validation.data;
 
     // Check if user already exists with email or mobile
@@ -94,7 +120,7 @@ export async function POST(req: NextRequest) {
     // Ah! Password is required!
     // I need to generate a random password or set a default one since the admin is creating it.
     // Let's set a default password or generate one.
-    newUser.password = "DefaultPassword123"; // In a real app, should be hashed or generated and sent to user
+    newUser.password = await bcrypt.hash("DefaultPassword123!", 10);
 
     await newUser.save();
 
@@ -113,4 +139,6 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+};
+
+export const POST = adminOnly(handler);

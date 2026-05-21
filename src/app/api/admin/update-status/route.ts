@@ -1,13 +1,17 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
+
+import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
+import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
+import { validateStatusTransition, getStatusPermission } from "@/lib/applicationWorkflow";
 import { connectDB } from "@/lib/mongodb";
 import { sendStatusNotifications } from "@/lib/notifications";
-import User from "@/models/user";
+import { adminOnly } from "@/lib/withAuth";
+import type { AuthToken } from "@/lib/withAuth";
 import Admin from "@/models/admin";
-import { verifyAuthToken } from "@/lib/auth";
-import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import User from "@/models/user";
 
-export async function POST(req: Request) {
+const handler = async (req: Request, decoded: AuthToken) => {
   try {
     const { userId, status, internalRemarks, resubmissionDocs } = await req.json();
 
@@ -21,13 +25,6 @@ export async function POST(req: Request) {
     const normalizedStatus = String(status).toLowerCase();
     const remarks = typeof internalRemarks === "string" ? internalRemarks.trim() : "";
 
-    if (!["pending", "approved", "rejected", "issued"].includes(normalizedStatus)) {
-      return NextResponse.json(
-        { success: false, message: "Invalid status" },
-        { status: 400 }
-      );
-    }
-
     if (normalizedStatus === "rejected" && !remarks) {
       return NextResponse.json(
         { success: false, message: "Rejection reason is required" },
@@ -37,20 +34,20 @@ export async function POST(req: Request) {
 
     await connectDB();
 
-    // Fetch admin details from cookie token
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
-    let adminNameAndEmail = "Admin";
-    if (token) {
-      try {
-        const decoded = verifyAuthToken(token) as { userId: string };
-        const adminUser = await Admin.findById(decoded.userId);
-        if (adminUser) {
-          adminNameAndEmail = `${adminUser.name} (${adminUser.email})`;
-        }
-      } catch (err) {
-        console.error("Token verification failed in update-status route:", err);
-      }
+    const adminUser = await Admin.findById(decoded.userId).select("name email role");
+    if (!adminUser) {
+      return NextResponse.json(
+        { success: false, message: "Admin not found" },
+        { status: 404 }
+      );
+    }
+
+    const adminRole = normalizeAdminRole(adminUser.role);
+    if (!hasAdminPermission(adminRole, getStatusPermission(normalizedStatus))) {
+      return NextResponse.json(
+        { success: false, message: "You do not have permission for this workflow action" },
+        { status: 403 }
+      );
     }
 
     const user = await User.findById(userId);
@@ -61,8 +58,27 @@ export async function POST(req: Request) {
       );
     }
 
+    const workflowValidation = validateStatusTransition(user.toObject(), normalizedStatus);
+    if (!workflowValidation.ok) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: workflowValidation.message,
+          missingFields: workflowValidation.missingFields || [],
+        },
+        { status: 400 }
+      );
+    }
+
+    const previousState = {
+      status: user.status,
+      internalRemarks: user.internalRemarks,
+      remarksViewed: user.remarksViewed,
+      resubmissionDocs: user.resubmissionDocs?.toObject?.() || user.resubmissionDocs,
+    };
+
     user.status = normalizedStatus;
-    user.internalRemarks = normalizedStatus === "approved" ? "" : remarks;
+    user.internalRemarks = remarks;
     user.remarksViewed = false;
 
     if (normalizedStatus === "rejected" && resubmissionDocs) {
@@ -79,16 +95,63 @@ export async function POST(req: Request) {
       };
     }
 
-    user.actionHistory.push({
-      action: normalizedStatus,
-      performedBy: adminNameAndEmail,
-      timestamp: new Date(),
-      remarks: remarks || `Application set to ${normalizedStatus}`,
-    });
+    const nextState = {
+      status: user.status,
+      internalRemarks: user.internalRemarks,
+      remarksViewed: user.remarksViewed,
+      resubmissionDocs: user.resubmissionDocs?.toObject?.() || user.resubmissionDocs,
+    };
+
+    const actor = {
+      id: String(adminUser._id),
+      name: adminUser.name,
+      email: adminUser.email,
+      role: adminRole,
+    };
+
+    const changes = buildChanges(previousState, nextState, [
+      "status",
+      "internalRemarks",
+      "remarksViewed",
+      "resubmissionDocs",
+    ]);
+
+    user.actionHistory.push(
+      createLegacyActionHistoryEntry({
+        action: "status_changed",
+        actor,
+        fromStatus: previousState.status,
+        toStatus: normalizedStatus,
+        remarks: remarks || `Application status moved to ${normalizedStatus}`,
+      })
+    );
+
+    user.auditTrail.push(
+      createAuditEntry({
+        action: "status_changed",
+        actor,
+        changes,
+        fromStatus: previousState.status,
+        toStatus: normalizedStatus,
+        remarks,
+      })
+    );
+
+    if (previousState.status !== normalizedStatus) {
+      user.statusHistory.push({
+        fromStatus: previousState.status,
+        toStatus: normalizedStatus,
+        changedById: actor.id,
+        changedByName: actor.name,
+        changedByEmail: actor.email,
+        changedByRole: adminRole,
+        remarks,
+        changedAt: new Date(),
+      });
+    }
 
     await user.save();
 
-    // Send notifications (SMS/Email)
     await sendStatusNotifications({
       mobileNumber: user.number,
       name: user.name,
@@ -96,7 +159,6 @@ export async function POST(req: Request) {
       remarks,
     });
 
-    // Invalidate user cache via real-time EventSource broadcast
     broadcastRealtimeEvent("STATUS_UPDATE", { userId: user._id.toString() });
 
     return NextResponse.json({
@@ -112,4 +174,6 @@ export async function POST(req: Request) {
       { status: 500 }
     );
   }
-}
+};
+
+export const POST = adminOnly(handler);

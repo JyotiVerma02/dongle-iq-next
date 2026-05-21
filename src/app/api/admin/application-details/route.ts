@@ -2,13 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
+import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
+import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
+import { validateStatusTransition } from "@/lib/applicationWorkflow";
 import { connectDB } from "@/lib/mongodb";
 import { calculatePricing } from "@/lib/pricing";
 import { hashField } from "@/lib/encryption";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
+import { adminOnly } from "@/lib/withAuth";
+import type { AuthToken } from "@/lib/withAuth";
+import Admin from "@/models/admin";
 import User from "@/models/user";
 
-const VALID_STATUSES = new Set(["pending", "approved", "rejected", "issued"]);
+const VALID_STATUSES = new Set(["pending", "approved", "rejected", "dispatched", "delivered", "issued"]);
 
 function createDscId() {
   const year = new Date().getFullYear();
@@ -16,7 +22,7 @@ function createDscId() {
   return `DIQ-${year}-${suffix}`;
 }
 
-export async function GET(req: NextRequest) {
+const getHandler = async (req: NextRequest) => {
   try {
     await connectDB();
 
@@ -51,11 +57,27 @@ export async function GET(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+};
 
-export async function POST(req: NextRequest) {
+const postHandler = async (req: NextRequest, decoded: AuthToken) => {
   try {
     await connectDB();
+
+    const admin = await Admin.findById(decoded.userId).select("name email role");
+    if (!admin) {
+      return NextResponse.json(
+        { success: false, message: "Admin not found" },
+        { status: 404 },
+      );
+    }
+
+    const adminRole = normalizeAdminRole(admin.role);
+    if (!hasAdminPermission(adminRole, "manage_application_details")) {
+      return NextResponse.json(
+        { success: false, message: "You do not have permission to manage application details" },
+        { status: 403 },
+      );
+    }
 
     const body = (await req.json()) as Record<string, unknown>;
     const userId = String(body.userId || "").trim();
@@ -120,7 +142,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const actor = {
+      id: String(admin._id),
+      name: admin.name,
+      email: admin.email,
+      role: adminRole,
+    };
+
     let user = null;
+    let previousState: Record<string, unknown> | null = null;
 
     if (userId) {
       if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -138,6 +168,26 @@ export async function POST(req: NextRequest) {
           { status: 404 },
         );
       }
+
+      previousState = {
+        name: user.name,
+        email: user.email,
+        number: user.number,
+        dscId: user.dscId,
+        pan: user.pan,
+        address: user.address,
+        pincode: user.pincode,
+        city: user.city,
+        state: user.state,
+        certificateClass: user.certificateClass,
+        certType: user.certType,
+        validity: user.validity,
+        tokenType: user.tokenType,
+        assistedService: user.assistedService,
+        internalRemarks: user.internalRemarks,
+        price: user.price,
+        status: user.status,
+      };
     }
 
     const emailOwner = await User.findOne({
@@ -208,11 +258,30 @@ export async function POST(req: NextRequest) {
         password,
         role: "user",
         createdBy: "admin",
-        createdById: "admin-panel",
+        createdById: actor.id,
         isVerified: false,
         isAadhaarVerified: false,
         status: "pending",
       });
+      previousState = {
+        name: null,
+        email: null,
+        number: null,
+        dscId: null,
+        pan: null,
+        address: null,
+        pincode: null,
+        city: null,
+        state: null,
+        certificateClass: null,
+        certType: null,
+        validity: null,
+        tokenType: null,
+        assistedService: null,
+        internalRemarks: null,
+        price: null,
+        status: null,
+      };
     }
 
     user.name = nextName;
@@ -237,7 +306,92 @@ export async function POST(req: NextRequest) {
     user.internalRemarks = String(body.internalRemarks || "").trim();
     user.price = nextPrice;
     user.clientId = user.clientId || String(user._id);
+
+    const workflowValidation = validateStatusTransition(user.toObject(), nextStatus);
+    if (!workflowValidation.ok) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: workflowValidation.message,
+          missingFields: workflowValidation.missingFields || [],
+        },
+        { status: 400 },
+      );
+    }
+
     user.status = nextStatus;
+
+    const nextSnapshot = {
+      name: user.name,
+      email: user.email,
+      number: user.number,
+      dscId: user.dscId,
+      pan: user.pan,
+      address: user.address,
+      pincode: user.pincode,
+      city: user.city,
+      state: user.state,
+      certificateClass: user.certificateClass,
+      certType: user.certType,
+      validity: user.validity,
+      tokenType: user.tokenType,
+      assistedService: user.assistedService,
+      internalRemarks: user.internalRemarks,
+      price: user.price,
+      status: user.status,
+    };
+
+    const changes = buildChanges(previousState || {}, nextSnapshot, [
+      "name",
+      "email",
+      "number",
+      "dscId",
+      "pan",
+      "address",
+      "pincode",
+      "city",
+      "state",
+      "certificateClass",
+      "certType",
+      "validity",
+      "tokenType",
+      "assistedService",
+      "internalRemarks",
+      "price",
+      "status",
+    ]);
+
+    user.actionHistory.push(
+      createLegacyActionHistoryEntry({
+        action: userId ? "application_updated" : "application_created",
+        actor,
+        fromStatus: typeof previousState?.status === "string" ? String(previousState.status) : undefined,
+        toStatus: user.status,
+        remarks: userId ? "Application details updated" : "Application created by admin",
+      }),
+    );
+    user.auditTrail.push(
+      createAuditEntry({
+        action: userId ? "application_updated" : "application_created",
+        actor,
+        changes,
+        fromStatus: typeof previousState?.status === "string" ? String(previousState.status) : undefined,
+        toStatus: user.status,
+        remarks: String(body.internalRemarks || "").trim() || undefined,
+      }),
+    );
+    if (previousState?.status !== user.status) {
+      user.statusHistory.push({
+        fromStatus: typeof previousState?.status === "string" ? String(previousState.status) : "pending",
+        toStatus: user.status,
+        changedById: actor.id,
+        changedByName: actor.name,
+        changedByEmail: actor.email,
+        changedByRole: adminRole,
+        remarks: String(body.internalRemarks || "").trim(),
+        changedAt: new Date(),
+      });
+    }
 
     await user.save();
 
@@ -254,4 +408,7 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
-}
+};
+
+export const GET = adminOnly(getHandler);
+export const POST = adminOnly(postHandler);

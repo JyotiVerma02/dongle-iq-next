@@ -7,6 +7,7 @@ import {
   getPaymentWithUser,
 } from "@/lib/payments";
 import { verifyAuthToken } from "@/lib/auth";
+import { isAdminRole } from "@/lib/adminRoles";
 
 export async function GET(
   req: NextRequest,
@@ -51,7 +52,7 @@ export async function GET(
       tokenType?: string;
     } | null;
     const isOwner = String(user?._id) === decoded.userId;
-    const isAdmin = decoded.role === "admin" || decoded.role === "superadmin";
+    const isAdmin = isAdminRole(decoded.role);
 
     if (!isOwner && !isAdmin) {
       return NextResponse.json(

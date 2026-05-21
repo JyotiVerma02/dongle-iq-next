@@ -107,7 +107,7 @@ if (existingAdmin) {
       email: normalizedEmail,
       number: normalizedNumber,
       password: hashedPassword,
-      role: "admin",
+      role: "super_admin",
       isVerified: false,
       status: "pending",
       otp: hashOtp(otp),

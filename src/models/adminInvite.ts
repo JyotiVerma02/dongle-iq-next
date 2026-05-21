@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ADMIN_ROLES } from "@/lib/adminRoles";
 
 const AdminInviteSchema = new mongoose.Schema(
   {
@@ -21,6 +22,11 @@ const AdminInviteSchema = new mongoose.Schema(
     invitedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Admin",
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ADMIN_ROLES,
       required: true,
     },
     status: {

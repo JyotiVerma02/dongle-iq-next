@@ -21,10 +21,13 @@ import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 import toast from "react-hot-toast";
 import { Table } from "../common/Table";
+import type { AdminProfile } from "../../types";
+import { getAdminRoleLabel, hasAdminPermission } from "@/lib/adminRoles";
 
 interface ExistingDSCViewProps {
   onBack: () => void;
   onCreateNew?: () => void;
+  admin?: AdminProfile | null;
 }
 
 interface DSCApplication {
@@ -72,11 +75,29 @@ interface DSCApplication {
   role?: string;
   state?: string;
   updatedAt?: string;
+  auditTrail?: Array<{
+    action: string;
+    actorName: string;
+    actorEmail: string;
+    actorRole: string;
+    timestamp: string;
+    remarks?: string;
+    fromStatus?: string;
+    toStatus?: string;
+  }>;
 }
 
-export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
+export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewProps) {
   const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
+  const canManageDetails = hasAdminPermission(admin?.role, "manage_application_details");
+  const canReview = hasAdminPermission(admin?.role, "review_application");
+  const canDispatch = hasAdminPermission(admin?.role, "dispatch_application");
+  const canMarkDelivered = hasAdminPermission(admin?.role, "mark_delivered");
+  const canIssue = hasAdminPermission(admin?.role, "issue_application");
+  const canDelete = hasAdminPermission(admin?.role, "delete_application");
+  const canLeaveInternalNote = hasAdminPermission(admin?.role, "leave_internal_note");
+  const canChangeStatus = canReview || canDispatch || canMarkDelivered || canIssue;
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -209,6 +230,11 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
   const handleSaveEdit = async () => {
     if (!editingApp) return;
 
+    if (!canManageDetails && !canChangeStatus && !canLeaveInternalNote) {
+      toast.error("Your role is view-only for this application.");
+      return;
+    }
+
     if (editFormData.status === "rejected" && !editFormData.reason.trim()) {
       toast.error("Please provide a reason for rejection.");
       return;
@@ -240,6 +266,19 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
     }
   };
 
+  const getAvailableStatuses = (currentStatus: string) => {
+    const options = new Set<string>([currentStatus || "pending"]);
+    if (canReview) {
+      options.add("pending");
+      options.add("approved");
+      options.add("rejected");
+    }
+    if (canDispatch) options.add("dispatched");
+    if (canMarkDelivered) options.add("delivered");
+    if (canIssue) options.add("issued");
+    return Array.from(options);
+  };
+
   const handleDownload = (app: DSCApplication) => {
     toast.success(`Downloading certificate for ${app.name}...`);
   };
@@ -255,7 +294,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
         
         {/* Actions, Search and Filter */}
         <div className="flex items-center gap-2">
-          {onCreateNew && (
+          {onCreateNew && canManageDetails && (
             <button
               onClick={onCreateNew}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-white font-semibold transition-all hover:scale-105 active:scale-95 text-xs"
@@ -330,6 +369,40 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
               render: (app) => <span style={{ color: colors.text }}>{app.certificateClass || "N/A"}</span>,
             },
             {
+              header: "Workflow",
+              render: (app) => (
+                <div className="space-y-1">
+                  <span className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.16em]" style={{
+                    backgroundColor:
+                      app.status === "approved" || app.status === "issued"
+                        ? "#10b98120"
+                        : app.status === "rejected"
+                          ? "#ef444420"
+                          : app.status === "dispatched"
+                            ? "#0ea5e920"
+                            : app.status === "delivered"
+                              ? "#06b6d420"
+                              : "#f59e0b20",
+                    color:
+                      app.status === "approved" || app.status === "issued"
+                        ? "#10b981"
+                        : app.status === "rejected"
+                          ? "#ef4444"
+                          : app.status === "dispatched"
+                            ? "#0ea5e9"
+                            : app.status === "delivered"
+                              ? "#06b6d4"
+                              : "#f59e0b",
+                  }}>
+                    {app.status}
+                  </span>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: app.paymentStatus === "paid" ? "#10b981" : colors.muted }}>
+                    Payment {app.paymentStatus || "pending"}
+                  </div>
+                </div>
+              ),
+            },
+            {
               header: "Verified by",
               render: (app) => (
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--background-alt)] font-bold text-[var(--foreground)] tracking-wider">
@@ -352,6 +425,16 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                     <Eye size={12} />
                     <span>Review</span>
                   </button>
+                  {canDelete && (
+                    <button
+                      onClick={() => handleDelete(app._id)}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md border border-rose-500/20 bg-rose-500/5 text-[10px] font-bold uppercase tracking-wider text-rose-500 transition-all hover:bg-rose-500/10"
+                      title="Delete application"
+                    >
+                      <Trash2 size={12} />
+                      <span>Delete</span>
+                    </button>
+                  )}
                 </div>
               ),
             },
@@ -405,6 +488,9 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
               <div className="flex items-center gap-2">
                 <Eye size={20} style={{ color: colors.accent }} />
                 <h2 className="text-xl font-bold" style={{ color: colors.text }}>Application Details & Actions</h2>
+                <span className="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.18em]" style={{ backgroundColor: colors.accentSoft, color: colors.accent }}>
+                  {getAdminRoleLabel(admin?.role)}
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 {/* Theme Toggle inside Modal */}
@@ -482,6 +568,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                       name="name"
                       value={editFormData.name}
                       onChange={handleEditChange}
+                      disabled={!canManageDetails}
                       className="w-full rounded-lg border px-3 py-2 text-sm"
                       style={{ backgroundColor: colors.shell, borderColor: colors.borderSoft, color: colors.text }}
                     />
@@ -493,6 +580,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                       name="email"
                       value={editFormData.email}
                       onChange={handleEditChange}
+                      disabled={!canManageDetails}
                       className="w-full rounded-lg border px-3 py-2 text-sm"
                       style={{ backgroundColor: colors.shell, borderColor: colors.borderSoft, color: colors.text }}
                     />
@@ -504,6 +592,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                       name="mobile"
                       value={editFormData.mobile}
                       onChange={handleEditChange}
+                      disabled={!canManageDetails}
                       className="w-full rounded-lg border px-3 py-2 text-sm"
                       style={{ backgroundColor: colors.shell, borderColor: colors.borderSoft, color: colors.text }}
                     />
@@ -516,6 +605,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                       name="certificateClass"
                       value={editFormData.certificateClass}
                       onChange={handleEditChange}
+                      disabled={!canManageDetails}
                       className="w-full rounded-lg border px-3 py-2 text-sm"
                       style={{ backgroundColor: colors.shell, borderColor: colors.borderSoft, color: colors.text }}
                     >
@@ -529,6 +619,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                       name="certType"
                       value={editFormData.certType}
                       onChange={handleEditChange}
+                      disabled={!canManageDetails}
                       className="w-full rounded-lg border px-3 py-2 text-sm"
                       style={{ backgroundColor: colors.shell, borderColor: colors.borderSoft, color: colors.text }}
                     >
@@ -543,6 +634,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                       name="validity"
                       value={editFormData.validity}
                       onChange={handleEditChange}
+                      disabled={!canManageDetails}
                       className="w-full rounded-lg border px-3 py-2 text-sm"
                       style={{ backgroundColor: colors.shell, borderColor: colors.borderSoft, color: colors.text }}
                     >
@@ -557,6 +649,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                       name="tokenType"
                       value={editFormData.tokenType}
                       onChange={handleEditChange}
+                      disabled={!canManageDetails}
                       className="w-full rounded-lg border px-3 py-2 text-sm"
                       style={{ backgroundColor: colors.shell, borderColor: colors.borderSoft, color: colors.text }}
                     >
@@ -572,6 +665,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                       name="status"
                       value={editFormData.status}
                       onChange={handleEditChange}
+                      disabled={!canChangeStatus}
                       className="w-full rounded-lg border px-3 py-2 text-sm font-medium"
                       style={{ 
                         backgroundColor: colors.shell, 
@@ -582,10 +676,11 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                           editFormData.status === "rejected" ? "#ef4444" : colors.text
                       }}
                     >
-                      <option value="pending" style={{ color: "#f59e0b" }}>Pending</option>
-                      <option value="approved" style={{ color: "#10b981" }}>Approved</option>
-                      <option value="issued" style={{ color: "#10b981" }}>Issued</option>
-                      <option value="rejected" style={{ color: "#ef4444" }}>Rejected</option>
+                      {getAvailableStatuses(editingApp?.status || editFormData.status).map((status) => (
+                        <option key={status} value={status}>
+                          {status.charAt(0).toUpperCase() + status.slice(1)}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -598,6 +693,7 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                     value={editFormData.reason}
                     onChange={handleEditChange}
                     rows={3}
+                    disabled={!canLeaveInternalNote && !canChangeStatus}
                     className="w-full rounded-lg border px-3 py-2 text-sm"
                     style={{ backgroundColor: colors.shell, borderColor: colors.borderSoft, color: colors.text }}
                     placeholder="Enter reason for approval or rejection..."
@@ -651,6 +747,14 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                 )}
 
                 <div className="flex justify-end gap-3 pt-2">
+                  {canDelete && editingApp && (
+                    <button
+                      onClick={() => handleDelete(editingApp._id)}
+                      className="px-4 py-2 rounded-lg border border-rose-500/20 bg-rose-500/5 text-sm font-semibold text-rose-500"
+                    >
+                      Delete
+                    </button>
+                  )}
                   <button
                     onClick={() => setIsEditModalOpen(false)}
                     className="px-4 py-2 rounded-lg border hover:bg-gray-100 dark:hover:bg-gray-800 transition-all text-sm font-medium"
@@ -660,10 +764,11 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                   </button>
                   <button
                     onClick={handleSaveEdit}
+                    disabled={!canManageDetails && !canChangeStatus && !canLeaveInternalNote}
                     className="px-4 py-2 rounded-lg text-white font-medium transition-all hover:scale-105 active:scale-95 text-sm"
                     style={{ background: "var(--brand-gradient)" }}
                   >
-                    Save & Update Status
+                    {canChangeStatus ? "Save & Update Status" : "Save Internal Notes"}
                   </button>
                 </div>
               </>
@@ -799,6 +904,39 @@ export function ExistingDSCView({ onBack, onCreateNew }: ExistingDSCViewProps) {
                       <p><span className="font-semibold text-[var(--muted)]">Created At:</span> <span className="font-bold text-[var(--foreground)]">{new Date(editingApp.createdAt).toLocaleString()}</span></p>
                       <p><span className="font-semibold text-[var(--muted)]">Updated At:</span> <span className="font-bold text-[var(--foreground)]">{editingApp.updatedAt ? new Date(editingApp.updatedAt).toLocaleString() : "N/A"}</span></p>
                     </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-2">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-[var(--accent)] border-b pb-1" style={{ borderColor: colors.borderSoft }}>
+                    Audit Trail
+                  </h3>
+                  <div className="space-y-2 rounded-lg border border-[var(--border-soft)] bg-[var(--background-alt)] p-3">
+                    {(editingApp.auditTrail || []).slice(-5).reverse().map((entry, index) => (
+                      <div key={`${entry.timestamp}-${index}`} className="rounded-lg border border-[var(--border-soft)] bg-[var(--card)] px-3 py-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[var(--foreground)]">
+                            {entry.actorName} • {entry.actorRole.replaceAll("_", " ")}
+                          </p>
+                          <p className="text-[10px] font-semibold text-[var(--muted)]">
+                            {new Date(entry.timestamp).toLocaleString()}
+                          </p>
+                        </div>
+                        <p className="mt-1 text-xs font-semibold text-[var(--foreground)]">
+                          {entry.fromStatus && entry.toStatus
+                            ? `${entry.fromStatus} -> ${entry.toStatus}`
+                            : entry.action}
+                        </p>
+                        {entry.remarks ? (
+                          <p className="mt-1 text-[11px] text-[var(--muted)]">{entry.remarks}</p>
+                        ) : null}
+                      </div>
+                    ))}
+                    {(!editingApp.auditTrail || editingApp.auditTrail.length === 0) && (
+                      <p className="text-xs font-semibold text-[var(--muted)]">
+                        No audit activity recorded yet for this application.
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

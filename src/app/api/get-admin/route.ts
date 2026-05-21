@@ -4,6 +4,7 @@ import Admin from "@/models/admin";
 import { migrateLegacyAdminUser } from "@/lib/admin";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
+import { normalizeAdminRole } from "@/lib/adminRoles";
 
 const handler = async (req: NextRequest, decoded: AuthToken) => {
   try {
@@ -24,7 +25,10 @@ const handler = async (req: NextRequest, decoded: AuthToken) => {
 
     return NextResponse.json({
       success: true,
-      admin,
+      admin: {
+        ...admin.toObject(),
+        role: normalizeAdminRole(admin.role),
+      },
     });
   } catch (error) {
     console.error(error);
