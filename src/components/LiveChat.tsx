@@ -203,7 +203,7 @@ export default function LiveChat({
 
   return (
     <div
-      className="live-chat-backdrop fixed inset-0 z-120 flex items-end justify-end bg-slate-950/35 p-0 sm:p-6"
+      className="live-chat-backdrop fixed inset-0 z-120 flex items-end justify-end p-0 sm:p-6"
       onClick={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -212,7 +212,7 @@ export default function LiveChat({
     >
       <div
         ref={panelRef}
-        className="live-chat-panel flex h-dvh w-full flex-col overflow-hidden border border-white/10 bg-(--card-strong) text-(--foreground) shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(42rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
+        className="live-chat-panel flex h-dvh w-full flex-col overflow-hidden border text-(--foreground) shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(42rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
       >
         <div className="flex items-center justify-between border-b border-(--border-soft) bg-(--card) px-4 py-3.5">
           <div className="flex items-center gap-3">

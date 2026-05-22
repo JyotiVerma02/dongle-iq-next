@@ -25,7 +25,7 @@ export function StatsOverview({ stats }: StatsOverviewProps) {
         title="APPROVED"
         value={stats.approved}
         icon={CheckCircle2}
-        color="emerald"
+        color="amber"
       />
       <StatsCard
         title="REJECTED"

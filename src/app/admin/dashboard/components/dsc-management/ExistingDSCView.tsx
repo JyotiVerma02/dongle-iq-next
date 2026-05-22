@@ -375,7 +375,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                   <span className="inline-flex rounded-full px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.16em]" style={{
                     backgroundColor:
                       app.status === "approved" || app.status === "issued"
-                        ? "#10b98120"
+                        ? "#ff6a0020"
                         : app.status === "rejected"
                           ? "#ef444420"
                           : app.status === "dispatched"
@@ -385,7 +385,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                               : "#f59e0b20",
                     color:
                       app.status === "approved" || app.status === "issued"
-                        ? "#10b981"
+                        ? "#ff6a00"
                         : app.status === "rejected"
                           ? "#ef4444"
                           : app.status === "dispatched"
@@ -396,7 +396,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                   }}>
                     {app.status}
                   </span>
-                  <div className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: app.paymentStatus === "paid" ? "#10b981" : colors.muted }}>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.16em]" style={{ color: app.paymentStatus === "paid" ? "#ff6a00" : colors.muted }}>
                     Payment {app.paymentStatus || "pending"}
                   </div>
                 </div>
@@ -671,7 +671,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                         backgroundColor: colors.shell, 
                         borderColor: colors.borderSoft, 
                         color: 
-                          editFormData.status === "issued" || editFormData.status === "approved" ? "#10b981" : 
+                          editFormData.status === "issued" || editFormData.status === "approved" ? "#ff6a00" : 
                           editFormData.status === "pending" ? "#f59e0b" : 
                           editFormData.status === "rejected" ? "#ef4444" : colors.text
                       }}
@@ -739,7 +739,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                   <div className="text-xs font-semibold" style={{ color: colors.text }}>
                     <span>Remarks viewed by user: </span>
                     {editingApp.remarksViewed ? (
-                      <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold uppercase tracking-wider">Yes</span>
+                      <span className="px-2 py-0.5 rounded bg-orange-500/10 text-orange-500 font-bold uppercase tracking-wider">Yes</span>
                     ) : (
                       <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-bold uppercase tracking-wider animate-pulse">Not Yet</span>
                     )}
@@ -836,7 +836,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                         <p className="font-semibold text-[var(--muted)]">Aadhaar Verified</p>
                         <p className="font-bold text-[var(--foreground)] mt-0.5">
                           {editingApp.isAadhaarVerified ? (
-                            <span className="text-emerald-500 font-black">YES</span>
+                            <span className="text-orange-500 font-black">YES</span>
                           ) : (
                             <span className="text-rose-500 font-black">NO</span>
                           )}
@@ -846,7 +846,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                         <p className="font-semibold text-[var(--muted)]">Profile Verified</p>
                         <p className="font-bold text-[var(--foreground)] mt-0.5">
                           {editingApp.isVerified ? (
-                            <span className="text-emerald-500 font-black">YES</span>
+                            <span className="text-orange-500 font-black">YES</span>
                           ) : (
                             <span className="text-rose-500 font-black">NO</span>
                           )}
@@ -855,7 +855,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                       <div>
                         <p className="font-semibold text-[var(--muted)]">Payment Status</p>
                         <p className="font-bold mt-0.5 uppercase" style={{
-                          color: editingApp.paymentStatus === "paid" ? "#10b981" : "#ef4444"
+                          color: editingApp.paymentStatus === "paid" ? "#ff6a00" : "#ef4444"
                         }}>
                           {editingApp.paymentStatus || "PENDING"}
                         </p>
@@ -1065,3 +1065,4 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
     </div>
   );
 }
+

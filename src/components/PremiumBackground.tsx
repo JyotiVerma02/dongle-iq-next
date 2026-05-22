@@ -55,19 +55,19 @@ export default function PremiumBackground() {
           <span
             key={`p-${idx}`}
             className="saas-bg__particle"
-            // style={
-            //   {
-            //     left: `${p.left}%`,
-            //     top: `${p.top}%`,
-            //     width: `${p.size}px`,
-            //     height: `${p.size}px`,
-            //     animationDelay: `${p.delay}s`,
-            //     animationDuration: `${p.dur}s`,
-            //    "--dx": `${p.dx}px`,
-            //     "--dy": `${p.dy}px`,
-            //     "--tint": p.tint,
-            //   } as React.CSSProperties
-            // }
+            style={
+              {
+                left: `${p.left}%`,
+                top: `${p.top}%`,
+                width: `${p.size}px`,
+                height: `${p.size}px`,
+                animationDelay: `${p.delay}s`,
+                animationDuration: `${p.dur}s`,
+                "--dx": `${p.dx}px`,
+                "--dy": `${p.dy}px`,
+                "--tint": p.tint,
+              } as React.CSSProperties
+            }
           />
         ))}
       </div>

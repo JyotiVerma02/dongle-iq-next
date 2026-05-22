@@ -258,35 +258,22 @@ function RegisterContent() {
                     />
                   </div>
 
-                  <div
-                    className="phone-field flex h-11 items-center overflow-hidden rounded-lg border sm:h-12"
-                    style={{
-                      backgroundColor: colors.input,
-                      borderColor: colors.inputBorder,
-                    }}
-                  >
-                    <div
-                      className="phone-prefix flex h-full items-center gap-2 px-3"
-                      style={{
-                        color: colors.muted,
-                        borderRight: `1px solid ${colors.borderSoft}`,
-                      }}
-                    >
-                      <Smartphone size={16} />
-                      <span className="text-sm font-semibold">+91</span>
-                    </div>
-                    <input
-                      type="tel"
-                      inputMode="numeric"
-                      placeholder="Phone Number"
-                      value={number}
-                      onChange={(e) =>
-                        setNumber(sanitizeNumber(e.target.value))
-                      }
-                      className="h-full w-full bg-transparent px-3 text-sm font-semibold outline-none"
-                      style={{ color: colors.text }}
-                    />
-                  </div>
+                 <div className="relative">
+  <Smartphone size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: colors.muted }} />
+  <input
+    type="tel"
+    inputMode="numeric"
+    placeholder="+91 Phone Number"
+    value={number}
+    onChange={(e) => setNumber(sanitizeNumber(e.target.value))}
+    className="glass-input w-full rounded-lg border py-2.5 pl-9 pr-3 text-sm font-semibold outline-none"
+    style={{
+      backgroundColor: colors.input,
+      borderColor: colors.inputBorder,
+      color: colors.text,
+    }}
+  />
+</div>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div className="relative">

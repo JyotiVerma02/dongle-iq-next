@@ -207,8 +207,8 @@ function UserDashboardPage() {
   const statusTone = useMemo(() => {
     return applicationStatus === "approved"
       ? {
-          badge: "border border-emerald-300/70 bg-emerald-50 text-emerald-700",
-          accent: "#059669",
+          badge: "border border-orange-300/70 bg-orange-50 text-orange-700 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-300",
+          accent: "#ff6a00",
           title: "Approved by admin",
           note: "Your application has been reviewed and approved for the next step.",
         }
@@ -1199,9 +1199,9 @@ function UserDashboardPage() {
               let textWeight = "font-semibold";
 
               if (isCompleted) {
-                iconBg = "bg-emerald-500/10 dark:bg-emerald-500/20";
-                iconBorder = "border-emerald-500/30";
-                iconColor = "#10b981";
+                iconBg = "bg-orange-500/10 dark:bg-orange-500/20";
+                iconBorder = "border-orange-500/30";
+                iconColor = "#ff6a00";
               } else if (isActive) {
                 iconBg = "bg-amber-500/10 dark:bg-amber-500/20";
                 iconBorder = "border-amber-500/50 animate-pulse";
@@ -1223,14 +1223,14 @@ function UserDashboardPage() {
                       <div
                         className="hidden md:block absolute top-5 left-10 w-[calc(100%-1rem)] h-[2px] transition-all duration-500 z-0"
                         style={{
-                          backgroundColor: isCompleted ? "#10b981" : colors.borderSoft,
+                          backgroundColor: isCompleted ? "#ff6a00" : colors.borderSoft,
                         }}
                       />
                       {/* Mobile line */}
                       <div
                         className="md:hidden absolute left-5 top-10 bottom-[-1.5rem] w-[2px] transition-all duration-500 z-0"
                         style={{
-                          backgroundColor: isCompleted ? "#10b981" : colors.borderSoft,
+                          backgroundColor: isCompleted ? "#ff6a00" : colors.borderSoft,
                         }}
                       />
                     </>
@@ -1330,7 +1330,7 @@ function UserDashboardPage() {
                   style={{
                     backgroundColor:
                       item.action === "approved" || item.action === "issued"
-                        ? "#10b981"
+                        ? "#ff6a00"
                         : item.action === "rejected"
                         ? "#f43f5e"
                         : colors.accent,
@@ -2134,10 +2134,10 @@ function DocumentMeta({
   let badgeText = "";
   let badgeClass = "";
 
-  if (value) {
+    if (value) {
     if (applicationStatus === "approved" || applicationStatus === "issued") {
       badgeText = "Approved / Uploaded";
-      badgeClass = "bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
+      badgeClass = "bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/20";
     } else if (applicationStatus === "rejected") {
       badgeText = "Uploaded (Pending Re-review)";
       badgeClass = "bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/20";
@@ -2590,8 +2590,8 @@ function NotificationPrefsCard({
               aria-checked={enabled}
               className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 transition-all duration-300"
               style={{
-                backgroundColor: enabled ? "#10b981" : colors.inputBorder,
-                borderColor: enabled ? "#10b981" : colors.inputBorder,
+                backgroundColor: enabled ? "#ff6a00" : colors.inputBorder,
+                borderColor: enabled ? "#ff6a00" : colors.inputBorder,
               }}
             >
               <span

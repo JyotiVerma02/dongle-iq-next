@@ -89,46 +89,46 @@ export function TrackDSCView({ users }: TrackDSCViewProps) {
             </div>
           </div>
 
-          <div className="rounded-xl bg-[var(--background-alt)] p-6">
-            <div className="mb-6">
-              <div className="mb-2 flex items-center justify-between text-sm">
-                <span className="font-semibold text-[var(--foreground)]">Current Status</span>
-                <span className="font-semibold text-blue-600 dark:text-blue-400">80%</span>
-              </div>
-              <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-                <div className="h-2 rounded-full bg-blue-600" style={{ width: "80%" }}></div>
-              </div>
-              <p className="mt-2 text-xs font-medium text-[var(--muted)]">Processing at DSC Provider</p>
-            </div>
+       <div className="rounded-xl bg-[var(--background-alt)] p-6">
+  <div className="mb-6">
+    <div className="mb-2 flex items-center justify-between text-sm">
+      <span className="font-semibold text-[var(--foreground)]">Current Status</span>
+      <span className="font-semibold text-[#ff6a00] dark:text-[#ff6a00]">80%</span>
+    </div>
+    <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+      <div className="h-2 rounded-full bg-[#ff6a00]" style={{ width: "80%" }}></div>
+    </div>
+    <p className="mt-2 text-xs font-medium text-[var(--muted)]">Processing at DSC Provider</p>
+  </div>
 
-            <div className="space-y-6 border-l-2 border-gray-200 pl-4 dark:border-gray-700">
-              <div className="relative">
-                <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-emerald-500 ring-4 ring-[var(--background-alt)]"></div>
-                <p className="text-sm font-bold uppercase tracking-wider text-[var(--foreground)]">Application Submitted</p>
-                <p className="text-[10px] font-black uppercase tracking-wider text-[var(--muted)]">Jan 01, 2024</p>
-              </div>
-              <div className="relative">
-                <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-emerald-500 ring-4 ring-[var(--background-alt)]"></div>
-                <p className="text-sm font-bold uppercase tracking-wider text-[var(--foreground)]">Document Verification</p>
-                <p className="text-[10px] font-black uppercase tracking-wider text-[var(--muted)]">Jan 02, 2024</p>
-              </div>
-              <div className="relative">
-                <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-emerald-500 ring-4 ring-[var(--background-alt)]"></div>
-                <p className="text-sm font-bold uppercase tracking-wider text-[var(--foreground)]">Payment Confirmed</p>
-                <p className="text-[10px] font-black uppercase tracking-wider text-[var(--muted)]">Jan 05, 2024</p>
-              </div>
-              <div className="relative">
-                <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-blue-500 ring-4 ring-[var(--background-alt)] animate-pulse"></div>
-                <p className="text-sm font-bold uppercase tracking-wider text-[var(--foreground)]">DSC Processing</p>
-                <p className="text-[10px] font-black uppercase tracking-wider text-[var(--muted)]">Jan 10, 2024</p>
-              </div>
-              <div className="relative">
-                <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-[var(--border-soft)] ring-4 ring-[var(--background-alt)]"></div>
-                <p className="text-sm font-bold uppercase tracking-wider text-[var(--muted)]">Expected Completion</p>
-                <p className="text-[10px] font-black uppercase tracking-wider text-[var(--muted)]">Jan 15, 2024</p>
-              </div>
-            </div>
-          </div>
+  <div className="space-y-6 border-l-2 border-gray-200 pl-4 dark:border-gray-700">
+    <div className="relative">
+      <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-[#ff6a00] ring-4 ring-[var(--background-alt)]"></div>
+      <p className="text-sm font-semibold text-[var(--foreground)]">Application Submitted</p>
+      <p className="text-xs font-medium text-[var(--muted)]">Jan 01, 2024</p>
+    </div>
+    <div className="relative">
+      <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-[#ff6a00] ring-4 ring-[var(--background-alt)]"></div>
+      <p className="text-sm font-semibold text-[var(--foreground)]">Document Verification</p>
+      <p className="text-xs font-medium text-[var(--muted)]">Jan 02, 2024</p>
+    </div>
+    <div className="relative">
+      <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-[#ff6a00] ring-4 ring-[var(--background-alt)]"></div>
+      <p className="text-sm font-semibold text-[var(--foreground)]">Payment Confirmed</p>
+      <p className="text-xs font-medium text-[var(--muted)]">Jan 05, 2024</p>
+    </div>
+    <div className="relative">
+      <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-[#ff6a00] ring-4 ring-[var(--background-alt)] animate-pulse"></div>
+      <p className="text-sm font-semibold text-[var(--foreground)]">DSC Processing</p>
+      <p className="text-xs font-medium text-[var(--muted)]">Jan 10, 2024</p>
+    </div>
+    <div className="relative">
+      <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-[var(--border-soft)] ring-4 ring-[var(--background-alt)]"></div>
+      <p className="text-sm font-semibold text-[var(--muted)]">Expected Completion</p>
+      <p className="text-xs font-medium text-[var(--muted)]">Jan 15, 2024</p>
+    </div>
+  </div>
+</div>
         </div>
       </div>
 
@@ -142,7 +142,7 @@ export function TrackDSCView({ users }: TrackDSCViewProps) {
           data={[
             { id: "DSC001", applicant: "Rajesh K", status: "Processing", progress: 80, expected: "2024-01-15", statusColor: "text-blue-500" },
             { id: "DSC002", applicant: "Priya M", status: "Pending", progress: 20, expected: "2024-01-18", statusColor: "text-amber-500" },
-            { id: "DSC003", applicant: "Amit S", status: "Approved", progress: 100, expected: "2024-01-12", statusColor: "text-emerald-500" },
+            { id: "DSC003", applicant: "Amit S", status: "Approved", progress: 100, expected: "2024-01-12", statusColor: "text-orange-500" },
           ]}
           columns={[
             { header: "APP ID", accessor: "id", className: "font-semibold text-xs text-[var(--foreground)] uppercase" },
@@ -160,7 +160,7 @@ export function TrackDSCView({ users }: TrackDSCViewProps) {
               render: (item) => (
                 <div className="flex items-center">
                   <div className="mr-2 w-24 h-2 rounded-full bg-[var(--border-soft)]">
-                    <div className={`h-2 rounded-full ${item.progress === 100 ? "bg-emerald-500" : item.progress === 20 ? "bg-amber-500" : "bg-blue-500"}`} style={{ width: `${item.progress}%` }}></div>
+                    <div className={`h-2 rounded-full ${item.progress === 100 ? "bg-orange-500" : item.progress === 20 ? "bg-amber-500" : "bg-blue-500"}`} style={{ width: `${item.progress}%` }}></div>
                   </div>
                   <span className="text-[10px] font-black uppercase tracking-wider text-[var(--muted)]">{item.progress}%</span>
                 </div>
@@ -174,3 +174,4 @@ export function TrackDSCView({ users }: TrackDSCViewProps) {
     </div>
   );
 }
+

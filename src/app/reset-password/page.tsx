@@ -104,7 +104,7 @@ function ResetPasswordContent() {
                 </div>
 
                 {message && (
-                  <div className={`mb-4 rounded-lg border px-3 py-2.5 text-center text-[11px] font-semibold ${message.toLowerCase().includes("success") ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400" : "border-red-500/20 bg-red-500/10 text-red-400"}`}>
+                  <div className={`mb-4 rounded-lg border px-3 py-2.5 text-center text-[11px] font-semibold ${message.toLowerCase().includes("success") ? "border-orange-500/20 bg-orange-500/10 text-orange-400" : "border-red-500/20 bg-red-500/10 text-red-400"}`}>
                     {message}
                   </div>
                 )}

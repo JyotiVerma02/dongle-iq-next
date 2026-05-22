@@ -52,11 +52,11 @@ export function Header({
     <header 
       className="sticky top-0 z-30 flex h-16 min-h-16 max-h-16 shrink-0 w-full items-center justify-between gap-3 border-b px-3 backdrop-blur-md sm:px-4 lg:px-6"
       style={{
-        backgroundColor: isDarkMode
-          ? "rgba(10,19,31,0.96)"
-          : "rgba(255,255,255,0.92)",
-        backdropFilter: "blur(12px) saturate(150%)",
-        WebkitBackdropFilter: "blur(12px) saturate(150%)",
+        background: isDarkMode
+          ? "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)), rgba(8,8,8,0.88)"
+          : "linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.52)), rgba(255,255,255,0.88)",
+        backdropFilter: "blur(18px) saturate(160%)",
+        WebkitBackdropFilter: "blur(18px) saturate(160%)",
         borderColor: colors.borderSoft,
       }}
     >
@@ -74,10 +74,10 @@ export function Header({
           data-testid="header-sidebar-toggle"
           className="hidden h-10 w-10 items-center justify-center rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 lg:inline-flex"
           style={{
-            backgroundColor: colors.card,
+            background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
             borderColor: colors.borderSoft,
             color: colors.accent,
-            boxShadow: `0 8px 20px -12px ${colors.accentShadow}`,
+            boxShadow: `0 16px 30px -18px ${colors.accentShadow}`,
           }}
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -104,8 +104,8 @@ export function Header({
             className="flex h-12 items-center gap-2 rounded-full border pl-1 pr-2 sm:pr-3"
             style={{
               borderColor: colors.borderSoft,
-              backgroundColor: colors.card,
-              boxShadow: `0 12px 30px -24px ${colors.accentShadow}`,
+              background: "linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.08)), var(--card)",
+              boxShadow: `0 18px 38px -24px ${colors.accentShadow}`,
             }}
           >
             <div 
@@ -132,7 +132,11 @@ export function Header({
           {isDropdownOpen && (
             <div 
               className="absolute right-0 mt-2 w-48 origin-top-right flex-col rounded-xl border py-1 shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-200"
-              style={{ backgroundColor: colors.card, borderColor: colors.borderSoft }}
+              style={{
+                background: "linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.08)), var(--card)",
+                borderColor: colors.borderSoft,
+                boxShadow: `0 28px 64px -34px ${colors.accentShadow}`,
+              }}
             >
               <button 
                 className="w-full px-4 py-2 text-left text-xs font-bold uppercase tracking-wider"

@@ -123,7 +123,7 @@ export default function VerifyOTP() {
                 <div
                   className={`mb-4 rounded-2xl border px-4 py-3 text-center text-[11px] font-semibold ${
                     messageType === "success"
-                      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                      ? "border-orange-500/20 bg-orange-500/10 text-orange-400"
                       : "border-rose-500/20 bg-rose-500/10 text-rose-400"
                   }`}
                 >

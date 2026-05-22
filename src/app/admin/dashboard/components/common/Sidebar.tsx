@@ -61,7 +61,7 @@ export function Sidebar({
       {/* Mobile overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
           onClick={onClose}
         />
       )}
@@ -73,10 +73,10 @@ export function Sidebar({
         style={{
           borderColor: colors.borderSoft,
           background: isDarkMode
-            ? "linear-gradient(180deg, rgba(11,19,34,0.98), rgba(8,16,29,0.96))"
-            : "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.96))",
-          backdropFilter: "blur(8px)",
-          boxShadow: isCollapsed ? "none" : "0 24px 54px -38px var(--accent-shadow)",
+            ? "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)), linear-gradient(180deg, rgba(15,15,15,0.96), rgba(8,8,8,0.94))"
+            : "linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.44)), linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,247,247,0.94))",
+          backdropFilter: "blur(18px) saturate(140%)",
+          boxShadow: isCollapsed ? "none" : "0 28px 70px -38px var(--accent-shadow)",
         }}
       >
         {/* Header with logo and collapse button */}
@@ -94,10 +94,11 @@ export function Sidebar({
         {!isCollapsed && (
           <div className="px-4 pt-4 pb-2">
             <div 
-              className="flex items-center rounded-lg border px-3 py-2 transition-all focus-within:ring-2 focus-within:ring-blue-500/20"
+              className="flex items-center rounded-xl border px-3 py-2 transition-all focus-within:ring-2"
               style={{ 
                 borderColor: colors.borderSoft, 
-                backgroundColor: colors.shell,
+                background: "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04)), var(--background)",
+                boxShadow: "0 16px 32px -28px var(--accent-shadow)",
               }}
             >
               <Search className="h-4 w-4 mr-2 flex-shrink-0" style={{ color: colors.muted }} />
@@ -107,7 +108,7 @@ export function Sidebar({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 data-testid="sidebar-search"
-                className="w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
+                className="w-full bg-transparent text-sm outline-none"
                 style={{ color: colors.text }}
               />
             </div>
@@ -188,8 +189,8 @@ export function Sidebar({
               <span 
                 className="text-[10px] px-2 py-0.5 rounded-full"
                 style={{
-                  backgroundColor: "#10b98120",
-                  color: "#10b981",
+                  backgroundColor: "#ff6a0020",
+                  color: "#ff6a00",
                 }}
               >
                 Active
@@ -203,7 +204,7 @@ export function Sidebar({
           <div className="border-t p-4" style={{ borderColor: colors.borderSoft }}>
             <button
               onClick={onToggleCollapse}
-              className="flex w-full items-center justify-center rounded-lg p-2 transition-all hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="flex w-full items-center justify-center rounded-lg p-2 transition-all"
               style={{ color: colors.muted }}
               title="Expand sidebar"
             >

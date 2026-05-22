@@ -23,7 +23,7 @@ export function StatusBadge({ status, type = "application" }: StatusBadgeProps) 
       }`}
     >
       {isPayment && (
-        <span className={`mr-1.5 flex h-2 w-2 rounded-full ${status === 'paid' ? 'bg-emerald-500' : status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'}`} />
+        <span className={`mr-1.5 flex h-2 w-2 rounded-full ${status === 'paid' ? 'bg-orange-500' : status === 'pending' ? 'bg-amber-500' : 'bg-rose-500'}`} />
       )}
       {!isPayment && (
         <span className="mr-1.5 flex h-1.5 w-1.5 rounded-full bg-current" />

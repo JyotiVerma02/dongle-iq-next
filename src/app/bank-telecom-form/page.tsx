@@ -100,7 +100,7 @@ function DongleIQForm() {
   const searchParams = useSearchParams();
   const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
-  const sectionGreen = "#10b981";
+  const sectionGreen = "#ff6a00";
 
   const photoRef = useRef<HTMLInputElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
@@ -518,9 +518,9 @@ function DongleIQForm() {
                         />
                       )
                     ) : existingUserUrls.photo && resubmissionFlags && !resubmissionFlags.photo ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-emerald-500/10 p-2 text-center">
-                        <span className="text-[11px] font-extrabold uppercase text-emerald-550">Verified ✅</span>
-                        <span className="text-[9px] font-semibold text-emerald-600 mt-0.5">Existing photo will be reused</span>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-orange-500/10 p-2 text-center">
+                        <span className="text-[11px] font-extrabold uppercase text-orange-500">Verified ✅</span>
+                        <span className="mt-0.5 text-[9px] font-semibold text-orange-500">Existing photo will be reused</span>
                       </div>
                     ) : (
                       <div className="flex flex-col items-center gap-1.5 p-2 text-center">
@@ -725,7 +725,7 @@ function FileBox({
         <span
           className="text-[8px] font-black uppercase px-2 py-1 rounded text-white"
           style={{
-            backgroundColor: isResubmission && !file ? "#f43f5e" : isVerified && !file ? "#10b981" : colors.accent,
+            backgroundColor: isResubmission && !file ? "#f43f5e" : isVerified && !file ? "#ff6a00" : colors.accent,
           }}
         >
           {isResubmission && !file ? "Fix Needed" : isVerified && !file ? "Verified" : "Upload"}
@@ -734,3 +734,4 @@ function FileBox({
     </div>
   );
 }
+

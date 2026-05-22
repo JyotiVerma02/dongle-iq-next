@@ -57,7 +57,7 @@ export function AdminSettingsView({ admin, toggleTheme, isDarkMode }: AdminSetti
         {/* Security Settings */}
         <div className="ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-4 sm:p-6" style={{ borderColor: "var(--border-soft)", backgroundColor: "var(--card)" }}>
           <div className="mb-6 flex items-center">
-            <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <div className="mr-4 flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
               <Shield className="h-5 w-5" />
             </div>
             <h3 className="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--foreground)]">Security Settings</h3>
@@ -127,7 +127,7 @@ export function AdminSettingsView({ admin, toggleTheme, isDarkMode }: AdminSetti
                   <td className="px-4 py-4 font-semibold text-xs text-[var(--foreground)] uppercase">Admin1</td>
                   <td className="px-4 py-4 text-[10px] font-black uppercase tracking-wider text-[var(--muted)]">a1@e.com</td>
                   <td className="px-4 py-4 text-[10px] font-black uppercase tracking-wider text-[var(--foreground)]">Super Admin</td>
-                  <td className="px-4 py-4"><span className="inline-flex rounded-full bg-[var(--background-alt)] px-2 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-500">Active</span></td>
+                  <td className="px-4 py-4"><span className="inline-flex rounded-full bg-[var(--background-alt)] px-2 py-1 text-[10px] font-black uppercase tracking-wider text-orange-500">Active</span></td>
                   <td className="px-4 py-4 text-right">
                     <button className="theme-transition inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--accent)] hover:bg-[var(--background-alt)]">Edit</button>
                     <button className="theme-transition inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-rose-500 hover:bg-[var(--background-alt)]">Del</button>
@@ -137,7 +137,7 @@ export function AdminSettingsView({ admin, toggleTheme, isDarkMode }: AdminSetti
                   <td className="px-4 py-4 font-semibold text-xs text-[var(--foreground)] uppercase">Manager1</td>
                   <td className="px-4 py-4 text-[10px] font-black uppercase tracking-wider text-[var(--muted)]">m1@e.com</td>
                   <td className="px-4 py-4 text-[10px] font-black uppercase tracking-wider text-[var(--foreground)]">Manager</td>
-                  <td className="px-4 py-4"><span className="inline-flex rounded-full bg-[var(--background-alt)] px-2 py-1 text-[10px] font-black uppercase tracking-wider text-emerald-500">Active</span></td>
+                  <td className="px-4 py-4"><span className="inline-flex rounded-full bg-[var(--background-alt)] px-2 py-1 text-[10px] font-black uppercase tracking-wider text-orange-500">Active</span></td>
                   <td className="px-4 py-4 text-right">
                     <button className="theme-transition inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-[var(--accent)] hover:bg-[var(--background-alt)]">Edit</button>
                     <button className="theme-transition inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-rose-500 hover:bg-[var(--background-alt)]">Del</button>

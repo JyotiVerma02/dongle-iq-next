@@ -39,7 +39,7 @@ export function StatsCard({ title, value, trend, icon: Icon, isCurrency, color =
             <div className="mt-2 flex items-center text-[11px] font-semibold">
               <span
                 className={`flex items-center ${
-                  isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                  isPositive ? "text-orange-600 dark:text-orange-400" : "text-rose-600 dark:text-rose-400"
                 }`}
               >
                 {isPositive ? <ArrowUpRight className="mr-1 h-4 w-4" /> : <ArrowDownRight className="mr-1 h-4 w-4" />}

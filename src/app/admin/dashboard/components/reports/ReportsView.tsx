@@ -48,28 +48,28 @@ export function ReportsView({ stats }: ReportsViewProps) {
         <div className="ud-surface ud-surface--lift rounded-xl border p-4 sm:p-6" style={{ borderColor: "var(--border-soft)", backgroundColor: "var(--card)" }}>
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)]">TOTAL REVENUE</p>
           <p className="mt-2 text-3xl font-black uppercase tracking-tight text-[var(--foreground)]">{formatCurrency(stats.totalRevenue)}</p>
-          <div className="mt-2 flex items-center text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+          <div className="mt-2 flex items-center text-[10px] font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">
             <span>+23% from last period</span>
           </div>
         </div>
         <div className="ud-surface ud-surface--lift rounded-xl border p-4 sm:p-6" style={{ borderColor: "var(--border-soft)", backgroundColor: "var(--card)" }}>
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)]">AVG. COMMISSION</p>
           <p className="mt-2 text-3xl font-black uppercase tracking-tight text-[var(--foreground)]">{formatCurrency(1250)}</p>
-          <div className="mt-2 flex items-center text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+          <div className="mt-2 flex items-center text-[10px] font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">
             <span>+5% from last period</span>
           </div>
         </div>
         <div className="ud-surface ud-surface--lift rounded-xl border p-4 sm:p-6" style={{ borderColor: "var(--border-soft)", backgroundColor: "var(--card)" }}>
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)]">CONVERSION RATE</p>
           <p className="mt-2 text-3xl font-black uppercase tracking-tight text-[var(--foreground)]">68%</p>
-          <div className="mt-2 flex items-center text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+          <div className="mt-2 flex items-center text-[10px] font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">
             <span>+2% from last period</span>
           </div>
         </div>
         <div className="ud-surface ud-surface--lift rounded-xl border p-4 sm:p-6" style={{ borderColor: "var(--border-soft)", backgroundColor: "var(--card)" }}>
           <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)]">ACTIVE AGENTS</p>
           <p className="mt-2 text-3xl font-black uppercase tracking-tight text-[var(--foreground)]">42</p>
-          <div className="mt-2 flex items-center text-[10px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+          <div className="mt-2 flex items-center text-[10px] font-black uppercase tracking-wider text-orange-600 dark:text-orange-400">
             <span>+3 new this month</span>
           </div>
         </div>
@@ -97,7 +97,7 @@ export function ReportsView({ stats }: ReportsViewProps) {
                 <tr key={i} className="transition-colors hover:bg-[var(--background-alt)]">
                   <td className="px-6 py-4 font-semibold text-xs text-[var(--foreground)] uppercase">{agent.name}</td>
                   <td className="px-6 py-4 text-center text-[10px] font-black tracking-wider text-[var(--muted)]">{agent.apps}</td>
-                  <td className="px-6 py-4 text-center text-[10px] font-black tracking-wider text-emerald-600 dark:text-emerald-400">{agent.approved}</td>
+                  <td className="px-6 py-4 text-center text-[10px] font-black tracking-wider text-orange-600 dark:text-orange-400">{agent.approved}</td>
                   <td className="px-6 py-4 text-right text-[10px] font-black tracking-wider text-[var(--foreground)]">{formatCurrency(agent.commission)}</td>
                   <td className="px-6 py-4 text-center text-amber-500 text-xs">
                     {"★".repeat(agent.rating)}{"☆".repeat(5 - agent.rating)}

@@ -92,10 +92,10 @@ export default function Navbar() {
       style={{ color: colors.text }}
     >
       <div
-         className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-2xl border px-3 py-3 shadow-[0_20px_50px_-28px_rgba(15,23,42,0.45)] backdrop-blur-2xl sm:px-4"
+         className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-[1.35rem] border px-3 py-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl sm:px-4"
         style={{
-          backgroundColor: "var(--nav)",
-          borderColor: colors.borderSoft,
+          background: "linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0.12)), var(--nav)",
+          borderColor: "var(--border-soft)",
           transform: "translateZ(0)",
           backfaceVisibility: "hidden",
         }}
@@ -126,7 +126,7 @@ export default function Navbar() {
             <a
               key={item.label}
               href={item.href}
-              className="rounded-full px-4 py-2 text-[0.92rem] font-medium hover:-translate-y-0.5"
+              className="rounded-full px-4 py-2 text-[0.92rem] font-medium hover:-translate-y-0.5 hover:text-[var(--accent)]"
               style={{ color: colors.muted }}
             >
               {item.label}
@@ -140,8 +140,8 @@ export default function Navbar() {
               onClick={() => router.push("/login")}
             className="hidden min-h-11 items-center gap-2 rounded-xl px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
               style={{
-                background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
-                boxShadow: `0 16px 28px -20px ${colors.accentShadow}`,
+                background: colors.accent,
+                boxShadow: `0 22px 40px -24px ${colors.accentShadow}, 0 0 32px -10px ${colors.accentShadow}`,
               }}
             >
               <LogIn size={16} />
@@ -154,7 +154,7 @@ export default function Navbar() {
               onClick={handleLogout}
               className="hidden min-h-11 items-center gap-2 rounded-xl border px-4 text-[0.9rem] font-semibold sm:inline-flex"
               style={{
-                backgroundColor: colors.card,
+                background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
                 borderColor: colors.borderSoft,
               }}
             >
@@ -167,9 +167,9 @@ export default function Navbar() {
             onClick={toggleTheme}
             aria-label="Toggle theme"
             title="Toggle theme"
-            className="flex h-11 w-11 items-center justify-center rounded-xl border"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)]"
             style={{
-              backgroundColor: colors.card,
+              background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
               borderColor: colors.borderSoft,
             }}
           >
@@ -179,9 +179,9 @@ export default function Navbar() {
           <button
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="flex h-11 w-11 items-center justify-center rounded-xl border lg:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden"
             style={{
-              backgroundColor: colors.card,
+              background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
               borderColor: colors.borderSoft,
             }}
           >
@@ -192,9 +192,9 @@ export default function Navbar() {
 
       {isMenuOpen ? (
         <div
-          className="mx-auto mt-3 max-w-7xl rounded-2xl border p-3 backdrop-blur-2xl lg:hidden"
+          className="mx-auto mt-3 max-w-7xl rounded-[1.35rem] border p-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl lg:hidden"
           style={{
-            backgroundColor: "var(--overlay)",
+            background: "linear-gradient(180deg, rgba(255,255,255,0.25), rgba(255,255,255,0.10)), var(--overlay)",
             borderColor: colors.borderSoft,
           }}
         >
@@ -203,9 +203,9 @@ export default function Navbar() {
               <a
                 key={item.label}
                 href={item.href}
-                className="rounded-2xl px-4 py-3 text-sm font-medium"
+                className="rounded-2xl px-4 py-3 text-sm font-medium shadow-[0_16px_28px_-26px_var(--accent-shadow)]"
                 style={{
-                  backgroundColor: colors.card,
+                  background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
                   color: colors.text,
                 }}
               >

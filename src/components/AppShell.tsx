@@ -5,20 +5,6 @@ import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 
 import Navbar from "@/components/navbar";
-import CursorEffect from "@/components/CursorEffect";
-import PremiumBackground from "@/components/PremiumBackground";
-
-const EFFECTS_DISABLED_PATHS = new Set([
-  "/login",
-  "/signup",
-  "/forgot-password",
-  "/reset-password",
-  "/verify",
-  "/verify-aadhaar",
-  "/preview",
-  "/user/dashboard",
-  "/admin/dashboard",
-]);
 
 const HIDE_NAVBAR_PATHS = new Set([
   "/verify",
@@ -28,8 +14,6 @@ const HIDE_NAVBAR_PATHS = new Set([
   "/user/dashboard",
   "/admin/dashboard",
 ]);
-
-const BACKGROUND_DISABLED_PATHS = new Set<string>();
 
 const HIDE_NAVBAR_PREFIXES = ["/admin/dashboard", "/admin/create-application", "/user"];
 
@@ -49,16 +33,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
   // ✅ Normalize path (fixes trailing slash + query bugs)
   const cleanPath = pathname.split("?")[0].replace(/\/$/, "");
 
-  const showEffects = !EFFECTS_DISABLED_PATHS.has(cleanPath);
   const showNavbar = !shouldHideNavbar(cleanPath);
-  const showBackground = !BACKGROUND_DISABLED_PATHS.has(cleanPath);
 
   return (
     <>
-      <a href="#main-content" className="skip-to-content">
+      {/* <a href="#main-content" className="skip-to-content">
         Skip to content
-      </a>
-      {showBackground && <PremiumBackground />}
+      </a> */}
       {showNavbar && <Navbar />}
 
       <main id="main-content"
@@ -66,8 +47,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
       >
         {children}
       </main>
-
-      {showEffects && <CursorEffect />}
 
       <Toaster
         position="top-right"

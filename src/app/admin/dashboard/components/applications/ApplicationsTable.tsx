@@ -76,7 +76,7 @@ export function ApplicationsTable({ users, onUpdateStatus }: ApplicationsTablePr
                     <button
                       onClick={() => handleStatusUpdate(user._id, "approved")}
                       disabled={updatingId === user._id}
-                      className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-emerald-600 disabled:opacity-50"
+                      className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-orange-500/20 bg-orange-500/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-orange-600 disabled:opacity-50"
                       title="Approve"
                     >
                       <Check className="h-4 w-4" />
@@ -177,7 +177,7 @@ export function ApplicationsTable({ users, onUpdateStatus }: ApplicationsTablePr
                         className="rounded-lg p-1.5 text-[var(--foreground)] transition-colors hover:bg-[var(--background-alt)] disabled:opacity-50"
                         title="Approve"
                       >
-                        <Check className="h-4 w-4 text-emerald-500" />
+                        <Check className="h-4 w-4 text-orange-500" />
                       </button>
                       <button
                         onClick={() => handleStatusUpdate(user._id, "rejected")}

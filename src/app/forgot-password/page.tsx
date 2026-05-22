@@ -82,7 +82,7 @@ export default function ForgotPassword() {
                 </div>
 
                 {message && (
-                  <div className={`mb-4 py-2 border text-[10px] font-black uppercase tracking-widest text-center rounded-lg ${message.toLowerCase().includes("sent") ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-red-500/10 border-red-500/20 text-red-500"}`}>
+                  <div className={`mb-4 py-2 border text-[10px] font-black uppercase tracking-widest text-center rounded-lg ${message.toLowerCase().includes("sent") ? "bg-orange-500/10 border-orange-500/20 text-orange-400" : "bg-red-500/10 border-red-500/20 text-red-500"}`}>
                     {message}
                   </div>
                 )}

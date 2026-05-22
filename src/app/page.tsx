@@ -247,7 +247,7 @@ export default function DongleIQLanding() {
 
               <h1 className="hero-title max-w-3xl">
                 Secure digital identity, redesigned for{" "}
-                <span className="text-gradient-brand">speed and trust</span>.
+                <span className="text-gradient-brand">speed and trust</span>
               </h1>
 
               <p className="hero-copy mt-6 max-w-xl">
@@ -356,7 +356,6 @@ export default function DongleIQLanding() {
                 <span className="text-gradient-brand">
                   trust, speed, and conversion
                 </span>
-                .
               </>
             }
             description="The design is tuned to reduce friction, look more professional, and help visitors understand what to do next without hesitation."
@@ -390,7 +389,6 @@ export default function DongleIQLanding() {
                     <span className="text-gradient-cool">
                       cleaner and more intentional
                     </span>
-                    .
                   </>
                 }
                 description="Better hierarchy, calmer surfaces, and stronger status cues make the product feel more premium while improving completion confidence."
@@ -428,7 +426,6 @@ export default function DongleIQLanding() {
                 <span className="text-gradient-brand">
                   application to activation
                 </span>
-                .
               </>
             }
             description="The process is designed to look reassuring, move quickly, and avoid the messy handoff feeling common in older service portals."
@@ -460,7 +457,7 @@ export default function DongleIQLanding() {
                 <span className="text-gradient-cool">
                   real operators
                 </span>
-                , not just generic traffic.
+                {" "}not just generic traffic
               </>
             }
             description="The audience sections now speak more directly to the people most likely to apply, which strengthens trust and makes the site feel more specific."
@@ -487,7 +484,7 @@ export default function DongleIQLanding() {
             title={
               <>
                 Answers that{" "}
-                <span className="text-gradient-brand">remove hesitation</span>.
+                <span className="text-gradient-brand">remove hesitation</span>
               </>
             }
             description="A cleaner FAQ layout helps users find clarity faster and keeps the page feeling tidy even as more content is added later."
@@ -521,7 +518,6 @@ export default function DongleIQLanding() {
                     <span className="text-gradient-cool">
                       cleaner way to reach you
                     </span>
-                    .
                   </>
                 }
                 description="The contact area now works as a trust surface instead of an afterthought, with stronger hierarchy, clearer actions, and a more credible tone."
@@ -596,7 +592,7 @@ export default function DongleIQLanding() {
                 <label className="field field-full">
                   <span>Requirements</span>
                   <textarea
-                    rows={5}
+                    rows={4}
                     value={quoteForm.requirements}
                     onChange={(event) =>
                       handleQuoteFieldChange("requirements", event.target.value)
@@ -612,23 +608,6 @@ export default function DongleIQLanding() {
                 </button>
               </form>
 
-              <button
-                type="button"
-                className="support-note w-full text-left"
-                onClick={() => setChatOpen(true)}
-                aria-label="Open live support chat"
-              >
-                <div className="support-badge">
-                  <MessageSquare size={16} />
-                </div>
-                <div>
-                  <h4>Need instant guidance?</h4>
-                  <p>
-                    Use live chat or reach the support team directly for quicker
-                    application assistance.
-                  </p>
-                </div>
-              </button>
             </div>
           </div>
         </div>
@@ -708,6 +687,16 @@ export default function DongleIQLanding() {
         </div>
       </footer>
 
+      {!chatOpen && (
+        <button
+          type="button"
+          onClick={() => setChatOpen(true)}
+          aria-label="Open live support chat"
+          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-(--accent) text-white shadow-[0_16px_34px_-18px_var(--accent-shadow)] border border-white/10 hover:-translate-y-1 hover:brightness-110 transition-all duration-200"
+        >
+          <MessageSquare size={24} />
+        </button>
+      )}
       <LiveChat open={chatOpen} onClose={() => setChatOpen(false)} />
     </main>
   );
@@ -754,7 +743,7 @@ function FeatureCard({
       <div
         className="premium-card-icon"
         style={{
-        color: "#ffffff",
+     
           backgroundColor: colors.accentSoft,
         }}
       >

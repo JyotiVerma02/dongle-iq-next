@@ -292,7 +292,7 @@ function DocumentCard({
           <p className="mt-1 break-all text-sm font-semibold">{file.name}</p>
         </div>
       </div>
-      <div className="text-xs font-bold text-emerald-500 mt-2">
+      <div className="mt-2 text-xs font-bold text-orange-500">
         File Uploaded Successfully
       </div>
     </div>
