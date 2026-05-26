@@ -14,7 +14,6 @@ import {
   Bell,
   CheckCircle2,
   ChevronRight,
-  ChevronDown,
   Clock,
   CreditCard,
   Download,
@@ -31,8 +30,10 @@ import {
   Moon,
   SunMedium,
   RefreshCw,
+  Upload,
   Users,
   X,
+  Zap,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { ErrorBoundary } from "@/app/admin/dashboard/components/common/ErrorBoundary";
@@ -53,6 +54,7 @@ import {
   UserSidebar,
   type UserDashboardView,
 } from "@/components/user-dashboard/UserSidebar";
+import { OverviewHeroShield } from "@/components/user-dashboard/OverviewHeroShield";
 import { useUserKeyboardShortcuts } from "./hooks/useUserKeyboardShortcuts";
 import { ShortcutsModal } from "@/app/admin/dashboard/components/common/ShortcutsModal";
 
@@ -944,26 +946,68 @@ function UserDashboardPage() {
       </div>
     ) : null;
 
+  const padOverviewStat = (value: number) => String(value).padStart(2, "0");
+
+  const overviewStats = {
+    total: hasSubmittedApplication ? 1 : 0,
+    approved:
+      applicationStatus === "approved" || applicationStatus === "issued"
+        ? 1
+        : 0,
+    rejected: applicationStatus === "rejected" ? 1 : 0,
+    pending:
+      hasSubmittedApplication &&
+      applicationStatus !== "approved" &&
+      applicationStatus !== "issued" &&
+      applicationStatus !== "rejected"
+        ? 1
+        : 0,
+  };
+
+  const getApplicationStepState = (
+    stepId: number,
+  ): "completed" | "active" | "pending" | "rejected" => {
+    if (applicationStatus === "rejected" && stepId === 4) return "rejected";
+
+    const completedByStep = [
+      hasSubmittedApplication,
+      hasSubmittedApplication &&
+        Boolean(userData?.photo || userData?.idProof || userData?.addressProof),
+      paymentIsSettled,
+      applicationStatus === "approved" || applicationStatus === "issued",
+      applicationStatus === "issued",
+    ];
+
+    const stepIndex = stepId - 1;
+    if (completedByStep[stepIndex]) return "completed";
+
+    const firstIncomplete = completedByStep.findIndex((done) => !done);
+    if (firstIncomplete === stepIndex) return "active";
+    if (firstIncomplete === -1) return "completed";
+    return "pending";
+  };
+
   const overviewPanel = userData ? (
     <div className="space-y-6 ud-overview-theme">
       {rejectionReasonAlert}
 
-      {/* Row 1: Banner Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Welcome Card */}
-        <div className="ud-welcome-card lg:col-span-2 relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 lg:p-8 flex flex-col justify-between min-h-[220px] shadow-sm">
-          <div>
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-black uppercase tracking-[0.28em] text-orange-500">
+      {/* Row 1: Unified hero — welcome + shield + fresh/status in one banner */}
+      <div className="ud-hero-banner relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm lg:p-6">
+        <div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-center xl:gap-2">
+          {/* Welcome */}
+          <div className="flex min-w-0 flex-1 flex-col justify-center xl:max-w-[42%]">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-[0.28em] text-purple-500">
                 WELCOME BACK
               </span>
               <button
+                type="button"
                 onClick={() => {
                   setIsRefreshing(true);
                   void fetchUserData();
                 }}
                 disabled={isRefreshing}
-                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-slate-50 transition-all hover:scale-105 active:scale-95 disabled:opacity-60 text-orange-500 cursor-pointer"
+                className="ud-hover-surface inline-flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-orange-500 transition hover:scale-105 active:scale-95 disabled:opacity-60"
                 title="Refresh status"
               >
                 <RefreshCw
@@ -972,391 +1016,268 @@ function UserDashboardPage() {
                 />
               </button>
             </div>
-
-            <h2 className="mt-3 text-2xl font-black uppercase tracking-tight sm:text-3xl text-slate-800">
-              Hello, {userData.name || "Jyoti Verma"}! 👋
+            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-800 sm:text-[1.65rem]">
+              Hello, {userData.name || "User"}! 👋
             </h2>
-            <p className="mt-2 text-sm text-slate-500 leading-relaxed max-w-md">
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-slate-500">
               Manage your DSC and IRCTC applications securely and track their
               progress in real time.
             </p>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center gap-3 relative z-10">
-            {/* Badge 1: Verified User */}
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700">
-              <CheckCircle2 size={12} />
-              Verified User
-            </div>
-            {/* Badge 2: Account Verified */}
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-3 py-1.5 text-xs font-bold text-purple-700">
-              <CreditCard size={12} />
-              Account Verified
+            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+              <div className="ud-hero-badge ud-hero-badge--green inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold">
+                <ShieldCheck size={12} />
+                Verified User
+              </div>
+              <div className="ud-hero-badge ud-hero-badge--purple inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold">
+                <CheckCircle2 size={12} />
+                Account Verified
+              </div>
             </div>
           </div>
 
-          {/* 3D Shield Check Glow SVG */}
-          <div className="absolute right-4 bottom-4 lg:right-8 lg:top-1/2 lg:-translate-y-1/2 w-32 h-32 opacity-85 shrink-0 hidden sm:block">
-            <svg
-              className="w-full h-full text-indigo-500 animate-pulse"
-              viewBox="0 0 100 100"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <linearGradient
-                  id="shieldGrad"
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" />
-                  <stop offset="100%" stopColor="#ec4899" stopOpacity="0.2" />
-                </linearGradient>
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="8" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
-              <circle
-                cx="50"
-                cy="50"
-                r="40"
-                fill="url(#shieldGrad)"
-                opacity="0.08"
-                filter="url(#glow)"
-              />
-              <path
-                d="M50 20C62 20 72 25 72 25C72 25 72 45 72 58C72 70 62 78 50 82C38 78 28 70 28 58C28 45 28 25 28 25C28 25 38 20 50 20Z"
-                fill="url(#shieldGrad)"
-                stroke="#8b5cf6"
-                strokeWidth="2"
-                filter="url(#glow)"
-              />
-              <path
-                d="M42 50L48 56L58 44"
-                stroke="#ffffff"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+          {/* Shield (center) — design asset */}
+          <div className="hidden shrink-0 items-center justify-center px-2 sm:flex xl:w-[300px]">
+            <OverviewHeroShield />
           </div>
-        </div>
 
-        {/* Right Active Card */}
-        {hasSubmittedApplication ? (
-          <div className="ud-fresh-card rounded-2xl border border-slate-200/80 bg-white p-6 flex flex-col justify-between shadow-sm">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-500">
-                START NEW APPLICATION
-              </p>
-              <h4 className="mt-2 text-lg font-bold text-slate-800 uppercase tracking-tight">
-                {applicationStatus === "approved"
-                  ? "Approved by admin"
-                  : applicationStatus === "rejected"
-                    ? "Changes required"
-                    : "Under review"}
-              </h4>
-              <p className="mt-2 text-xs text-slate-500 leading-relaxed">
-                {paymentIsSettled
-                  ? "Your application is currently being verified by the admin team."
-                  : "Complete your telecom/bank verification and payment to unlock full tracking status."}
-              </p>
-            </div>
-            <div className="mt-4">
-              {!paymentIsSettled ? (
+          {/* Fresh login / application status (nested panel, same banner) */}
+          <div className="ud-hero-fresh-panel ud-hover-surface flex w-full shrink-0 flex-col justify-between rounded-2xl border border-slate-200/70 bg-slate-50/90 p-5 xl:ml-auto xl:w-[min(100%,300px)]">
+            {hasSubmittedApplication ? (
+              <>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-500">
+                    APPLICATION STATUS
+                  </p>
+                  <h4 className="mt-2 text-base font-bold text-slate-800">
+                    {applicationStatus === "approved"
+                      ? "Approved by admin"
+                      : applicationStatus === "rejected"
+                        ? "Changes required"
+                        : "Under review"}
+                  </h4>
+                  <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                    {paymentIsSettled
+                      ? "Your application is being verified by the admin team."
+                      : "Complete bank/telecom verification and payment to unlock tracking."}
+                  </p>
+                </div>
+                <div className="mt-4">
+                  {!paymentIsSettled ? (
+                    <button
+                      type="button"
+                      onClick={handleProceedToPayment}
+                      disabled={paymentLoading}
+                      className="ud-cta-gradient flex w-full cursor-pointer items-center justify-between rounded-xl bg-gradient-to-r from-purple-600 via-violet-500 to-orange-500 px-5 py-3 text-xs font-bold text-white shadow-[0_6px_24px_rgba(124,58,237,0.35)] transition hover:brightness-110 active:scale-[0.98]"
+                    >
+                      <span>Complete Payment</span>
+                      <span>&gt;</span>
+                    </button>
+                  ) : canEditApplication ? (
+                    <button
+                      type="button"
+                      onClick={handleEditApplication}
+                      className="ud-cta-gradient flex w-full cursor-pointer items-center justify-between rounded-xl bg-gradient-to-r from-purple-600 via-violet-500 to-orange-500 px-5 py-3 text-xs font-bold text-white transition hover:brightness-110 active:scale-[0.98]"
+                    >
+                      <span>Edit Application</span>
+                      <span>&gt;</span>
+                    </button>
+                  ) : (
+                    <div className="rounded-xl border border-orange-500/25 bg-orange-500/10 py-2.5 text-center text-xs font-bold uppercase tracking-wider text-orange-500">
+                      In Processing
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-500">
+                    FRESH LOGIN
+                  </p>
+                  <h4 className="mt-2 text-base font-bold text-slate-800">
+                    No DSC submission yet
+                  </h4>
+                  <p className="mt-2 text-xs leading-relaxed text-slate-500">
+                    Complete the form and bank/telecom verification to unlock
+                    tracking status.
+                  </p>
+                </div>
                 <button
-                  onClick={handleProceedToPayment}
-                  disabled={paymentLoading}
-                  className="w-full bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white font-bold py-3 px-6 rounded-xl transition hover:scale-105 active:scale-95 shadow-[0_4px_20px_rgba(249,115,22,0.35)] flex items-center justify-between text-xs uppercase tracking-wider cursor-pointer"
+                  type="button"
+                  onClick={() => selectView("registration")}
+                  className="ud-cta-gradient mt-4 flex w-full cursor-pointer items-center justify-between rounded-xl bg-gradient-to-r from-purple-600 via-violet-500 to-orange-500 px-5 py-3 text-xs font-bold text-white shadow-[0_6px_24px_rgba(124,58,237,0.35)] transition hover:brightness-110 active:scale-[0.98]"
                 >
                   <span>Start New Application</span>
                   <span>&gt;</span>
                 </button>
-              ) : canEditApplication ? (
-                <button
-                  onClick={handleEditApplication}
-                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-xl transition hover:scale-105 active:scale-95 shadow-[0_4px_20px_rgba(139,92,246,0.25)] flex items-center justify-between text-xs uppercase tracking-wider cursor-pointer"
-                >
-                  <span>Edit Application</span>
-                  <span>&gt;</span>
-                </button>
-              ) : (
-                <div className="text-center rounded-xl bg-orange-500/10 border border-orange-500/20 py-2.5 text-xs text-orange-500 font-bold uppercase tracking-wider">
-                  In Processing
-                </div>
-              )}
-            </div>
+              </>
+            )}
           </div>
-        ) : (
-          <div className="ud-fresh-card rounded-2xl border border-slate-200/80 bg-white p-6 flex flex-col justify-between shadow-sm">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-500">
-                FRESH LOGIN
-              </p>
-              <h4 className="mt-2 text-lg font-bold text-slate-800">
-                No DSC submission yet
-              </h4>
-              <p className="mt-2 text-xs text-slate-500 leading-relaxed">
-                Complete the form and bank/telecom verification to unlock
-                tracking status.
-              </p>
-            </div>
-            <button
-              onClick={() => selectView("registration")}
-              className="w-full bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white font-bold py-3 px-6 rounded-xl transition hover:scale-105 active:scale-95 shadow-[0_4px_20px_rgba(249,115,22,0.35)] flex items-center justify-between text-xs uppercase tracking-wider cursor-pointer"
-            >
-              <span>Start New Application</span>
-              <span>&gt;</span>
-            </button>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Row 2: Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: TOTAL APPLICATIONS */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between min-h-[145px] relative overflow-hidden shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100/50">
-              <FileText size={18} />
-            </div>
-            <div className="text-slate-400">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          {
+            value: overviewStats.total,
+            label: "TOTAL APPLICATIONS",
+            sub: "All time applications",
+            icon: <FileText size={18} />,
+            iconWrap: "bg-purple-50 text-purple-600 border-purple-100/50",
+            accent: "text-purple-500",
+          },
+          {
+            value: overviewStats.approved,
+            label: "APPROVED DSC",
+            sub: "Successfully approved",
+            icon: <CheckCircle2 size={18} />,
+            iconWrap: "bg-green-50 text-green-600 border-green-100/50",
+            accent: "text-emerald-500",
+          },
+          {
+            value: overviewStats.pending,
+            label: "PENDING",
+            sub: "Awaiting review",
+            icon: <Clock size={18} />,
+            iconWrap: "bg-orange-50 text-orange-600 border-orange-100/50",
+            accent: "text-orange-500",
+          },
+          {
+            value: overviewStats.rejected,
+            label: "REJECTED",
+            sub: "Not approved",
+            icon: <AlertCircle size={18} />,
+            iconWrap: "bg-rose-50 text-rose-600 border-rose-100/50",
+            accent: "text-rose-500",
+          },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="ud-stat-card ud-hover-surface relative flex min-h-[130px] flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5"
+          >
+            <div className="flex gap-3">
+              <div
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border ${stat.iconWrap}`}
               >
-                <line x1="18" y1="20" x2="18" y2="10" />
-                <line x1="12" y1="20" x2="12" y2="4" />
-                <line x1="6" y1="20" x2="6" y2="14" />
-              </svg>
+                {stat.icon}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    {stat.label}
+                  </p>
+                  <div className="shrink-0 text-slate-400">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <line x1="18" y1="20" x2="18" y2="10" />
+                      <line x1="12" y1="20" x2="12" y2="4" />
+                      <line x1="6" y1="20" x2="6" y2="14" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="mt-1 text-3xl font-black leading-none text-slate-900">
+                  {padOverviewStat(stat.value)}
+                </p>
+                <p className="mt-1 text-[10px] text-slate-400">{stat.sub}</p>
+              </div>
+            </div>
+            <div
+              className={`mt-3 flex items-center gap-1 border-t border-slate-100 pt-2.5 text-[10px] font-semibold ${stat.accent}`}
+            >
+              <span>—</span>
+              <span>0%</span>
+              <span className="font-normal text-slate-500">vs last month</span>
             </div>
           </div>
-          <div className="mt-4">
-            <p className="text-3xl font-black text-slate-900">00</p>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">
-              TOTAL APPLICATIONS
-            </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
-              All time applications
-            </p>
-          </div>
-          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1 text-[10px] font-bold text-green-600">
-            <span className="text-xs">↑</span>
-            <span>0% vs last month</span>
-          </div>
-        </div>
-
-        {/* Card 2: APPROVED DSC */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between min-h-[145px] relative overflow-hidden shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600 border border-green-100/50">
-              <CheckCircle2 size={18} />
-            </div>
-            <div className="text-slate-400">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="20" x2="18" y2="10" />
-                <line x1="12" y1="20" x2="12" y2="4" />
-                <line x1="6" y1="20" x2="6" y2="14" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-4">
-            <p className="text-3xl font-black text-slate-900">00</p>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">
-              APPROVED DSC
-            </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
-              Successfully approved
-            </p>
-          </div>
-          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1 text-[10px] font-bold text-green-600">
-            <span className="text-xs">↑</span>
-            <span>0% vs last month</span>
-          </div>
-        </div>
-
-        {/* Card 3: PENDING */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between min-h-[145px] relative overflow-hidden shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-100/50">
-              <Clock size={18} />
-            </div>
-            <div className="text-slate-400">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="20" x2="18" y2="10" />
-                <line x1="12" y1="20" x2="12" y2="4" />
-                <line x1="6" y1="20" x2="6" y2="14" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-4">
-            <p className="text-3xl font-black text-slate-900">00</p>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">
-              PENDING
-            </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Awaiting review</p>
-          </div>
-          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1 text-[10px] font-bold text-red-500">
-            <span className="text-xs">↓</span>
-            <span>0% vs last month</span>
-          </div>
-        </div>
-
-        {/* Card 4: REJECTED */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between min-h-[145px] relative overflow-hidden shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-100/50">
-              <AlertCircle size={18} />
-            </div>
-            <div className="text-slate-400">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="20" x2="18" y2="10" />
-                <line x1="12" y1="20" x2="12" y2="4" />
-                <line x1="6" y1="20" x2="6" y2="14" />
-              </svg>
-            </div>
-          </div>
-          <div className="mt-4">
-            <p className="text-3xl font-black text-slate-900">00</p>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">
-              REJECTED
-            </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">Not approved</p>
-          </div>
-          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1 text-[10px] font-bold text-red-500">
-            <span className="text-xs">↓</span>
-            <span>0% vs last month</span>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Row 3: Main split columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Column 1: Application Progress */}
-        <div className="lg:col-span-5 rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between shadow-sm">
+        <div className="ud-panel-card ud-hover-surface flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm lg:col-span-6">
           <div>
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Application Progress
               </h3>
               <button
+                type="button"
                 onClick={() => selectView("registration")}
-                className="rounded-full bg-slate-50 border border-slate-200 px-3.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
+                className="ud-hover-surface cursor-pointer rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-[10px] font-bold text-slate-600 transition hover:text-slate-900"
               >
                 View All &gt;
               </button>
             </div>
 
-            <div className="mt-6 grid grid-cols-5 gap-2 relative">
-              {/* Connecting horizontal line underneath the circles */}
-              <div className="absolute top-5 left-6 right-6 h-[2px] bg-slate-100 z-0 hidden md:block" />
+            <div className="relative mt-6 grid grid-cols-5 gap-2">
+              <div className="absolute top-5 left-6 right-6 z-0 hidden h-0 border-t border-dashed border-slate-200 md:block" />
               {[
-                {
-                  id: 1,
-                  label: "Personal Details",
-                  status: hasSubmittedApplication ? "completed" : "pending",
-                  icon: <FileText size={14} />,
-                },
-                {
-                  id: 2,
-                  label: "Document Upload",
-                  status: hasSubmittedApplication ? "completed" : "pending",
-                  icon: <FileText size={14} />,
-                },
-                {
-                  id: 3,
-                  label: "Verification",
-                  status: paymentIsSettled ? "completed" : "pending",
-                  icon: <ShieldCheck size={14} />,
-                },
-                {
-                  id: 4,
-                  label: "Review",
-                  status:
-                    applicationStatus === "approved" ||
-                    applicationStatus === "issued"
-                      ? "completed"
-                      : applicationStatus === "rejected"
-                        ? "rejected"
-                        : "pending",
-                  icon: <FileText size={14} />,
-                },
-                {
-                  id: 5,
-                  label: "Complete",
-                  status:
-                    applicationStatus === "issued" ? "completed" : "pending",
-                  icon: <CheckCircle2 size={14} />,
-                },
+                { id: 1, label: "Personal Details", icon: <FileText size={14} /> },
+                { id: 2, label: "Document Upload", icon: <Upload size={14} /> },
+                { id: 3, label: "Verification", icon: <ShieldCheck size={14} /> },
+                { id: 4, label: "Review", icon: <Clock size={14} /> },
+                { id: 5, label: "Complete", icon: <CheckCircle2 size={14} /> },
               ].map((step) => {
-                const isCompleted = step.status === "completed";
-                const isRejected = step.status === "rejected";
+                const stepState = getApplicationStepState(step.id);
+                const isCompleted = stepState === "completed";
+                const isActive = stepState === "active";
+                const isRejected = stepState === "rejected";
                 return (
                   <div
                     key={step.id}
-                    className="flex flex-col items-center text-center relative z-10"
+                    className="relative z-10 flex flex-col items-center text-center"
                   >
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300 ${
                         isCompleted
-                          ? "border-orange-500 bg-orange-50 text-orange-500"
-                          : isRejected
-                            ? "border-red-500 bg-red-50 text-red-500"
-                            : "border-slate-200 bg-slate-50 text-slate-400"
+                          ? "border-emerald-500 bg-emerald-500 text-white shadow-[0_0_12px_rgba(34,197,94,0.35)]"
+                          : isActive
+                            ? "border-purple-500 bg-purple-500 text-white shadow-[0_0_12px_rgba(139,92,246,0.35)]"
+                            : isRejected
+                              ? "border-red-500 bg-red-50 text-red-500"
+                              : "border-slate-200 bg-slate-50 text-slate-400"
                       }`}
                     >
-                      {step.icon}
+                      {isCompleted ? (
+                        <CheckCircle2 size={16} strokeWidth={2.5} />
+                      ) : (
+                        step.icon
+                      )}
                     </div>
                     <p className="mt-2 text-[9px] font-bold uppercase tracking-wider text-slate-400">
                       Step {step.id}
                     </p>
-                    <p className="text-[10px] font-bold text-slate-700 truncate max-w-full px-1">
+                    <p className="max-w-full truncate px-1 text-[10px] font-bold text-slate-700">
                       {step.label}
                     </p>
                     <p
-                      className={`text-[9px] font-medium mt-0.5 ${isCompleted ? "text-orange-500" : isRejected ? "text-red-500" : "text-slate-400"}`}
+                      className={`mt-0.5 text-[9px] font-medium ${
+                        isCompleted
+                          ? "text-emerald-600"
+                          : isActive
+                            ? "text-purple-600"
+                            : isRejected
+                              ? "text-red-500"
+                              : "text-slate-400"
+                      }`}
                     >
                       {isCompleted
                         ? "Completed"
-                        : isRejected
-                          ? "Rejected"
-                          : "Not Started"}
+                        : isActive
+                          ? "In Progress"
+                          : isRejected
+                            ? "Rejected"
+                            : "Not Started"}
                     </p>
                   </div>
                 );
@@ -1366,29 +1287,30 @@ function UserDashboardPage() {
 
           {/* Bottom start registration banner */}
           {!hasSubmittedApplication ? (
-            <div className="mt-6 flex items-center justify-between rounded-xl border border-dashed border-orange-200 bg-orange-50/50 p-4.5">
+            <div className="ud-start-first-app ud-hover-surface mt-6 flex flex-col gap-4 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 border border-orange-200 text-orange-500">
-                  <span className="text-xl font-bold">+</span>
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-purple-200/60 bg-purple-500/15 text-purple-500 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+                  <span className="text-xl font-bold leading-none">+</span>
                 </div>
                 <div className="text-left">
-                  <h4 className="text-xs font-bold text-slate-800">
+                  <h4 className="text-sm font-bold text-slate-800">
                     Start your first application
                   </h4>
-                  <p className="text-[10px] text-slate-500 mt-0.5 font-medium">
+                  <p className="mt-0.5 text-[11px] font-medium text-slate-500">
                     Submit your details to begin your DSC application journey.
                   </p>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => selectView("registration")}
-                className="shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition hover:scale-105 active:scale-95 text-[10px] uppercase tracking-wider cursor-pointer"
+                className="ud-cta-gradient w-full shrink-0 cursor-pointer rounded-xl bg-gradient-to-r from-purple-600 via-violet-500 to-violet-600 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_4px_20px_rgba(124,58,237,0.35)] transition hover:brightness-110 active:scale-[0.98] sm:w-auto"
               >
                 Start Application &gt;
               </button>
             </div>
           ) : (
-            <div className="mt-6 flex items-center justify-between rounded-xl border border-dashed border-green-200 bg-green-50/40 p-4.5">
+            <div className="ud-start-first-app ud-hover-surface mt-6 flex flex-col gap-4 rounded-xl border border-slate-200/80 bg-slate-50/80 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 border border-green-200 text-green-600">
                   <CheckCircle2 size={18} />
@@ -1404,8 +1326,9 @@ function UserDashboardPage() {
               </div>
               {canEditApplication && (
                 <button
+                  type="button"
                   onClick={handleEditApplication}
-                  className="shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition hover:scale-105 active:scale-95 text-[10px] uppercase tracking-wider cursor-pointer"
+                  className="ud-cta-gradient w-full shrink-0 cursor-pointer rounded-xl bg-gradient-to-r from-purple-600 via-violet-500 to-violet-600 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-white transition hover:brightness-110 active:scale-[0.98] sm:w-auto"
                 >
                   Edit Form &gt;
                 </button>
@@ -1415,13 +1338,16 @@ function UserDashboardPage() {
         </div>
 
         {/* Column 2: Recent Activity */}
-        <div className="lg:col-span-4 rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between shadow-sm">
+        <div className="ud-panel-card ud-hover-surface flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm lg:col-span-3">
           <div>
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Recent Activity
               </h3>
-              <button className="rounded-full bg-slate-50 border border-slate-200 px-3.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer">
+              <button
+                type="button"
+                className="ud-hover-surface rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-[10px] font-bold text-slate-600 transition hover:text-slate-900"
+              >
                 View All
               </button>
             </div>
@@ -1480,7 +1406,7 @@ function UserDashboardPage() {
         </div>
 
         {/* Column 3: Quick Actions */}
-        <div className="lg:col-span-3 rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between shadow-sm">
+        <div className="ud-panel-card ud-hover-surface flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm lg:col-span-3">
           <div>
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
@@ -1494,23 +1420,32 @@ function UserDashboardPage() {
                   label: "New Application",
                   view: "registration",
                   locked: false,
+                  icon: <FileText size={15} />,
                 },
                 {
                   label: "Upload Documents",
                   view: "documents",
                   locked: !hasSubmittedApplication,
+                  icon: <Upload size={15} />,
                 },
                 {
                   label: "Track Application",
                   view: "admin-review",
                   locked: !hasSubmittedApplication,
+                  icon: <Clock size={15} />,
                 },
                 {
                   label: "Download Invoice",
                   action: "invoice",
                   locked: !paymentIsSettled,
+                  icon: <Download size={15} />,
                 },
-                { label: "Help & Support", action: "help", locked: false },
+                {
+                  label: "Help & Support",
+                  action: "help",
+                  locked: false,
+                  icon: <Headset size={15} />,
+                },
               ].map((item, idx) => (
                 <button
                   key={idx}
@@ -1520,15 +1455,16 @@ function UserDashboardPage() {
                     if (item.action === "invoice") setShowInvoiceModal(true);
                   }}
                   disabled={item.locked}
-                  className={`flex items-center justify-between py-3 border-b border-slate-100 text-left text-xs font-bold transition-all ${
+                  className={`ud-hover-surface flex items-center justify-between border-b border-slate-100 py-3 text-left text-xs font-semibold transition-all ${
                     item.locked
-                      ? "opacity-35 cursor-not-allowed text-slate-300"
+                      ? "cursor-not-allowed text-slate-300 opacity-35"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  <span className="flex items-center gap-2">
-                    {/* Add small dots before each item for custom look */}
-                    <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                  <span className="flex items-center gap-2.5">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-slate-500">
+                      {item.icon}
+                    </span>
                     {item.label}
                   </span>
                   <ChevronRight size={14} className="text-slate-400" />
@@ -1540,7 +1476,7 @@ function UserDashboardPage() {
       </div>
 
       {/* Row 4: Bottom features list */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 border-t border-slate-100 pt-6 mt-6">
+      <div className="mt-6 grid grid-cols-1 gap-5 border-t border-slate-100 pt-6 sm:grid-cols-2 lg:grid-cols-4">
         {[
           {
             title: "Secure & Encrypted",
@@ -1549,10 +1485,10 @@ function UserDashboardPage() {
             bg: "bg-purple-50 border border-purple-100/50",
           },
           {
-            title: "Bank Level Security",
-            desc: "We follow strict security standards.",
-            icon: <Sparkles size={16} className="text-emerald-600" />,
-            bg: "bg-emerald-50 border border-emerald-100/50",
+            title: "Fast Processing",
+            desc: "Quick verification and certificate delivery.",
+            icon: <Zap size={16} className="text-orange-600" />,
+            bg: "bg-orange-50 border border-orange-100/50",
           },
           {
             title: "Expert Support",
@@ -1561,7 +1497,7 @@ function UserDashboardPage() {
             bg: "bg-blue-50 border border-blue-100/50",
           },
           {
-            title: "Trusted by 10,000+",
+            title: "Trusted by Thousands",
             desc: "Businesses across India trust DongleIQ.",
             icon: <Users size={16} className="text-green-600" />,
             bg: "bg-green-50 border border-green-100/50",
@@ -2222,7 +2158,7 @@ function UserDashboardPage() {
       {/* Fixed Theme Toggle */}
       <button
         onClick={toggleTheme}
-        className="fixed bottom-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95"
+        className="fixed bottom-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 lg:hidden"
         style={{
           backgroundColor: colors.card,
           borderColor: colors.borderSoft,
@@ -2245,7 +2181,6 @@ function UserDashboardPage() {
             onViewChange={selectView}
             onLogout={handleLogout}
           />
-
           {isSidebarOpen ? (
             <div
               className="ud-backdrop lg:hidden"
@@ -2301,7 +2236,7 @@ function UserDashboardPage() {
                     3
                   </span>
                 </div>
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-xs font-bold text-white shadow-sm">
+                <div className="ud-header-avatar flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white shadow-[0_0_12px_rgba(124,58,237,0.35)]">
                   {userData?.name
                     ? userData.name
                         .split(" ")
@@ -2344,12 +2279,12 @@ function UserDashboardPage() {
                 </button>
 
                 {/* Search Bar */}
-                <div className="relative flex items-center w-72 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs text-slate-500">
-                  <Search size={14} className="mr-2 text-slate-400" />
+                <div className="relative flex w-80 max-w-full items-center rounded-full border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-500">
+                  <Search size={14} className="mr-2 shrink-0 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Search applications, DSC, invoices..."
-                    className="bg-transparent outline-none w-full placeholder-slate-400 text-slate-800"
+                    placeholder="Search anything..."
+                    className="w-full bg-transparent text-slate-800 outline-none placeholder:text-slate-400"
                     disabled
                   />
                   <span className="rounded bg-slate-200/50 border border-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 shrink-0 ml-1">
@@ -2368,27 +2303,28 @@ function UserDashboardPage() {
                   </span>
                 </div>
 
-                {/* Sun/Moon Toggle */}
+                {/* Sun/Moon Toggle — active state stays violet in both themes */}
                 <button
+                  type="button"
                   onClick={toggleTheme}
-                  className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 p-1 cursor-pointer"
+                  className="ud-header-theme-toggle flex cursor-pointer items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 p-1"
                   title="Toggle theme"
                 >
                   <div
-                    className={`rounded-full p-1.5 ${isDarkMode ? "bg-transparent text-slate-400" : "bg-orange-500 text-white"}`}
+                    className={`ud-header-theme-toggle__icon rounded-full p-1.5 ${!isDarkMode ? "is-active" : ""}`}
                   >
                     <SunMedium size={14} />
                   </div>
                   <div
-                    className={`rounded-full p-1.5 ${isDarkMode ? "bg-purple-600 text-white" : "bg-transparent text-slate-400"}`}
+                    className={`ud-header-theme-toggle__icon rounded-full p-1.5 ${isDarkMode ? "is-active" : ""}`}
                   >
                     <Moon size={14} />
                   </div>
                 </button>
 
-                {/* User Dropdown */}
-                <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-sm font-bold text-white shadow-sm">
+                {/* User profile */}
+                <div className="ud-header-user flex items-center gap-3 border-l border-slate-200 pl-4">
+                  <div className="ud-header-avatar flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-[0_0_14px_rgba(124,58,237,0.35)]">
                     {userData?.name
                       ? userData.name
                           .split(" ")
@@ -2398,15 +2334,15 @@ function UserDashboardPage() {
                           .slice(0, 2)
                       : "JV"}
                   </div>
-                  <div className="text-left hidden xl:block">
-                    <p className="text-xs font-bold text-slate-800 leading-tight">
-                      {userData?.name || "Jyoti Verma"}
+                  <div className="hidden text-left xl:block">
+                    <p className="ud-header-user-name text-xs font-bold leading-tight text-slate-800">
+                      {userData?.name || "User"}
                     </p>
-                    <p className="text-[10px] font-semibold text-slate-400 leading-none mt-0.5">
+                    <span className="ud-header-user-meta mt-0.5 inline-flex items-center gap-1 text-[10px] font-medium text-slate-500">
+                      <CheckCircle2 size={10} className="text-violet-500" />
                       Verified User
-                    </p>
+                    </span>
                   </div>
-                  <ChevronDown size={14} className="text-slate-400" />
                 </div>
               </div>
             </header>

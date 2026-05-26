@@ -1110,16 +1110,16 @@ html.dark .live-chat-panel {
 .ud-dashboard-theme,
 .ud-overview-theme,
 .ud-user-sidebar {
-  --ud-bg: #f8fbff;
+  --ud-bg: #f8f9fd;
   --ud-card: rgba(255,255,255,0.92);
   --ud-card-soft: rgba(249,250,255,0.86);
   --ud-panel: rgba(255,255,255,0.78);
   --ud-border: #e5e9f7;
   --ud-border-soft: #eef2fb;
-  --ud-text: #070b3c;
-  --ud-text-mid: #273055;
-  --ud-muted: #59627f;
-  --ud-faint: #95a0bb;
+  --ud-text: #030712;
+  --ud-text-mid: #111827;
+  --ud-muted: #374151;
+  --ud-faint: #4b5563;
   --ud-purple: #6d28ff;
   --ud-orange: #ff6a00;
   --ud-shadow: 0 18px 48px -34px rgba(31, 41, 88, 0.34);
@@ -1158,16 +1158,14 @@ html.dark .ud-dashboard-theme {
 }
 
 .ud-dashboard-theme .ud-mobile-bar,
-.ud-dashboard-theme .ud-desktop-bar,
-.ud-user-sidebar {
+.ud-dashboard-theme .ud-desktop-bar {
   background: color-mix(in srgb, var(--ud-card) 94%, transparent) !important;
   border-color: var(--ud-border) !important;
   box-shadow: var(--ud-shadow);
 }
 
 html.dark .ud-dashboard-theme .ud-mobile-bar,
-html.dark .ud-dashboard-theme .ud-desktop-bar,
-html.dark .ud-user-sidebar {
+html.dark .ud-dashboard-theme .ud-desktop-bar {
   background: rgba(10, 14, 23, 0.94) !important;
 }
 
@@ -1243,20 +1241,115 @@ html.dark .ud-overview-theme .bg-white {
   background: color-mix(in srgb, var(--ud-border) 55%, transparent) !important;
 }
 
-.ud-overview-theme .ud-welcome-card,
-.ud-overview-theme .lg\:col-span-2 {
+.ud-overview-theme .ud-hero-banner {
   background:
-    radial-gradient(circle at 78% 46%, rgba(109,40,255,0.18), transparent 28%),
-    radial-gradient(circle at 100% 18%, rgba(255,106,0,0.11), transparent 25%),
-    linear-gradient(135deg, rgba(255,255,255,0.95), rgba(247,243,255,0.88)) !important;
+    radial-gradient(circle at 72% 38%, rgba(109,40,255,0.14), transparent 32%),
+    radial-gradient(circle at 92% 12%, rgba(255,106,0,0.09), transparent 26%),
+    linear-gradient(135deg, rgba(255,255,255,0.98), rgba(247,243,255,0.92)) !important;
+  min-height: 220px;
 }
 
-html.dark .ud-overview-theme .ud-welcome-card,
-html.dark .ud-overview-theme .lg\:col-span-2 {
+html.dark .ud-overview-theme .ud-hero-banner {
   background:
-    radial-gradient(circle at 78% 42%, rgba(139,92,246,0.30), transparent 30%),
-    radial-gradient(circle at 100% 10%, rgba(255,106,0,0.10), transparent 24%),
-    linear-gradient(135deg, rgba(37, 20, 88, 0.48), rgba(13, 17, 27, 0.94)) !important;
+    radial-gradient(circle at 68% 42%, rgba(139,92,246,0.28), transparent 34%),
+    radial-gradient(circle at 100% 8%, rgba(255,106,0,0.08), transparent 22%),
+    linear-gradient(135deg, rgba(28, 14, 68, 0.55), rgba(10, 12, 22, 0.98)) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+.ud-overview-theme .ud-hero-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      118deg,
+      rgba(109,40,255,0.04) 0 1px,
+      transparent 1px 14px
+    );
+  mask-image: linear-gradient(90deg, transparent 0%, black 35%, black 100%);
+  opacity: 0.45;
+}
+
+html.dark .ud-overview-theme .ud-hero-banner::before {
+  opacity: 0.22;
+}
+
+.ud-overview-theme .ud-hero-fresh-panel {
+  background: rgba(248, 250, 255, 0.92) !important;
+  border-color: rgba(148, 163, 184, 0.22) !important;
+}
+
+html.dark .ud-overview-theme .ud-hero-fresh-panel {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.ud-overview-theme .ud-hero-badge--green {
+  border-color: rgba(34, 197, 94, 0.35) !important;
+  background: rgba(34, 197, 94, 0.1) !important;
+  color: #16a34a !important;
+}
+
+.ud-overview-theme .ud-hero-badge--purple {
+  border-color: rgba(139, 92, 246, 0.35) !important;
+  background: rgba(139, 92, 246, 0.1) !important;
+  color: #7c3aed !important;
+}
+
+html.dark .ud-overview-theme .ud-hero-badge--green {
+  border-color: rgba(34, 197, 94, 0.4) !important;
+  background: rgba(34, 197, 94, 0.12) !important;
+  color: #4ade80 !important;
+}
+
+html.dark .ud-overview-theme .ud-hero-badge--purple {
+  border-color: rgba(167, 139, 250, 0.4) !important;
+  background: rgba(139, 92, 246, 0.14) !important;
+  color: #c4b5fd !important;
+}
+
+.ud-overview-theme .ud-start-first-app {
+  background: rgba(248, 250, 255, 0.75) !important;
+  border-color: var(--ud-border) !important;
+}
+
+html.dark .ud-overview-theme .ud-start-first-app {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.ud-hover-surface {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Dark mode: subtle white lift on hover (cards, rows, panels) */
+html.dark .ud-overview-theme .ud-hover-surface:hover,
+html.dark .ud-user-sidebar .ud-hover-surface:hover,
+html.dark .ud-dashboard-theme .ud-hover-surface:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.dark .ud-overview-theme .ud-stat-card:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+html.dark .ud-overview-theme .ud-hero-fresh-panel:hover {
+  background: rgba(255, 255, 255, 0.09) !important;
+}
+
+html.dark .ud-overview-theme .ud-start-first-app:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+html.light .ud-overview-theme .ud-hover-surface:hover {
+  background: rgba(255, 255, 255, 0.95) !important;
 }
 
 .ud-user-sidebar .text-orange-500,
@@ -1297,60 +1390,20 @@ html.dark .ud-overview-theme .shadow-sm {
     0 24px 70px -44px rgba(0,0,0,0.92) !important;
 }
 
-.ud-overview-theme .ud-welcome-card {
-  min-height: 220px;
+.ud-overview-theme .ud-hero-shield-art {
+  min-width: 260px;
+  background: transparent !important;
 }
 
-.ud-overview-theme .ud-welcome-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(120deg, rgba(109,40,255,0.04), transparent 38%),
-    repeating-linear-gradient(120deg, rgba(109,40,255,0.045) 0 1px, transparent 1px 12px);
-  mask-image: linear-gradient(90deg, transparent 0%, black 45%, black 100%);
-  opacity: 0.55;
+.ud-overview-theme .ud-hero-shield-art img {
+  background: transparent !important;
+  filter: drop-shadow(0 14px 32px rgba(124, 58, 237, 0.4));
+  mix-blend-mode: screen;
 }
 
-html.dark .ud-overview-theme .ud-welcome-card::before {
-  opacity: 0.28;
-}
-
-.ud-overview-theme .ud-fresh-card {
-  position: relative;
-  overflow: hidden;
-  min-height: 220px;
-}
-
-.ud-overview-theme .ud-fresh-card::after {
-  content: "";
-  position: absolute;
-  right: -0.5rem;
-  bottom: 0.65rem;
-  width: 7.6rem;
-  height: 9rem;
-  border: 0.45rem solid rgba(139,92,246,0.14);
-  border-radius: 1rem;
-  transform: rotate(8deg);
-  background:
-    linear-gradient(90deg, transparent 1rem, rgba(139,92,246,0.13) 1rem 1.5rem, transparent 1.5rem),
-    linear-gradient(rgba(139,92,246,0.12), rgba(139,92,246,0.12)) 2.4rem 2.1rem / 3.6rem 0.35rem no-repeat,
-    linear-gradient(rgba(139,92,246,0.10), rgba(139,92,246,0.10)) 2.4rem 4.1rem / 3.6rem 0.35rem no-repeat,
-    rgba(255,255,255,0.42);
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-html.dark .ud-overview-theme .ud-fresh-card::after {
-  border-color: rgba(139,92,246,0.18);
-  background-color: rgba(139,92,246,0.045);
-  opacity: 0.36;
-}
-
-.ud-overview-theme .ud-fresh-card > * {
-  position: relative;
-  z-index: 1;
+html.dark .ud-overview-theme .ud-hero-shield-art img {
+  filter: drop-shadow(0 18px 40px rgba(139, 92, 246, 0.5));
+  mix-blend-mode: screen;
 }
 
 .ud-overview-theme .bg-purple-50,
@@ -1415,18 +1468,179 @@ html.dark .ud-dashboard-theme .bg-blue-50 {
   background: rgba(59,130,246,0.15) !important;
 }
 
-.ud-user-sidebar button[class*="from-orange-500"] {
-  background:
-    linear-gradient(90deg, rgba(255,106,0,0.13), rgba(255,106,0,0.02)) !important;
-  border: 1px solid rgba(255,106,0,0.18);
-  color: var(--ud-orange) !important;
-  box-shadow: inset 3px 0 0 var(--ud-orange);
+/* Sidebar — left side, unified in light & dark */
+.ud-user-sidebar {
+  flex-shrink: 0;
+  --ud-sidebar-bg: #ffffff;
+  --ud-sidebar-border: #e8ecf4;
+  --ud-sidebar-brand: #030712;
+  --ud-sidebar-brand-accent: #ff6a00;
+  --ud-sidebar-nav-icon: #7c3aed;
+  --ud-sidebar-nav-label: #111827;
+  --ud-sidebar-section: #6b7280;
+  --ud-sidebar-hint-bg: #f8fafc;
+  --ud-sidebar-hint-text: #374151;
+  --ud-sidebar-upgrade-bg: linear-gradient(
+    145deg,
+    rgba(237, 233, 254, 0.95),
+    rgba(245, 243, 255, 0.88)
+  );
+  --ud-sidebar-upgrade-border: rgba(139, 92, 246, 0.22);
+  --ud-sidebar-upgrade-title: #5b21b6;
+  --ud-sidebar-upgrade-desc: #4b5563;
+  --ud-sidebar-footer-border: #eef2fb;
+  --ud-sidebar-profile-name: #030712;
+  --ud-sidebar-profile-email: #4b5563;
+  --ud-sidebar-logout: #111827;
+  background: var(--ud-sidebar-bg) !important;
+  border-color: var(--ud-sidebar-border) !important;
+  box-shadow:
+    inset -1px 0 0 var(--ud-border-soft),
+    8px 0 32px -24px rgba(15, 23, 42, 0.1) !important;
 }
 
-html.dark .ud-user-sidebar button[class*="from-orange-500"] {
-  background:
-    linear-gradient(90deg, rgba(255,106,0,0.18), rgba(139,92,246,0.06)) !important;
-  border-color: rgba(255,106,0,0.24);
+html.dark .ud-user-sidebar {
+  --ud-sidebar-bg: #0b0f17;
+  --ud-sidebar-border: rgba(255, 255, 255, 0.08);
+  --ud-sidebar-brand: #f8fafc;
+  --ud-sidebar-brand-accent: #a78bfa;
+  --ud-sidebar-nav-icon: #c4b5fd;
+  --ud-sidebar-nav-label: #e2e8f0;
+  --ud-sidebar-section: #94a3b8;
+  --ud-sidebar-hint-bg: rgba(255, 255, 255, 0.04);
+  --ud-sidebar-hint-text: #cbd5e1;
+  --ud-sidebar-upgrade-bg: linear-gradient(
+    145deg,
+    rgba(88, 28, 135, 0.42),
+    rgba(49, 46, 129, 0.28)
+  );
+  --ud-sidebar-upgrade-border: rgba(139, 92, 246, 0.28);
+  --ud-sidebar-upgrade-title: #f3f4ff;
+  --ud-sidebar-upgrade-desc: #a6abc8;
+  --ud-sidebar-footer-border: rgba(255, 255, 255, 0.08);
+  --ud-sidebar-profile-name: #f8fafc;
+  --ud-sidebar-profile-email: #94a3b8;
+  --ud-sidebar-logout: #e2e8f0;
+  box-shadow:
+    inset -1px 0 0 rgba(255, 255, 255, 0.06),
+    8px 0 40px -20px rgba(0, 0, 0, 0.45) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-brand {
+  color: var(--ud-sidebar-brand) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-brand-accent {
+  color: var(--ud-sidebar-brand-accent) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-section-label {
+  color: var(--ud-sidebar-section) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-hint {
+  background: var(--ud-sidebar-hint-bg) !important;
+  border-color: color-mix(in srgb, var(--ud-orange) 22%, var(--ud-sidebar-border)) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-hint-text {
+  color: var(--ud-sidebar-hint-text) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-nav-icon {
+  color: var(--ud-sidebar-nav-icon) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-nav-label {
+  color: var(--ud-sidebar-nav-label) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-nav-item:hover .ud-sidebar-nav-icon,
+.ud-user-sidebar .ud-sidebar-nav-item:hover .ud-sidebar-nav-label {
+  color: var(--ud-sidebar-nav-label) !important;
+}
+
+.ud-user-sidebar .ud-nav-active {
+  color: var(--ud-orange) !important;
+  background: linear-gradient(
+    270deg,
+    rgba(255, 106, 0, 0.14) 0%,
+    rgba(255, 106, 0, 0.05) 55%,
+    transparent 100%
+  ) !important;
+  box-shadow: inset -3px 0 0 var(--ud-orange) !important;
+}
+
+html.dark .ud-user-sidebar .ud-nav-active {
+  background: linear-gradient(
+    270deg,
+    rgba(255, 106, 0, 0.2) 0%,
+    rgba(139, 92, 246, 0.08) 50%,
+    transparent 100%
+  ) !important;
+  box-shadow:
+    inset -3px 0 0 var(--ud-orange),
+    0 0 24px -8px rgba(255, 106, 0, 0.2) !important;
+}
+
+.ud-user-sidebar .ud-upgrade-card {
+  background: var(--ud-sidebar-upgrade-bg) !important;
+  border-color: var(--ud-sidebar-upgrade-border) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-upgrade-title {
+  color: var(--ud-sidebar-upgrade-title) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-upgrade-desc {
+  color: var(--ud-sidebar-upgrade-desc) !important;
+}
+
+.ud-user-sidebar .ud-upgrade-btn {
+  background: linear-gradient(
+    90deg,
+    #7c3aed 0%,
+    #a855f7 45%,
+    #ff6a00 100%
+  ) !important;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.28);
+}
+
+.ud-user-sidebar .ud-sidebar-footer {
+  border-color: var(--ud-sidebar-footer-border) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-avatar {
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%) !important;
+  box-shadow: 0 0 16px rgba(124, 58, 237, 0.4);
+}
+
+.ud-user-sidebar .ud-sidebar-profile-name {
+  color: var(--ud-sidebar-profile-name) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-profile-email {
+  color: var(--ud-sidebar-profile-email) !important;
+}
+
+.ud-user-sidebar .ud-sidebar-verified-badge {
+  background: #7c3aed !important;
+}
+
+.ud-user-sidebar .ud-sidebar-logout {
+  color: var(--ud-sidebar-logout) !important;
+}
+
+html.dark .ud-user-sidebar .ud-hover-surface:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+html:not(.dark) .ud-user-sidebar .ud-hover-surface:hover {
+  background: rgba(15, 23, 42, 0.06) !important;
+}
+
+html.dark .ud-overview-theme .ud-cta-gradient {
+  box-shadow: 0 8px 28px -8px rgba(255,106,0,0.45) !important;
 }
 
 .ud-dashboard-theme .ud-desktop-bar {
@@ -1437,14 +1651,35 @@ html.dark .ud-user-sidebar button[class*="from-orange-500"] {
   color: var(--ud-faint);
 }
 
-.ud-overview-theme .border-t.flex span.text-xs {
-  font-size: 0 !important;
+/* Header: keep violet/indigo for toggle + avatar in light and dark */
+.ud-header-avatar {
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%) !important;
 }
 
-.ud-overview-theme .border-t.flex span.text-xs::after {
-  content: "-";
-  font-size: 0.75rem;
+.ud-header-theme-toggle__icon {
+  color: #94a3b8 !important;
+  background: transparent !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
+
+.ud-header-theme-toggle__icon.is-active {
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.35);
+}
+
+.ud-header-user-name {
+  color: var(--ud-text) !important;
+}
+
+.ud-header-user-meta {
+  color: var(--ud-muted) !important;
+}
+
+html.dark .ud-header-user-meta .text-violet-500 {
+  color: #a78bfa !important;
+}
+
 
 .ud-meta-grid {
   display: grid;
