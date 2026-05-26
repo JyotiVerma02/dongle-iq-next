@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/user";
 import { connectDB } from "@/lib/mongodb";
-import { verifyAuthToken } from "@/lib/auth";
+import { verifySessionToken } from "@/lib/auth";
 import Payment from "@/models/payment";
 
 export async function GET(req: NextRequest) {
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const decoded: any = verifyAuthToken(token);
+    const decoded: any = await verifySessionToken(token);
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {

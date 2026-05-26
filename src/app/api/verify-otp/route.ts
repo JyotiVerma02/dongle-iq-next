@@ -4,7 +4,8 @@ import User from "@/models/user";
 import Admin from "@/models/admin";
 import { connectDB } from "@/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/lib/admin";
-import { enforceRateLimit, getClientIp, verifyOtpHash } from "@/lib/security";
+import { enforceRateLimit, getClientIp } from "@/lib/security";
+import { redis } from "@/lib/redis";
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +19,12 @@ export async function POST(req: NextRequest) {
     if (!limiter.allowed) {
       return NextResponse.json(
         { message: "Too many verification attempts. Please try again later." },
-        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)),
+          },
+        },
       );
     }
 
@@ -26,18 +32,20 @@ export async function POST(req: NextRequest) {
     await migrateLegacyAdminUser();
 
     const { email, otp } = await req.json();
-    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
     const normalizedOtp = String(otp || "").trim();
 
     const user = await User.findOne(
       { email: normalizedEmail },
-      { _id: 1, isVerified: 1, otp: 1, otpExpiry: 1 },
+      { _id: 1, isVerified: 1 },
     );
     const admin = user
       ? null
       : await Admin.findOne(
           { email: normalizedEmail },
-          { _id: 1, isVerified: 1, otp: 1, otpExpiry: 1 },
+          { _id: 1, isVerified: 1 },
         );
     const account = user || admin;
 
@@ -49,24 +57,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Already verified" });
     }
 
-    if (!/^\d{6}$/.test(normalizedOtp) || !verifyOtpHash(account.otp, normalizedOtp)) {
-      return NextResponse.json({ message: "Invalid OTP" }, { status: 400 });
-    }
+    const storedOtp = await redis.get(`otp:${normalizedEmail}`);
 
-    if (!account.otpExpiry || account.otpExpiry < new Date()) {
+    if (!storedOtp) {
       return NextResponse.json({ message: "OTP expired" }, { status: 400 });
     }
 
-    const accountModel = user ? User : Admin;
-    await accountModel.updateOne(
-      { _id: account._id },
-      {
-        $set: { isVerified: true },
-        $unset: { otp: "", otpExpiry: "" },
-      },
-    );
+    if (storedOtp !== normalizedOtp) {
+      return NextResponse.json({ message: "Invalid OTP" }, { status: 400 });
+    }
 
-    return NextResponse.json({ success: true, message: "Email verified successfully" });
+    const accountModel = user ? User : Admin;
+   await accountModel.updateOne(
+  { _id: account._id },
+  {
+    $set: { isVerified: true },
+  },
+);
+
+// DELETE OTP FROM REDIS
+await redis.del(`otp:${normalizedEmail}`);
+
+return NextResponse.json({
+  success: true,
+  message: "Email verified successfully",
+});
   } catch (error) {
     console.log(error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });

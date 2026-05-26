@@ -6,7 +6,7 @@ import {
   createInvoiceNumber,
   getPaymentWithUser,
 } from "@/lib/payments";
-import { verifyAuthToken } from "@/lib/auth";
+import { verifySessionToken } from "@/lib/auth";
 import { isAdminRole } from "@/lib/adminRoles";
 
 export async function GET(
@@ -25,7 +25,7 @@ export async function GET(
       );
     }
 
-    const decoded = verifyAuthToken(token) as { userId: string; role: string };
+    const decoded = await verifySessionToken(token) as { userId: string; role: string };
     const { paymentId } = await context.params;
     const payment = await getPaymentWithUser(paymentId);
 

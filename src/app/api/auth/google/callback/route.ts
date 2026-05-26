@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Admin from "@/models/admin";
 import User from "@/models/user";
 import { connectDB } from "@/lib/mongodb";
-import { setAuthCookie, signAuthToken } from "@/lib/auth";
+import { setAuthenticatedSession } from "@/lib/auth";
 import { normalizeAdminRole, isAdminRole } from "@/lib/adminRoles";
 
 export async function GET(req: Request) {
@@ -67,17 +67,16 @@ export async function GET(req: Request) {
       await admin.save();
     }
 
-    const token = signAuthToken(
+    const response = NextResponse.redirect("/admin/dashboard");
+    await setAuthenticatedSession(
+      response,
       {
         userId: String(admin._id),
         role: normalizeAdminRole(admin.role),
         accountType: "admin",
       },
-      "7d"
+      true,
     );
-
-    const response = NextResponse.redirect("/admin/dashboard");
-    setAuthCookie(response, token, true);
 
     return response;
   }
@@ -89,13 +88,12 @@ export async function GET(req: Request) {
       await user.save();
     }
 
-    const token = signAuthToken(
-      { userId: String(user._id), role: user.role, accountType: "user" },
-      "7d"
-    );
-
     const response = NextResponse.redirect(isAdminRole(user.role) ? "/admin/dashboard" : "/user/dashboard");
-    setAuthCookie(response, token, true);
+    await setAuthenticatedSession(
+      response,
+      { userId: String(user._id), role: user.role, accountType: "user" },
+      true,
+    );
 
     return response;
   }

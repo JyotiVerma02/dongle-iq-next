@@ -9,7 +9,7 @@ import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { migrateLegacyAdminUser } from "@/lib/admin";
 import logger from "@/lib/logger";
 import { enforceRateLimit, getClientIp } from "@/lib/security";
-import { setAuthCookie, signAuthToken } from "@/lib/auth";
+import { setAuthenticatedSession } from "@/lib/auth";
 import { normalizeAdminRole } from "@/lib/adminRoles";
 
 const loginSchema = z.object({
@@ -82,21 +82,20 @@ export async function POST(req: Request) {
         );
       }
 
-      const token = signAuthToken(
-        {
-          userId: String(admin._id),
-          role: normalizeAdminRole(admin.role),
-          accountType: "admin",
-        },
-        remember ? "7d" : "1h"
-      );
-
       const response = NextResponse.json({
         message: "Login successful",
         role: normalizeAdminRole(admin.role),
       });
 
-      setAuthCookie(response, token, remember);
+      await setAuthenticatedSession(
+        response,
+        {
+          userId: String(admin._id),
+          role: normalizeAdminRole(admin.role),
+          accountType: "admin",
+        },
+        remember,
+      );
 
       return response;
     }
@@ -129,21 +128,20 @@ export async function POST(req: Request) {
       );
     }
 
-    const token = signAuthToken(
-      {
-        userId: String(user._id),
-        role: user.role,
-        accountType: "user",
-      },
-      remember ? "7d" : "1h"
-    );
-
     const response = NextResponse.json({
       message: "Login successful",
       role: user.role,
     });
 
-    setAuthCookie(response, token, remember);
+    await setAuthenticatedSession(
+      response,
+      {
+        userId: String(user._id),
+        role: user.role,
+        accountType: "user",
+      },
+      remember,
+    );
 
     return response;
   } catch (error) {

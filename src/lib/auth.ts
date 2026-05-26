@@ -1,19 +1,41 @@
+import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 import { isAdminRole, normalizeAdminRole, type AdminRole } from "@/lib/adminRoles";
+import { redis } from "@/lib/redis";
 
 export type AuthTokenPayload = {
   userId: string;
   role: string;
   accountType?: "admin" | "user";
+  sessionId?: string;
+};
+
+type StoredSession = {
+  userId: string;
+  role: string;
+  accountType?: "admin" | "user";
+  remember: boolean;
+  createdAt: string;
 };
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_ISSUER = process.env.JWT_ISSUER || "dongle-iq";
 const JWT_AUDIENCE = process.env.JWT_AUDIENCE || "dongle-iq-app";
+const SHORT_SESSION_TTL_SECONDS = 60 * 60;
+const LONG_SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
+const SESSION_PREFIX = "auth:session:";
 
 if (!JWT_SECRET) {
   throw new Error("JWT_SECRET is required");
+}
+
+function getSessionKey(sessionId: string) {
+  return `${SESSION_PREFIX}${sessionId}`;
+}
+
+function getSessionTtlSeconds(remember: boolean) {
+  return remember ? LONG_SESSION_TTL_SECONDS : SHORT_SESSION_TTL_SECONDS;
 }
 
 export function signAuthToken(
@@ -32,6 +54,86 @@ export function verifyAuthToken(token: string) {
     issuer: JWT_ISSUER,
     audience: JWT_AUDIENCE,
   }) as AuthTokenPayload;
+}
+
+export async function createAuthSession(
+  payload: AuthTokenPayload,
+  remember = false,
+) {
+  const sessionId = randomUUID();
+  const sessionPayload: AuthTokenPayload = {
+    ...payload,
+    sessionId,
+  };
+
+  const storedSession: StoredSession = {
+    userId: payload.userId,
+    role: payload.role,
+    accountType: payload.accountType,
+    remember,
+    createdAt: new Date().toISOString(),
+  };
+
+  await redis.set(getSessionKey(sessionId), JSON.stringify(storedSession), {
+    EX: getSessionTtlSeconds(remember),
+  });
+
+  const token = signAuthToken(sessionPayload, remember ? "7d" : "1h");
+
+  return {
+    token,
+    sessionId,
+  };
+}
+
+export async function verifySessionToken(token: string) {
+  const decoded = verifyAuthToken(token);
+
+  if (!decoded.sessionId) {
+    throw new Error("Invalid session");
+  }
+
+  const rawSession = await redis.get(getSessionKey(decoded.sessionId));
+
+  if (!rawSession) {
+    throw new Error("Session expired or logged out");
+  }
+
+  const session = JSON.parse(rawSession) as StoredSession;
+
+  if (
+    session.userId !== decoded.userId ||
+    session.role !== decoded.role ||
+    session.accountType !== decoded.accountType
+  ) {
+    await redis.del(getSessionKey(decoded.sessionId));
+    throw new Error("Session mismatch");
+  }
+
+  return decoded;
+}
+
+export async function setAuthenticatedSession(
+  response: NextResponse,
+  payload: AuthTokenPayload,
+  remember = false,
+) {
+  const { token, sessionId } = await createAuthSession(payload, remember);
+  setAuthCookie(response, token, remember);
+
+  return { token, sessionId };
+}
+
+export async function deleteAuthSession(token: string) {
+  const decoded = verifyAuthToken(token);
+
+  if (!decoded.sessionId) {
+    return false;
+  }
+
+  const deleted = await redis.del(getSessionKey(decoded.sessionId));
+
+  return deleted > 0;
 }
 
 export function isAdminTokenPayload(payload: AuthTokenPayload | null | undefined) {

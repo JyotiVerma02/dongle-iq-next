@@ -1,20 +1,22 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React from "react";
 import {
-  ClipboardList,
-  FileBadge,
-  FolderOpen,
   LayoutDashboard,
-  Lock,
+  FileText,
+  ShieldCheck,
+  Users,
+  CreditCard,
+  Bell,
+  Headset,
+  Settings,
   LogOut,
-  Plus,
-  Sparkles,
-  UserCircle,
+  Lock,
+  AlertCircle,
+  Gem,
 } from "lucide-react";
 
 import { useTheme } from "@/components/ThemeContext";
-import { getThemePalette } from "@/lib/themePalette";
 
 export type UserDashboardView =
   | "overview"
@@ -26,56 +28,22 @@ export type UserDashboardView =
   | "documents";
 
 type NavEntry = {
-  view: UserDashboardView;
+  view: UserDashboardView | "dummy-irctc" | "dummy-support";
   label: string;
   icon: React.ReactNode;
-  phase: "before" | "after";
+  locked: boolean;
+  badge?: number;
 };
 
-const NAV_ENTRIES: NavEntry[] = [
-  {
-    view: "overview",
-    label: "Overview",
-    icon: <LayoutDashboard size={17} strokeWidth={2.25} />,
-    phase: "before",
-  },
-  {
-    view: "registration",
-    label: "Start registration",
-    icon: <Plus size={17} strokeWidth={2.25} />,
-    phase: "before",
-  },
-  {
-    view: "payment",
-    label: "Payment",
-    icon: <Sparkles size={17} strokeWidth={2.25} />,
-    phase: "after",
-  },
-  {
-    view: "admin-review",
-    label: "Admin review",
-    icon: <ClipboardList size={17} strokeWidth={2.25} />,
-    phase: "after",
-  },
-  {
-    view: "certificate-summary",
-    label: "Certificate",
-    icon: <FileBadge size={17} strokeWidth={2.25} />,
-    phase: "after",
-  },
-  {
-    view: "personal-details",
-    label: "Your details",
-    icon: <UserCircle size={17} strokeWidth={2.25} />,
-    phase: "after",
-  },
-  {
-    view: "documents",
-    label: "Documents",
-    icon: <FolderOpen size={17} strokeWidth={2.25} />,
-    phase: "after",
-  },
-];
+function LogoIcon() {
+  return (
+    <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
+      <div className="flex h-6 w-6 rotate-45 items-center justify-center rounded bg-gradient-to-br from-orange-500 to-red-600 shadow-[0_0_12px_rgba(249,115,22,0.4)]">
+        <div className="h-2 w-2 rotate-45 rounded-sm bg-white" />
+      </div>
+    </div>
+  );
+}
 
 export function UserSidebar({
   view,
@@ -95,11 +63,8 @@ export function UserSidebar({
   onLogout: () => void;
 }) {
   const { isDarkMode } = useTheme();
-  const colors = getThemePalette(isDarkMode);
 
-  const beforeItems = NAV_ENTRIES.filter((e) => e.phase === "before");
-  const afterItems = NAV_ENTRIES.filter((e) => e.phase === "after");
-
+  // Construct initials
   const initials = userData?.name
     ? userData.name
         .trim()
@@ -107,314 +72,223 @@ export function UserSidebar({
         .map((part) => part.charAt(0).toUpperCase())
         .slice(0, 2)
         .join("")
-    : userData?.email?.charAt(0).toUpperCase() ?? "U";
+    : userData?.email?.charAt(0).toUpperCase() ?? "NV";
 
-  const collapsed = isCollapsed;
+  const navigationItems: NavEntry[] = [
+    {
+      view: "overview",
+      label: "Overview",
+      icon: <LayoutDashboard size={18} />,
+      locked: false,
+    },
+    {
+      view: "registration",
+      label: "My Applications",
+      icon: <FileText size={18} />,
+      locked: false,
+    },
+    {
+      view: "certificate-summary",
+      label: "My DSC",
+      icon: <ShieldCheck size={18} />,
+      locked: !hasSubmittedApplication,
+    },
+    {
+      view: "dummy-irctc",
+      label: "IRCTC Agents",
+      icon: <Users size={18} />,
+      locked: false,
+    },
+    {
+      view: "payment",
+      label: "Transactions",
+      icon: <CreditCard size={18} />,
+      locked: !hasSubmittedApplication,
+    },
+    {
+      view: "admin-review",
+      label: "Notifications",
+      icon: <Bell size={18} />,
+      locked: !hasSubmittedApplication,
+      badge: 3,
+    },
+    {
+      view: "dummy-support",
+      label: "Support Tickets",
+      icon: <Headset size={18} />,
+      locked: false,
+    },
+    {
+      view: "personal-details",
+      label: "Profile & Settings",
+      icon: <Settings size={18} />,
+      locked: !hasSubmittedApplication,
+    },
+  ];
+
+  const handleItemClick = (entry: NavEntry) => {
+    if (entry.locked) return;
+    if (entry.view === "dummy-irctc" || entry.view === "dummy-support") {
+      return; // No-op for dummy routes
+    }
+    onViewChange(entry.view as UserDashboardView);
+  };
 
   return (
     <aside
-      className={`ud-sidebar-surface theme-transition ud-sidebar fixed inset-y-0 left-0 z-50 flex transform flex-col border-r transition-[transform,width] duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
+      className={`ud-user-sidebar fixed inset-y-0 left-0 z-50 flex transform flex-col border-r transition-[transform,width] duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } ${collapsed ? "ud-sidebar--collapsed" : ""}`}
-      style={{ borderColor: "var(--border-soft)" }}
+      } ${isCollapsed ? "w-20" : "w-64"}`}
+      style={{
+        backgroundColor: isDarkMode ? "#0b0f17" : "#ffffff",
+        borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "#f1f5f9",
+      }}
     >
-      <div
-        className={`ud-sidebar-inner flex min-h-0 flex-1 flex-col overflow-hidden ${collapsed ? "ud-sidebar-inner--collapsed" : ""}`}
-      >
-        <div className="ud-sidebar-track relative min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
-          {!collapsed ? (
-            <div
-              className="mb-4 flex items-start gap-2 rounded-xl border px-3 py-2.5"
-              style={{
-                borderColor: colors.borderSoft,
-                backgroundColor: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.55)",
-              }}
-            >
-              <Sparkles
-                size={15}
-                className="mt-0.5 shrink-0"
-                style={{ color: colors.accent }}
-                aria-hidden
-              />
-              <p className="text-[11px] font-medium leading-snug" style={{ color: colors.muted }}>
-                {hasSubmittedApplication
-                  ? "Review status, certificate, profile, and files below."
-                  : "Submit your application to unlock tracking and documents."}
-              </p>
-            </div>
-          ) : (
-            <div className="mb-3 hidden justify-center lg:flex">
-              <span
-                className="flex h-10 w-10 items-center justify-center rounded-xl border"
-                style={{
-                  borderColor: colors.borderSoft,
-                  backgroundColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.06)",
-                  color: colors.accent,
-                }}
-                title={hasSubmittedApplication ? "Dashboard tips" : "Submit to unlock"}
-              >
-                <Sparkles size={17} aria-hidden />
+      <div className="flex h-full flex-col justify-between overflow-y-auto px-4 py-6 hide-scrollbar">
+        <div className="space-y-6">
+          {/* Logo Section */}
+          <div className="flex items-center gap-3 px-2">
+            <LogoIcon />
+            {!isCollapsed && (
+              <span className="text-xl font-bold tracking-tight text-slate-800">
+                Dongle<span className="text-orange-500">IQ</span>
               </span>
+            )}
+          </div>
+
+          {/* Sub-banner alert block */}
+          {!isCollapsed && (
+            <div className="flex items-start gap-2.5 rounded-xl bg-slate-50 border border-slate-100 p-3">
+              <div className="mt-0.5 rounded-md bg-orange-500/10 p-1 text-orange-500 shrink-0">
+                <AlertCircle size={15} />
+              </div>
+              <p className="text-[11px] font-medium leading-normal text-slate-600">
+                Submit your application to unlock tracking and documents.
+              </p>
             </div>
           )}
 
-          <div
-            className={
-              collapsed
-                ? "flex flex-col items-center gap-3 pb-1"
-                : "ud-sidebar-nav-shell ud-sidebar-nav-gap"
-            }
-          >
-            <div className={collapsed ? "flex w-full flex-col items-center gap-1" : ""}>
-              {!collapsed ? (
-                <p
-                  className="mb-1.5 px-2 text-[9px] font-black uppercase tracking-[0.22em]"
-                  style={{ color: colors.subtleText }}
-                >
-                  Before submission
-                </p>
-              ) : (
-                <div
-                  className="hidden h-px w-8 opacity-80 lg:block"
-                  style={{
-                    backgroundColor: "color-mix(in srgb, var(--border-soft) 85%, transparent)",
-                  }}
-                  aria-hidden
-                />
-              )}
-              <div className={`flex flex-col gap-1 ${collapsed ? "items-center" : ""}`}>
-                {beforeItems.map((item) => (
-                  <NavRow
-                    key={item.view}
-                    label={item.label}
-                    icon={item.icon}
-                    active={view === item.view}
-                    locked={false}
-                    collapsed={collapsed}
-                    onClick={() => onViewChange(item.view)}
-                  />
-                ))}
-              </div>
-            </div>
+          {/* Navigation Section */}
+          <div className="space-y-2">
+            {!isCollapsed && (
+              <p className="px-2 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                MAIN MENU
+              </p>
+            )}
+            <nav className="flex flex-col gap-1.5">
+              {navigationItems.map((item) => {
+                const isActive = view === item.view;
+                return (
+                  <button
+                    key={item.label}
+                    type="button"
+                    onClick={() => handleItemClick(item)}
+                    disabled={item.locked}
+                    className={`group flex items-center justify-between rounded-xl px-3.5 py-3 text-left transition-all duration-200 ${
+                      item.locked ? "opacity-40 cursor-not-allowed" : ""
+                    } ${
+                      isActive
+                        ? "bg-gradient-to-r from-orange-500/10 to-orange-500/0 text-orange-600 font-semibold"
+                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className={`${isActive ? "text-orange-500" : "text-slate-400 group-hover:text-slate-600"}`}>
+                        {item.icon}
+                      </span>
+                      {!isCollapsed && (
+                        <span className="truncate text-sm font-medium">
+                          {item.label}
+                        </span>
+                      )}
+                    </div>
 
-            <div
-              className={collapsed ? "flex w-full flex-col items-center gap-1 border-t pt-3" : "border-t pt-3"}
-              style={{ borderColor: colors.borderSoft }}
-            >
-              {!collapsed ? (
-                <p
-                  className="mb-1.5 px-2 text-[9px] font-black uppercase tracking-[0.22em]"
-                  style={{ color: colors.subtleText }}
-                >
-                  After submission
-                </p>
-              ) : null}
-              <div className={`flex flex-col gap-1 ${collapsed ? "items-center" : ""}`}>
-                {afterItems.map((item) => (
-                  <NavRow
-                    key={item.view}
-                    label={item.label}
-                    icon={item.icon}
-                    active={view === item.view}
-                    locked={!hasSubmittedApplication}
-                    collapsed={collapsed}
-                    onClick={() => onViewChange(item.view)}
-                  />
-                ))}
-              </div>
-            </div>
+                    {!isCollapsed && (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {item.badge && (
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
+                            {item.badge}
+                          </span>
+                        )}
+                        {item.locked && (
+                          <Lock size={12} className="text-slate-400" />
+                        )}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
         </div>
 
-        <div
-          className={`mt-auto shrink-0 pt-3 ${collapsed ? "flex flex-col items-center gap-2" : "space-y-2"}`}
-        >
-          {!collapsed ? (
-            <>
-              <div
-                className="flex items-center gap-3 rounded-2xl border px-3 py-3 shadow-[0_14px_28px_-26px_var(--accent-shadow)]"
-                style={{
-                  borderColor: colors.borderSoft,
-                  backgroundColor: colors.card,
-                }}
-              >
-                <div
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-sm font-black text-white shadow-[0_12px_24px_-16px_var(--accent-shadow)]"
-                  style={{ background: "var(--brand-gradient)" }}
-                  aria-hidden
-                >
-                  {initials}
+        {/* Upgrade & Profile Section */}
+        <div className="mt-8 space-y-4">
+          {/* Upgrade to Pro promo box */}
+          {!isCollapsed && (
+            <div className="rounded-2xl bg-gradient-to-b from-indigo-50/70 to-purple-50/40 border border-indigo-100/60 p-4.5 relative overflow-hidden shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-purple-500/10 p-2 text-purple-600">
+                  <Gem size={18} />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-xs font-bold" style={{ color: colors.text }}>
-                    {userData?.name || userData?.email?.split("@")[0] || "User"}
-                  </p>
-                  <p className="truncate text-[11px] font-medium" style={{ color: colors.subtleText }}>
-                    {userData?.email || "—"}
-                  </p>
-                </div>
+                <h4 className="text-sm font-bold text-slate-800">Upgrade to Pro</h4>
               </div>
-
+              <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                Unlock priority support, faster verification & more benefits.
+              </p>
               <button
                 type="button"
-                onClick={onLogout}
-                className="theme-transition flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-xs font-semibold transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-22px_var(--accent-shadow)]"
-                style={{
-                  borderColor: colors.borderSoft,
-                  backgroundColor: colors.card,
-                  color: colors.text,
-                }}
+                className="mt-3.5 flex w-full items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 py-2 text-xs font-semibold text-white transition shadow-[0_2px_10px_rgba(99,102,241,0.25)] hover:scale-[1.02] active:scale-95"
               >
-                <LogOut size={16} strokeWidth={2.25} style={{ color: colors.muted }} />
-                Logout
+                Upgrade Now
+                <span className="text-[10px]">&gt;</span>
               </button>
-            </>
-          ) : (
-            <>
-              <div
-                className="flex h-11 w-11 items-center justify-center rounded-xl text-sm font-black text-white shadow-[0_12px_24px_-16px_var(--accent-shadow)]"
-                style={{ background: "var(--brand-gradient)" }}
-                title={userData?.name || userData?.email || "Account"}
-              >
+            </div>
+          )}
+
+          {/* Profile Row */}
+          <div className="flex flex-col gap-3 border-t border-slate-100 pt-4">
+            <div className="flex items-center gap-3 rounded-2xl p-1.5">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-sm font-bold text-white shadow-sm">
                 {initials}
               </div>
-              <button
-                type="button"
-                onClick={onLogout}
-                title="Logout"
-                aria-label="Logout"
-                className="theme-transition flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border transition hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-22px_var(--accent-shadow)]"
-                style={{
-                  borderColor: colors.borderSoft,
-                  backgroundColor: colors.card,
-                  color: colors.text,
-                }}
-              >
-                <LogOut size={18} strokeWidth={2.25} style={{ color: colors.muted }} />
-              </button>
-            </>
-          )}
+              {!isCollapsed && (
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1">
+                    <p className="truncate text-xs font-bold text-slate-800">
+                      {userData?.name || "Jyoti Verma"}
+                    </p>
+                    <svg
+                      className="h-3.5 w-3.5 shrink-0 text-blue-500 fill-current"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    </svg>
+                  </div>
+                  <p className="truncate text-[10px] font-medium text-slate-400">
+                    {userData?.email || "jyotiverma.feb9@gmail.com"}
+                  </p>
+                  <span className="inline-flex mt-1 items-center rounded bg-green-50 px-1.5 py-0.5 text-[9px] font-bold text-green-700 border border-green-200/60">
+                    Verified User
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Logout button */}
+            <button
+              type="button"
+              onClick={onLogout}
+              className={`flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition text-slate-600 hover:bg-slate-50 hover:text-slate-900 ${
+                isCollapsed ? "justify-center" : ""
+              }`}
+            >
+              <LogOut size={16} />
+              {!isCollapsed && <span className="text-xs font-semibold">Logout</span>}
+            </button>
+          </div>
         </div>
       </div>
     </aside>
-  );
-}
-
-function NavRow({
-  label,
-  icon,
-  active,
-  locked,
-  collapsed,
-  onClick,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  active: boolean;
-  locked: boolean;
-  collapsed: boolean;
-  onClick: () => void;
-}) {
-  const { isDarkMode } = useTheme();
-  const colors = useMemo(() => getThemePalette(isDarkMode), [isDarkMode]);
-
-  if (collapsed) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        title={locked ? `${label} — after submission` : label}
-        aria-label={label}
-        aria-current={active ? "page" : undefined}
-        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl p-0 transition-all duration-200 ${
-          active && !locked ? "shadow-[0_12px_28px_-22px_var(--accent-shadow)]" : ""
-        }`}
-        style={{
-          backgroundColor: active && !locked ? colors.accentSoft : "transparent",
-          border:
-            active && !locked
-              ? `1px solid color-mix(in srgb, ${colors.accent} 42%, transparent)`
-              : "1px solid transparent",
-          opacity: locked && !active ? 0.55 : 1,
-        }}
-      >
-        <span
-          className="relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-200"
-          style={
-            active && !locked
-              ? {
-                  background: "var(--brand-gradient)",
-                  color: "#fff",
-                  boxShadow: "0 10px 22px -16px var(--accent-shadow)",
-                }
-              : {
-                  backgroundColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.06)",
-                  color: locked ? colors.subtleText : colors.muted,
-                }
-          }
-        >
-          <span className={locked ? "opacity-45" : undefined}>{icon}</span>
-          {locked ? (
-            <Lock size={10} className="absolute bottom-0.5 right-0.5 opacity-80" aria-hidden />
-          ) : null}
-        </span>
-      </button>
-    );
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={locked ? `${label} — available after you submit` : label}
-      className={`flex w-full items-center gap-2.5 rounded-xl px-2 py-2 text-left transition-all duration-200 ${
-        active && !locked ? "shadow-[0_12px_28px_-22px_var(--accent-shadow)]" : ""
-      }`}
-      style={{
-        backgroundColor: active && !locked ? colors.accentSoft : "transparent",
-        border:
-          active && !locked
-            ? `1px solid color-mix(in srgb, ${colors.accent} 42%, transparent)`
-            : "1px solid transparent",
-        opacity: locked && !active ? 0.55 : 1,
-      }}
-    >
-      <span
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg transition-colors duration-200"
-        style={
-          active && !locked
-            ? {
-                background: "var(--brand-gradient)",
-                color: "#fff",
-                boxShadow: "0 10px 22px -16px var(--accent-shadow)",
-              }
-            : {
-                backgroundColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(15,23,42,0.06)",
-                color: locked ? colors.subtleText : colors.muted,
-              }
-        }
-      >
-        {icon}
-      </span>
-      <span
-        className={`min-w-0 flex-1 truncate text-[13px] leading-tight ${
-          active && !locked ? "font-bold" : "font-semibold"
-        }`}
-        style={{
-          color: locked ? colors.subtleText : active ? colors.accent : colors.text,
-        }}
-      >
-        {label}
-      </span>
-      {locked ? (
-        <Lock size={13} className="shrink-0 opacity-55" aria-hidden />
-      ) : active ? (
-        <span
-          className="h-1.5 w-1.5 shrink-0 rounded-full"
-          style={{ backgroundColor: colors.accent, boxShadow: `0 0 12px ${colors.accent}` }}
-          aria-hidden
-        />
-      ) : null}
-    </button>
   );
 }

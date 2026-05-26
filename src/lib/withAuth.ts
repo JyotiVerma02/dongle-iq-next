@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getTokenAdminRole, verifyAuthToken } from "@/lib/auth";
+import { getTokenAdminRole, verifySessionToken } from "@/lib/auth";
 import type { AdminRole } from "@/lib/adminRoles";
 
 export type AuthToken = {
@@ -70,7 +70,7 @@ export function withAuth<ResponseType>(
       // Verify token
       let decoded: AuthToken;
       try {
-        decoded = verifyAuthToken(token!) as AuthToken;
+        decoded = await verifySessionToken(token!) as AuthToken;
       } catch (error) {
         return NextResponse.json(
           {

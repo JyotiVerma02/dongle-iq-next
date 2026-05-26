@@ -10,7 +10,7 @@ import { verifyInviteTokenHash } from "@/lib/adminInvite";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { createAdminWelcomeEmail } from "@/lib/emailTemplates";
 import { transporter } from "@/lib/mailer";
-import { setAuthCookie, signAuthToken } from "@/lib/auth";
+import { setAuthenticatedSession } from "@/lib/auth";
 import { ADMIN_ROLES, normalizeAdminRole } from "@/lib/adminRoles";
 
 const acceptInviteSchema = z.object({
@@ -143,17 +143,6 @@ export async function POST(req: NextRequest) {
       html: welcomeEmail.html,
     });
 
-    // Create JWT token
-    const jwtToken = signAuthToken(
-      {
-        userId: String(newAdmin._id),
-        role: normalizeAdminRole(newAdmin.role),
-        accountType: "admin",
-      },
-      "7d"
-    );
-
-    // Set cookie
     const response = NextResponse.json(
       {
         success: true,
@@ -162,7 +151,15 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
 
-    setAuthCookie(response, jwtToken, true);
+    await setAuthenticatedSession(
+      response,
+      {
+        userId: String(newAdmin._id),
+        role: normalizeAdminRole(newAdmin.role),
+        accountType: "admin",
+      },
+      true,
+    );
 
     return response;
   } catch (error) {

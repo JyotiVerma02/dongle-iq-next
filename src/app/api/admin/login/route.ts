@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
-import { setAuthCookie, signAuthToken } from "@/lib/auth";
+import { setAuthenticatedSession } from "@/lib/auth";
 import { enforceRateLimit, getClientIp } from "@/lib/security";
 import { normalizeAdminRole } from "@/lib/adminRoles";
 
@@ -53,27 +53,19 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 CREATE TOKEN
-    const token = signAuthToken(
-      {
-        userId: String(admin._id),
-        role: normalizeAdminRole(admin.role),
-        accountType: "admin",
-      },
-      "1h"
-    );
-
-    // 🔥 SET COOKIE
     const response = NextResponse.json({
       success: true,
       message: "Login successful",
       role: normalizeAdminRole(admin.role),
     });
 
-    setAuthCookie(response, token, false);
+    await setAuthenticatedSession(response, {
+      userId: String(admin._id),
+      role: normalizeAdminRole(admin.role),
+      accountType: "admin",
+    });
 
     return response;
-
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown server error";
     console.error("ADMIN LOGIN ERROR:", message);

@@ -6,7 +6,12 @@ import { connectDB } from "@/lib/mongodb";
 import { createUserOtpEmail } from "@/lib/emailTemplates";
 import { transporter } from "@/lib/mailer";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
-import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow } from "@/lib/security";
+import {
+  enforceRateLimit,
+  generateNumericOtp,
+  getClientIp,
+} from "@/lib/security";
+import { redis } from "@/lib/redis";
 
 const signupSchema = z.object({
   name: z.string().trim().min(3, "Name must be at least 3 characters"),
@@ -27,7 +32,12 @@ export async function POST(req: NextRequest) {
     if (!limiter.allowed) {
       return NextResponse.json(
         { message: "Too many signup attempts. Please try again later." },
-        { status: 429, headers: { "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)) } }
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil(limiter.retryAfterMs / 1000)),
+          },
+        },
       );
     }
 
@@ -38,8 +48,11 @@ export async function POST(req: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { message: validation.error.issues[0]?.message || "All fields are required" },
-        { status: 400 }
+        {
+          message:
+            validation.error.issues[0]?.message || "All fields are required",
+        },
+        { status: 400 },
       );
     }
 
@@ -50,7 +63,7 @@ export async function POST(req: NextRequest) {
     if (!isValidIndianMobile(normalizedNumber)) {
       return NextResponse.json(
         { message: "Enter a valid Indian mobile number" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -58,29 +71,29 @@ export async function POST(req: NextRequest) {
     if (existingUserByEmail) {
       return NextResponse.json(
         { success: false, message: "Email already registered" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
-    const existingUserByNumber = await User.findOne({ number: normalizedNumber });
+    const existingUserByNumber = await User.findOne({
+      number: normalizedNumber,
+    });
     if (existingUserByNumber) {
       return NextResponse.json(
         { message: "Mobile number already exists" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = generateNumericOtp();
-    const otpExpiry = minutesFromNow(10);
+    await redis.set(`otp:${normalizedEmail}`, otp.toString(), { EX: 300 });
 
     const user = new User({
       name: String(name).trim(),
       email: normalizedEmail,
       number: normalizedNumber,
       password: hashedPassword,
-      otp: hashOtp(otp),
-      otpExpiry,
       isVerified: false,
     });
 
@@ -100,16 +113,30 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.log(error);
 
-    if (typeof error === "object" && error !== null && "code" in error && error.code === 11000) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === 11000
+    ) {
       const duplicateError = error as { keyPattern?: Record<string, number> };
       if (duplicateError.keyPattern?.email) {
-        return NextResponse.json({ message: "Email already registered" }, { status: 400 });
+        return NextResponse.json(
+          { message: "Email already registered" },
+          { status: 400 },
+        );
       }
       if (duplicateError.keyPattern?.number) {
-        return NextResponse.json({ message: "Mobile number already exists" }, { status: 400 });
+        return NextResponse.json(
+          { message: "Mobile number already exists" },
+          { status: 400 },
+        );
       }
     }
 
-    return NextResponse.json({ message: "Unable to create account right now. Please try again." }, { status: 500 });
+    return NextResponse.json(
+      { message: "Unable to create account right now. Please try again." },
+      { status: 500 },
+    );
   }
 }

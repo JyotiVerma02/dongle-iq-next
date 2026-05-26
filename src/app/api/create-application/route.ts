@@ -6,7 +6,7 @@ import { connectDB } from "@/lib/mongodb";
 import { calculatePricing } from "@/lib/pricing";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import User from "@/models/user";
-import { verifyAuthToken } from "@/lib/auth";
+import { verifySessionToken } from "@/lib/auth";
 
 const applicationSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const decoded = verifyAuthToken(token) as DecodedToken;
+      const decoded = await verifySessionToken(token) as DecodedToken;
       console.log("DEBUG CREATE_APPLICATION:", {
         decoded,
         tokenExisted: !!token,

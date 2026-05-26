@@ -10,21 +10,28 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
+  AlertCircle,
   Bell,
   CheckCircle2,
   ChevronRight,
+  ChevronDown,
+  Clock,
   CreditCard,
   Download,
   FileText,
+  Headset,
   Info,
   LoaderCircle,
+  Lock,
   Menu,
   PencilLine,
+  Search,
   ShieldCheck,
   Sparkles,
   Moon,
   SunMedium,
   RefreshCw,
+  Users,
   X,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -153,7 +160,9 @@ function hasCompletedApplication(user: UserData | null) {
 
 export default function DSCRegistrationForm() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[var(--background)]" />}>
+    <Suspense
+      fallback={<div className="min-h-screen bg-[var(--background)]" />}
+    >
       <UserDashboardPage />
     </Suspense>
   );
@@ -164,8 +173,6 @@ function UserDashboardPage() {
   const searchParams = useSearchParams();
   const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
-  const premiumGradient =
-    "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
   const shellBackground = isDarkMode ? colors.panelStrong : colors.card;
   const cardBackground = isDarkMode ? colors.card : colors.panelStrong;
   const strongBorderColor = isDarkMode ? colors.inputBorder : colors.border;
@@ -199,15 +206,11 @@ function UserDashboardPage() {
     paymentStatus === "paid" ||
     paymentSummary?.status === "verified" ||
     paymentSummary?.status === "completed";
-  const paymentStageLabel = paymentIsSettled
-    ? "Payment complete"
-    : hasSubmittedApplication
-      ? "Payment pending"
-      : "Awaiting application";
   const statusTone = useMemo(() => {
     return applicationStatus === "approved"
       ? {
-          badge: "border border-orange-300/70 bg-orange-50 text-orange-700 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-300",
+          badge:
+            "border border-orange-300/70 bg-orange-50 text-orange-700 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-300",
           accent: "#ff6a00",
           title: "Approved by admin",
           note: "Your application has been reviewed and approved for the next step.",
@@ -258,9 +261,13 @@ function UserDashboardPage() {
             const newStatus = data.user.status || "pending";
             const msg = `Application status changed from ${oldStatus.toUpperCase()} to ${newStatus.toUpperCase()}`;
             if (newStatus === "approved") {
-              toast.success(`🎉 ${msg}! Your application is approved.`, { duration: 5000 });
+              toast.success(`🎉 ${msg}! Your application is approved.`, {
+                duration: 5000,
+              });
             } else if (newStatus === "rejected") {
-              toast.error(`⚠️ ${msg}. Correction requested.`, { duration: 6000 });
+              toast.error(`⚠️ ${msg}. Correction requested.`, {
+                duration: 6000,
+              });
             } else {
               toast(`ℹ/ ${msg}`, { duration: 4000 });
             }
@@ -309,7 +316,12 @@ function UserDashboardPage() {
 
   // Real-time EventSource connection (replaces polling)
   useEffect(() => {
-    if (typeof window === "undefined" || !hasSubmittedApplication || !userData?._id) return;
+    if (
+      typeof window === "undefined" ||
+      !hasSubmittedApplication ||
+      !userData?._id
+    )
+      return;
 
     const eventSource = new EventSource("/api/realtime");
 
@@ -317,10 +329,13 @@ function UserDashboardPage() {
       try {
         const data = JSON.parse(event.data);
         if (data.type === "STATUS_UPDATE" && data.userId === userData._id) {
-          toast.success("Your application status has been updated in real-time!", {
-            icon: "🔔",
-            duration: 4000
-          });
+          toast.success(
+            "Your application status has been updated in real-time!",
+            {
+              icon: "🔔",
+              duration: 4000,
+            },
+          );
           void fetchUserData();
         }
       } catch (err) {
@@ -349,7 +364,9 @@ function UserDashboardPage() {
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
-            setUserData((prev) => (prev ? { ...prev, remarksViewed: true } : null));
+            setUserData((prev) =>
+              prev ? { ...prev, remarksViewed: true } : null,
+            );
           }
         })
         .catch((err) => console.error("Failed to mark remarks viewed:", err));
@@ -546,7 +563,8 @@ function UserDashboardPage() {
   const handleToggleEmail = () => {
     setNotifyEmail((prev) => {
       const next = !prev;
-      if (typeof window !== "undefined") localStorage.setItem("pref_notify_email", String(next));
+      if (typeof window !== "undefined")
+        localStorage.setItem("pref_notify_email", String(next));
       return next;
     });
   };
@@ -554,7 +572,8 @@ function UserDashboardPage() {
   const handleToggleSMS = () => {
     setNotifySMS((prev) => {
       const next = !prev;
-      if (typeof window !== "undefined") localStorage.setItem("pref_notify_sms", String(next));
+      if (typeof window !== "undefined")
+        localStorage.setItem("pref_notify_sms", String(next));
       return next;
     });
   };
@@ -731,7 +750,10 @@ function UserDashboardPage() {
       razorpay.open();
     } catch (error) {
       setPaymentLoading(false);
-      const msg = error instanceof Error ? error.message : "Unable to proceed to payment.";
+      const msg =
+        error instanceof Error
+          ? error.message
+          : "Unable to proceed to payment.";
       setPaymentMessage(msg);
       setPaymentError(msg);
     }
@@ -882,505 +904,759 @@ function UserDashboardPage() {
     </div>
   );
 
-  const rejectionReasonAlert = (userData && applicationStatus === "rejected") ? (
-    <div
-      className="mb-6 rounded-xl border p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 shadow-[0_12px_36px_rgba(225,29,72,0.12)]"
-      style={{
-        borderColor: "rgba(225, 29, 72, 0.3)",
-        backgroundColor: isDarkMode ? "rgba(225, 29, 72, 0.1)" : "rgba(225, 29, 72, 0.05)",
-      }}
-    >
-      <div className="flex items-start gap-3">
-        <div className="h-9 w-9 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0 mt-0.5 border border-rose-500/20">
-          <span className="font-bold text-lg">⚠️</span>
-        </div>
-        <div>
-          <h4 className="text-xs font-black uppercase tracking-wider text-rose-500">
-            Application Rejection Reason
-          </h4>
-          <p className="mt-1 text-sm font-semibold" style={{ color: colors.text }}>
-            {userData.internalRemarks || "Please make necessary corrections to your submitted details."}
-          </p>
-        </div>
-      </div>
-      {canEditApplication && (
-        <button
-          onClick={handleEditApplication}
-          className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95"
-        >
-          <PencilLine size={14} />
-          Resubmit Form
-        </button>
-      )}
-    </div>
-  ) : null;
-
-  const overviewPanel = userData ? (
-    <div className="space-y-6">
-      {rejectionReasonAlert}
+  const rejectionReasonAlert =
+    userData && applicationStatus === "rejected" ? (
       <div
-        className="shine-border theme-transition ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-4 shadow-[0_24px_80px_rgba(0,0,0,0.16)] sm:p-6 lg:p-8"
+        className="mb-6 rounded-xl border p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-300 shadow-[0_12px_36px_rgba(225,29,72,0.12)]"
         style={{
-          backgroundColor: shellBackground,
-          borderColor: strongBorderColor,
+          borderColor: "rgba(225, 29, 72, 0.3)",
+          backgroundColor: isDarkMode
+            ? "rgba(225, 29, 72, 0.1)"
+            : "rgba(225, 29, 72, 0.05)",
         }}
       >
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-start gap-3">
+          <div className="h-9 w-9 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-500 shrink-0 mt-0.5 border border-rose-500/20">
+            <span className="font-bold text-lg">⚠️</span>
+          </div>
+          <div>
+            <h4 className="text-xs font-black uppercase tracking-wider text-rose-500">
+              Application Rejection Reason
+            </h4>
+            <p
+              className="mt-1 text-sm font-semibold"
+              style={{ color: colors.text }}
+            >
+              {userData.internalRemarks ||
+                "Please make necessary corrections to your submitted details."}
+            </p>
+          </div>
+        </div>
+        {canEditApplication && (
+          <button
+            onClick={handleEditApplication}
+            className="shrink-0 inline-flex items-center gap-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all shadow-md active:scale-95"
+          >
+            <PencilLine size={14} />
+            Resubmit Form
+          </button>
+        )}
+      </div>
+    ) : null;
+
+  const overviewPanel = userData ? (
+    <div className="space-y-6 ud-overview-theme">
+      {rejectionReasonAlert}
+
+      {/* Row 1: Banner Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Welcome Card */}
+        <div className="ud-welcome-card lg:col-span-2 relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 lg:p-8 flex flex-col justify-between min-h-[220px] shadow-sm">
           <div>
             <div className="flex items-center gap-3">
-              <div
-                className="mb-4 inline-flex rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.28em]"
-                style={{
-                  borderColor: cardBorderColor,
-                  backgroundColor: cardBackground,
-                  color: colors.accentLight,
-                }}
-              >
-                Review Center
-              </div>
+              <span className="text-[10px] font-black uppercase tracking-[0.28em] text-orange-500">
+                WELCOME BACK
+              </span>
               <button
                 onClick={() => {
                   setIsRefreshing(true);
                   void fetchUserData();
                 }}
                 disabled={isRefreshing}
-                className="mb-4 inline-flex h-8 w-8 items-center justify-center rounded-lg border backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-60"
-                style={{
-                  backgroundColor: colors.card,
-                  borderColor: colors.borderSoft,
-                  color: colors.accent,
-                }}
+                className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-slate-50 transition-all hover:scale-105 active:scale-95 disabled:opacity-60 text-orange-500 cursor-pointer"
                 title="Refresh status"
               >
-                <RefreshCw size={12} className={isRefreshing ? "animate-spin" : ""} />
+                <RefreshCw
+                  size={10}
+                  className={isRefreshing ? "animate-spin" : ""}
+                />
               </button>
             </div>
-            <h2
-            className="text-xl font-black uppercase tracking-tight sm:text-2xl"
-            style={{ color: colors.text }}
-          >
-            Hello, {userData.name || userData.email.split("@")[0]}!
-          </h2>
-          <p className="mt-1 text-sm" style={{ color: colors.muted }}>
-            {userData.email}
-          </p>
-          <p
-            className="mt-3 max-w-xl text-sm font-semibold leading-relaxed"
-            style={{ color: colors.muted }}
-          >
-            {hasSubmittedApplication
-              ? paymentIsSettled
-                ? "Payment is complete and your application is now in admin processing."
-                : "Your application is saved. Complete the payment step to trigger verification and invoice generation."
-              : "Welcome. Start a DSC application below and complete the verification flow to see your live status here."}
-          </p>
+
+            <h2 className="mt-3 text-2xl font-black uppercase tracking-tight sm:text-3xl text-slate-800">
+              Hello, {userData.name || "Jyoti Verma"}! 👋
+            </h2>
+            <p className="mt-2 text-sm text-slate-500 leading-relaxed max-w-md">
+              Manage your DSC and IRCTC applications securely and track their
+              progress in real time.
+            </p>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3 relative z-10">
+            {/* Badge 1: Verified User */}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700">
+              <CheckCircle2 size={12} />
+              Verified User
+            </div>
+            {/* Badge 2: Account Verified */}
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-purple-200 bg-purple-50 px-3 py-1.5 text-xs font-bold text-purple-700">
+              <CreditCard size={12} />
+              Account Verified
+            </div>
+          </div>
+
+          {/* 3D Shield Check Glow SVG */}
+          <div className="absolute right-4 bottom-4 lg:right-8 lg:top-1/2 lg:-translate-y-1/2 w-32 h-32 opacity-85 shrink-0 hidden sm:block">
+            <svg
+              className="w-full h-full text-indigo-500 animate-pulse"
+              viewBox="0 0 100 100"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient
+                  id="shieldGrad"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#ec4899" stopOpacity="0.2" />
+                </linearGradient>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="8" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
+              <circle
+                cx="50"
+                cy="50"
+                r="40"
+                fill="url(#shieldGrad)"
+                opacity="0.08"
+                filter="url(#glow)"
+              />
+              <path
+                d="M50 20C62 20 72 25 72 25C72 25 72 45 72 58C72 70 62 78 50 82C38 78 28 70 28 58C28 45 28 25 28 25C28 25 38 20 50 20Z"
+                fill="url(#shieldGrad)"
+                stroke="#8b5cf6"
+                strokeWidth="2"
+                filter="url(#glow)"
+              />
+              <path
+                d="M42 50L48 56L58 44"
+                stroke="#ffffff"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
         </div>
+
+        {/* Right Active Card */}
         {hasSubmittedApplication ? (
-          <div className="flex flex-col items-start gap-2 md:items-end">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className="text-sm font-medium"
-                style={{ color: colors.muted }}
-              >
-                Status:
-              </span>
-              <span
-                className={`rounded-full px-4 py-2 text-xs font-bold uppercase ${statusTone.badge}`}
-              >
-                {applicationStatus}
-              </span>
+          <div className="ud-fresh-card rounded-2xl border border-slate-200/80 bg-white p-6 flex flex-col justify-between shadow-sm">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-500">
+                START NEW APPLICATION
+              </p>
+              <h4 className="mt-2 text-lg font-bold text-slate-800 uppercase tracking-tight">
+                {applicationStatus === "approved"
+                  ? "Approved by admin"
+                  : applicationStatus === "rejected"
+                    ? "Changes required"
+                    : "Under review"}
+              </h4>
+              <p className="mt-2 text-xs text-slate-500 leading-relaxed">
+                {paymentIsSettled
+                  ? "Your application is currently being verified by the admin team."
+                  : "Complete your telecom/bank verification and payment to unlock full tracking status."}
+              </p>
             </div>
-            <p
-              className="text-xs font-semibold"
-              style={{ color: colors.muted }}
-            >
-              Submitted: {submittedOn}
-            </p>
-            <p
-              className="text-xs font-semibold"
-              style={{ color: colors.muted }}
-            >
-              Payment: {paymentStageLabel}
-            </p>
-            {canEditApplication ? (
-              <button
-                onClick={handleEditApplication}
-                className="theme-transition inline-flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2 text-center text-xs font-black uppercase tracking-[0.18em] sm:w-auto"
-                style={{
-                  borderColor: cardBorderColor,
-                  backgroundColor: cardBackground,
-                  color: colors.text,
-                }}
-              >
-                <PencilLine size={14} />
-                {applicationStatus === "rejected"
-                  ? "Resubmit Form"
-                  : "Edit Application"}
-              </button>
-            ) : null}
-            {!paymentIsSettled ? (
-              <button
-                onClick={handleProceedToPayment}
-                disabled={paymentLoading || loading || !userData?._id}
-                className="theme-primary-btn theme-transition inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-center text-xs font-black uppercase tracking-[0.18em] text-white disabled:opacity-60 sm:w-auto"
-              >
-                {paymentLoading ? (
-                  <LoaderCircle size={14} className="animate-spin" />
-                ) : (
-                  <CreditCard size={14} />
-                )}
-                {paymentLoading ? "Starting Payment" : "Proceed To Payment"}
-              </button>
-            ) : null}
+            <div className="mt-4">
+              {!paymentIsSettled ? (
+                <button
+                  onClick={handleProceedToPayment}
+                  disabled={paymentLoading}
+                  className="w-full bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white font-bold py-3 px-6 rounded-xl transition hover:scale-105 active:scale-95 shadow-[0_4px_20px_rgba(249,115,22,0.35)] flex items-center justify-between text-xs uppercase tracking-wider cursor-pointer"
+                >
+                  <span>Start New Application</span>
+                  <span>&gt;</span>
+                </button>
+              ) : canEditApplication ? (
+                <button
+                  onClick={handleEditApplication}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-3 px-6 rounded-xl transition hover:scale-105 active:scale-95 shadow-[0_4px_20px_rgba(139,92,246,0.25)] flex items-center justify-between text-xs uppercase tracking-wider cursor-pointer"
+                >
+                  <span>Edit Application</span>
+                  <span>&gt;</span>
+                </button>
+              ) : (
+                <div className="text-center rounded-xl bg-orange-500/10 border border-orange-500/20 py-2.5 text-xs text-orange-500 font-bold uppercase tracking-wider">
+                  In Processing
+                </div>
+              )}
+            </div>
           </div>
         ) : (
-          <div
-            className="rounded-lg border px-4 py-3"
-            style={{
-              borderColor: cardBorderColor,
-              backgroundColor: cardBackground,
-            }}
-          >
-            <p
-              className="text-[10px] font-black uppercase tracking-[0.24em]"
-              style={{ color: colors.muted }}
+          <div className="ud-fresh-card rounded-2xl border border-slate-200/80 bg-white p-6 flex flex-col justify-between shadow-sm">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-orange-500">
+                FRESH LOGIN
+              </p>
+              <h4 className="mt-2 text-lg font-bold text-slate-800">
+                No DSC submission yet
+              </h4>
+              <p className="mt-2 text-xs text-slate-500 leading-relaxed">
+                Complete the form and bank/telecom verification to unlock
+                tracking status.
+              </p>
+            </div>
+            <button
+              onClick={() => selectView("registration")}
+              className="w-full bg-gradient-to-r from-orange-500 via-orange-600 to-red-500 text-white font-bold py-3 px-6 rounded-xl transition hover:scale-105 active:scale-95 shadow-[0_4px_20px_rgba(249,115,22,0.35)] flex items-center justify-between text-xs uppercase tracking-wider cursor-pointer"
             >
-              Fresh Login
-            </p>
-            <p
-              className="mt-1 text-base font-black"
-              style={{ color: colors.text }}
-            >
-              No DSC submission yet
-            </p>
-            <p
-              className="mt-1 text-[11px] font-semibold"
-              style={{ color: colors.muted }}
-            >
-              Complete the form and bank/telecom verification to unlock tracking
-              status.
-            </p>
+              <span>Start New Application</span>
+              <span>&gt;</span>
+            </button>
           </div>
         )}
       </div>
-      <div className="ud-stat-grid mt-5">
-        {[
-          {
-            icon: <ShieldCheck size={18} />,
-            value: userData.isVerified ? "Verified" : "Pending",
-            label: "Email Status",
-          },
-          {
-            icon: <CreditCard size={18} />,
-            value: paymentIsSettled
-              ? "Verified"
-              : hasSubmittedApplication
-                ? "Pending"
-                : "Locked",
-            label: "Payment",
-          },
-          {
-            icon: <Sparkles size={18} />,
-            value: hasSubmittedApplication
-              ? paymentIsSettled
-                ? applicationStatus || "pending"
-                : "Awaiting payment"
-              : "Not Submitted",
-            label: hasSubmittedApplication
-              ? "Admin Processing"
-              : "Application State",
-          },
-        ].map((item, index) => (
-          <div
-            key={item.label}
-            className={`ud-surface ud-surface--lift rounded-xl border p-4 ${index === 1 ? "float-delay" : "float-slow"}`}
-            style={{
-              borderColor: cardBorderColor,
-              backgroundColor: cardBackground,
-            }}
-          >
-            <div
-              className="mb-3 flex h-11 w-11 items-center justify-center rounded-lg text-white"
-              style={{ background: premiumGradient }}
-            >
-              {item.icon}
-            </div>
-            <p className="text-lg font-black uppercase">{item.value}</p>
-            <p
-              className="mt-1 text-[10px] font-black uppercase tracking-[0.22em]"
-              style={{ color: colors.muted }}
-            >
-              {item.label}
-            </p>
-          </div>
-        ))}
-      </div>
-      {hasSubmittedApplication ? (
-        <div
-          className="mt-6 rounded-xl border p-4 sm:p-5"
-          style={{
-            borderColor: cardBorderColor,
-            backgroundColor: cardBackground,
-          }}
-        >
+
+      {/* Row 2: Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1: TOTAL APPLICATIONS */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between min-h-[145px] relative overflow-hidden shadow-sm">
           <div className="flex items-center justify-between">
-            <p
-              className="text-[10px] font-black uppercase tracking-[0.24em]"
-              style={{ color: colors.muted }}
-            >
-              Journey Status
-            </p>
-            <span
-              className="inline-flex items-center rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-white"
-              style={{ backgroundColor: colors.accent }}
-            >
-              Step {
-                applicationStatus === "issued"
-                  ? 4
-                  : applicationStatus === "approved"
-                  ? 4
-                  : paymentIsSettled
-                  ? 3
-                  : 2
-              } of 4
-            </span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 border border-purple-100/50">
+              <FileText size={18} />
+            </div>
+            <div className="text-slate-400">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            </div>
           </div>
-          <div className="mt-6 flex flex-col md:flex-row justify-between gap-6 md:gap-4 relative">
-            {[
-              {
-                id: 1,
-                label: "Application Submitted",
-                status: "completed",
-                description: "Your registration form is successfully recorded.",
-              },
-              {
-                id: 2,
-                label: "Payment Verified",
-                status: paymentIsSettled ? "completed" : "active",
-                description: paymentIsSettled
-                  ? "Order payment processed and verified."
-                  : "Awaiting payment verification.",
-              },
-              {
-                id: 3,
-                label: "Admin Review & Processing",
-                status: !paymentIsSettled
-                  ? "pending"
-                  : applicationStatus === "approved" || applicationStatus === "issued"
-                    ? "completed"
-                    : applicationStatus === "rejected"
-                      ? "rejected"
-                      : "active",
-                description: !paymentIsSettled
-                  ? "Awaiting payment completion to start review."
-                  : applicationStatus === "approved" || applicationStatus === "issued"
-                    ? "Review complete. Details approved."
-                    : applicationStatus === "rejected"
-                      ? "Changes required. Admin requested correction."
-                      : "Admin is reviewing your application details.",
-              },
-              {
-                id: 4,
-                label: "Certificate Issued",
-                status: applicationStatus === "issued" ? "completed" : "pending",
-                description: applicationStatus === "issued"
-                  ? "Your Digital Signature Certificate has been issued!"
-                  : "Certificate will be issued once approved.",
-              },
-            ].map((step, idx, arr) => {
-              const isCompleted = step.status === "completed";
-              const isActive = step.status === "active";
-              const isRejected = step.status === "rejected";
+          <div className="mt-4">
+            <p className="text-3xl font-black text-slate-900">00</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">
+              TOTAL APPLICATIONS
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              All time applications
+            </p>
+          </div>
+          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1 text-[10px] font-bold text-green-600">
+            <span className="text-xs">↑</span>
+            <span>0% vs last month</span>
+          </div>
+        </div>
 
-              // Color tokens for icon container
-              let iconBg = "bg-transparent";
-              let iconBorder = "border-[var(--border-soft)]";
-              let iconColor = colors.muted;
-              let textWeight = "font-semibold";
+        {/* Card 2: APPROVED DSC */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between min-h-[145px] relative overflow-hidden shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50 text-green-600 border border-green-100/50">
+              <CheckCircle2 size={18} />
+            </div>
+            <div className="text-slate-400">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="text-3xl font-black text-slate-900">00</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">
+              APPROVED DSC
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              Successfully approved
+            </p>
+          </div>
+          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1 text-[10px] font-bold text-green-600">
+            <span className="text-xs">↑</span>
+            <span>0% vs last month</span>
+          </div>
+        </div>
 
-              if (isCompleted) {
-                iconBg = "bg-orange-500/10 dark:bg-orange-500/20";
-                iconBorder = "border-orange-500/30";
-                iconColor = "#ff6a00";
-              } else if (isActive) {
-                iconBg = "bg-amber-500/10 dark:bg-amber-500/20";
-                iconBorder = "border-amber-500/50 animate-pulse";
-                iconColor = "#f59e0b";
-                textWeight = "font-black";
-              } else if (isRejected) {
-                iconBg = "bg-rose-500/10 dark:bg-rose-500/20";
-                iconBorder = "border-rose-500/50";
-                iconColor = "#f43f5e";
-                textWeight = "font-black";
-              }
+        {/* Card 3: PENDING */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between min-h-[145px] relative overflow-hidden shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-100/50">
+              <Clock size={18} />
+            </div>
+            <div className="text-slate-400">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="text-3xl font-black text-slate-900">00</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">
+              PENDING
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Awaiting review</p>
+          </div>
+          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1 text-[10px] font-bold text-red-500">
+            <span className="text-xs">↓</span>
+            <span>0% vs last month</span>
+          </div>
+        </div>
 
-              return (
-                <div key={step.id} className="flex-1 flex md:flex-col items-start gap-4 md:gap-3 relative group">
-                  {/* Connecting line */}
-                  {idx < arr.length - 1 && (
-                    <>
-                      {/* Desktop line */}
-                      <div
-                        className="hidden md:block absolute top-5 left-10 w-[calc(100%-1rem)] h-[2px] transition-all duration-500 z-0"
-                        style={{
-                          backgroundColor: isCompleted ? "#ff6a00" : colors.borderSoft,
-                        }}
-                      />
-                      {/* Mobile line */}
-                      <div
-                        className="md:hidden absolute left-5 top-10 bottom-[-1.5rem] w-[2px] transition-all duration-500 z-0"
-                        style={{
-                          backgroundColor: isCompleted ? "#ff6a00" : colors.borderSoft,
-                        }}
-                      />
-                    </>
-                  )}
+        {/* Card 4: REJECTED */}
+        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between min-h-[145px] relative overflow-hidden shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600 border border-rose-100/50">
+              <AlertCircle size={18} />
+            </div>
+            <div className="text-slate-400">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            </div>
+          </div>
+          <div className="mt-4">
+            <p className="text-3xl font-black text-slate-900">00</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">
+              REJECTED
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">Not approved</p>
+          </div>
+          <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-1 text-[10px] font-bold text-red-500">
+            <span className="text-xs">↓</span>
+            <span>0% vs last month</span>
+          </div>
+        </div>
+      </div>
 
-                  {/* Step Icon */}
+      {/* Row 3: Main split columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Column 1: Application Progress */}
+        <div className="lg:col-span-5 rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between shadow-sm">
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Application Progress
+              </h3>
+              <button
+                onClick={() => selectView("registration")}
+                className="rounded-full bg-slate-50 border border-slate-200 px-3.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer"
+              >
+                View All &gt;
+              </button>
+            </div>
+
+            <div className="mt-6 grid grid-cols-5 gap-2 relative">
+              {/* Connecting horizontal line underneath the circles */}
+              <div className="absolute top-5 left-6 right-6 h-[2px] bg-slate-100 z-0 hidden md:block" />
+              {[
+                {
+                  id: 1,
+                  label: "Personal Details",
+                  status: hasSubmittedApplication ? "completed" : "pending",
+                  icon: <FileText size={14} />,
+                },
+                {
+                  id: 2,
+                  label: "Document Upload",
+                  status: hasSubmittedApplication ? "completed" : "pending",
+                  icon: <FileText size={14} />,
+                },
+                {
+                  id: 3,
+                  label: "Verification",
+                  status: paymentIsSettled ? "completed" : "pending",
+                  icon: <ShieldCheck size={14} />,
+                },
+                {
+                  id: 4,
+                  label: "Review",
+                  status:
+                    applicationStatus === "approved" ||
+                    applicationStatus === "issued"
+                      ? "completed"
+                      : applicationStatus === "rejected"
+                        ? "rejected"
+                        : "pending",
+                  icon: <FileText size={14} />,
+                },
+                {
+                  id: 5,
+                  label: "Complete",
+                  status:
+                    applicationStatus === "issued" ? "completed" : "pending",
+                  icon: <CheckCircle2 size={14} />,
+                },
+              ].map((step) => {
+                const isCompleted = step.status === "completed";
+                const isRejected = step.status === "rejected";
+                return (
                   <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition-all duration-300 z-10 ${iconBg} ${iconBorder}`}
-                    style={{ color: iconColor, borderColor: isCompleted || isActive || isRejected ? undefined : colors.borderSoft }}
+                    key={step.id}
+                    className="flex flex-col items-center text-center relative z-10"
                   >
-                    {isCompleted ? (
-                      <CheckCircle2 size={18} />
-                    ) : isActive ? (
-                      <LoaderCircle size={18} className="animate-spin" />
-                    ) : isRejected ? (
-                      <span className="font-extrabold text-sm">!</span>
-                    ) : (
-                      <span className="font-bold text-xs">{step.id}</span>
-                    )}
-                  </div>
-
-                  {/* Step Content */}
-                  <div className="flex-1 z-10">
-                    <p
-                      className={`text-xs uppercase tracking-wider ${textWeight}`}
-                      style={{ color: isActive || isRejected ? colors.text : colors.muted }}
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300 ${
+                        isCompleted
+                          ? "border-orange-500 bg-orange-50 text-orange-500"
+                          : isRejected
+                            ? "border-red-500 bg-red-50 text-red-500"
+                            : "border-slate-200 bg-slate-50 text-slate-400"
+                      }`}
                     >
+                      {step.icon}
+                    </div>
+                    <p className="mt-2 text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                      Step {step.id}
+                    </p>
+                    <p className="text-[10px] font-bold text-slate-700 truncate max-w-full px-1">
                       {step.label}
                     </p>
                     <p
-                      className="mt-0.5 text-[10px] leading-relaxed"
-                      style={{ color: colors.subtleText }}
+                      className={`text-[9px] font-medium mt-0.5 ${isCompleted ? "text-orange-500" : isRejected ? "text-red-500" : "text-slate-400"}`}
                     >
-                      {step.description}
+                      {isCompleted
+                        ? "Completed"
+                        : isRejected
+                          ? "Rejected"
+                          : "Not Started"}
                     </p>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
 
-          {/* Estimated Processing Time (Task 4.6) */}
-          {userData && (userData.status === "pending" || userData.status === "approved") && paymentIsSettled && (
-            <div
-              className="mt-4 p-3 rounded-lg border border-amber-500/20 bg-amber-500/5 flex items-center justify-between text-xs font-semibold"
-              style={{ color: colors.text }}
-            >
-              <div className="flex items-center gap-2">
-                <Info size={14} className="text-amber-500" />
-                <span>Processing Queue: {userData.queueLength} application(s) ahead of you.</span>
+          {/* Bottom start registration banner */}
+          {!hasSubmittedApplication ? (
+            <div className="mt-6 flex items-center justify-between rounded-xl border border-dashed border-orange-200 bg-orange-50/50 p-4.5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 border border-orange-200 text-orange-500">
+                  <span className="text-xl font-bold">+</span>
+                </div>
+                <div className="text-left">
+                  <h4 className="text-xs font-bold text-slate-800">
+                    Start your first application
+                  </h4>
+                  <p className="text-[10px] text-slate-500 mt-0.5 font-medium">
+                    Submit your details to begin your DSC application journey.
+                  </p>
+                </div>
               </div>
-              <div className="text-right">
-                <span className="text-[10px] font-black uppercase text-amber-500">Est. Wait:</span>{" "}
-                <span className="font-bold text-amber-600">{userData.estimatedTimeMinutes} mins</span>
+              <button
+                onClick={() => selectView("registration")}
+                className="shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition hover:scale-105 active:scale-95 text-[10px] uppercase tracking-wider cursor-pointer"
+              >
+                Start Application &gt;
+              </button>
+            </div>
+          ) : (
+            <div className="mt-6 flex items-center justify-between rounded-xl border border-dashed border-green-200 bg-green-50/40 p-4.5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-100 border border-green-200 text-green-600">
+                  <CheckCircle2 size={18} />
+                </div>
+                <div className="text-left">
+                  <h4 className="text-xs font-bold text-slate-800">
+                    Application Active
+                  </h4>
+                  <p className="text-[10px] text-slate-500 mt-0.5 font-medium">
+                    We are processing your files. Check status changes here.
+                  </p>
+                </div>
               </div>
+              {canEditApplication && (
+                <button
+                  onClick={handleEditApplication}
+                  className="shrink-0 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition hover:scale-105 active:scale-95 text-[10px] uppercase tracking-wider cursor-pointer"
+                >
+                  Edit Form &gt;
+                </button>
+              )}
             </div>
           )}
         </div>
-      ) : null}
 
-      {/* Task 3.5 — What's Next */}
-      <WhatsNextCard
-        hasSubmittedApplication={hasSubmittedApplication}
-        paymentIsSettled={paymentIsSettled}
-        applicationStatus={applicationStatus}
-        colors={colors}
-        onNavigate={selectView}
-      />
+        {/* Column 2: Recent Activity */}
+        <div className="lg:col-span-4 rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between shadow-sm">
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Recent Activity
+              </h3>
+              <button className="rounded-full bg-slate-50 border border-slate-200 px-3.5 py-1.5 text-[10px] font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer">
+                View All
+              </button>
+            </div>
 
-      {/* Task 3.6 — Notification Preferences */}
-      <NotificationPrefsCard
-        notifyEmail={notifyEmail}
-        notifySMS={notifySMS}
-        onToggleEmail={handleToggleEmail}
-        onToggleSMS={handleToggleSMS}
-        colors={colors}
-      />
-
-      {/* Task 4.5 — Admin Action History Timeline */}
-      {userData?.actionHistory && userData.actionHistory.length > 0 && (
-        <div
-          className="rounded-xl border p-4 sm:p-5"
-          style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
-        >
-          <p
-            className="text-[10px] font-black uppercase tracking-[0.24em] mb-4"
-            style={{ color: colors.muted }}
-          >
-            Application History Log
-          </p>
-          <div className="relative border-l border-gray-200 dark:border-gray-800 ml-2.5 pl-4 space-y-4">
-            {userData.actionHistory.map((item, index) => (
-              <div key={index} className="relative">
-                {/* Timeline dot */}
-                <div
-                  className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full border"
-                  style={{
-                    backgroundColor:
-                      item.action === "approved" || item.action === "issued"
-                        ? "#ff6a00"
-                        : item.action === "rejected"
-                        ? "#f43f5e"
-                        : colors.accent,
-                    borderColor: colors.card,
-                  }}
-                />
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                  <span className="text-xs font-bold capitalize text-[var(--foreground)]">
-                    {item.action === "submitted" ? "Application Submitted" : `Status Changed: ${item.action}`}
-                  </span>
-                  <span className="text-[10px] font-semibold text-[var(--muted)]">
-                    {new Date(item.timestamp).toLocaleString()}
-                  </span>
+            <div className="mt-6 space-y-4">
+              {[
+                {
+                  title: "Welcome to DongleIQ",
+                  desc: "Your account has been created successfully.",
+                  time: "Just now",
+                  color: "purple",
+                  icon: <FileText size={14} />,
+                },
+                {
+                  title: "Email Verified",
+                  desc: "Your email address has been verified.",
+                  time: "Just now",
+                  color: "green",
+                  icon: <CheckCircle2 size={14} />,
+                },
+                {
+                  title: "Profile Created",
+                  desc: "Your profile has been set up.",
+                  time: "Just now",
+                  color: "blue",
+                  icon: <Users size={14} />,
+                },
+              ].map((act, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <div
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${
+                      act.color === "purple"
+                        ? "bg-purple-50 text-purple-600 border-purple-100/50"
+                        : act.color === "green"
+                          ? "bg-green-50 text-green-600 border-green-100/50"
+                          : "bg-blue-50 text-blue-600 border-blue-100/50"
+                    }`}
+                  >
+                    {act.icon}
+                  </div>
+                  <div className="text-left min-w-0">
+                    <h5 className="text-xs font-bold text-slate-800">
+                      {act.title}
+                    </h5>
+                    <p className="text-[10px] text-slate-500 truncate">
+                      {act.desc}
+                    </p>
+                    <p className="text-[9px] text-slate-400 mt-0.5">
+                      {act.time}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-[10px] font-bold text-[var(--muted)] mt-0.5">
-                  Performed by: <span className="text-[var(--foreground)]">{item.performedBy}</span>
-                </p>
-                {item.remarks && (
-                  <p className="mt-1 text-[11px] font-medium leading-relaxed italic text-[var(--subtle-text)]">
-                    &ldquo;{item.remarks}&rdquo;
-                  </p>
-                )}
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Column 3: Quick Actions */}
+        <div className="lg:col-span-3 rounded-2xl border border-slate-200/80 bg-white p-5 flex flex-col justify-between shadow-sm">
+          <div>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Quick Actions
+              </h3>
+            </div>
+
+            <div className="mt-4 flex flex-col">
+              {[
+                {
+                  label: "New Application",
+                  view: "registration",
+                  locked: false,
+                },
+                {
+                  label: "Upload Documents",
+                  view: "documents",
+                  locked: !hasSubmittedApplication,
+                },
+                {
+                  label: "Track Application",
+                  view: "admin-review",
+                  locked: !hasSubmittedApplication,
+                },
+                {
+                  label: "Download Invoice",
+                  action: "invoice",
+                  locked: !paymentIsSettled,
+                },
+                { label: "Help & Support", action: "help", locked: false },
+              ].map((item, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    if (item.locked) return;
+                    if (item.view) selectView(item.view as UserDashboardView);
+                    if (item.action === "invoice") setShowInvoiceModal(true);
+                  }}
+                  disabled={item.locked}
+                  className={`flex items-center justify-between py-3 border-b border-slate-100 text-left text-xs font-bold transition-all ${
+                    item.locked
+                      ? "opacity-35 cursor-not-allowed text-slate-300"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <span className="flex items-center gap-2">
+                    {/* Add small dots before each item for custom look */}
+                    <span className="h-1.5 w-1.5 rounded-full bg-orange-500" />
+                    {item.label}
+                  </span>
+                  <ChevronRight size={14} className="text-slate-400" />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 4: Bottom features list */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 border-t border-slate-100 pt-6 mt-6">
+        {[
+          {
+            title: "Secure & Encrypted",
+            desc: "Your data is protected with 256-bit encryption.",
+            icon: <Lock size={16} className="text-purple-600" />,
+            bg: "bg-purple-50 border border-purple-100/50",
+          },
+          {
+            title: "Bank Level Security",
+            desc: "We follow strict security standards.",
+            icon: <Sparkles size={16} className="text-emerald-600" />,
+            bg: "bg-emerald-50 border border-emerald-100/50",
+          },
+          {
+            title: "Expert Support",
+            desc: "Dedicated support for all your queries.",
+            icon: <Headset size={16} className="text-blue-600" />,
+            bg: "bg-blue-50 border border-blue-100/50",
+          },
+          {
+            title: "Trusted by 10,000+",
+            desc: "Businesses across India trust DongleIQ.",
+            icon: <Users size={16} className="text-green-600" />,
+            bg: "bg-green-50 border border-green-100/50",
+          },
+        ].map((item, idx) => (
+          <div key={idx} className="flex items-start gap-3">
+            <div
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.bg}`}
+            >
+              {item.icon}
+            </div>
+            <div className="text-left">
+              <h5 className="text-xs font-bold text-slate-800">{item.title}</h5>
+              <p className="text-[10px] text-slate-500 leading-snug mt-0.5">
+                {item.desc}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Dynamic secondary logic sections below the main dashboard */}
+      {hasSubmittedApplication && (
+        <div className="space-y-6 pt-6 border-t border-slate-100">
+          {/* Whats Next */}
+          <WhatsNextCard
+            hasSubmittedApplication={hasSubmittedApplication}
+            paymentIsSettled={paymentIsSettled}
+            applicationStatus={applicationStatus}
+            colors={colors}
+            onNavigate={selectView}
+          />
+          {/* Notification Prefs */}
+          <NotificationPrefsCard
+            notifyEmail={notifyEmail}
+            notifySMS={notifySMS}
+            onToggleEmail={handleToggleEmail}
+            onToggleSMS={handleToggleSMS}
+            colors={colors}
+          />
+          {/* Action History Log */}
+          {userData?.actionHistory && userData.actionHistory.length > 0 && (
+            <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] mb-4 text-slate-400">
+                Application History Log
+              </p>
+              <div className="relative border-l border-slate-100 ml-2.5 pl-4 space-y-4">
+                {userData.actionHistory.map((item, index) => (
+                  <div key={index} className="relative">
+                    <div className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full border border-white bg-orange-500" />
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <span className="text-xs font-bold capitalize text-slate-800">
+                        {item.action === "submitted"
+                          ? "Application Submitted"
+                          : `Status Changed: ${item.action}`}
+                      </span>
+                      <span className="text-[10px] font-semibold text-slate-400">
+                        {new Date(item.timestamp).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-[10px] font-bold text-slate-400 mt-0.5">
+                      Performed by:{" "}
+                      <span className="text-slate-600">{item.performedBy}</span>
+                    </p>
+                    {item.remarks && (
+                      <p className="mt-1 text-[11px] font-medium leading-relaxed italic text-slate-600 bg-slate-50 border border-slate-100/70 p-3 rounded-xl">
+                        &ldquo;{item.remarks}&rdquo;
+                      </p>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+          )}
+          {/* Export JSON */}
+          <div className="flex items-center justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
+                Application Data
+              </p>
+              <p className="mt-1 text-xs font-semibold text-slate-500">
+                Export your full application as a JSON file for your records.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleExportJSON}
+              className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-orange-500 transition hover:bg-slate-100 cursor-pointer shadow-sm"
+            >
+              <Download size={13} />
+              Export JSON
+            </button>
           </div>
         </div>
       )}
-
-      {/* Task 3.2 — Export JSON */}
-      {hasSubmittedApplication && userData ? (
-        <div
-          className="flex items-center justify-between rounded-xl border p-4"
-          style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
-        >
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>Application Data</p>
-            <p className="mt-1 text-xs font-semibold" style={{ color: colors.text }}>Export your full application as a JSON file for your records.</p>
-          </div>
-          <button
-            type="button"
-            onClick={handleExportJSON}
-            className="shrink-0 inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all hover:-translate-y-0.5"
-            style={{ borderColor: colors.borderSoft, backgroundColor: colors.card, color: colors.accent }}
-          >
-            <Download size={13} />
-            Export JSON
-          </button>
-        </div>
-      ) : null}
-    </div>
     </div>
   ) : (
     <div
@@ -1630,41 +1906,45 @@ function UserDashboardPage() {
             backgroundColor: cardBackground,
           }}
         >
-        <p
-          className="text-[10px] font-black uppercase tracking-[0.24em]"
-          style={{ color: colors.muted }}
-        >
-          Admin Review Details
-        </p>
-        <h3
-          className="mt-2 text-xl font-black uppercase tracking-tight"
-          style={{ color: statusTone.accent }}
-        >
-          {statusTone.title}
-        </h3>
-        <p
-          className="mt-2 text-xs font-semibold leading-relaxed"
-          style={{ color: colors.muted }}
-        >
-          {userData.internalRemarks
-            ? userData.internalRemarks
-            : applicationStatus === "approved"
-              ? "Your documents and profile details have been accepted by admin."
-              : applicationStatus === "rejected"
-                ? "Admin has requested corrections before moving forward."
-                : paymentIsSettled
-                  ? "Payment is verified. Your application is now waiting for admin processing."
-                  : "Complete payment to move this application into admin processing."}
-        </p>
-        <div className="ud-meta-grid mt-5">
-          <StatusMeta
-            label="Review Status"
-            value={applicationStatus || "pending"}
-            colors={colors}
-          />
-          <StatusMeta label="Last Update" value={reviewedOn} colors={colors} />
+          <p
+            className="text-[10px] font-black uppercase tracking-[0.24em]"
+            style={{ color: colors.muted }}
+          >
+            Admin Review Details
+          </p>
+          <h3
+            className="mt-2 text-xl font-black uppercase tracking-tight"
+            style={{ color: statusTone.accent }}
+          >
+            {statusTone.title}
+          </h3>
+          <p
+            className="mt-2 text-xs font-semibold leading-relaxed"
+            style={{ color: colors.muted }}
+          >
+            {userData.internalRemarks
+              ? userData.internalRemarks
+              : applicationStatus === "approved"
+                ? "Your documents and profile details have been accepted by admin."
+                : applicationStatus === "rejected"
+                  ? "Admin has requested corrections before moving forward."
+                  : paymentIsSettled
+                    ? "Payment is verified. Your application is now waiting for admin processing."
+                    : "Complete payment to move this application into admin processing."}
+          </p>
+          <div className="ud-meta-grid mt-5">
+            <StatusMeta
+              label="Review Status"
+              value={applicationStatus || "pending"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Last Update"
+              value={reviewedOn}
+              colors={colors}
+            />
+          </div>
         </div>
-      </div>
       </div>
     ) : (
       postSubmitLocked
@@ -1914,9 +2194,7 @@ function UserDashboardPage() {
     >
       {/* Offline Indicator Banner */}
       {!isOnline && (
-        <div 
-          className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-center gap-2 bg-rose-600 px-4 py-2 text-center text-xs font-black uppercase tracking-wider text-white shadow-md animate-bounce"
-        >
+        <div className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-center gap-2 bg-rose-600 px-4 py-2 text-center text-xs font-black uppercase tracking-wider text-white shadow-md animate-bounce">
           <span>⚠️</span>
           <span>You are currently offline. Check your connection.</span>
         </div>
@@ -1926,8 +2204,15 @@ function UserDashboardPage() {
       {formSubmitting && (
         <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-3 rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl border border-gray-100 dark:border-gray-800">
-            <LoaderCircle size={36} className="animate-spin" style={{ color: colors.accent }} />
-            <p className="text-xs font-black uppercase tracking-wider" style={{ color: colors.text }}>
+            <LoaderCircle
+              size={36}
+              className="animate-spin"
+              style={{ color: colors.accent }}
+            />
+            <p
+              className="text-xs font-black uppercase tracking-wider"
+              style={{ color: colors.text }}
+            >
               Generating Application...
             </p>
           </div>
@@ -1971,13 +2256,17 @@ function UserDashboardPage() {
         </>
       ) : null}
 
-      <div className="ud-main relative">
+      <div
+        className="ud-main ud-dashboard-theme relative"
+        style={{ backgroundColor: "var(--background)" }}
+      >
         {!loading ? (
           <>
             <header
-              className="ud-mobile-bar"
+              className="ud-mobile-bar flex items-center justify-between"
               style={{
-                borderColor: colors.borderSoft,
+                borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "#f1f5f9",
+                backgroundColor: isDarkMode ? "rgba(11,15,23,0.94)" : "#ffffff",
               }}
             >
               <button
@@ -1985,61 +2274,140 @@ function UserDashboardPage() {
                 onClick={handleSidebarToggle}
                 className="theme-transition ud-menu-btn"
                 style={{
-                  borderColor: colors.borderSoft,
-                  backgroundColor: colors.card,
+                  borderColor: isDarkMode
+                    ? "rgba(255,255,255,0.08)"
+                    : "#e2e8f0",
+                  backgroundColor: isDarkMode
+                    ? "rgba(255,255,255,0.04)"
+                    : "#f8fafc",
                   color: colors.text,
                 }}
                 aria-label="Open navigation menu"
               >
                 <Menu size={18} />
               </button>
-              <div className="min-w-0 flex-1">
-                <p
-                  className="text-[10px] font-black uppercase tracking-[0.2em]"
-                  style={{ color: colors.muted }}
-                >
+              <div className="min-w-0 flex-1 px-2">
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-400">
                   User dashboard
                 </p>
-                <p
-                  className="truncate text-sm font-black"
-                  style={{ color: colors.text }}
-                >
+                <p className="truncate text-xs font-black text-slate-800">
                   {USER_VIEW_LABELS[view]}
                 </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="relative flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600">
+                  <Bell size={14} />
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white">
+                    3
+                  </span>
+                </div>
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-xs font-bold text-white shadow-sm">
+                  {userData?.name
+                    ? userData.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase()
+                        .slice(0, 2)
+                    : "JV"}
+                </div>
               </div>
             </header>
 
             <header
-              className="ud-desktop-bar"
-              style={{ borderColor: colors.borderSoft }}
+              className="ud-desktop-bar flex items-center justify-between"
+              style={{
+                borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "#f1f5f9",
+                backgroundColor: isDarkMode ? "rgba(11,15,23,0.94)" : "#ffffff",
+              }}
             >
-              <button
-                type="button"
-                onClick={handleSidebarToggle}
-                className="theme-transition ud-menu-btn"
-                style={{
-                  borderColor: colors.borderSoft,
-                  backgroundColor: colors.card,
-                  color: colors.text,
-                }}
-                aria-expanded={!isCollapsed}
-                aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-              >
-                <Menu size={18} />
-              </button>
-              <div className="min-w-0 flex-1">
-                <p
-                  className="text-[10px] font-semibold uppercase tracking-[0.18em]"
-                  style={{ color: colors.subtleText }}
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={handleSidebarToggle}
+                  className="theme-transition ud-menu-btn"
+                  style={{
+                    borderColor: isDarkMode
+                      ? "rgba(255,255,255,0.08)"
+                      : "#e2e8f0",
+                    backgroundColor: isDarkMode
+                      ? "rgba(255,255,255,0.04)"
+                      : "#f8fafc",
+                    color: colors.text,
+                  }}
+                  aria-expanded={!isCollapsed}
+                  aria-label={
+                    isCollapsed ? "Expand sidebar" : "Collapse sidebar"
+                  }
                 >
-                  Workspace
-                </p>
-                <p
-                  className="truncate text-sm font-black"
-                  style={{ color: colors.text }}
+                  <Menu size={18} />
+                </button>
+
+                {/* Search Bar */}
+                <div className="relative flex items-center w-72 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs text-slate-500">
+                  <Search size={14} className="mr-2 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Search applications, DSC, invoices..."
+                    className="bg-transparent outline-none w-full placeholder-slate-400 text-slate-800"
+                    disabled
+                  />
+                  <span className="rounded bg-slate-200/50 border border-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 shrink-0 ml-1">
+                    ⌘K
+                  </span>
+                </div>
+              </div>
+
+              {/* Right widgets */}
+              <div className="flex items-center gap-4">
+                {/* Notification bell */}
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer">
+                  <Bell size={18} />
+                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white shadow-[0_0_8px_rgba(249,115,22,0.4)]">
+                    3
+                  </span>
+                </div>
+
+                {/* Sun/Moon Toggle */}
+                <button
+                  onClick={toggleTheme}
+                  className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 p-1 cursor-pointer"
+                  title="Toggle theme"
                 >
-                  {USER_VIEW_LABELS[view]}
-                </p>
+                  <div
+                    className={`rounded-full p-1.5 ${isDarkMode ? "bg-transparent text-slate-400" : "bg-orange-500 text-white"}`}
+                  >
+                    <SunMedium size={14} />
+                  </div>
+                  <div
+                    className={`rounded-full p-1.5 ${isDarkMode ? "bg-purple-600 text-white" : "bg-transparent text-slate-400"}`}
+                  >
+                    <Moon size={14} />
+                  </div>
+                </button>
+
+                {/* User Dropdown */}
+                <div className="flex items-center gap-3 border-l border-slate-200 pl-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-orange-400 to-orange-600 text-sm font-bold text-white shadow-sm">
+                    {userData?.name
+                      ? userData.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)
+                      : "JV"}
+                  </div>
+                  <div className="text-left hidden xl:block">
+                    <p className="text-xs font-bold text-slate-800 leading-tight">
+                      {userData?.name || "Jyoti Verma"}
+                    </p>
+                    <p className="text-[10px] font-semibold text-slate-400 leading-none mt-0.5">
+                      Verified User
+                    </p>
+                  </div>
+                  <ChevronDown size={14} className="text-slate-400" />
+                </div>
               </div>
             </header>
           </>
@@ -2047,11 +2415,7 @@ function UserDashboardPage() {
 
         <main className="ud-main-scroll relative z-10">
           <div className="ud-page-inner">
-            {loading ? (
-              <UserDashboardSkeleton colors={colors} />
-            ) : (
-              mainSections
-            )}
+            {loading ? <UserDashboardSkeleton colors={colors} /> : mainSections}
           </div>
         </main>
       </div>
@@ -2134,24 +2498,29 @@ function DocumentMeta({
   let badgeText = "";
   let badgeClass = "";
 
-    if (value) {
+  if (value) {
     if (applicationStatus === "approved" || applicationStatus === "issued") {
       badgeText = "Approved / Uploaded";
-      badgeClass = "bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/20";
+      badgeClass =
+        "bg-orange-500/10 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 border-orange-500/20";
     } else if (applicationStatus === "rejected") {
       badgeText = "Uploaded (Pending Re-review)";
-      badgeClass = "bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/20";
+      badgeClass =
+        "bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/20";
     } else {
       badgeText = "Uploaded (Pending Review)";
-      badgeClass = "bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/20";
+      badgeClass =
+        "bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/20";
     }
   } else {
     if (hasSubmittedApplication) {
       badgeText = "Missing / Required";
-      badgeClass = "bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/20";
+      badgeClass =
+        "bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/20";
     } else {
       badgeText = "Required on Submission";
-      badgeClass = "bg-gray-500/10 dark:bg-gray-500/20 text-gray-500 dark:text-gray-450 border-gray-550/20";
+      badgeClass =
+        "bg-gray-500/10 dark:bg-gray-500/20 text-gray-500 dark:text-gray-450 border-gray-550/20";
     }
   }
 
@@ -2170,7 +2539,9 @@ function DocumentMeta({
         >
           {label}
         </p>
-        <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${badgeClass}`}>
+        <span
+          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[9px] font-black uppercase tracking-wider ${badgeClass}`}
+        >
           {badgeText}
         </span>
       </div>
@@ -2215,7 +2586,11 @@ function DocumentMeta({
   );
 }
 
-function UserDashboardSkeleton({ colors }: { colors: ReturnType<typeof getThemePalette> }) {
+function UserDashboardSkeleton({
+  colors,
+}: {
+  colors: ReturnType<typeof getThemePalette>;
+}) {
   return (
     <div className="space-y-6 animate-pulse">
       {/* Top Banner Skeleton */}
@@ -2236,7 +2611,10 @@ function UserDashboardSkeleton({ colors }: { colors: ReturnType<typeof getThemeP
           <div
             key={i}
             className="h-28 rounded-xl border p-4 flex flex-col justify-between"
-            style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}
+            style={{
+              borderColor: colors.borderSoft,
+              backgroundColor: colors.card,
+            }}
           >
             <div className="h-3 w-16 rounded bg-[var(--skeleton)]" />
             <div className="h-5 w-24 rounded bg-[var(--skeleton)]" />
@@ -2253,7 +2631,10 @@ function UserDashboardSkeleton({ colors }: { colors: ReturnType<typeof getThemeP
         <div className="h-3 w-24 rounded bg-[var(--skeleton)]" />
         <div className="flex flex-col md:flex-row justify-between gap-6 md:gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex-1 flex md:flex-col items-start gap-4 md:gap-3">
+            <div
+              key={i}
+              className="flex-1 flex md:flex-col items-start gap-4 md:gap-3"
+            >
               <div className="h-10 w-10 shrink-0 rounded-full bg-[var(--skeleton)]" />
               <div className="flex-1 space-y-2 w-full">
                 <div className="h-3 w-24 rounded bg-[var(--skeleton)]" />
@@ -2287,7 +2668,11 @@ function InvoicePreviewModal({
     >
       <div
         className="relative w-full max-w-md rounded-2xl border shadow-2xl"
-        style={{ backgroundColor: colors.card, borderColor: colors.border, color: colors.text }}
+        style={{
+          backgroundColor: colors.card,
+          borderColor: colors.border,
+          color: colors.text,
+        }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -2296,15 +2681,24 @@ function InvoicePreviewModal({
           style={{ borderColor: colors.borderSoft }}
         >
           <div>
-            <p className="text-[9px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+            <p
+              className="text-[9px] font-black uppercase tracking-[0.24em]"
+              style={{ color: colors.muted }}
+            >
               Invoice Preview
             </p>
-            <h3 className="mt-0.5 text-base font-black uppercase tracking-tight">Tax Invoice</h3>
+            <h3 className="mt-0.5 text-base font-black uppercase tracking-tight">
+              Tax Invoice
+            </h3>
           </div>
           <button
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-lg border transition-all hover:scale-105 active:scale-95"
-            style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong, color: colors.muted }}
+            style={{
+              borderColor: colors.borderSoft,
+              backgroundColor: colors.panelStrong,
+              color: colors.muted,
+            }}
           >
             <X size={15} />
           </button>
@@ -2324,25 +2718,42 @@ function InvoicePreviewModal({
                   })
                 : "—",
             },
-            { label: "Payment ID", value: payment.razorpayPaymentId || payment._id || "—" },
-            { label: "Amount Paid", value: payment.amount ? `INR ${payment.amount.toFixed(2)}` : "—" },
+            {
+              label: "Payment ID",
+              value: payment.razorpayPaymentId || payment._id || "—",
+            },
+            {
+              label: "Amount Paid",
+              value: payment.amount ? `INR ${payment.amount.toFixed(2)}` : "—",
+            },
             { label: "Status", value: payment.status || "—" },
           ].map(({ label, value }) => (
             <div
               key={label}
               className="flex items-center justify-between rounded-lg border px-4 py-3"
-              style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}
+              style={{
+                borderColor: colors.borderSoft,
+                backgroundColor: colors.panelStrong,
+              }}
             >
-              <span className="text-[10px] font-black uppercase tracking-wider" style={{ color: colors.muted }}>
+              <span
+                className="text-[10px] font-black uppercase tracking-wider"
+                style={{ color: colors.muted }}
+              >
                 {label}
               </span>
-              <span className="max-w-[55%] truncate text-right text-xs font-bold">{value}</span>
+              <span className="max-w-[55%] truncate text-right text-xs font-bold">
+                {value}
+              </span>
             </div>
           ))}
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 border-t px-6 pb-6 pt-4" style={{ borderColor: colors.borderSoft }}>
+        <div
+          className="flex gap-3 border-t px-6 pb-6 pt-4"
+          style={{ borderColor: colors.borderSoft }}
+        >
           {payment.invoiceUrl && (
             <a
               href={`${payment.invoiceUrl}?download=1`}
@@ -2358,7 +2769,11 @@ function InvoicePreviewModal({
           <button
             onClick={onClose}
             className="flex flex-1 items-center justify-center gap-2 rounded-lg border py-3 text-xs font-black uppercase tracking-wider transition-all hover:-translate-y-0.5"
-            style={{ borderColor: colors.border, backgroundColor: colors.panelStrong, color: colors.text }}
+            style={{
+              borderColor: colors.border,
+              backgroundColor: colors.panelStrong,
+              color: colors.text,
+            }}
           >
             Close
           </button>
@@ -2373,7 +2788,12 @@ function FeeTooltip({
   pricing,
   colors,
 }: {
-  pricing: { certificate: number; token: number; assisted: number; total: number };
+  pricing: {
+    certificate: number;
+    token: number;
+    assisted: number;
+    total: number;
+  };
   colors: ReturnType<typeof getThemePalette>;
 }) {
   const [visible, setVisible] = useState(false);
@@ -2386,7 +2806,11 @@ function FeeTooltip({
         onFocus={() => setVisible(true)}
         onBlur={() => setVisible(false)}
         className="inline-flex h-5 w-5 items-center justify-center rounded-full border transition-all hover:scale-110"
-        style={{ borderColor: colors.borderSoft, color: colors.muted, backgroundColor: colors.panelStrong }}
+        style={{
+          borderColor: colors.borderSoft,
+          color: colors.muted,
+          backgroundColor: colors.panelStrong,
+        }}
         aria-label="View fee breakdown"
       >
         <Info size={11} />
@@ -2396,7 +2820,10 @@ function FeeTooltip({
           className="absolute bottom-full left-1/2 z-50 mb-2 w-52 -translate-x-1/2 rounded-xl border p-3 shadow-2xl"
           style={{ backgroundColor: colors.card, borderColor: colors.border }}
         >
-          <p className="mb-2 text-[9px] font-black uppercase tracking-wider" style={{ color: colors.muted }}>
+          <p
+            className="mb-2 text-[9px] font-black uppercase tracking-wider"
+            style={{ color: colors.muted }}
+          >
             Fee Breakdown
           </p>
           <div className="space-y-1.5">
@@ -2405,7 +2832,10 @@ function FeeTooltip({
               { label: "USB Token", amount: pricing.token },
               { label: "Assisted Service", amount: pricing.assisted },
             ].map(({ label, amount }) => (
-              <div key={label} className="flex items-center justify-between text-[11px]">
+              <div
+                key={label}
+                className="flex items-center justify-between text-[11px]"
+              >
                 <span style={{ color: colors.muted }}>{label}</span>
                 <span className="font-bold">INR {amount}</span>
               </div>
@@ -2456,35 +2886,43 @@ function WhatsNextCard({
     next = {
       step: 1,
       title: "Submit Your Application",
-      description: "Fill in personal details, certificate requirements, and upload required documents.",
+      description:
+        "Fill in personal details, certificate requirements, and upload required documents.",
       action: { label: "Start Registration", view: "registration" },
     };
   } else if (!paymentIsSettled) {
     next = {
       step: 2,
       title: "Complete Payment",
-      description: "Your application is saved. Proceed to payment to activate admin processing.",
+      description:
+        "Your application is saved. Proceed to payment to activate admin processing.",
       action: { label: "Go to Payment", view: "payment" },
     };
   } else if (applicationStatus === "rejected") {
     next = {
       step: 3,
       title: "Resubmit Application",
-      description: "Admin requested corrections. Review the feedback and resubmit.",
+      description:
+        "Admin requested corrections. Review the feedback and resubmit.",
       action: { label: "View Admin Review", view: "admin-review" },
     };
-  } else if (applicationStatus === "approved" || applicationStatus === "issued") {
+  } else if (
+    applicationStatus === "approved" ||
+    applicationStatus === "issued"
+  ) {
     next = {
       step: 4,
       title: "Certificate Issued 🎉",
-      description: "Your Digital Signature Certificate has been processed and approved!",
+      description:
+        "Your Digital Signature Certificate has been processed and approved!",
       action: { label: "View Certificate", view: "certificate-summary" },
     };
   } else {
     next = {
       step: 3,
       title: "Awaiting Admin Review",
-      description: "Payment verified. Admin is reviewing your application — you will be notified once complete.",
+      description:
+        "Payment verified. Admin is reviewing your application — you will be notified once complete.",
       action: null,
     };
   }
@@ -2495,7 +2933,10 @@ function WhatsNextCard({
       style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
     >
       <div className="mb-3 flex items-center gap-2">
-        <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+        <p
+          className="text-[10px] font-black uppercase tracking-[0.24em]"
+          style={{ color: colors.muted }}
+        >
           What&apos;s Next
         </p>
         <span
@@ -2505,10 +2946,16 @@ function WhatsNextCard({
           Step {next.step} of 4
         </span>
       </div>
-      <h4 className="text-sm font-black uppercase tracking-tight" style={{ color: colors.text }}>
+      <h4
+        className="text-sm font-black uppercase tracking-tight"
+        style={{ color: colors.text }}
+      >
         {next.title}
       </h4>
-      <p className="mt-1 text-xs font-semibold leading-relaxed" style={{ color: colors.muted }}>
+      <p
+        className="mt-1 text-xs font-semibold leading-relaxed"
+        style={{ color: colors.muted }}
+      >
         {next.description}
       </p>
       {next.action && (
@@ -2516,7 +2963,11 @@ function WhatsNextCard({
           type="button"
           onClick={() => onNavigate(next.action!.view)}
           className="mt-3 inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5"
-          style={{ borderColor: colors.borderSoft, backgroundColor: colors.card, color: colors.accent }}
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.card,
+            color: colors.accent,
+          }}
         >
           {next.action.label}
           <ChevronRight size={12} />
@@ -2564,7 +3015,10 @@ function NotificationPrefsCard({
     >
       <div className="mb-4 flex items-center gap-2">
         <Bell size={13} style={{ color: colors.accent }} />
-        <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+        <p
+          className="text-[10px] font-black uppercase tracking-[0.24em]"
+          style={{ color: colors.muted }}
+        >
           Notification Preferences
         </p>
       </div>
@@ -2573,13 +3027,19 @@ function NotificationPrefsCard({
           <div
             key={key}
             className="flex items-center justify-between gap-3 rounded-lg border p-3"
-            style={{ borderColor: colors.inputBorder, backgroundColor: colors.panelStrong }}
+            style={{
+              borderColor: colors.inputBorder,
+              backgroundColor: colors.panelStrong,
+            }}
           >
             <div>
               <p className="text-xs font-black" style={{ color: colors.text }}>
                 {label}
               </p>
-              <p className="mt-0.5 text-[10px] font-semibold" style={{ color: colors.muted }}>
+              <p
+                className="mt-0.5 text-[10px] font-semibold"
+                style={{ color: colors.muted }}
+              >
                 {description}
               </p>
             </div>

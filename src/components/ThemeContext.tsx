@@ -41,49 +41,45 @@ const getResolvedTheme = (): Theme => {
 };
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  // Keep the initial client render aligned with the server render.
-  // The real stored/system theme is applied immediately after mount.
   const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setTheme(getResolvedTheme());
     setMounted(true);
-  }, []);
-
-  useEffect(() => {
+    const resolved = getResolvedTheme();
+    setTheme(resolved);
+    
     const root = document.documentElement;
-
-    root.classList.remove("light", "dark");
-    root.classList.add(theme);
-    root.style.colorScheme = theme;
+    if (resolved === "dark") {
+      root.classList.remove("light");
+      root.classList.add("dark");
+      root.style.colorScheme = "dark";
+    } else {
+      root.classList.remove("dark");
+      root.classList.add("light");
+      root.style.colorScheme = "light";
+    }
     root.setAttribute("data-theme-ready", "true");
-  }, [theme]);
-
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const handler = (event: MediaQueryListEvent) => {
-      if (getStoredTheme()) return;
-      setTheme(event.matches ? "dark" : "light");
-    };
-
-    media.addEventListener("change", handler);
-    return () => media.removeEventListener("change", handler);
   }, []);
 
   const toggleTheme = () => {
-    setTheme((current) => {
-      const nextTheme = current === "dark" ? "light" : "dark";
-
-      try {
-        localStorage.setItem(STORAGE_KEY, nextTheme);
-      } catch {
-        // Ignore storage errors and still let the UI switch.
-      }
-
-      return nextTheme;
-    });
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    try {
+      localStorage.setItem(STORAGE_KEY, nextTheme);
+    } catch {
+      // Ignore storage errors
+    }
+    const root = document.documentElement;
+    if (nextTheme === "dark") {
+      root.classList.remove("light");
+      root.classList.add("dark");
+      root.style.colorScheme = "dark";
+    } else {
+      root.classList.remove("dark");
+      root.classList.add("light");
+      root.style.colorScheme = "light";
+    }
   };
 
   return (
