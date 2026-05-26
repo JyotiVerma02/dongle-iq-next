@@ -258,7 +258,7 @@ export default function DongleIQLanding() {
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <button
-                  onClick={() => router.push("/signup")}
+                  onClick={() => router.push("/register")}
                   className="button-primary"
                 >
                   Start application
@@ -507,7 +507,7 @@ export default function DongleIQLanding() {
 
       <section id="contact" className="section">
         <div className="container-shell">
-          <div className="contact-shell">
+                 <div className="contact-shell">
             <div className="contact-copy">
               <SectionHeader
                 align="left"
@@ -659,8 +659,8 @@ export default function DongleIQLanding() {
             <FooterLinks
               title="Services"
               items={[
-                { label: "Digital Signature Certificate", href: "/signup" },
-                { label: "IRCTC Agent Registration", href: "/signup" },
+                { label: "Digital Signature Certificate", href: "/register" },
+                { label: "IRCTC Agent Registration", href: "/register" },
                 { label: "Aadhaar eKYC Verification", href: "/verify-aadhaar" },
                 { label: "Renewal and reissue", href: "/login" },
               ]}

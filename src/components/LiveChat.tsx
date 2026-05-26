@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { LoaderCircle, MessageSquare, Send, X } from "lucide-react";
+import {
+  ChevronLeft,
+  LoaderCircle,
+  MessageSquare,
+  Send,
+  X,
+} from "lucide-react";
 
 type ChatRole = "user" | "support";
 
@@ -17,10 +23,7 @@ type LiveChatProps = {
   onClose: () => void;
   title?: string;
   storageKey?: string;
-  onSendMessage?: (
-    message: string,
-    history: ChatMessage[],
-  ) => Promise<string>;
+  onSendMessage?: (message: string, history: ChatMessage[]) => Promise<string>;
 };
 
 const DEFAULT_STORAGE_KEY = "dongleiq-live-chat";
@@ -151,7 +154,8 @@ export default function LiveChat({
   }, [open, onClose]);
 
   const messageCountLabel = useMemo(
-    () => `${messages.length} ${messages.length === 1 ? "message" : "messages"}`,
+    () =>
+      `${messages.length} ${messages.length === 1 ? "message" : "messages"}`,
     [messages.length],
   );
 
@@ -203,7 +207,7 @@ export default function LiveChat({
 
   return (
     <div
-      className="live-chat-backdrop fixed inset-0 z-120 flex items-end justify-end p-0 sm:p-6"
+      className="live-chat-backdrop fixed inset-0 z-[999] flex items-end justify-end p-0 sm:p-6"
       onClick={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -212,11 +216,19 @@ export default function LiveChat({
     >
       <div
         ref={panelRef}
-        className="live-chat-panel flex h-dvh w-full flex-col overflow-hidden border text-(--foreground) shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(42rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
+        className="live-chat-panel relative z-[1000] flex h-dvh w-full flex-col overflow-hidden border text-(--foreground) shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(42rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
       >
-        <div className="flex items-center justify-between border-b border-(--border-soft) bg-(--card) px-4 py-3.5">
+        <div className="relative z-[1000] flex items-center justify-between border-b border-(--border-soft) bg-(--card) px-4 pb-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] sm:pt-3.5">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-(--accent-soft) text-(--accent)">
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Go back"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-(--border-soft) bg-(--background-alt) text-(--foreground) sm:hidden"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-2xl bg-(--accent-soft) text-(--accent)">
               <MessageSquare size={18} />
             </div>
             <div>
@@ -229,7 +241,7 @@ export default function LiveChat({
             type="button"
             onClick={onClose}
             aria-label="Close live chat"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-(--border-soft) bg-(--card) text-(--foreground)"
+            className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-(--border-soft) bg-(--card) text-(--foreground)"
           >
             <X size={18} />
           </button>
@@ -273,7 +285,7 @@ export default function LiveChat({
           <div ref={bottomRef} />
         </div>
 
-        <div className="border-t border-(--border-soft) bg-(--card) p-4">
+        <div className="border-t border-(--border-soft) bg-(--card) p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:pb-4">
           <div className="flex items-center gap-2">
             <input
               ref={inputRef}

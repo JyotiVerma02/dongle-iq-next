@@ -58,14 +58,16 @@ export const PerformanceCharts = memo(function PerformanceCharts({
     <div className="mb-8 grid gap-6 lg:grid-cols-3">
       <div
         className="ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-4 sm:p-6"
-        style={{ borderColor: "var(--border-soft)", backgroundColor: "var(--card)" }}
+        style={{
+          borderColor: "var(--border-soft)",
+          backgroundColor: "var(--card)",
+        }}
       >
         <h3 className="mb-4 text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)]">
           Status Breakdown
         </h3>
         <div style={{ width: "100%", height: 250, minHeight: 250 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+<ResponsiveContainer width="100%" height={300}>            <PieChart>
               <Pie
                 data={statusData}
                 innerRadius={60}
@@ -74,7 +76,10 @@ export const PerformanceCharts = memo(function PerformanceCharts({
                 dataKey="value"
               >
                 {statusData.map((entry, index) => (
-                  <Cell key={`cell-${entry.name}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell
+                    key={`cell-${entry.name}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
                 ))}
               </Pie>
               <Tooltip contentStyle={tooltipStyle} />
@@ -86,15 +91,22 @@ export const PerformanceCharts = memo(function PerformanceCharts({
 
       <div
         className="ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-4 sm:p-6"
-        style={{ borderColor: "var(--border-soft)", backgroundColor: "var(--card)" }}
+        style={{
+          borderColor: "var(--border-soft)",
+          backgroundColor: "var(--card)",
+        }}
       >
         <h3 className="mb-4 text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)]">
           Service Breakdown (%)
         </h3>
         <div style={{ width: "100%", height: 300, minHeight: 300 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={serviceData} innerRadius={0} outerRadius={80} dataKey="value">
+<ResponsiveContainer width="100%" height={300}>            <PieChart>
+              <Pie
+                data={serviceData}
+                innerRadius={0}
+                outerRadius={80}
+                dataKey="value"
+              >
                 {serviceData.map((entry, index) => (
                   <Cell
                     key={`service-cell-${entry.name}`}
@@ -114,14 +126,21 @@ export const PerformanceCharts = memo(function PerformanceCharts({
 
       <div
         className="ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-4 sm:p-6"
-        style={{ borderColor: "var(--border-soft)", backgroundColor: "var(--card)" }}
+        style={{
+          borderColor: "var(--border-soft)",
+          backgroundColor: "var(--card)",
+        }}
       >
         <h3 className="mb-4 text-[10px] font-black uppercase tracking-[0.24em] text-[var(--muted)]">
           Revenue Trend
         </h3>
         <div style={{ width: "100%", height: 300, minHeight: 300 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={revenueData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+          <ResponsiveContainer width="100%" height={300}>
+            {" "}
+            <LineChart
+              data={revenueData}
+              margin={{ top: 5, right: 10, left: -20, bottom: 0 }}
+            >
               <CartesianGrid
                 strokeDasharray="3 3"
                 vertical={false}
@@ -142,14 +161,22 @@ export const PerformanceCharts = memo(function PerformanceCharts({
               />
               <Tooltip
                 contentStyle={tooltipStyle}
-                formatter={(value) => [`Rs${Number(value ?? 0).toLocaleString()}`, "Revenue"]}
+                formatter={(value) => [
+                  `Rs${Number(value ?? 0).toLocaleString()}`,
+                  "Revenue",
+                ]}
               />
               <Line
                 type="monotone"
                 dataKey="value"
                 stroke="#ff6a00"
                 strokeWidth={3}
-                dot={{ r: 4, strokeWidth: 2, fill: "#ff6a00", stroke: "#ff6a00" }}
+                dot={{
+                  r: 4,
+                  strokeWidth: 2,
+                  fill: "#ff6a00",
+                  stroke: "#ff6a00",
+                }}
                 activeDot={{ r: 6, fill: "#ff6a00", stroke: "#ff6a00" }}
               />
             </LineChart>

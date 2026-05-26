@@ -68,8 +68,8 @@ function buildOtpBody(otp: string, label: string) {
 
 export function createUserOtpEmail(params: { otp: string; name?: string }) {
   const intro = params.name
-    ? `Hi ${params.name}, use the verification code below to complete your DongleIQ signup.`
-    : "Use the verification code below to complete your DongleIQ signup.";
+    ? `Hi ${params.name}, use the verification code below to complete your DongleIQ registration.`
+    : "Use the verification code below to complete your DongleIQ registration.";
 
   return {
     subject: "Verify your DongleIQ email",

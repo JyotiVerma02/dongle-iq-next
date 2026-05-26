@@ -100,7 +100,7 @@ export async function GET(req: Request) {
     return response;
   }
 
-  const redirectUrl = new URL("/signup", req.url);
+  const redirectUrl = new URL("/register", req.url);
   redirectUrl.searchParams.set("email", email);
 
   if (payload?.name) {

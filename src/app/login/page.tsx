@@ -32,7 +32,7 @@ function LoginContent() {
     setError("");
 
     if (!email || !password) {
-      setError("Credentials required to initialize session.");
+      setError("Please enter your email and password.");
       return;
     }
 
@@ -84,7 +84,7 @@ function LoginContent() {
       }
 
       if (!res.ok) {
-        setError(data.message || "Authentication failed");
+        setError(data.message || "Invalid email or password.");
         return;
       }
 
@@ -110,30 +110,30 @@ function LoginContent() {
       style={{ color: colors.text }}
     >
       <div className="relative z-10 flex w-full app-page-min-height items-center justify-center py-6 sm:py-8">
-        {/* --- ULTRA-WIDE CONTAINER FIX --- */}
-        <div className="content-container flex flex-col items-center justify-center lg:flex-row lg:gap-10 xl:gap-20">
-          {/* ASIDE SECTION: Secure Access */}
+        <div className="content-container flex flex-col items-center justify-center lg:flex-row lg:gap-10 xl:gap-16">
           <div
-            className="hidden lg:flex lg:w-full lg:max-w-[32rem] lg:flex-col lg:justify-center lg:pr-10 xl:max-w-[34rem] xl:pr-16"
+            className="hidden lg:flex lg:w-full lg:max-w-[32rem] lg:flex-col lg:justify-center lg:pr-8 xl:max-w-[34rem] xl:pr-12"
             style={{ borderRight: `1px solid ${colors.borderSoft}` }}
           >
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
               <h1 className="mb-5 text-4xl font-black uppercase leading-tight tracking-tight xl:text-5xl">
-                <span style={{ color: colors.text }}>Secure</span>{" "}
+                <span style={{ color: colors.text }}>DSC & IRCTC</span>{" "}
                 <span className="text-gradient-brand">Access</span>
               </h1>
               <p
                 className="mb-7 max-w-lg text-sm font-medium leading-relaxed opacity-80"
                 style={{ color: colors.muted }}
               >
-                Enter your credentials to manage your Digital Signature
-                Certificates and IRCTC Agent registrations in our unified
-                dashboard.
+                Log in to securely manage DSC applications, IRCTC services, and
+                customer onboarding from your dashboard.
               </p>
               <div className="grid max-w-xl grid-cols-2 gap-4">
                 {[
-                  { value: "Encrypted", label: "Access layer" },
-                  { value: "7 Days", label: "Secure session" },
+                  { value: "Secure Login", label: "Encrypted access" },
+                  {
+                    value: "Protected Session",
+                    label: "Trusted authentication",
+                  },
                 ].map((item, index) => (
                   <div
                     key={item.label}
@@ -167,16 +167,15 @@ function LoginContent() {
             </div>
           </div>
 
-          {/* FORM SECTION: Login Card */}
-          <div className="no-scrollbar flex w-full max-w-md items-center justify-center px-4 py-6 lg:px-0">
+          <div className="no-scrollbar flex w-full max-w-md items-center justify-center px-4 py-8 lg:px-0">
             <div className="group relative w-full max-w-[32rem] animate-[fadeIn_1.2s_ease-out]">
               <div
-                className="absolute -inset-px rounded-lg opacity-40 blur-sm transition-opacity duration-500 group-hover:opacity-100"
+                className="absolute -inset-px rounded-xl opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-90"
                 style={{ background: premiumGradient }}
               />
 
               <div
-                className="auth-card glass-panel-premium shine-border relative w-full overflow-hidden p-3.5 md:p-5"
+                className="auth-card glass-panel-premium shine-border relative w-full overflow-hidden p-4 sm:p-5 md:p-6"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -188,13 +187,14 @@ function LoginContent() {
                     className="text-xl font-black uppercase tracking-tight"
                     style={{ color: colors.text }}
                   >
-                    <span className="text-gradient-cool">Login</span>
+                    <span className="text-gradient-cool">Agent Sign In</span>
                   </h2>
                   <p
                     className="mt-1.5 text-xs font-medium opacity-80"
                     style={{ color: colors.muted }}
                   >
-                    See your growth and get consulting support.
+                    Securely access your agent portal and continue managing
+                    applications.
                   </p>
                 </div>
 
@@ -245,8 +245,8 @@ function LoginContent() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value.toLowerCase())}
                       autoComplete="username"
-                      placeholder="agent@dongleiq.com"
-                      className="glass-input w-full rounded-md border px-3 py-2.5 text-sm lowercase font-semibold outline-none"
+                      placeholder="Enter email address"
+                      className="glass-input w-full rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none"
                       style={{
                         backgroundColor: colors.input,
                         borderColor: colors.inputBorder,
@@ -268,8 +268,8 @@ function LoginContent() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         autoComplete="current-password"
-                        placeholder="••••••••"
-                        className="glass-input w-full rounded-md border px-3 py-2.5 pr-11 text-sm font-semibold outline-none"
+                        placeholder="Enter password"
+                        className="glass-input w-full rounded-lg border px-3 py-2.5 pr-11 text-sm font-semibold outline-none"
                         style={{
                           backgroundColor: colors.input,
                           borderColor: colors.inputBorder,
@@ -321,20 +321,20 @@ function LoginContent() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex w-full items-center justify-center gap-2 rounded-md py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
                     style={{ backgroundColor: colors.accent }}
                   >
-                    {loading ? "Processing..." : "Login"} <LogIn size={16} />
+                    {loading ? "Signing In..." : "Sign In"} <LogIn size={16} />
                   </button>
 
                   <div
                     className="pt-2 text-center text-sm font-semibold"
                     style={{ color: colors.subtleText }}
                   >
-                    Not registered yet?{" "}
-                    <Link href="/signup">
-                      <span className="underline ml-1 text-gradient-brand">
-                        Create an Account
+                    Don&apos;t have an account?{" "}
+                    <Link href="/register">
+                      <span className="ml-1 underline text-gradient-brand">
+                        Register now
                       </span>
                     </Link>
                   </div>
@@ -343,7 +343,6 @@ function LoginContent() {
             </div>
           </div>
         </div>
-        {/* --- END OF FIX --- */}
       </div>
 
       <style jsx global>{`

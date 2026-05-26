@@ -86,16 +86,16 @@ export async function POST(req: Request) {
       return response;
     }
 
-    const signupUrl = new URL("/signup", process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
-    signupUrl.searchParams.set("email", email);
+    const registerUrl = new URL("/register", process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
+    registerUrl.searchParams.set("email", email);
     if (name) {
-      signupUrl.searchParams.set("name", name);
+      registerUrl.searchParams.set("name", name);
     }
-    signupUrl.searchParams.set("google", "1");
+    registerUrl.searchParams.set("google", "1");
 
     return NextResponse.json({
       success: true,
-      redirectTo: signupUrl.pathname + signupUrl.search,
+      redirectTo: registerUrl.pathname + registerUrl.search,
       needsRegistration: true,
     });
   } catch (error) {

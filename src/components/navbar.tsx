@@ -3,7 +3,16 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Cpu, LogIn, LogOut, Menu, Moon, SunMedium, X } from "lucide-react";
+import {
+  Cpu,
+  LogIn,
+  LogOut,
+  Menu,
+  Moon,
+  SunMedium,
+  UserPlus,
+  X,
+} from "lucide-react";
 
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
@@ -19,6 +28,7 @@ const NAV_LINKS = [
 const AUTH_ROUTES = new Set([
   "/",
   "/login",
+  "/register",
   "/signup",
   "/forgot-password",
   "/reset-password",
@@ -74,6 +84,12 @@ export default function Navbar() {
   const showAuthButtons = AUTH_ROUTES.has(pathname);
   const showLogout = LOGOUT_ROUTES.has(pathname);
   const themeIcon = !mounted ? null : isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />;
+  const authAction =
+    pathname === "/login"
+      ? { href: "/register", label: "Register", icon: <UserPlus size={16} /> }
+      : pathname === "/register" || pathname === "/signup"
+        ? { href: "/login", label: "Login", icon: <LogIn size={16} /> }
+        : { href: "/login", label: "Login", icon: <LogIn size={16} /> };
 
   const handleLogout = async () => {
     try {
@@ -137,15 +153,15 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           {showAuthButtons ? (
             <button
-              onClick={() => router.push("/login")}
-            className="hidden min-h-11 items-center gap-2 rounded-xl px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
+              onClick={() => router.push(authAction.href)}
+              className="hidden min-h-11 items-center gap-2 rounded-xl px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
               style={{
                 background: colors.accent,
                 boxShadow: `0 22px 40px -24px ${colors.accentShadow}, 0 0 32px -10px ${colors.accentShadow}`,
               }}
             >
-              <LogIn size={16} />
-              Login
+              {authAction.icon}
+              {authAction.label}
             </button>
           ) : null}
 
@@ -217,7 +233,7 @@ export default function Navbar() {
           {showAuthButtons ? (
             <button
               onClick={() => {
-                router.push("/login");
+                router.push(authAction.href);
                 setIsMenuOpen(false);
               }}
               className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold text-white"
@@ -226,8 +242,8 @@ export default function Navbar() {
                 boxShadow: `0 16px 28px -20px ${colors.accentShadow}`,
               }}
             >
-              <LogIn size={16} />
-              Login
+              {authAction.icon}
+              {authAction.label}
             </button>
           ) : null}
 
