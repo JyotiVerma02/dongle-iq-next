@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { buildChanges, createAuditEntry } from "@/lib/adminAudit";
+import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { connectDB } from "@/lib/mongodb";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
-import Admin from "@/models/admin";
 import User from "@/models/user";
 
 const listParamsSchema = z.object({
@@ -138,7 +138,7 @@ const deleteHandler = async (req: NextRequest, decoded: AuthToken) => {
   try {
     await connectDB();
 
-    const admin = await Admin.findById(decoded.userId).select("name email role");
+    const admin = await resolveAdminActor(decoded.userId);
     if (!admin) {
       return NextResponse.json(
         { success: false, message: "Admin not found" },

@@ -11,13 +11,22 @@ import {
   Headset,
   Settings,
   LogOut,
-  Lock,
   Sparkles,
   Gem,
+  Moon,
+  SunMedium,
 } from "lucide-react";
 
 export type UserDashboardView =
   | "overview"
+  | "applications"
+  | "my-dsc"
+  | "irctc-agents"
+  | "transactions"
+  | "notifications"
+  | "support-tickets"
+  | "profile-settings"
+  | "upgrade-pro"
   | "registration"
   | "payment"
   | "admin-review"
@@ -26,10 +35,9 @@ export type UserDashboardView =
   | "documents";
 
 type NavEntry = {
-  view: UserDashboardView | "dummy-irctc" | "dummy-support";
+  view: UserDashboardView;
   label: string;
   icon: React.ReactNode;
-  locked: boolean;
   badge?: number;
 };
 
@@ -51,6 +59,8 @@ export function UserSidebar({
   isCollapsed,
   onViewChange,
   onLogout,
+  onToggleTheme,
+  isDarkMode,
 }: {
   view: UserDashboardView;
   userData: { name?: string; email?: string } | null;
@@ -59,6 +69,8 @@ export function UserSidebar({
   isCollapsed: boolean;
   onViewChange: (next: UserDashboardView) => void;
   onLogout: () => void;
+  onToggleTheme: () => void;
+  isDarkMode: boolean;
 }) {
   const initials = userData?.name
     ? userData.name
@@ -72,61 +84,54 @@ export function UserSidebar({
   const navigationItems: NavEntry[] = [
     {
       view: "overview",
-      label: "Overview",
+      label: "Overview Dashboard",
       icon: <LayoutDashboard size={18} />,
-      locked: false,
     },
     {
-      view: "registration",
+      view: "applications",
       label: "My Applications",
       icon: <FileText size={18} />,
-      locked: false,
     },
     {
-      view: "certificate-summary",
+      view: "my-dsc",
       label: "My DSC",
       icon: <ShieldCheck size={18} />,
-      locked: !hasSubmittedApplication,
     },
     {
-      view: "dummy-irctc",
+      view: "irctc-agents",
       label: "IRCTC Agents",
       icon: <Users size={18} />,
-      locked: false,
     },
     {
-      view: "payment",
+      view: "transactions",
       label: "Transactions",
       icon: <CreditCard size={18} />,
-      locked: !hasSubmittedApplication,
     },
     {
-      view: "admin-review",
+      view: "notifications",
       label: "Notifications",
       icon: <Bell size={18} />,
-      locked: !hasSubmittedApplication,
       badge: 3,
     },
     {
-      view: "dummy-support",
+      view: "support-tickets",
       label: "Support Tickets",
       icon: <Headset size={18} />,
-      locked: false,
     },
     {
-      view: "personal-details",
+      view: "profile-settings",
       label: "Profile & Settings",
       icon: <Settings size={18} />,
-      locked: !hasSubmittedApplication,
+    },
+    {
+      view: "upgrade-pro",
+      label: "Upgrade to Pro",
+      icon: <Gem size={18} />,
     },
   ];
 
   const handleItemClick = (entry: NavEntry) => {
-    if (entry.locked) return;
-    if (entry.view === "dummy-irctc" || entry.view === "dummy-support") {
-      return;
-    }
-    onViewChange(entry.view as UserDashboardView);
+    onViewChange(entry.view);
   };
 
   return (
@@ -171,10 +176,7 @@ export function UserSidebar({
                     key={item.label}
                     type="button"
                     onClick={() => handleItemClick(item)}
-                    disabled={item.locked}
                     className={`group relative flex items-center justify-between rounded-xl px-3.5 py-3 text-left transition-all duration-200 ${
-                      item.locked ? "cursor-not-allowed opacity-40" : ""
-                    } ${
                       isActive
                         ? "ud-nav-active font-semibold"
                         : "ud-sidebar-nav-item ud-hover-surface"
@@ -208,9 +210,6 @@ export function UserSidebar({
                             {item.badge}
                           </span>
                         ) : null}
-                        {item.locked ? (
-                          <Lock size={12} className="ud-sidebar-nav-icon" />
-                        ) : null}
                       </div>
                     )}
                   </button>
@@ -236,6 +235,7 @@ export function UserSidebar({
               </p>
               <button
                 type="button"
+                onClick={() => onViewChange("upgrade-pro")}
                 className="ud-upgrade-btn mt-3.5 flex w-full items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold text-white transition hover:scale-[1.02] active:scale-95"
               >
                 Upgrade Now
@@ -272,9 +272,33 @@ export function UserSidebar({
                   <p className="ud-sidebar-profile-email truncate text-[10px] font-medium">
                     {userData?.email || ""}
                   </p>
+                  <span className="mt-1 inline-flex rounded-md border border-purple-500/20 bg-purple-500/10 px-1.5 py-0.5 text-[9px] font-bold text-purple-500">
+                    Free Plan
+                  </span>
                 </div>
               )}
             </div>
+
+            {!isCollapsed && (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => onViewChange("profile-settings")}
+                  className="ud-sidebar-logout ud-hover-surface flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[10px] font-semibold transition"
+                >
+                  <Settings size={13} />
+                  Settings
+                </button>
+                <button
+                  type="button"
+                  onClick={onToggleTheme}
+                  className="ud-sidebar-logout ud-hover-surface flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[10px] font-semibold transition"
+                >
+                  {isDarkMode ? <SunMedium size={13} /> : <Moon size={13} />}
+                  Theme
+                </button>
+              </div>
+            )}
 
             <button
               type="button"

@@ -21,7 +21,6 @@ import {
   Headset,
   Info,
   LoaderCircle,
-  Lock,
   Menu,
   PencilLine,
   Search,
@@ -33,7 +32,6 @@ import {
   Upload,
   Users,
   X,
-  Zap,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { ErrorBoundary } from "@/app/admin/dashboard/components/common/ErrorBoundary";
@@ -132,7 +130,15 @@ const DEFAULT_FORM_VALUES: ApplicationFormData = {
 };
 
 const USER_VIEW_LABELS: Record<UserDashboardView, string> = {
-  overview: "Overview",
+  overview: "Overview Dashboard",
+  applications: "My Applications",
+  "my-dsc": "My DSC",
+  "irctc-agents": "IRCTC Agents",
+  transactions: "Transactions",
+  notifications: "Notifications",
+  "support-tickets": "Support Tickets",
+  "profile-settings": "Profile & Settings",
+  "upgrade-pro": "Upgrade to Pro",
   registration: "Start registration",
   payment: "Payment",
   "admin-review": "Admin review",
@@ -196,8 +202,6 @@ function UserDashboardPage() {
   const [paymentMessage, setPaymentMessage] = useState("");
   const [paymentError, setPaymentError] = useState("");
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
-  const [notifyEmail, setNotifyEmail] = useState(true);
-  const [notifySMS, setNotifySMS] = useState(false);
 
   const hasSubmittedApplication = hasCompletedApplication(userData);
   const applicationStatus = hasSubmittedApplication
@@ -513,71 +517,6 @@ function UserDashboardPage() {
     clearPreviewDraft();
     sessionStorage.setItem("verifiedMobile", userData.number || "");
     router.push(`/bank-telecom-form?mobile=${userData.number || ""}`);
-  };
-
-  const handleExportJSON = () => {
-    if (!userData) return;
-    const exportData = {
-      exportedAt: new Date().toISOString(),
-      applicant: {
-        name: userData.name,
-        email: userData.email,
-        mobile: userData.number,
-        pan: userData.pan,
-        gender: userData.gender,
-        dob: userData.dob,
-        ekycId: userData.ekycId,
-        address: userData.address,
-        city: userData.city,
-        state: userData.state,
-        pincode: userData.pincode,
-      },
-      certificate: {
-        class: userData.certificateClass,
-        type: userData.certType,
-        validity: userData.validity,
-        tokenType: userData.tokenType,
-        assistedService: userData.assistedService,
-      },
-      payment: {
-        status: userData.paymentStatus,
-        amount: userData.price,
-        invoiceNumber: paymentSummary?.invoiceNumber,
-        invoiceDate: paymentSummary?.invoiceDate,
-        razorpayPaymentId: paymentSummary?.razorpayPaymentId,
-      },
-      applicationStatus: userData.status,
-      submittedAt: userData.createdAt,
-    };
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `dongle-iq-${userData.name?.replace(/\s+/g, "-") || "application"}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleToggleEmail = () => {
-    setNotifyEmail((prev) => {
-      const next = !prev;
-      if (typeof window !== "undefined")
-        localStorage.setItem("pref_notify_email", String(next));
-      return next;
-    });
-  };
-
-  const handleToggleSMS = () => {
-    setNotifySMS((prev) => {
-      const next = !prev;
-      if (typeof window !== "undefined")
-        localStorage.setItem("pref_notify_sms", String(next));
-      return next;
-    });
   };
 
   const handleSidebarToggle = () => {
@@ -979,11 +918,11 @@ function UserDashboardPage() {
     ];
 
     const stepIndex = stepId - 1;
-    if (completedByStep[stepIndex]) return "completed";
+    const isCompleted = completedByStep.slice(0, stepIndex + 1).every(Boolean);
+    if (isCompleted) return "completed";
 
     const firstIncomplete = completedByStep.findIndex((done) => !done);
     if (firstIncomplete === stepIndex) return "active";
-    if (firstIncomplete === -1) return "completed";
     return "pending";
   };
 
@@ -1475,70 +1414,9 @@ function UserDashboardPage() {
         </div>
       </div>
 
-      {/* Row 4: Bottom features list */}
-      <div className="mt-6 grid grid-cols-1 gap-5 border-t border-slate-100 pt-6 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          {
-            title: "Secure & Encrypted",
-            desc: "Your data is protected with 256-bit encryption.",
-            icon: <Lock size={16} className="text-purple-600" />,
-            bg: "bg-purple-50 border border-purple-100/50",
-          },
-          {
-            title: "Fast Processing",
-            desc: "Quick verification and certificate delivery.",
-            icon: <Zap size={16} className="text-orange-600" />,
-            bg: "bg-orange-50 border border-orange-100/50",
-          },
-          {
-            title: "Expert Support",
-            desc: "Dedicated support for all your queries.",
-            icon: <Headset size={16} className="text-blue-600" />,
-            bg: "bg-blue-50 border border-blue-100/50",
-          },
-          {
-            title: "Trusted by Thousands",
-            desc: "Businesses across India trust DongleIQ.",
-            icon: <Users size={16} className="text-green-600" />,
-            bg: "bg-green-50 border border-green-100/50",
-          },
-        ].map((item, idx) => (
-          <div key={idx} className="flex items-start gap-3">
-            <div
-              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.bg}`}
-            >
-              {item.icon}
-            </div>
-            <div className="text-left">
-              <h5 className="text-xs font-bold text-slate-800">{item.title}</h5>
-              <p className="text-[10px] text-slate-500 leading-snug mt-0.5">
-                {item.desc}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Dynamic secondary logic sections below the main dashboard */}
+      {/* Application history */}
       {hasSubmittedApplication && (
         <div className="space-y-6 pt-6 border-t border-slate-100">
-          {/* Whats Next */}
-          <WhatsNextCard
-            hasSubmittedApplication={hasSubmittedApplication}
-            paymentIsSettled={paymentIsSettled}
-            applicationStatus={applicationStatus}
-            colors={colors}
-            onNavigate={selectView}
-          />
-          {/* Notification Prefs */}
-          <NotificationPrefsCard
-            notifyEmail={notifyEmail}
-            notifySMS={notifySMS}
-            onToggleEmail={handleToggleEmail}
-            onToggleSMS={handleToggleSMS}
-            colors={colors}
-          />
-          {/* Action History Log */}
           {userData?.actionHistory && userData.actionHistory.length > 0 && (
             <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
               <p className="text-[10px] font-black uppercase tracking-[0.24em] mb-4 text-slate-400">
@@ -1572,25 +1450,6 @@ function UserDashboardPage() {
               </div>
             </div>
           )}
-          {/* Export JSON */}
-          <div className="flex items-center justify-between rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">
-                Application Data
-              </p>
-              <p className="mt-1 text-xs font-semibold text-slate-500">
-                Export your full application as a JSON file for your records.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={handleExportJSON}
-              className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-orange-500 transition hover:bg-slate-100 cursor-pointer shadow-sm"
-            >
-              <Download size={13} />
-              Export JSON
-            </button>
-          </div>
         </div>
       )}
     </div>
@@ -2052,6 +1911,140 @@ function UserDashboardPage() {
       postSubmitLocked
     );
 
+  const cleanPanel = ({
+    title,
+    eyebrow,
+    description,
+    children,
+  }: {
+    title: string;
+    eyebrow: string;
+    description: string;
+    children?: ReactNode;
+  }) => (
+    <section
+      className="ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-4 sm:p-6 lg:p-8"
+      style={{ backgroundColor: colors.card, borderColor: colors.border }}
+    >
+      <p
+        className="text-[10px] font-black uppercase tracking-[0.24em]"
+        style={{ color: colors.muted }}
+      >
+        {eyebrow}
+      </p>
+      <h2
+        className="mt-2 text-xl font-black tracking-tight"
+        style={{ color: colors.text }}
+      >
+        {title}
+      </h2>
+      <p
+        className="mt-2 max-w-2xl text-sm font-semibold leading-relaxed"
+        style={{ color: colors.muted }}
+      >
+        {description}
+      </p>
+      {children ? <div className="mt-5">{children}</div> : null}
+    </section>
+  );
+
+  const applicationsPanel = cleanPanel({
+    title: "My Applications",
+    eyebrow: "Submitted DSC applications",
+    description: "Your submitted DSC application, review status, and payment progress stay here.",
+    children: userData ? (
+      <div className="ud-meta-grid">
+        <StatusMeta label="Application ID" value={userData._id?.slice(-6).toUpperCase() || "Not created"} colors={colors} />
+        <StatusMeta label="Type" value={userData.certType || "Not selected"} colors={colors} />
+        <StatusMeta label="Status" value={applicationStatus || "Not submitted"} colors={colors} />
+        <StatusMeta label="Submitted" value={submittedOn} colors={colors} />
+      </div>
+    ) : null,
+  });
+
+  const myDscPanel = cleanPanel({
+    title: "My DSC",
+    eyebrow: "Issued certificates",
+    description: "Issued certificate details will appear here after approval and issuance.",
+    children: (
+      <div className="ud-meta-grid">
+        <StatusMeta label="Certificate" value={userData?.certType || "Not issued"} colors={colors} />
+        <StatusMeta label="Validity" value={userData?.validity || "Not available"} colors={colors} />
+        <StatusMeta label="Token" value={userData?.tokenType || "Not linked"} colors={colors} />
+        <StatusMeta label="Status" value={applicationStatus === "issued" ? "Issued" : "Pending issue"} colors={colors} />
+      </div>
+    ),
+  });
+
+  const transactionsPanel = cleanPanel({
+    title: "Transactions",
+    eyebrow: "Payments history",
+    description: "Payment status, invoice, and Razorpay transaction details.",
+    children: (
+      <div className="ud-meta-grid">
+        <StatusMeta label="Payment Status" value={paymentSummary?.status || paymentStatus} colors={colors} />
+        <StatusMeta label="Amount" value={`INR ${payableAmount.toFixed(2)}`} colors={colors} />
+        <StatusMeta label="Invoice" value={paymentSummary?.invoiceNumber || "Pending"} colors={colors} />
+        <StatusMeta label="Razorpay ID" value={paymentSummary?.razorpayPaymentId || "Not available"} colors={colors} />
+      </div>
+    ),
+  });
+
+  const notificationsPanel = cleanPanel({
+    title: "Notifications",
+    eyebrow: "Account updates",
+    description: "Important application, payment, and admin review updates.",
+    children: (
+      <div className="grid gap-3">
+        {[
+          userData?.isVerified ? "Mobile verification completed." : "Mobile verification is pending.",
+          hasSubmittedApplication ? `Application status is ${applicationStatus}.` : "No submitted application yet.",
+          paymentIsSettled ? "Payment has been verified." : "Payment is pending.",
+        ].map((message) => (
+          <div
+            key={message}
+            className="rounded-lg border px-3 py-3 text-xs font-semibold"
+            style={{ borderColor: colors.inputBorder, backgroundColor: colors.panelStrong, color: colors.text }}
+          >
+            {message}
+          </div>
+        ))}
+      </div>
+    ),
+  });
+
+  const supportPanel = cleanPanel({
+    title: "Support Tickets",
+    eyebrow: "Customer support",
+    description: "Support ticket creation is not connected yet. Use live chat for help right now.",
+  });
+
+  const irctcPanel = cleanPanel({
+    title: "IRCTC Agents",
+    eyebrow: "IRCTC registrations",
+    description: "IRCTC agent registrations are not connected for this account yet.",
+  });
+
+  const profileSettingsPanel = cleanPanel({
+    title: "Profile & Settings",
+    eyebrow: "Account settings",
+    description: "Your core account details.",
+    children: (
+      <div className="ud-meta-grid">
+        <StatusMeta label="Name" value={userData?.name || "Not added"} colors={colors} />
+        <StatusMeta label="Email" value={userData?.email || "Not added"} colors={colors} />
+        <StatusMeta label="Mobile" value={userData?.number || "Not added"} colors={colors} />
+        <StatusMeta label="Aadhaar" value={userData?.isAadhaarVerified ? "Verified" : "Not verified"} colors={colors} />
+      </div>
+    ),
+  });
+
+  const upgradeProPanel = cleanPanel({
+    title: "Upgrade to Pro",
+    eyebrow: "Premium plan",
+    description: "Premium features are not active yet for this account.",
+  });
+
   let mainSections: ReactNode = null;
   if (!loading) {
     switch (view) {
@@ -2060,6 +2053,78 @@ function UserDashboardPage() {
           <ErrorBoundary>
             <div key={view} className="ud-enter space-y-6 sm:space-y-8">
               {overviewPanel}
+            </div>
+          </ErrorBoundary>
+        );
+        break;
+      case "applications":
+        mainSections = (
+          <ErrorBoundary>
+            <div key={view} className="ud-enter space-y-6 sm:space-y-8">
+              {applicationsPanel}
+            </div>
+          </ErrorBoundary>
+        );
+        break;
+      case "my-dsc":
+        mainSections = (
+          <ErrorBoundary>
+            <div key={view} className="ud-enter space-y-6 sm:space-y-8">
+              {myDscPanel}
+            </div>
+          </ErrorBoundary>
+        );
+        break;
+      case "irctc-agents":
+        mainSections = (
+          <ErrorBoundary>
+            <div key={view} className="ud-enter space-y-6 sm:space-y-8">
+              {irctcPanel}
+            </div>
+          </ErrorBoundary>
+        );
+        break;
+      case "transactions":
+        mainSections = (
+          <ErrorBoundary>
+            <div key={view} className="ud-enter space-y-6 sm:space-y-8">
+              {transactionsPanel}
+            </div>
+          </ErrorBoundary>
+        );
+        break;
+      case "notifications":
+        mainSections = (
+          <ErrorBoundary>
+            <div key={view} className="ud-enter space-y-6 sm:space-y-8">
+              {notificationsPanel}
+            </div>
+          </ErrorBoundary>
+        );
+        break;
+      case "support-tickets":
+        mainSections = (
+          <ErrorBoundary>
+            <div key={view} className="ud-enter space-y-6 sm:space-y-8">
+              {supportPanel}
+            </div>
+          </ErrorBoundary>
+        );
+        break;
+      case "profile-settings":
+        mainSections = (
+          <ErrorBoundary>
+            <div key={view} className="ud-enter space-y-6 sm:space-y-8">
+              {profileSettingsPanel}
+            </div>
+          </ErrorBoundary>
+        );
+        break;
+      case "upgrade-pro":
+        mainSections = (
+          <ErrorBoundary>
+            <div key={view} className="ud-enter space-y-6 sm:space-y-8">
+              {upgradeProPanel}
             </div>
           </ErrorBoundary>
         );
@@ -2180,6 +2245,8 @@ function UserDashboardPage() {
             isCollapsed={isCollapsed}
             onViewChange={selectView}
             onLogout={handleLogout}
+            onToggleTheme={toggleTheme}
+            isDarkMode={isDarkMode}
           />
           {isSidebarOpen ? (
             <div
@@ -2792,213 +2859,5 @@ function FeeTooltip({
         </div>
       )}
     </span>
-  );
-}
-
-// ─── Task 3.5 – What's Next Card ─────────────────────────────────────────────
-function WhatsNextCard({
-  hasSubmittedApplication,
-  paymentIsSettled,
-  applicationStatus,
-  colors,
-  onNavigate,
-}: {
-  hasSubmittedApplication: boolean;
-  paymentIsSettled: boolean;
-  applicationStatus: string | null;
-  colors: ReturnType<typeof getThemePalette>;
-  onNavigate: (view: UserDashboardView) => void;
-}) {
-  type NextStep = {
-    step: number;
-    title: string;
-    description: string;
-    action: { label: string; view: UserDashboardView } | null;
-  };
-
-  let next: NextStep;
-
-  if (!hasSubmittedApplication) {
-    next = {
-      step: 1,
-      title: "Submit Your Application",
-      description:
-        "Fill in personal details, certificate requirements, and upload required documents.",
-      action: { label: "Start Registration", view: "registration" },
-    };
-  } else if (!paymentIsSettled) {
-    next = {
-      step: 2,
-      title: "Complete Payment",
-      description:
-        "Your application is saved. Proceed to payment to activate admin processing.",
-      action: { label: "Go to Payment", view: "payment" },
-    };
-  } else if (applicationStatus === "rejected") {
-    next = {
-      step: 3,
-      title: "Resubmit Application",
-      description:
-        "Admin requested corrections. Review the feedback and resubmit.",
-      action: { label: "View Admin Review", view: "admin-review" },
-    };
-  } else if (
-    applicationStatus === "approved" ||
-    applicationStatus === "issued"
-  ) {
-    next = {
-      step: 4,
-      title: "Certificate Issued 🎉",
-      description:
-        "Your Digital Signature Certificate has been processed and approved!",
-      action: { label: "View Certificate", view: "certificate-summary" },
-    };
-  } else {
-    next = {
-      step: 3,
-      title: "Awaiting Admin Review",
-      description:
-        "Payment verified. Admin is reviewing your application — you will be notified once complete.",
-      action: null,
-    };
-  }
-
-  return (
-    <div
-      className="rounded-xl border p-4 sm:p-5"
-      style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
-    >
-      <div className="mb-3 flex items-center gap-2">
-        <p
-          className="text-[10px] font-black uppercase tracking-[0.24em]"
-          style={{ color: colors.muted }}
-        >
-          What&apos;s Next
-        </p>
-        <span
-          className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-white"
-          style={{ backgroundColor: colors.accent }}
-        >
-          Step {next.step} of 4
-        </span>
-      </div>
-      <h4
-        className="text-sm font-black uppercase tracking-tight"
-        style={{ color: colors.text }}
-      >
-        {next.title}
-      </h4>
-      <p
-        className="mt-1 text-xs font-semibold leading-relaxed"
-        style={{ color: colors.muted }}
-      >
-        {next.description}
-      </p>
-      {next.action && (
-        <button
-          type="button"
-          onClick={() => onNavigate(next.action!.view)}
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-[10px] font-black uppercase tracking-wider transition-all hover:-translate-y-0.5"
-          style={{
-            borderColor: colors.borderSoft,
-            backgroundColor: colors.card,
-            color: colors.accent,
-          }}
-        >
-          {next.action.label}
-          <ChevronRight size={12} />
-        </button>
-      )}
-    </div>
-  );
-}
-
-// ─── Task 3.6 – Notification Preference Toggles ───────────────────────────────
-function NotificationPrefsCard({
-  notifyEmail,
-  notifySMS,
-  onToggleEmail,
-  onToggleSMS,
-  colors,
-}: {
-  notifyEmail: boolean;
-  notifySMS: boolean;
-  onToggleEmail: () => void;
-  onToggleSMS: () => void;
-  colors: ReturnType<typeof getThemePalette>;
-}) {
-  const prefs = [
-    {
-      key: "email",
-      label: "Email Notifications",
-      description: "Receive application status updates via email",
-      enabled: notifyEmail,
-      toggle: onToggleEmail,
-    },
-    {
-      key: "sms",
-      label: "SMS Notifications",
-      description: "Receive real-time alerts directly on your phone",
-      enabled: notifySMS,
-      toggle: onToggleSMS,
-    },
-  ];
-
-  return (
-    <div
-      className="rounded-xl border p-4 sm:p-5"
-      style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
-    >
-      <div className="mb-4 flex items-center gap-2">
-        <Bell size={13} style={{ color: colors.accent }} />
-        <p
-          className="text-[10px] font-black uppercase tracking-[0.24em]"
-          style={{ color: colors.muted }}
-        >
-          Notification Preferences
-        </p>
-      </div>
-      <div className="space-y-3">
-        {prefs.map(({ key, label, description, enabled, toggle }) => (
-          <div
-            key={key}
-            className="flex items-center justify-between gap-3 rounded-lg border p-3"
-            style={{
-              borderColor: colors.inputBorder,
-              backgroundColor: colors.panelStrong,
-            }}
-          >
-            <div>
-              <p className="text-xs font-black" style={{ color: colors.text }}>
-                {label}
-              </p>
-              <p
-                className="mt-0.5 text-[10px] font-semibold"
-                style={{ color: colors.muted }}
-              >
-                {description}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={toggle}
-              role="switch"
-              aria-checked={enabled}
-              className="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 transition-all duration-300"
-              style={{
-                backgroundColor: enabled ? "#ff6a00" : colors.inputBorder,
-                borderColor: enabled ? "#ff6a00" : colors.inputBorder,
-              }}
-            >
-              <span
-                className={`pointer-events-none mt-[1px] inline-block h-4 w-4 rounded-full bg-white shadow-md transition-transform duration-300 ${
-                  enabled ? "translate-x-5" : "translate-x-0.5"
-                }`}
-              />
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }

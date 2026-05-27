@@ -3,22 +3,28 @@ import { UserDashboardView } from "@/components/user-dashboard/UserSidebar";
 
 const USER_SHORTCUT_MAP: Record<string, UserDashboardView> = {
   o: "overview",
-  r: "registration",
-  p: "payment",
-  a: "admin-review",
-  c: "certificate-summary",
-  d: "documents",
+  a: "applications",
+  d: "my-dsc",
+  i: "irctc-agents",
+  t: "transactions",
+  n: "notifications",
+  s: "support-tickets",
+  p: "profile-settings",
+  u: "upgrade-pro",
 };
 
 /**
  * Activates global keyboard shortcuts for user dashboard navigation.
  * Shortcuts use a "g" prefix chord:
  *   g o → Overview
- *   g r → Registration
- *   g p → Payment
- *   g a → Admin review
- *   g c → Certificate summary
- *   g d → Documents
+ *   g a → My Applications
+ *   g d → My DSC
+ *   g i → IRCTC Agents
+ *   g t → Transactions
+ *   g n → Notifications
+ *   g s → Support Tickets
+ *   g p → Profile & Settings
+ *   g u → Upgrade to Pro
  *   Ctrl+? → Show shortcuts modal
  */
 export function useUserKeyboardShortcuts(

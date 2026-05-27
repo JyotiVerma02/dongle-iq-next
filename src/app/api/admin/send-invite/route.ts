@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 import { connectDB } from "@/lib/mongodb";
+import { resolveAdminActor } from "@/lib/admin";
 import { createAdminInviteEmail } from "@/lib/emailTemplates";
 import { transporter } from "@/lib/mailer";
 import { enforceRateLimit, getClientIp } from "@/lib/security";
@@ -72,7 +73,7 @@ const postHandler = async (req: NextRequest, decoded: AuthToken) => {
     }
 
     // Verify inviting admin exists
-    const invitingAdmin = await Admin.findById(decoded.userId);
+    const invitingAdmin = await resolveAdminActor(decoded.userId);
     if (!invitingAdmin) {
       return NextResponse.json(
         { error: "Admin not found" },

@@ -70,6 +70,12 @@ export function validateStatusTransition(
   }
 
   if (targetStatus === "approved") {
+    if (user.paymentStatus !== "paid") {
+      return {
+        ok: false,
+        message: "Cannot approve application before payment is completed",
+      };
+    }
     const missingFields = getRequiredApprovalFields(user);
     if (missingFields.length > 0) {
       return {

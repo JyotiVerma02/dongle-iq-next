@@ -240,6 +240,11 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
       return;
     }
 
+    if (editFormData.status === "approved" && editingApp.paymentStatus !== "paid") {
+      toast.error("Cannot approve application before payment is completed.");
+      return;
+    }
+
     try {
       const response = await fetch(`/api/admin/dsc-applications/${editingApp._id}`, {
         method: "PUT",

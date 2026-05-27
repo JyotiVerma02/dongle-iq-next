@@ -31,12 +31,16 @@ export function useApplications() {
     fetchUsers();
   }, [fetchUsers]);
 
-  const updateStatus = async (userId: string, status: string) => {
+  const updateStatus = async (
+    userId: string,
+    status: string,
+    internalRemarks = "",
+  ) => {
     try {
       const response = await fetch("/api/admin/update-status", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, status }),
+        body: JSON.stringify({ userId, status, internalRemarks }),
       });
       const data = await response.json();
       if (!response.ok || !data.success) {

@@ -5,6 +5,7 @@ import Admin from "@/models/admin";
 import User from "@/models/user";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { migrateLegacyAdminUser } from "@/lib/admin";
+import { normalizeAdminRole } from "@/lib/adminRoles";
 
 export async function POST(req: Request) {
   try {
@@ -67,7 +68,7 @@ export async function POST(req: Request) {
     admin.name = String(name).trim();
     admin.email = normalizedEmail;
     admin.number = normalizedNumber;
-    admin.role = String(role || admin.role || "admin").trim();
+    admin.role = normalizeAdminRole(String(role || admin.role || "super_admin"));
 
     await admin.save();
 

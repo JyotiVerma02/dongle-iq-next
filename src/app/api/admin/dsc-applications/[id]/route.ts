@@ -3,12 +3,12 @@ import { z } from "zod";
 
 import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
 import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
+import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { getStatusPermission, validateStatusTransition } from "@/lib/applicationWorkflow";
 import { connectDB } from "@/lib/mongodb";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
-import Admin from "@/models/admin";
 import User from "@/models/user";
 
 const updateDscSchema = z.object({
@@ -27,6 +27,34 @@ const updateDscSchema = z.object({
     addressProof: z.boolean().optional(),
   }).optional(),
 }).strict();
+
+function getSaveErrorMessage(error: unknown) {
+  if (error && typeof error === "object") {
+    const err = error as {
+      name?: string;
+      code?: number;
+      message?: string;
+      keyPattern?: Record<string, unknown>;
+      errors?: Record<string, { message?: string }>;
+    };
+
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyPattern || {})[0] || "value";
+      return `${field} already exists`;
+    }
+
+    if (err.name === "ValidationError" && err.errors) {
+      const firstError = Object.values(err.errors)[0];
+      return firstError?.message || err.message || "Application validation failed";
+    }
+
+    if (err.message) {
+      return err.message;
+    }
+  }
+
+  return "Failed to update application";
+}
 
 const putHandler = async (
   req: NextRequest,
@@ -50,7 +78,7 @@ const putHandler = async (
 
     await connectDB();
 
-    const adminUser = await Admin.findById(decoded.userId).select("name email role");
+    const adminUser = await resolveAdminActor(decoded.userId);
     if (!adminUser) {
       return NextResponse.json(
         { success: false, message: "Admin not found" },
@@ -83,7 +111,16 @@ const putHandler = async (
       resubmissionDocs: user.resubmissionDocs?.toObject?.() || user.resubmissionDocs,
     };
 
-    if (payload.name || payload.email || payload.mobile || payload.certificateClass || payload.certType || payload.validity || payload.tokenType) {
+    const hasDetailUpdate =
+      payload.name !== undefined ||
+      payload.email !== undefined ||
+      payload.mobile !== undefined ||
+      payload.certificateClass !== undefined ||
+      payload.certType !== undefined ||
+      payload.validity !== undefined ||
+      payload.tokenType !== undefined;
+
+    if (hasDetailUpdate) {
       if (!hasAdminPermission(adminRole, "manage_application_details")) {
         return NextResponse.json(
           { success: false, message: "You do not have permission to edit applicant details" },
@@ -106,6 +143,13 @@ const putHandler = async (
         return NextResponse.json(
           { success: false, message: "You do not have permission for this workflow action" },
           { status: 403 }
+        );
+      }
+
+      if (normalizedStatus === "rejected" && !String(payload.reason || "").trim()) {
+        return NextResponse.json(
+          { success: false, message: "Rejection reason is required" },
+          { status: 400 }
         );
       }
 
@@ -229,7 +273,7 @@ const putHandler = async (
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to update application",
+        message: getSaveErrorMessage(error),
       },
       { status: 500 }
     );
@@ -246,7 +290,7 @@ const deleteHandler = async (
 
     await connectDB();
 
-    const adminUser = await Admin.findById(decoded.userId).select("name email role");
+    const adminUser = await resolveAdminActor(decoded.userId);
     if (!adminUser) {
       return NextResponse.json(
         { success: false, message: "Admin not found" },

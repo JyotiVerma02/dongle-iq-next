@@ -7,8 +7,8 @@ import {
 } from "@/lib/payments";
 import { adminOnly } from "@/lib/withAuth";
 import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
+import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
-import Admin from "@/models/admin";
 import Payment from "@/models/payment";
 import User from "@/models/user";
 
@@ -25,7 +25,7 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
       );
     }
 
-    const admin = await Admin.findById(decoded.userId).select("name email role");
+    const admin = await resolveAdminActor(decoded.userId);
     if (!admin) {
       return NextResponse.json(
         { success: false, message: "Admin not found" },

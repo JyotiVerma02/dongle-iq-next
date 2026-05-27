@@ -3,11 +3,11 @@ import User from "@/models/user";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 
+import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { connectDB } from "@/lib/mongodb";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
-import Admin from "@/models/admin";
 
 const createDscSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -29,7 +29,7 @@ const handler = async (req: NextRequest, decoded: AuthToken) => {
   try {
     await connectDB();
 
-    const admin = await Admin.findById(decoded.userId).select("role");
+    const admin = await resolveAdminActor(decoded.userId);
     if (!admin) {
       return NextResponse.json(
         {

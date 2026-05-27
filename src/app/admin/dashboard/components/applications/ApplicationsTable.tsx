@@ -7,15 +7,28 @@ import { Table } from "../common/Table";
 
 interface ApplicationsTableProps {
   users: User[];
-  onUpdateStatus: (userId: string, status: string) => Promise<boolean>;
+  onUpdateStatus: (
+    userId: string,
+    status: string,
+    internalRemarks?: string,
+  ) => Promise<boolean>;
 }
 
 export function ApplicationsTable({ users, onUpdateStatus }: ApplicationsTableProps) {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const handleStatusUpdate = async (userId: string, status: string) => {
+    const internalRemarks =
+      status === "rejected"
+        ? window.prompt("Enter rejection reason for the applicant:")?.trim()
+        : "";
+
+    if (status === "rejected" && !internalRemarks) {
+      return;
+    }
+
     setUpdatingId(userId);
-    await onUpdateStatus(userId, status);
+    await onUpdateStatus(userId, status, internalRemarks);
     setUpdatingId(null);
   };
 
@@ -75,9 +88,9 @@ export function ApplicationsTable({ users, onUpdateStatus }: ApplicationsTablePr
                   <>
                     <button
                       onClick={() => handleStatusUpdate(user._id, "approved")}
-                      disabled={updatingId === user._id}
+                      disabled={updatingId === user._id || user.paymentStatus !== "paid"}
                       className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-lg border border-orange-500/20 bg-orange-500/10 px-3 py-2 text-[10px] font-black uppercase tracking-[0.18em] text-orange-600 disabled:opacity-50"
-                      title="Approve"
+                      title={user.paymentStatus !== "paid" ? "Cannot approve: Payment pending" : "Approve"}
                     >
                       <Check className="h-4 w-4" />
                       Approve
@@ -173,9 +186,9 @@ export function ApplicationsTable({ users, onUpdateStatus }: ApplicationsTablePr
                     <>
                       <button
                         onClick={() => handleStatusUpdate(user._id, "approved")}
-                        disabled={updatingId === user._id}
+                        disabled={updatingId === user._id || user.paymentStatus !== "paid"}
                         className="rounded-lg p-1.5 text-[var(--foreground)] transition-colors hover:bg-[var(--background-alt)] disabled:opacity-50"
-                        title="Approve"
+                        title={user.paymentStatus !== "paid" ? "Cannot approve: Payment pending" : "Approve"}
                       >
                         <Check className="h-4 w-4 text-orange-500" />
                       </button>

@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 
 import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
 import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
+import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { validateStatusTransition, getStatusPermission } from "@/lib/applicationWorkflow";
 import { connectDB } from "@/lib/mongodb";
 import { sendStatusNotifications } from "@/lib/notifications";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
-import Admin from "@/models/admin";
 import User from "@/models/user";
 
 const handler = async (req: Request, decoded: AuthToken) => {
@@ -34,7 +34,7 @@ const handler = async (req: Request, decoded: AuthToken) => {
 
     await connectDB();
 
-    const adminUser = await Admin.findById(decoded.userId).select("name email role");
+    const adminUser = await resolveAdminActor(decoded.userId);
     if (!adminUser) {
       return NextResponse.json(
         { success: false, message: "Admin not found" },

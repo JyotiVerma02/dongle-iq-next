@@ -8,6 +8,8 @@ import {
 import { APPLICATION_STATUSES } from "@/lib/applicationWorkflow";
 import { ADMIN_ROLES } from "@/lib/adminRoles";
 
+const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+
 const UserSchema = new mongoose.Schema(
   {
     name: {
@@ -67,7 +69,14 @@ const UserSchema = new mongoose.Schema(
       uppercase: true,
       sparse: true,
       trim: true,
-      match: [/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, "Invalid PAN format"],
+      validate: {
+        validator(value: string) {
+          if (!value) return true;
+          if (isEncrypted(value)) return true;
+          return PAN_REGEX.test(value);
+        },
+        message: "Invalid PAN format",
+      },
     },
     panHash: {
       type: String,
@@ -198,8 +207,7 @@ function safeDecryptPAN(encryptedPan: string | undefined): string | undefined {
   
   try {
     // Check if it's already a valid PAN format (plain text)
-    const panRegex = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-    if (panRegex.test(encryptedPan)) {
+    if (PAN_REGEX.test(encryptedPan)) {
       return encryptedPan;
     }
     
@@ -219,7 +227,7 @@ function safeDecryptPAN(encryptedPan: string | undefined): string | undefined {
 /**
  * Pre-save middleware: Encrypt sensitive fields before saving
  */
-UserSchema.pre("save", async function () {
+UserSchema.pre("validate", async function () {
   try {
     if (this.pan) {
       // Get plain PAN safely
@@ -308,6 +316,10 @@ UserSchema.index({ dscId: 1 });
 UserSchema.index({ status: 1 });
 UserSchema.index({ createdAt: -1 });
 UserSchema.index({ panHash: 1 });
+
+if (process.env.NODE_ENV !== "production" && mongoose.models.User) {
+  mongoose.deleteModel("User");
+}
 
 const User = mongoose.models.User || mongoose.model("User", UserSchema);
 

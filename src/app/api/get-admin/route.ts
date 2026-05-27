@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import Admin from "@/models/admin";
-import { migrateLegacyAdminUser } from "@/lib/admin";
+import { resolveAdminActor } from "@/lib/admin";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
 import { normalizeAdminRole } from "@/lib/adminRoles";
@@ -9,9 +8,8 @@ import { normalizeAdminRole } from "@/lib/adminRoles";
 const handler = async (req: NextRequest, decoded: AuthToken) => {
   try {
     await connectDB();
-    await migrateLegacyAdminUser();
 
-    const admin = await Admin.findById(decoded.userId).select("-password");
+    const admin = await resolveAdminActor(decoded.userId);
 
     if (!admin) {
       return NextResponse.json(

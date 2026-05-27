@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
 import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
+import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { validateStatusTransition } from "@/lib/applicationWorkflow";
 import { connectDB } from "@/lib/mongodb";
@@ -11,7 +12,6 @@ import { hashField } from "@/lib/encryption";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
-import Admin from "@/models/admin";
 import User from "@/models/user";
 
 const VALID_STATUSES = new Set(["pending", "approved", "rejected", "dispatched", "delivered", "issued"]);
@@ -63,7 +63,7 @@ const postHandler = async (req: NextRequest, decoded: AuthToken) => {
   try {
     await connectDB();
 
-    const admin = await Admin.findById(decoded.userId).select("name email role");
+    const admin = await resolveAdminActor(decoded.userId);
     if (!admin) {
       return NextResponse.json(
         { success: false, message: "Admin not found" },
