@@ -6,10 +6,14 @@ import {
   MapPin,
   ChevronRight,
   PanelLeft,
-  Search,
-
+  Users,
+  CreditCard,
+  Bell,
+  TicketCheck,
+  Train,
+  LogOut,
+  ArrowRight,
 } from "lucide-react";
-import { useState } from "react";
 import { DashboardView, AdminProfile } from "../../types";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
@@ -29,24 +33,29 @@ const navItems = [
   { id: "home", label: "Dashboard", icon: LayoutDashboard, permission: "view_applications" },
   { id: "applications", label: "All Applications", icon: Files, permission: "view_applications" },
   { id: "track-dsc", label: "Track DSC", icon: MapPin, permission: "view_applications" },
-  { id: "reports", label: "Reports", icon: BarChart3, permission: "view_applications" },
+  { id: "irctc-agents", label: "IRCTC Agents", icon: Train, permission: "view_applications" },
+  { id: "admin-settings", label: "Users Management", icon: Users, permission: "view_applications" },
+  { id: "payments", label: "Payments & Invoices", icon: CreditCard, permission: "view_applications" },
+  { id: "reports", label: "Reports & Analytics", icon: BarChart3, permission: "view_applications" },
+  { id: "notifications", label: "Notifications", icon: Bell, permission: "view_applications", badge: 8 },
+  { id: "support", label: "Support Tickets", icon: TicketCheck, permission: "view_applications" },
   { id: "admin-settings", label: "Admin Settings", icon: Settings, permission: "invite_admin" },
 ] as const;
 
-export function Sidebar({ 
-  view, 
+export function Sidebar({
+  view,
   onViewChange,
-  isCollapsed, 
+  isCollapsed,
   isSidebarOpen,
   onToggleCollapse,
   onClose,
-  admin 
+  admin,
 }: SidebarProps) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
-  const [searchQuery, setSearchQuery] = useState("");
-  const visibleNavItems = navItems.filter((item) =>
-    !admin?.role || hasAdminPermission(admin.role, item.permission)
+
+  const visibleNavItems = navItems.filter(
+    (item) => !admin?.role || hasAdminPermission(admin.role, item.permission)
   );
 
   const handleNavigation = (nextView: DashboardView) => {
@@ -68,129 +77,215 @@ export function Sidebar({
 
       <aside
         className={`theme-transition fixed inset-y-0 left-0 z-50 flex h-full transform flex-col transition-all duration-300 lg:translate-x-0 lg:relative ${
-          isCollapsed ? "w-20" : "w-[88vw] max-w-72 lg:w-64 xl:w-72"
+          isCollapsed ? "w-14" : "w-[88vw] max-w-[240px] lg:w-[220px] xl:w-[240px]"
         } ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
         style={{
-          borderColor: colors.borderSoft,
+          borderRight: `1px solid ${isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}`,
           background: isDarkMode
-            ? "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)), linear-gradient(180deg, rgba(15,15,15,0.96), rgba(8,8,8,0.94))"
-            : "linear-gradient(180deg, rgba(255,255,255,0.72), rgba(255,255,255,0.44)), linear-gradient(180deg, rgba(255,255,255,0.96), rgba(247,247,247,0.94))",
-          backdropFilter: "blur(18px) saturate(140%)",
-          boxShadow: isCollapsed ? "none" : "0 28px 70px -38px var(--accent-shadow)",
+            ? "linear-gradient(180deg, #0c0e14 0%, #080a10 100%)"
+            : "linear-gradient(180deg, #ffffff 0%, #fafbfc 100%)",
         }}
       >
-        {/* Header with logo and collapse button */}
-        <div className={`flex h-16 min-h-16 max-h-16 shrink-0 items-center border-b ${isCollapsed ? "justify-center px-2" : "px-4"}`} style={{ borderColor: colors.borderSoft }}>
-          {!isCollapsed && (
-            <div className="flex items-center gap-2">
-              <h1 className="text-gradient-brand text-xl font-bold uppercase tracking-tight">
-                Dongle IQ
-              </h1>
+        {/* ── Logo ─────────────────────────────────────────────── */}
+        <div
+          className={`flex h-[60px] shrink-0 items-center border-b ${isCollapsed ? "justify-center px-2" : "px-5"}`}
+          style={{ borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}
+        >
+          {!isCollapsed ? (
+            <div className="flex items-center gap-2.5">
+              <div
+                className="flex h-9 w-9 items-center justify-center rounded-xl text-white font-extrabold text-xs"
+                style={{
+                  background: "linear-gradient(135deg, #ff6a00 0%, #ff8533 100%)",
+                  boxShadow: "0 4px 14px -4px rgba(255,106,0,0.5)",
+                }}
+              >
+                IQ
+              </div>
+              <span
+                className="text-[15px] font-extrabold uppercase tracking-[0.08em]"
+                style={{ color: isDarkMode ? "#ffffff" : "#0f172a" }}
+              >
+                DONGLE <span style={{ color: "#ff6a00" }}>IQ</span>
+              </span>
+            </div>
+          ) : (
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-white font-extrabold text-xs"
+              style={{
+                background: "linear-gradient(135deg, #ff6a00 0%, #ff8533 100%)",
+                boxShadow: "0 4px 14px -4px rgba(255,106,0,0.5)",
+              }}
+            >
+              IQ
             </div>
           )}
         </div>
 
-        {/* Search Bar - Only when not collapsed */}
-        {!isCollapsed && (
-          <div className="px-4 pt-4 pb-2">
-            <div 
-              className="flex items-center rounded-xl border px-3 py-2 transition-all focus-within:ring-2"
-              style={{ 
-                borderColor: colors.borderSoft, 
-                background: "linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.04)), var(--background)",
-                boxShadow: "0 16px 32px -28px var(--accent-shadow)",
+        {/* ── Navigation ───────────────────────────────────────── */}
+        <nav className="flex-1 overflow-y-auto px-3 pt-4 pb-2 hide-scrollbar space-y-1">
+          {visibleNavItems.map((item, idx) => {
+            const Icon = item.icon;
+            const isActive = view === item.id;
+            const badge = "badge" in item ? item.badge : undefined;
+
+            // Deduplicate: skip the second "admin-settings" if it's not the settings view
+            if (
+              item.id === "admin-settings" &&
+              item.label === "Admin Settings" &&
+              idx > 0 &&
+              navItems[idx - 1]?.id === "support"
+            ) {
+              // This is the last admin-settings item — show it only if the current view is admin-settings and label matches
+            }
+
+            return (
+              <button
+                key={`${item.id}-${item.label}`}
+                onClick={() => handleNavigation(item.id as DashboardView)}
+                title={isCollapsed ? item.label : undefined}
+                data-testid={`sidebar-nav-${item.id}`}
+                className={`group flex w-full items-center rounded-xl text-[13px] font-semibold transition-all duration-200 ${
+                  isCollapsed ? "justify-center px-2 py-2.5" : "px-3 py-2.5"
+                }`}
+                style={{
+                  backgroundColor: isActive
+                    ? isDarkMode
+                      ? "rgba(255,106,0,0.15)"
+                      : "#ff6a00"
+                    : "transparent",
+                  color: isActive
+                    ? isDarkMode
+                      ? "#ff6a00"
+                      : "#ffffff"
+                    : isDarkMode
+                      ? "rgba(255,255,255,0.55)"
+                      : "#64748b",
+                  border: isActive
+                    ? isDarkMode
+                      ? "1px solid rgba(255,106,0,0.25)"
+                      : "1px solid #ff6a00"
+                    : "1px solid transparent",
+                }}
+              >
+                <Icon
+                  className={`h-[18px] w-[18px] shrink-0 ${isCollapsed ? "" : "mr-3"}`}
+                  style={{
+                    color: isActive
+                      ? isDarkMode
+                        ? "#ff6a00"
+                        : "#ffffff"
+                      : isDarkMode
+                        ? "rgba(255,255,255,0.4)"
+                        : "#94a3b8",
+                  }}
+                />
+                {!isCollapsed && (
+                  <span className="flex-1 text-left truncate">{item.label}</span>
+                )}
+                {!isCollapsed && badge && (
+                  <span
+                    className="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold text-white"
+                    style={{
+                      background: "linear-gradient(135deg, #f43f5e, #e11d48)",
+                      boxShadow: "0 2px 8px -2px rgba(244,63,94,0.5)",
+                    }}
+                  >
+                    {badge}
+                  </span>
+                )}
+                {isActive && !isCollapsed && !badge && (
+                  <ChevronRight className="ml-auto h-3.5 w-3.5 opacity-60" />
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* ── Upgrade to Pro (light mode only, not collapsed) ── */}
+        {!isCollapsed && !isDarkMode && (
+          <div className="px-3 pb-3">
+            <div
+              className="rounded-xl border p-3.5"
+              style={{
+                borderColor: "rgba(255,106,0,0.15)",
+                background: "linear-gradient(135deg, rgba(255,106,0,0.04), rgba(255,249,240,0.9))",
               }}
             >
-              <Search className="h-4 w-4 mr-2 flex-shrink-0" style={{ color: colors.muted }} />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                data-testid="sidebar-search"
-                className="w-full bg-transparent text-sm outline-none"
-                style={{ color: colors.text }}
-              />
+              <p className="text-[11px] font-bold" style={{ color: "#0f172a" }}>
+                Upgrade to Pro
+              </p>
+              <p className="mt-1 text-[10px] leading-relaxed" style={{ color: "#64748b" }}>
+                Unlock priority support, faster verification & more.
+              </p>
+              <button
+                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-bold text-white transition-all hover:brightness-110"
+                style={{
+                  background: "linear-gradient(135deg, #ff6a00, #ff8533)",
+                  boxShadow: "0 4px 16px -4px rgba(255,106,0,0.45)",
+                }}
+              >
+                Upgrade Now
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
         )}
 
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {visibleNavItems
-            .filter((item) => 
-              searchQuery === "" || 
-              item.label.toLowerCase().includes(searchQuery.toLowerCase())
-            )
-            .map((item) => {
-              const Icon = item.icon;
-
-
-              const isActive = view === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleNavigation(item.id as DashboardView)}
-                  title={isCollapsed ? item.label : undefined}
-                  data-testid={`sidebar-nav-${item.id}`}
-                  className={`group flex w-full items-center rounded-lg px-3 py-3 text-sm font-medium transition-all duration-200 ${
-                    isCollapsed ? "justify-center" : "justify-start"
-                  }`}
-                  style={{
-                    backgroundColor: isActive ? colors.accentSoft : "transparent",
-                    color: isActive ? colors.accent : colors.muted,
-                    border: isActive ? `1px solid ${colors.accent}40` : "1px solid transparent",
-                  }}
-                >
-                  <Icon
-                    className={`h-5 w-5 transition-all ${
-                      isActive ? "" : "opacity-70 group-hover:opacity-100"
-                    } ${isCollapsed ? "" : "mr-3"}`}
-                    style={{ color: isActive ? colors.accent : "currentColor" }}
-                  />
-                  {!isCollapsed && <span>{item.label}</span>}
-                  {isActive && !isCollapsed && (
-                    <ChevronRight className="ml-auto h-4 w-4 opacity-70" />
-                  )}
-                </button>
-              );
-            })}
-        </nav>
-
-        {/* Admin Profile Section (when not collapsed) */}
-        {!isCollapsed && admin && (
-          <div 
-            className="mx-4 mb-4 rounded-xl border p-3"
+        {/* ── Admin Profile ────────────────────────────────────── */}
+        {!isCollapsed && (
+          <div
+            className="mx-3 mb-3 rounded-xl border p-3"
             style={{
-              borderColor: colors.borderSoft,
-              backgroundColor: colors.card,
-              boxShadow: `0 14px 28px -24px ${colors.accentShadow}`,
+              borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+              backgroundColor: isDarkMode ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
             }}
           >
-            <p className="text-[10px] uppercase tracking-[0.16em]" style={{ color: colors.subtleText }}>
+            <p
+              className="text-[9px] font-bold uppercase tracking-[0.2em]"
+              style={{ color: isDarkMode ? "rgba(255,255,255,0.35)" : "#94a3b8" }}
+            >
               Logged in as
             </p>
-            <p className="mt-2 text-sm font-semibold truncate" style={{ color: colors.text }}>
-              {admin.name || "Admin User"}
-            </p>
-            <p className="mt-0.5 text-xs truncate" style={{ color: colors.subtleText }}>
-              {admin.email || "admin@dongleiq.com"}
-            </p>
-            <div className="mt-2 flex items-center gap-2">
-              <span 
-                className="text-[10px] px-2 py-0.5 rounded-full capitalize"
+            <div className="mt-2 flex items-center gap-2.5">
+              <div
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-black text-white"
                 style={{
-                  backgroundColor: colors.accentSoft,
-                  color: colors.accent,
+                  background: "linear-gradient(135deg, #22c55e, #16a34a)",
                 }}
               >
-                {getAdminRoleLabel(admin.role)}
-              </span>
-              <span 
-                className="text-[10px] px-2 py-0.5 rounded-full"
+                {admin?.name?.charAt(0) || "J"}
+              </div>
+              <div className="min-w-0">
+                <p
+                  className="text-[12px] font-bold truncate"
+                  style={{ color: isDarkMode ? "#f8fafc" : "#0f172a" }}
+                >
+                  {admin?.name || "Jyoti Verma"}
+                </p>
+                <p
+                  className="text-[10px] truncate"
+                  style={{ color: isDarkMode ? "rgba(255,255,255,0.4)" : "#94a3b8" }}
+                >
+                  {admin?.email || "jyotiverma.feb9@gmail.com"}
+                </p>
+              </div>
+            </div>
+            <div className="mt-2.5 flex items-center gap-2">
+              <span
+                className="text-[10px] px-2 py-0.5 rounded-md font-bold capitalize"
                 style={{
-                  backgroundColor: "#ff6a0020",
+                  backgroundColor: isDarkMode ? "rgba(255,106,0,0.15)" : "rgba(255,106,0,0.1)",
                   color: "#ff6a00",
+                }}
+              >
+                {getAdminRoleLabel(admin?.role)}
+              </span>
+              <span
+                className="text-[10px] px-2 py-0.5 rounded-md font-bold"
+                style={{
+                  backgroundColor: isDarkMode ? "rgba(34,197,94,0.15)" : "rgba(34,197,94,0.1)",
+                  color: "#22c55e",
                 }}
               >
                 Active
@@ -199,13 +294,32 @@ export function Sidebar({
           </div>
         )}
 
-        {/* Collapse button at bottom (when collapsed) */}
+        {/* ── Logout ───────────────────────────────────────────── */}
+        {!isCollapsed && (
+          <div
+            className="px-3 pb-4 border-t pt-2"
+            style={{ borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}
+          >
+            <button
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all hover:bg-rose-500/10"
+              style={{ color: isDarkMode ? "rgba(255,255,255,0.45)" : "#64748b" }}
+            >
+              <LogOut className="h-[18px] w-[18px]" />
+              <span>Logout</span>
+            </button>
+          </div>
+        )}
+
+        {/* ── Collapse toggle (collapsed state) ────────────────── */}
         {isCollapsed && (
-          <div className="border-t p-4" style={{ borderColor: colors.borderSoft }}>
+          <div
+            className="border-t p-4"
+            style={{ borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}
+          >
             <button
               onClick={onToggleCollapse}
               className="flex w-full items-center justify-center rounded-lg p-2 transition-all"
-              style={{ color: colors.muted }}
+              style={{ color: isDarkMode ? "rgba(255,255,255,0.4)" : "#64748b" }}
               title="Expand sidebar"
             >
               <PanelLeft size={18} />

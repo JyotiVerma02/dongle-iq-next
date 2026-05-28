@@ -12,7 +12,7 @@ import {
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Toaster } from "react-hot-toast";
-import { Moon, SunMedium } from "lucide-react";
+
 
 import type { DashboardView } from "./types";
 import { useAuth } from "./hooks/useAuth";
@@ -72,6 +72,10 @@ const VALID_VIEWS = new Set<DashboardView>([
   "track-dsc",
   "admin-settings",
   "create-dsc",
+  "irctc-agents",
+  "payments",
+  "notifications",
+  "support",
 ]);
 
 /** Debounce — fully typed without `any` */
@@ -219,22 +223,7 @@ function AdminDashboard() {
         className="theme-transition ud-dashboard-root ud-shell overflow-hidden text-[13px]"
         style={{ color: colors.text }}
       >
-        {/* Fixed Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          data-testid="theme-toggle"
-          className="fixed bottom-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-105 active:scale-95"
-          style={{
-            backgroundColor: colors.card,
-            borderColor: colors.borderSoft,
-            color: colors.accent,
-            boxShadow: `0 8px 20px -12px ${colors.accentShadow}`,
-          }}
-          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          aria-label="Toggle theme"
-        >
-          {isDarkMode ? <SunMedium size={20} /> : <Moon size={20} />}
-        </button>
+
 
         <Sidebar
           view={view}

@@ -12,6 +12,10 @@ const VIEW_LABELS: Record<DashboardView, string> = {
   "track-dsc": "Track DSC",
   "admin-settings": "Admin Settings",
   "create-dsc": "Create DSC",
+  "irctc-agents": "IRCTC Agents",
+  payments: "Payments & Invoices",
+  notifications: "Notifications",
+  support: "Support Tickets",
 };
 
 interface BreadcrumbProps {

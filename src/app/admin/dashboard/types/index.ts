@@ -4,7 +4,11 @@ export type DashboardView =
   | "reports"
   | "track-dsc"
   | "admin-settings"
-  | "create-dsc";
+  | "create-dsc"
+  | "irctc-agents"
+  | "payments"
+  | "notifications"
+  | "support";
 
 export type ApplicationStatus =
   | "pending"
@@ -37,6 +41,8 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   appId?: string; // e.g. DSC001
+  certificateClass?: string;
+  certType?: string;
 }
 
 export interface AdminProfile {

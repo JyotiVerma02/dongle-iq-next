@@ -1,4 +1,4 @@
-import { Menu, Bell, ChevronDown, PanelLeft, PanelLeftClose } from "lucide-react";
+import { Menu, Bell, ChevronDown, PanelLeft, PanelLeftClose, Search, Sun, Moon } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { AdminProfile, DashboardView } from "../../types";
 import { useTheme } from "@/components/ThemeContext";
@@ -22,12 +22,11 @@ export function Header({
   logout,
   onViewChange,
 }: HeaderProps) {
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -38,127 +37,178 @@ export function Header({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Handle click to open/close
-  const handleDropdownClick = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  // Handle double click to close
-  const handleDropdownDoubleClick = () => {
-    setIsDropdownOpen(false);
-  };
-
   return (
-    <header 
-      className="sticky top-0 z-30 flex h-16 min-h-16 max-h-16 shrink-0 w-full items-center justify-between gap-3 border-b px-3 backdrop-blur-md sm:px-4 lg:px-6"
+    <header
+      className="sticky top-0 z-30 flex h-[60px] min-h-[60px] shrink-0 w-full items-center justify-between gap-3 border-b px-3 sm:px-4 lg:px-5"
       style={{
         background: isDarkMode
-          ? "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01)), rgba(8,8,8,0.88)"
-          : "linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.52)), rgba(255,255,255,0.88)",
+          ? "linear-gradient(180deg, rgba(12,14,20,0.96), rgba(8,10,16,0.92))"
+          : "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.94))",
         backdropFilter: "blur(18px) saturate(160%)",
         WebkitBackdropFilter: "blur(18px) saturate(160%)",
-        borderColor: colors.borderSoft,
+        borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
       }}
     >
-      <div className="flex min-w-0 items-center">
+      {/* Left side */}
+      <div className="flex min-w-0 items-center gap-2.5">
+        {/* Mobile hamburger */}
         <button
           onClick={onMenuClick}
           data-testid="header-mobile-menu"
-          className="mr-2 shrink-0 rounded-xl p-2 lg:hidden"
-          style={{ color: colors.muted }}
+          className="shrink-0 rounded-xl p-2 lg:hidden"
+          style={{ color: isDarkMode ? "rgba(255,255,255,0.5)" : "#64748b" }}
         >
           <Menu className="h-5 w-5" />
         </button>
+
+        {/* Desktop collapse toggle */}
         <button
           onClick={onToggleCollapse}
           data-testid="header-sidebar-toggle"
-          className="hidden h-10 w-10 items-center justify-center rounded-xl border transition-all duration-300 hover:scale-105 active:scale-95 lg:inline-flex"
+          className="hidden h-9 w-9 items-center justify-center rounded-lg border transition-all duration-200 hover:scale-105 lg:inline-flex"
           style={{
-            background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
-            borderColor: colors.borderSoft,
-            color: colors.accent,
-            boxShadow: `0 16px 30px -18px ${colors.accentShadow}`,
+            borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+            background: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+            color: isDarkMode ? "rgba(255,255,255,0.5)" : "#64748b",
           }}
           title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {isCollapsed ? <PanelLeft size={18} /> : <PanelLeftClose size={18} />}
-        </button>
-      </div>
-
-      <div className="flex shrink-0 items-center gap-2 sm:gap-4">
-        <button 
-          data-testid="header-notifications"
-          className="relative flex h-10 w-10 items-center justify-center rounded-full"
-          style={{ color: colors.muted }}
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full" style={{ backgroundColor: colors.accent }} />
+          {isCollapsed ? <PanelLeft size={16} /> : <PanelLeftClose size={16} />}
         </button>
 
-        <div className="relative" ref={dropdownRef}>
-          <button 
-            onClick={handleDropdownClick}
-            onDoubleClick={handleDropdownDoubleClick}
-            data-testid="header-admin-dropdown"
-            className="flex h-12 items-center gap-2 rounded-full border pl-1 pr-2 sm:pr-3"
+        {/* Search Bar */}
+        <div
+          className="hidden sm:flex items-center gap-2.5 rounded-xl border px-3.5 py-2 min-w-[240px] lg:min-w-[360px] xl:min-w-[420px] cursor-pointer"
+          style={{
+            borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+            background: isDarkMode
+              ? "rgba(255,255,255,0.04)"
+              : "rgba(0,0,0,0.02)",
+          }}
+        >
+          <Search className="h-4 w-4 shrink-0" style={{ color: isDarkMode ? "rgba(255,255,255,0.3)" : "#94a3b8" }} />
+          <span className="text-[12px] flex-1" style={{ color: isDarkMode ? "rgba(255,255,255,0.3)" : "#94a3b8" }}>
+            Search applications, users, DSC, Invoices... (Ctrl + K)
+          </span>
+          <span
+            className="hidden md:inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.5 text-[10px] font-bold"
             style={{
-              borderColor: colors.borderSoft,
-              background: "linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.08)), var(--card)",
-              boxShadow: `0 18px 38px -24px ${colors.accentShadow}`,
+              borderColor: isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
+              color: isDarkMode ? "rgba(255,255,255,0.35)" : "#94a3b8",
+              background: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.03)",
             }}
           >
-            <div 
-              className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-black text-white shadow-sm"
-              style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))" }}
+            ⌘ K
+          </span>
+        </div>
+      </div>
+
+      {/* Right side */}
+      <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
+        {/* Notification Bell */}
+        <button
+          data-testid="header-notifications"
+          className="relative flex h-9 w-9 items-center justify-center rounded-xl border transition-all hover:scale-105"
+          style={{
+            color: isDarkMode ? "rgba(255,255,255,0.5)" : "#64748b",
+            borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+            background: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+          }}
+        >
+          <Bell className="h-[17px] w-[17px]" />
+          <span
+            className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full text-[9px] font-bold text-white"
+            style={{
+              backgroundColor: "#ef4444",
+              boxShadow: "0 2px 8px -2px rgba(239,68,68,0.5)",
+            }}
+          >
+            5
+          </span>
+        </button>
+
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          data-testid="header-theme-toggle"
+          className="flex h-9 w-9 items-center justify-center rounded-xl border transition-all hover:scale-105"
+          style={{
+            color: "#ff6a00",
+            borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+            background: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+          }}
+          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        >
+          {isDarkMode ? <Sun className="h-[17px] w-[17px]" /> : <Moon className="h-[17px] w-[17px]" />}
+        </button>
+
+        {/* Admin Profile Dropdown */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            data-testid="header-admin-dropdown"
+            className="flex h-10 items-center gap-2 rounded-xl border pl-1 pr-2.5 transition-all hover:scale-[1.02]"
+            style={{
+              borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+              background: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
+            }}
+          >
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-full text-sm font-black text-white"
+              style={{ background: "linear-gradient(135deg, #ff6a00, #ff8533)" }}
             >
-              {admin?.name?.charAt(0) || "A"}
+              {admin?.name?.charAt(0) || "J"}
             </div>
-            <div className="hidden min-w-0 max-w-32 text-left sm:block">
-              <p className="text-xs font-bold uppercase tracking-wider" style={{ color: colors.text }}>
-                {admin?.name || "Admin"}
+            <div className="hidden min-w-0 max-w-28 text-left sm:block">
+              <p className="text-[11px] font-bold uppercase tracking-wider truncate" style={{ color: isDarkMode ? "#f8fafc" : "#0f172a" }}>
+                {admin?.name || "Jyoti Verma"}
               </p>
-              <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em]" style={{ color: colors.muted }}>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.16em] truncate" style={{ color: isDarkMode ? "rgba(255,255,255,0.4)" : "#94a3b8" }}>
                 {getAdminRoleLabel(admin?.role)}
               </p>
             </div>
-            <ChevronDown 
-              className={`h-4 w-4 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} 
-              style={{ color: colors.muted }} 
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
+              style={{ color: isDarkMode ? "rgba(255,255,255,0.35)" : "#94a3b8" }}
             />
           </button>
-          
+
           {/* Dropdown Menu */}
           {isDropdownOpen && (
-            <div 
-              className="absolute right-0 mt-2 w-48 origin-top-right flex-col rounded-xl border py-1 shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+            <div
+              className="absolute right-0 mt-2 w-48 origin-top-right rounded-xl border py-1 shadow-xl z-50"
               style={{
-                background: "linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.08)), var(--card)",
-                borderColor: colors.borderSoft,
-                boxShadow: `0 28px 64px -34px ${colors.accentShadow}`,
+                background: isDarkMode ? "#0c0e14" : "#ffffff",
+                borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+                boxShadow: isDarkMode
+                  ? "0 28px 64px -20px rgba(0,0,0,0.8)"
+                  : "0 28px 64px -20px rgba(0,0,0,0.15)",
               }}
             >
-              <button 
-                className="w-full px-4 py-2 text-left text-xs font-bold uppercase tracking-wider"
-                style={{ color: colors.text }}
+              <button
+                className="w-full px-4 py-2.5 text-left text-[12px] font-semibold transition-colors hover:bg-[rgba(255,106,0,0.08)]"
+                style={{ color: isDarkMode ? "#f8fafc" : "#0f172a" }}
               >
                 Profile
               </button>
-              <button 
+              <button
                 onClick={() => {
                   onViewChange("admin-settings");
                   setIsDropdownOpen(false);
                 }}
-                className="w-full px-4 py-2 text-left text-xs font-bold uppercase tracking-wider"
-                style={{ color: colors.text }}
+                className="w-full px-4 py-2.5 text-left text-[12px] font-semibold transition-colors hover:bg-[rgba(255,106,0,0.08)]"
+                style={{ color: isDarkMode ? "#f8fafc" : "#0f172a" }}
               >
                 Settings
               </button>
-              <div className="my-1 border-t" style={{ borderColor: colors.borderSoft }} />
-              <button 
-                onClick={logout}
+              <div className="my-1 border-t" style={{ borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }} />
+              <button
+                onClick={() => {
+                  logout();
+                  setIsDropdownOpen(false);
+                }}
                 data-testid="header-logout"
-                className="w-full px-4 py-2 text-left text-xs font-black uppercase tracking-wider text-rose-500"
+                className="w-full px-4 py-2.5 text-left text-[12px] font-bold text-rose-500 transition-colors hover:bg-rose-500/10"
               >
                 Log out
               </button>

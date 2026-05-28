@@ -138,7 +138,7 @@ export function UserSidebar({
     <aside
       className={`ud-user-sidebar fixed inset-y-0 left-0 z-50 flex transform flex-col border-r transition-[transform,width] duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } ${isCollapsed ? "w-20" : "w-64"}`}
+      } ${isCollapsed ? "w-14" : "w-58"}`}
     >
       <div className="hide-scrollbar flex h-full flex-col justify-between overflow-y-auto px-4 py-6">
         <div className="space-y-6">

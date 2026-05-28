@@ -1,7 +1,6 @@
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { formatCurrency } from "../../utils/formatters";
 import { useTheme } from "@/components/ThemeContext";
-import { getThemePalette } from "@/lib/themePalette";
 
 interface StatsCardProps {
   title: string;
@@ -12,48 +11,73 @@ interface StatsCardProps {
   color?: "blue" | "emerald" | "amber" | "rose" | "purple";
 }
 
+const ICON_GRADIENTS: Record<string, { bg: string; shadow: string }> = {
+  purple: { bg: "linear-gradient(135deg, #a855f7, #7c3aed)", shadow: "rgba(124,58,237,0.35)" },
+  amber:  { bg: "linear-gradient(135deg, #f97316, #ea580c)", shadow: "rgba(234,88,12,0.35)" },
+  emerald:{ bg: "linear-gradient(135deg, #22c55e, #16a34a)", shadow: "rgba(22,165,74,0.35)" },
+  rose:   { bg: "linear-gradient(135deg, #f43f5e, #e11d48)", shadow: "rgba(225,29,72,0.35)" },
+  blue:   { bg: "linear-gradient(135deg, #3b82f6, #2563eb)", shadow: "rgba(37,99,235,0.35)" },
+};
+
 export function StatsCard({ title, value, trend, icon: Icon, isCurrency, color = "blue" }: StatsCardProps) {
   const { isDarkMode } = useTheme();
-  const colors = getThemePalette(isDarkMode);
-  
-  const premiumGradient = "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
   const displayValue = isCurrency ? formatCurrency(value) : value.toLocaleString();
   const isPositive = trend !== undefined && trend >= 0;
+  const gradient = ICON_GRADIENTS[color] || ICON_GRADIENTS.blue;
 
   return (
-    <div 
-      className="ud-surface ud-surface--lift rounded-xl border p-4 sm:p-6"
+    <div
+      className="ud-surface ud-surface--lift rounded-xl border p-4 transition-all"
       style={{
-        backgroundColor: colors.card,
-        borderColor: colors.borderSoft,
+        backgroundColor: isDarkMode ? "rgba(255,255,255,0.03)" : "#ffffff",
+        borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
       }}
     >
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>{title}</p>
-          <h3 className="mt-2 text-3xl font-black uppercase tracking-tight" style={{ color: colors.text }}>
+      <div className="flex items-start gap-3">
+        {/* Colored icon */}
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
+          style={{
+            background: gradient.bg,
+            boxShadow: `0 6px 16px -4px ${gradient.shadow}`,
+          }}
+        >
+          <Icon className="h-[18px] w-[18px]" />
+        </div>
+
+        {/* Content */}
+        <div className="min-w-0 flex-1">
+          <p
+            className="text-[9px] font-bold uppercase tracking-[0.15em]"
+            style={{ color: isDarkMode ? "rgba(255,255,255,0.4)" : "#94a3b8" }}
+          >
+            {title}
+          </p>
+          <h3
+            className="mt-1 text-xl font-black tracking-tight"
+            style={{ color: isDarkMode ? "#f8fafc" : "#0f172a" }}
+          >
             {displayValue}
           </h3>
           {trend !== undefined && (
-            <div className="mt-2 flex items-center text-[11px] font-semibold">
-              <span
-                className={`flex items-center ${
-                  isPositive ? "text-orange-600 dark:text-orange-400" : "text-rose-600 dark:text-rose-400"
-                }`}
-              >
-                {isPositive ? <ArrowUpRight className="mr-1 h-4 w-4" /> : <ArrowDownRight className="mr-1 h-4 w-4" />}
+            <div className="mt-1.5 flex items-center text-[10px] font-bold">
+              <span className={`flex items-center ${isPositive ? "text-emerald-500" : "text-rose-500"}`}>
+                {isPositive ? (
+                  <ArrowUpRight className="mr-0.5 h-3 w-3 stroke-[2.5]" />
+                ) : (
+                  <ArrowDownRight className="mr-0.5 h-3 w-3 stroke-[2.5]" />
+                )}
                 {Math.abs(trend)}%
               </span>
-              <span className="ml-2 uppercase" style={{ color: colors.muted }}>vs last month</span>
+              <span
+                className="ml-1 font-medium"
+                style={{ color: isDarkMode ? "rgba(255,255,255,0.3)" : "#94a3b8" }}
+              >
+                from last month
+              </span>
             </div>
           )}
-        </div>
-        <div 
-          className="flex h-11 w-11 items-center justify-center rounded-lg text-white shadow-lg"
-          style={{ background: premiumGradient }}
-        >
-          <Icon className="h-5 w-5" />
         </div>
       </div>
     </div>
