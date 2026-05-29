@@ -242,21 +242,10 @@ export default function DongleIQLanding() {
       style={{ color: colors.text }}
     >
       <section className="section hero-section hero-section-full-bleed relative overflow-hidden">
-        {/* Glowing Cinematic Background Orbs */}
-        <motion.div 
-          animate={{ x: [0, 20, 0], y: [0, -20, 0] }} 
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[-10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-orange-600/20 blur-[120px] pointer-events-none" 
-        />
-        <motion.div 
-          animate={{ x: [0, -20, 0], y: [0, 20, 0] }} 
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[20%] right-[-5%] h-[400px] w-[400px] rounded-full bg-purple-600/15 blur-[120px] pointer-events-none" 
-        />
-        
-        <div className="hero-shell hero-shell-full-bleed px-5 py-12 sm:px-6 sm:py-16 lg:px-9 lg:py-24">
+        {/* Glowing Cinematic Background Orbs — Purple / Cyan / Blue */}
+        <div className="hero-shell hero-shell-full-bleed px-3 py-8 sm:px-4 sm:py-10 lg:px-6 lg:py-[3.5rem]">
           <div className="container-shell hero-panel-inner relative z-10">
-            <div className="relative z-10 max-w-2xl">
+            <div className="hero-copy-block relative z-10 max-w-2xl">
               <div className="eyebrow-chip mb-6">
                 <BadgeCheck size={14} />
                 Trusted onboarding for DSC and IRCTC agents
@@ -302,7 +291,7 @@ export default function DongleIQLanding() {
               </div>
             </div>
 
-            <div className="relative z-10">
+            <div className="hero-visual-block relative z-10">
               <div className="dashboard-preview">
                 <div className="dashboard-topbar">
                   <div>
@@ -528,7 +517,7 @@ export default function DongleIQLanding() {
         </ScrollReveal>
       </section>
 
-      <section id="contact" className="section">
+      <section id="contact" className="section section-contact-compact">
         <ScrollReveal className="container-shell">
                  <div className="contact-shell">
             <div className="contact-copy">
@@ -638,6 +627,17 @@ export default function DongleIQLanding() {
 
       <footer className="site-footer">
         <div className="container-shell">
+          <div className="footer-intro">
+            <div>
+              <p className="footer-kicker">DongleIQ in one line</p>
+              <h2>Premium onboarding with trust-first design.</h2>
+            </div>
+            <p>
+              Clean hierarchy, balanced color, and a smoother conversion flow
+              keep the brand feeling confident in both light and dark mode.
+            </p>
+          </div>
+
           <div className="footer-grid">
             <div>
               <Link href="/" className="footer-brand">

@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 
 import { useTheme } from "@/components/ThemeContext";
-import { getThemePalette } from "@/lib/themePalette";
 
 const NAV_LINKS = [
   { label: "Why us", href: "/#whyus" },
@@ -47,6 +46,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { isDarkMode, mounted, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -57,6 +57,7 @@ export default function Navbar() {
     let raf = 0;
 
     const update = () => {
+      setIsScrolled(window.scrollY > 10);
       raf = 0;
     };
 
@@ -80,7 +81,6 @@ export default function Navbar() {
   return null;
 }
 
-  const colors = getThemePalette(isDarkMode);
   const showAuthButtons = AUTH_ROUTES.has(pathname);
   const showLogout = LOGOUT_ROUTES.has(pathname);
   const themeIcon = !mounted ? null : isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />;
@@ -104,32 +104,26 @@ export default function Navbar() {
 
   return (
     <nav
-      className="theme-transition fixed inset-x-0 top-0 z-50 px-3 pt-2 sm:px-4"
-      style={{ color: colors.text }}
+      className={`theme-transition nav-glass fixed inset-x-0 top-0 z-50 ${isScrolled ? "nav-glass--scrolled" : ""}`}
+      style={{ color: "var(--foreground)" }}
     >
       <div
-         className="mx-auto flex max-w-5xl items-center justify-between gap-3 rounded-full border px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-500 ease-in-out mt-4 sm:px-5"
-        style={{
-          backgroundColor: isDarkMode ? "rgba(11, 11, 18, 0.75)" : "rgba(255, 255, 255, 0.75)",
-          borderColor: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)",
-          transform: "translateZ(0)",
-          backfaceVisibility: "hidden",
-        }}
+        className={`nav-surface mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-2 px-3 py-3 sm:px-4 lg:px-8 ${isScrolled ? "nav-surface--scrolled" : ""}`}
       >
-        <Link href="/" className="flex min-w-0 items-center gap-3 transition-opacity hover:opacity-80">
+        <Link href="/" className="flex min-w-0 flex-nowrap items-center gap-2.5 transition-opacity hover:opacity-80 sm:gap-3">
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
             style={{
-              background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
-              boxShadow: `0 16px 30px -18px ${colors.accentShadow}`,
+              backgroundColor: "var(--accent)",
+              boxShadow: "0 16px 30px -18px var(--accent-shadow)",
             }}
           >
             <Cpu size={18} />
           </div>
 
           <div className="min-w-0">
-            <p className="truncate text-[1.05rem] font-semibold tracking-wide" style={{ color: colors.text }}>
-              Dongle<span style={{ color: colors.accent }}>IQ</span>
+            <p className={`nav-wordmark truncate text-[0.95rem] font-semibold tracking-wide sm:text-[1.05rem] ${isScrolled ? "nav-wordmark--scrolled" : ""}`} style={{ color: "var(--foreground)" }}>
+              Dongle<span style={{ color: "var(--accent)" }}>IQ</span>
             </p>
           </div>
         </Link>
@@ -139,15 +133,15 @@ export default function Navbar() {
             <a
               key={item.label}
               href={item.href}
-              className="group relative px-4 py-2 text-[0.9rem] font-medium transition-colors"
-              style={{ color: colors.muted }}
+              className="nav-link group relative px-4 py-2 text-[0.9rem] font-medium transition-colors"
+              style={{ color: "var(--muted)" }}
             >
-              <span className="group-hover:opacity-100 opacity-80 transition-opacity" style={{ color: colors.text }}>
+              <span className="nav-link-label group-hover:opacity-100 opacity-80 transition-opacity" style={{ color: "var(--foreground)" }}>
                 {item.label}
               </span>
               <span 
                 className="absolute bottom-1 left-4 right-4 h-[2px] scale-x-0 rounded-full transition-transform duration-300 ease-out group-hover:scale-x-100" 
-                style={{ backgroundColor: colors.accent }}
+                style={{ backgroundColor: "var(--accent)" }}
               />
             </a>
           ))}
@@ -159,8 +153,8 @@ export default function Navbar() {
               onClick={() => router.push(authAction.href)}
               className="hidden min-h-11 items-center gap-2 rounded-xl px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
               style={{
-                background: colors.accent,
-                boxShadow: `0 22px 40px -24px ${colors.accentShadow}, 0 0 32px -10px ${colors.accentShadow}`,
+                backgroundColor: "var(--accent)",
+                boxShadow: "0 18px 34px -22px var(--accent-shadow)",
               }}
             >
               {authAction.icon}
@@ -173,8 +167,8 @@ export default function Navbar() {
               onClick={handleLogout}
               className="hidden min-h-11 items-center gap-2 rounded-xl border px-4 text-[0.9rem] font-semibold sm:inline-flex"
               style={{
-                background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
-                borderColor: colors.borderSoft,
+                backgroundColor: "var(--card)",
+                borderColor: "var(--border-soft)",
               }}
             >
               <LogOut size={16} />
@@ -186,10 +180,10 @@ export default function Navbar() {
             onClick={toggleTheme}
             aria-label="Toggle theme"
             title="Toggle theme"
-            className="flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)]"
+            className={`nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] ${isScrolled ? "nav-action--scrolled" : ""}`}
             style={{
-              background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
-              borderColor: colors.borderSoft,
+              backgroundColor: "var(--card)",
+              borderColor: "var(--border-soft)",
             }}
           >
             {themeIcon}
@@ -198,10 +192,10 @@ export default function Navbar() {
           <button
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-            className="flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden"
+            className={`nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden ${isScrolled ? "nav-action--scrolled" : ""}`}
             style={{
-              background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
-              borderColor: colors.borderSoft,
+              backgroundColor: "var(--card)",
+              borderColor: "var(--border-soft)",
             }}
           >
             {isMenuOpen ? <X size={18} /> : <Menu size={18} />}
@@ -213,8 +207,8 @@ export default function Navbar() {
         <div
           className="ud-enter mx-auto mt-3 max-w-7xl rounded-[1.35rem] border p-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl lg:hidden"
           style={{
-            background: "linear-gradient(180deg, rgba(255,255,255,0.25), rgba(255,255,255,0.10)), var(--overlay)",
-            borderColor: colors.borderSoft,
+            backgroundColor: "var(--overlay)",
+            borderColor: "var(--border-soft)",
           }}
         >
           <div className="grid gap-2">
@@ -224,8 +218,8 @@ export default function Navbar() {
                 href={item.href}
                 className="rounded-2xl px-4 py-3 text-sm font-medium shadow-[0_16px_28px_-26px_var(--accent-shadow)]"
                 style={{
-                  background: "linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)), var(--card)",
-                  color: colors.text,
+                  backgroundColor: "var(--card)",
+                  color: "var(--foreground)",
                 }}
               >
                 {item.label}
@@ -241,8 +235,8 @@ export default function Navbar() {
               }}
               className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl text-sm font-semibold text-white"
               style={{
-                background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
-                boxShadow: `0 16px 28px -20px ${colors.accentShadow}`,
+                backgroundColor: "var(--accent)",
+                boxShadow: "0 16px 28px -20px var(--accent-shadow)",
               }}
             >
               {authAction.icon}
@@ -258,9 +252,9 @@ export default function Navbar() {
               }}
               className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border text-sm font-semibold"
               style={{
-                backgroundColor: colors.card,
-                borderColor: colors.borderSoft,
-                color: colors.text,
+                backgroundColor: "var(--card)",
+                borderColor: "var(--border-soft)",
+                color: "var(--foreground)",
               }}
             >
               <LogOut size={16} />

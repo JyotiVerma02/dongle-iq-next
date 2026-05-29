@@ -17,13 +17,21 @@ type ThemeContextType = {
   toggleTheme: () => void;
 };
 
+type ThemeProviderProps = {
+  children: React.ReactNode;
+  initialTheme: Theme;
+};
+
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 const STORAGE_KEY = "dongle-iq-theme";
 
 const getStoredTheme = (): Theme | null => {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
+    const match = document.cookie.match(
+      new RegExp(`(?:^|; )${STORAGE_KEY}=([^;]*)`)
+    );
+    const saved = match ? decodeURIComponent(match[1]) : null;
     return saved === "dark" || saved === "light" ? saved : null;
   } catch {
     return null;
@@ -33,6 +41,11 @@ const getStoredTheme = (): Theme | null => {
 const getResolvedTheme = (): Theme => {
   if (typeof window === "undefined") return "light";
 
+  const documentTheme = document.documentElement.dataset.theme;
+  if (documentTheme === "dark" || documentTheme === "light") {
+    return documentTheme;
+  }
+
   const saved = getStoredTheme();
   if (saved) return saved;
 
@@ -40,8 +53,8 @@ const getResolvedTheme = (): Theme => {
   return "light";
 };
 
-export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
-  const [theme, setTheme] = useState<Theme>("light");
+export const ThemeProvider = ({ children, initialTheme }: ThemeProviderProps) => {
+  const [theme, setTheme] = useState<Theme>(initialTheme);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -59,6 +72,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       root.classList.add("light");
       root.style.colorScheme = "light";
     }
+    root.dataset.theme = resolved;
     root.setAttribute("data-theme-ready", "true");
   }, []);
 
@@ -66,7 +80,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const nextTheme = theme === "light" ? "dark" : "light";
     setTheme(nextTheme);
     try {
-      localStorage.setItem(STORAGE_KEY, nextTheme);
+      document.cookie = `${STORAGE_KEY}=${nextTheme}; path=/; max-age=31536000; samesite=lax`;
     } catch {
       // Ignore storage errors
     }
@@ -80,6 +94,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
       root.classList.add("light");
       root.style.colorScheme = "light";
     }
+    root.dataset.theme = nextTheme;
   };
 
   return (

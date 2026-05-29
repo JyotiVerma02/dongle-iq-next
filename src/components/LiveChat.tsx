@@ -270,7 +270,7 @@ export default function LiveChat({
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 ${
                     message.role === "user"
-                      ? "bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] text-white"
+                      ? "bg-(--accent) text-white"
                       : "border border-(--border-soft) bg-(--card) text-(--foreground)"
                   }`}
                 >
@@ -312,7 +312,7 @@ export default function LiveChat({
               type="button"
               onClick={() => void sendMessage()}
               disabled={isSending || !input.trim()}
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] text-white shadow-[0_16px_34px_-18px_var(--accent-shadow)] disabled:cursor-not-allowed disabled:opacity-55"
+              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--accent) text-white shadow-[0_16px_34px_-18px_var(--accent-shadow)] disabled:cursor-not-allowed disabled:opacity-55"
             >
               <Send size={16} />
             </button>

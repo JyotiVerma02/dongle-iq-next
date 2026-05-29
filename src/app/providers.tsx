@@ -6,6 +6,7 @@ import { useState } from "react";
 import { createQueryClient } from "@/lib/react-query";
 
 import { CommandPalette } from "@/components/CommandPalette";
+import CursorEffect from "@/components/CursorEffect";
 
 export default function Providers({
   children,
@@ -17,6 +18,7 @@ export default function Providers({
   return (
     <QueryClientProvider client={queryClient}>
       {children}
+      <CursorEffect />
       <CommandPalette />
     </QueryClientProvider>
   );

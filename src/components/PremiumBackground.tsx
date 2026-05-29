@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useMemo } from "react";
 
 type ParticleSpec = {
@@ -66,7 +67,7 @@ export default function PremiumBackground() {
                 "--dx": `${p.dx}px`,
                 "--dy": `${p.dy}px`,
                 "--tint": p.tint,
-              } as React.CSSProperties
+              } as CSSProperties
             }
           />
         ))}
