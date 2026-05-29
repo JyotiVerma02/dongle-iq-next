@@ -5,6 +5,7 @@ import { z } from "zod";
 import { connectDB } from "@/lib/mongodb";
 import { calculatePricing } from "@/lib/pricing";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
+import { ADMIN_REPORTS_CACHE_KEY, invalidateUserDashboardCache, invalidateAdminUsersCache, invalidateCacheKey } from "@/lib/dashboardCache";
 import User from "@/models/user";
 import { verifySessionToken } from "@/lib/auth";
 
@@ -177,9 +178,14 @@ try {
           ? saveError.message
           : "Unknown save error",
     },
-    { status: 500 }
+      { status: 500 }
   );
 }
+
+    await invalidateUserDashboardCache(String(existingUser._id));
+    await invalidateAdminUsersCache();
+    await invalidateCacheKey(ADMIN_REPORTS_CACHE_KEY);
+
     return NextResponse.json({
       success: true,
       message: "Application created successfully",

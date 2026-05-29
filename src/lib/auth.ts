@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
 import { isAdminRole, normalizeAdminRole, type AdminRole } from "@/lib/adminRoles";
-import { redis } from "@/lib/redis";
+import { ensureRedisConnected, redis } from "@/lib/redis";
 
 export type AuthTokenPayload = {
   userId: string;
@@ -74,6 +74,7 @@ export async function createAuthSession(
     createdAt: new Date().toISOString(),
   };
 
+  await ensureRedisConnected();
   await redis.set(getSessionKey(sessionId), JSON.stringify(storedSession), {
     EX: getSessionTtlSeconds(remember),
   });
@@ -93,6 +94,7 @@ export async function verifySessionToken(token: string) {
     throw new Error("Invalid session");
   }
 
+  await ensureRedisConnected();
   const rawSession = await redis.get(getSessionKey(decoded.sessionId));
 
   if (!rawSession) {
@@ -131,6 +133,7 @@ export async function deleteAuthSession(token: string) {
     return false;
   }
 
+  await ensureRedisConnected();
   const deleted = await redis.del(getSessionKey(decoded.sessionId));
 
   return deleted > 0;

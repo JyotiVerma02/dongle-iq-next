@@ -17,9 +17,18 @@ import { useTheme } from "@/components/ThemeContext";
 
 interface PerformanceChartsProps {
   stats: DashboardStats;
+  trendData?: Array<{
+    name?: string;
+    date?: string;
+    total: number;
+    approved: number;
+  }>;
+  statusData?: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
 }
-
-const STATUS_COLORS = ["#22c55e", "#f97316", "#f43f5e"];
 
 const applicationData = [
   { name: "May 20", total: 20, approved: 12 },
@@ -61,16 +70,28 @@ const renderCenterLabel = (total: number, isDark: boolean) => {
 
 export const PerformanceCharts = memo(function PerformanceCharts({
   stats,
+  trendData,
+  statusData,
 }: PerformanceChartsProps) {
   const { isDarkMode } = useTheme();
 
-  const statusData = [
+  const statusSeries = statusData || [
     { name: "Approved", value: stats.approved || 12, color: "#22c55e" },
     { name: "Pending", value: stats.pending || 12, color: "#f97316" },
     { name: "Rejected", value: stats.rejected || 12, color: "#f43f5e" },
   ];
 
-  const totalApplications = statusData.reduce((sum, item) => sum + item.value, 0);
+  const totalApplications = statusSeries.reduce((sum, item) => sum + item.value, 0);
+  const safeTotalApplications = totalApplications || 1;
+
+  const applicationSeries =
+    trendData && trendData.length > 0
+      ? trendData.map((entry) => ({
+          name: entry.name || entry.date || "",
+          total: entry.total,
+          approved: entry.approved,
+        }))
+      : applicationData;
 
   return (
     <>
@@ -132,7 +153,7 @@ export const PerformanceCharts = memo(function PerformanceCharts({
 
         <div style={{ width: "100%", height: 200 }}>
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={applicationData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+            <AreaChart data={applicationSeries} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
               <defs>
                 <linearGradient id="areaGradOrange" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#ff6a00" stopOpacity={0.3} />
@@ -220,7 +241,7 @@ export const PerformanceCharts = memo(function PerformanceCharts({
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={statusData}
+                data={statusSeries}
                 innerRadius={52}
                 outerRadius={75}
                 paddingAngle={4}
@@ -229,11 +250,8 @@ export const PerformanceCharts = memo(function PerformanceCharts({
                 endAngle={-270}
                 stroke="none"
               >
-                {statusData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${entry.name}`}
-                    fill={STATUS_COLORS[index % STATUS_COLORS.length]}
-                  />
+                {statusSeries.map((entry) => (
+                  <Cell key={`cell-${entry.name}`} fill={entry.color} />
                 ))}
               </Pie>
               {renderCenterLabel(totalApplications, isDarkMode)}
@@ -252,7 +270,7 @@ export const PerformanceCharts = memo(function PerformanceCharts({
 
         {/* Legend */}
         <div className="mt-1 space-y-2.5">
-          {statusData.map((item) => (
+          {statusSeries.map((item) => (
             <div key={item.name} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.color }} />
@@ -261,7 +279,7 @@ export const PerformanceCharts = memo(function PerformanceCharts({
                 </span>
               </div>
               <span className="text-[11px] font-medium" style={{ color: isDarkMode ? "rgba(255,255,255,0.4)" : "#94a3b8" }}>
-                {item.value} ({((item.value / totalApplications) * 100).toFixed(1)}%)
+                {item.value} ({((item.value / safeTotalApplications) * 100).toFixed(1)}%)
               </span>
             </div>
           ))}

@@ -5,6 +5,7 @@ import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { validateStatusTransition, getStatusPermission } from "@/lib/applicationWorkflow";
+import { ADMIN_REPORTS_CACHE_KEY, invalidateAdminUsersCache, invalidateUserDashboardCache, invalidateCacheKey } from "@/lib/dashboardCache";
 import { connectDB } from "@/lib/mongodb";
 import { sendStatusNotifications } from "@/lib/notifications";
 import { adminOnly } from "@/lib/withAuth";
@@ -160,6 +161,9 @@ const handler = async (req: Request, decoded: AuthToken) => {
     });
 
     broadcastRealtimeEvent("STATUS_UPDATE", { userId: user._id.toString() });
+    await invalidateUserDashboardCache(user._id.toString());
+    await invalidateAdminUsersCache();
+    await invalidateCacheKey(ADMIN_REPORTS_CACHE_KEY);
 
     return NextResponse.json({
       success: true,

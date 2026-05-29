@@ -4,6 +4,14 @@ import { z } from "zod";
 import { buildChanges, createAuditEntry } from "@/lib/adminAudit";
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
+import {
+  ADMIN_REPORTS_CACHE_KEY,
+  getAdminUsersCacheKey,
+  getCachedJson,
+  invalidateAdminUsersCache,
+  invalidateCacheKey,
+  setCachedJson,
+} from "@/lib/dashboardCache";
 import { connectDB } from "@/lib/mongodb";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
@@ -73,6 +81,19 @@ const getHandler = async (req: NextRequest) => {
     }
 
     const params = parsed.data;
+    const cacheKey = getAdminUsersCacheKey(Buffer.from(JSON.stringify(params)).toString("base64url"));
+    const cachedResponse = await getCachedJson<{
+      success: boolean;
+      users: unknown[];
+      pagination: { page: number; limit: number; total: number; pages: number };
+      filters: { certTypes: string[]; validities: string[] };
+      stats: Record<string, number> & { total: number };
+    }>(cacheKey);
+
+    if (cachedResponse) {
+      return NextResponse.json(cachedResponse);
+    }
+
     const query = buildApplicantQuery(params);
     const skip = (params.page - 1) * params.limit;
     const sortDirection = params.sortDir === "asc" ? 1 : -1;
@@ -101,7 +122,7 @@ const getHandler = async (req: NextRequest) => {
 
     const pages = Math.max(1, Math.ceil(filteredTotal / params.limit));
 
-    return NextResponse.json({
+    const responsePayload = {
       success: true,
       users,
       pagination: {
@@ -123,7 +144,11 @@ const getHandler = async (req: NextRequest) => {
         delivered: stats.delivered || 0,
         issued: stats.issued || 0,
       },
-    });
+    };
+
+    await setCachedJson(cacheKey, responsePayload, 45);
+
+    return NextResponse.json(responsePayload);
   } catch (error) {
     console.error("ADMIN USERS GET ERROR:", error);
 
@@ -194,6 +219,8 @@ const deleteHandler = async (req: NextRequest, decoded: AuthToken) => {
     );
     await deletedUser.save();
     await User.deleteOne({ _id: deletedUser._id });
+    await invalidateAdminUsersCache();
+    await invalidateCacheKey(ADMIN_REPORTS_CACHE_KEY);
 
     return NextResponse.json({
       success: true,

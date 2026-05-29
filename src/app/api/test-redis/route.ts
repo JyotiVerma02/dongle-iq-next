@@ -1,7 +1,8 @@
-import { redis } from "@/lib/redis";
+import { ensureRedisConnected, redis } from "@/lib/redis";
 
 export async function GET() {
   try {
+    await ensureRedisConnected();
     await redis.set("name", "Jyoti");
 
     const value = await redis.get("name");

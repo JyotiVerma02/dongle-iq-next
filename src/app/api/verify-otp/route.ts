@@ -5,7 +5,7 @@ import Admin from "@/models/admin";
 import { connectDB } from "@/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/lib/admin";
 import { enforceRateLimit, getClientIp } from "@/lib/security";
-import { redis } from "@/lib/redis";
+import { ensureRedisConnected, redis } from "@/lib/redis";
 
 export async function POST(req: NextRequest) {
   try {
@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "Already verified" });
     }
 
+    await ensureRedisConnected();
     const storedOtp = await redis.get(`otp:${normalizedEmail}`);
 
     if (!storedOtp) {
@@ -68,20 +69,19 @@ export async function POST(req: NextRequest) {
     }
 
     const accountModel = user ? User : Admin;
-   await accountModel.updateOne(
-  { _id: account._id },
-  {
-    $set: { isVerified: true },
-  },
-);
+    await accountModel.updateOne(
+      { _id: account._id },
+      {
+        $set: { isVerified: true },
+      },
+    );
 
-// DELETE OTP FROM REDIS
-await redis.del(`otp:${normalizedEmail}`);
+    await redis.del(`otp:${normalizedEmail}`);
 
-return NextResponse.json({
-  success: true,
-  message: "Email verified successfully",
-});
+    return NextResponse.json({
+      success: true,
+      message: "Email verified successfully",
+    });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ message: "Server error" }, { status: 500 });

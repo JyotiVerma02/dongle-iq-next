@@ -10,6 +10,7 @@ import { connectDB } from "@/lib/mongodb";
 import { calculatePricing } from "@/lib/pricing";
 import { hashField } from "@/lib/encryption";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
+import { ADMIN_REPORTS_CACHE_KEY, invalidateAdminUsersCache, invalidateUserDashboardCache, invalidateCacheKey } from "@/lib/dashboardCache";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
 import User from "@/models/user";
@@ -394,6 +395,9 @@ const postHandler = async (req: NextRequest, decoded: AuthToken) => {
     }
 
     await user.save();
+    await invalidateUserDashboardCache(String(user._id));
+    await invalidateAdminUsersCache();
+    await invalidateCacheKey(ADMIN_REPORTS_CACHE_KEY);
 
     return NextResponse.json({
       success: true,

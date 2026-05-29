@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { verifySessionToken } from "@/lib/auth";
+import {
+  getCachedJson,
+  getUserDashboardCacheKey,
+  setCachedJson,
+} from "@/lib/dashboardCache";
 import { connectDB } from "@/lib/mongodb";
 import Payment from "@/models/payment";
+import SupportTicket from "@/models/supportTicket";
 import User from "@/models/user";
 
 export { POST } from "@/app/api/create-application/route";
@@ -34,6 +40,16 @@ export async function GET(req: NextRequest) {
     }
 
     const decoded = (await verifySessionToken(token)) as DecodedToken;
+    const cacheKey = getUserDashboardCacheKey(decoded.userId);
+    const cachedDashboard = await getCachedJson<{
+      success: boolean;
+      dashboard: Record<string, unknown>;
+    }>(cacheKey);
+
+    if (cachedDashboard) {
+      return NextResponse.json(cachedDashboard);
+    }
+
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
@@ -106,6 +122,10 @@ export async function GET(req: NextRequest) {
       invoiceUrl: payment.invoiceUrl || "",
     }));
 
+    const supportTickets = await SupportTicket.find({ userId: decoded.userId })
+      .sort({ lastMessageAt: -1, createdAt: -1 })
+      .lean();
+
     const notifications = [
       user.isVerified
         ? {
@@ -141,7 +161,7 @@ export async function GET(req: NextRequest) {
         : null,
     ].filter(Boolean);
 
-    return NextResponse.json({
+    const responsePayload = {
       success: true,
       dashboard: {
         applications,
@@ -149,7 +169,18 @@ export async function GET(req: NextRequest) {
         transactions,
         notifications,
         irctcApplications: [],
-        supportTickets: [],
+        supportTickets: supportTickets.map((ticket) => ({
+          id: String(ticket._id),
+          subject: ticket.subject,
+          category: ticket.category,
+          priority: ticket.priority,
+          status: ticket.status,
+          lastMessageAt: ticket.lastMessageAt,
+          createdAt: ticket.createdAt,
+          updatedAt: ticket.updatedAt,
+          assignedTo: ticket.assignedTo || "",
+          messageCount: Array.isArray(ticket.messages) ? ticket.messages.length : 0,
+        })),
         account: {
           name: user.name || "",
           email: user.email || "",
@@ -169,7 +200,11 @@ export async function GET(req: NextRequest) {
           ],
         },
       },
-    });
+    };
+
+    await setCachedJson(cacheKey, responsePayload, 45);
+
+    return NextResponse.json(responsePayload);
   } catch (error) {
     console.error("user-dashboard GET error:", error);
     return NextResponse.json(

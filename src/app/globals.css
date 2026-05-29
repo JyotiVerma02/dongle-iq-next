@@ -62,16 +62,16 @@
 html.dark {
   color-scheme: dark;
 
-  /* ── Dark Mode ── */
-  --background:      #0b0813;
-  --background-alt:  #0e0a19;
+  /* ── Premium Cinematic Dark Mode ── */
+  --background:      #0B0B12;
+  --background-alt:  #0a0a0f;
   --foreground:      #ffffff;
-  --muted:           #9ea2c6;
-  --subtle-text:     #63678e;
+  --muted:           #a1a1aa;
+  --subtle-text:     #71717a;
 
-  --card:            #120f1f;
-  --card-strong:     #0c0915;
-  --panel-elevated:  #161324;
+  --card:            #13131A;
+  --card-strong:     #0d0d14;
+  --panel-elevated:  #181822;
 
   --border:          rgba(139, 92, 246, 0.15);
   --border-soft:     rgba(139, 92, 246, 0.08);
@@ -130,8 +130,7 @@ body {
   padding: 0;
   overflow-x: hidden;
   color: var(--foreground);
-  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-  line-height: 1.5;
+font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;  line-height: 1.5;
   background: transparent;
   text-rendering: optimizeLegibility;
   transition:
@@ -141,13 +140,23 @@ body {
     box-shadow 220ms ease;
 }
 
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity: 0.25;
+}
+
 html[data-theme-ready="false"] body,
 html:not([data-theme-ready]) body { opacity: 0; }
 html[data-theme-ready="true"]  body { opacity: 1; }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-outfit), var(--font-sans), system-ui, sans-serif;
-  letter-spacing: -0.02em;
+  /* font-family: 'Clash Display', 'Satoshi', system-ui, sans-serif; */
+  letter-spacing: -0.03em;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -225,9 +234,9 @@ input:focus, textarea:focus, select:focus {
 .page-max-shell,
 .container-shell {
   width: 100%;
-  max-width: 1320px;
+  max-width: 1150px;
   margin-inline: auto;
-  padding-inline: clamp(1rem, 5vw, 1.5rem);
+  padding-inline: clamp(1.5rem, 6vw, 3rem);
   box-sizing: border-box;
 }
 
@@ -981,11 +990,17 @@ html.dark .process-number {
 /* ============================================================
    CONTACT SECTION
 ============================================================ */
-.contact-shell { display: grid; gap: 3rem; }
+.contact-shell { display: grid; gap: 3rem; align-items: stretch; }
 
-@media (min-width:1024px) { .contact-shell { grid-template-columns: 1fr 1fr; } }
+@media (min-width:1024px) {
+  .contact-shell {
+    grid-template-columns: 1.15fr 0.85fr;
+    align-items: stretch;
+    gap: 3rem;
+  }
+}
 
-.contact-copy { display: flex; flex-direction: column; gap: 1.2rem; justify-content: space-between; }
+.contact-copy { display: flex; flex-direction: column; gap: 1.2rem; justify-content: space-between; height: 100%; }
 
 .info-card {
   gap: 1rem;
@@ -2129,3 +2144,26 @@ html.dark .pricing-card-featured {
   font-weight: 700;
 }
 html.dark .accent-badge { background: rgba(255,106,0,0.14); }
+
+/* ============================================================
+   UI POLISH & RESPONSIVENESS OVERRIDES
+============================================================ */
+@media (hover: hover) {
+  .premium-card, .feature-tile, .process-card, .audience-card, .info-card {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .premium-card:hover, .feature-tile:hover, .process-card:hover, .audience-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-deep);
+    border-color: var(--accent-subtle);
+  }
+  .button-primary:hover, .button-secondary:hover, .theme-primary-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+}
+* {
+  overflow-wrap: break-word;
+}
+.flex > * {
+  min-width: 0;
+}

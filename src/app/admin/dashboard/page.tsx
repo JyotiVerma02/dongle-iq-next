@@ -21,6 +21,7 @@ import { useDashboardStats } from "./hooks/useDashboardStats";
 import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useSwipeGesture } from "./hooks/useSwipeGesture";
 import { useAnalytics } from "./hooks/useAnalytics";
+import { useRealtimeEvents } from "@/lib/useRealtimeEvents";
 
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
@@ -56,6 +57,11 @@ const TrackDSCView = lazy(() =>
 const AdminSettingsView = lazy(() =>
   import("./components/admin-settings/AdminSettingsView").then((m) => ({
     default: m.AdminSettingsView,
+  }))
+);
+const SupportTicketsView = lazy(() =>
+  import("./components/support/SupportTicketsView").then((m) => ({
+    default: m.SupportTicketsView,
   }))
 );
 const CreateDSCView = lazy(() =>
@@ -128,7 +134,7 @@ function AdminDashboard() {
   const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const { admin, loading: authLoading, logout } = useAuth();
-  const { users, loading: usersLoading } = useApplications();
+  const { users, loading: usersLoading, refresh: refreshUsers } = useApplications();
   const stats = useDashboardStats(users);
 
   // ── URL-synced navigation ─────────────────────────────────────────────────
@@ -186,6 +192,22 @@ function AdminDashboard() {
     onSwipeRight: () => setIsSidebarOpen(true),
     onSwipeLeft: () => setIsSidebarOpen(false),
   });
+
+  const handleRealtimeEvent = useCallback(
+    (event: { type: string }) => {
+      if (
+        event.type === "STATUS_UPDATE" ||
+        event.type === "PAYMENT_UPDATE" ||
+        event.type === "SUPPORT_TICKET_CREATED" ||
+        event.type === "SUPPORT_TICKET_UPDATE"
+      ) {
+        void refreshUsers();
+      }
+    },
+    [refreshUsers],
+  );
+
+  useRealtimeEvents(handleRealtimeEvent, true);
 
   const isLoading = authLoading || usersLoading;
 
@@ -300,6 +322,11 @@ function AdminDashboard() {
                             onBack={() => navigateTo("home")}
                             onSuccess={() => navigateTo("applications")}
                           />
+                        )}
+                      {view === "support" &&
+                        withProfiler(
+                          "SupportTicketsView",
+                          <SupportTicketsView />
                         )}
                     </div>
                   </Suspense>

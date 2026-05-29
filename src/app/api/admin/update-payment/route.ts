@@ -9,6 +9,7 @@ import { adminOnly } from "@/lib/withAuth";
 import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
+import { ADMIN_REPORTS_CACHE_KEY, invalidateAdminUsersCache, invalidateUserDashboardCache, invalidateCacheKey } from "@/lib/dashboardCache";
 import Payment from "@/models/payment";
 import User from "@/models/user";
 
@@ -175,6 +176,10 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
       );
       await updatedUser.save();
     }
+
+    await invalidateUserDashboardCache(userId);
+    await invalidateAdminUsersCache();
+    await invalidateCacheKey(ADMIN_REPORTS_CACHE_KEY);
 
     return NextResponse.json({
       success: true,

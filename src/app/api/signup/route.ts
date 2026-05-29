@@ -11,7 +11,7 @@ import {
   generateNumericOtp,
   getClientIp,
 } from "@/lib/security";
-import { redis } from "@/lib/redis";
+import { ensureRedisConnected, redis } from "@/lib/redis";
 
 const signupSchema = z.object({
   name: z.string().trim().min(3, "Name must be at least 3 characters"),
@@ -87,6 +87,7 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = generateNumericOtp();
+    await ensureRedisConnected();
     await redis.set(`otp:${normalizedEmail}`, otp.toString(), { EX: 300 });
 
     const user = new User({

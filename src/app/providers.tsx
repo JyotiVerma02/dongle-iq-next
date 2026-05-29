@@ -5,6 +5,8 @@ import { useState } from "react";
 
 import { createQueryClient } from "@/lib/react-query";
 
+import { CommandPalette } from "@/components/CommandPalette";
+
 export default function Providers({
   children,
 }: {
@@ -12,5 +14,10 @@ export default function Providers({
 }) {
   const [queryClient] = useState(() => createQueryClient());
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <CommandPalette />
+    </QueryClientProvider>
+  );
 }

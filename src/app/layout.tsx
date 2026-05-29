@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Inter, Outfit } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap" });
+const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
+
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeContext";
 import AppShell from "@/components/AppShell";
 import Providers from "./providers";
+
 export const metadata: Metadata = {
   title: "Dongle IQ | Secure DSC Portal",
   description:
@@ -30,7 +31,8 @@ export default function RootLayout({
       var isSavedValid = saved === 'dark' || saved === 'light';
 
       var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      var theme = isSavedValid ? saved : (systemDark ? 'dark' : 'light');
+      // Defaulting to dark for the premium cinematic feel unless light is explicitly saved
+      var theme = saved === 'light' ? 'light' : 'dark';
 
       root.classList.remove('light', 'dark');
       root.classList.add(theme);
@@ -43,13 +45,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&f[]=clash-display@200,400,700,500,600,300&display=swap" rel="stylesheet" />
         <Script
           id="theme-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
       </head>
-      <body suppressHydrationWarning className={`${inter.variable} ${outfit.variable} font-sans antialiased`}>
+      <body suppressHydrationWarning className={`${plusJakarta.variable} font-sans antialiased`}>
         <ThemeProvider>
           <Providers>
             <AppShell>{children}</AppShell>

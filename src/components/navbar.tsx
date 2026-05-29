@@ -108,17 +108,17 @@ export default function Navbar() {
       style={{ color: colors.text }}
     >
       <div
-         className="mx-auto flex max-w-7xl items-center justify-between gap-3 rounded-[1.35rem] border px-3 py-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl sm:px-4"
+         className="mx-auto flex max-w-5xl items-center justify-between gap-3 rounded-full border px-4 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all duration-500 ease-in-out mt-4 sm:px-5"
         style={{
-          background: "linear-gradient(180deg, rgba(255,255,255,0.28), rgba(255,255,255,0.12)), var(--nav)",
-          borderColor: "var(--border-soft)",
+          backgroundColor: isDarkMode ? "rgba(11, 11, 18, 0.75)" : "rgba(255, 255, 255, 0.75)",
+          borderColor: isDarkMode ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.08)",
           transform: "translateZ(0)",
           backfaceVisibility: "hidden",
         }}
       >
-        <Link href="/" className="flex min-w-0 items-center gap-3">
+        <Link href="/" className="flex min-w-0 items-center gap-3 transition-opacity hover:opacity-80">
           <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-white"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
             style={{
               background: `linear-gradient(135deg, ${colors.accent}, ${colors.accentLight})`,
               boxShadow: `0 16px 30px -18px ${colors.accentShadow}`,
@@ -128,24 +128,27 @@ export default function Navbar() {
           </div>
 
           <div className="min-w-0">
-            <p className="truncate text-[1.05rem] font-semibold tracking-[0.01em]">
+            <p className="truncate text-[1.05rem] font-semibold tracking-wide" style={{ color: colors.text }}>
               Dongle<span style={{ color: colors.accent }}>IQ</span>
-            </p>
-            <p className="truncate text-[0.72rem]" style={{ color: colors.subtleText }}>
-              Secure digital onboarding
             </p>
           </div>
         </Link>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden items-center gap-2 md:flex">
           {NAV_LINKS.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="rounded-full px-4 py-2 text-[0.92rem] font-medium hover:-translate-y-0.5 hover:text-[var(--accent)]"
+              className="group relative px-4 py-2 text-[0.9rem] font-medium transition-colors"
               style={{ color: colors.muted }}
             >
-              {item.label}
+              <span className="group-hover:opacity-100 opacity-80 transition-opacity" style={{ color: colors.text }}>
+                {item.label}
+              </span>
+              <span 
+                className="absolute bottom-1 left-4 right-4 h-[2px] scale-x-0 rounded-full transition-transform duration-300 ease-out group-hover:scale-x-100" 
+                style={{ backgroundColor: colors.accent }}
+              />
             </a>
           ))}
         </div>
@@ -208,7 +211,7 @@ export default function Navbar() {
 
       {isMenuOpen ? (
         <div
-          className="mx-auto mt-3 max-w-7xl rounded-[1.35rem] border p-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl lg:hidden"
+          className="ud-enter mx-auto mt-3 max-w-7xl rounded-[1.35rem] border p-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl lg:hidden"
           style={{
             background: "linear-gradient(180deg, rgba(255,255,255,0.25), rgba(255,255,255,0.10)), var(--overlay)",
             borderColor: colors.borderSoft,

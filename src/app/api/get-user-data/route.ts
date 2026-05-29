@@ -4,6 +4,7 @@ import User from "@/models/user";
 import { connectDB } from "@/lib/mongodb";
 import { verifySessionToken } from "@/lib/auth";
 import Payment from "@/models/payment";
+import SupportTicket from "@/models/supportTicket";
 
 export async function GET(req: NextRequest) {
   try {
@@ -23,6 +24,11 @@ export async function GET(req: NextRequest) {
 
     const latestPayment = await Payment.findOne({ userId: decoded.userId })
       .sort({ createdAt: -1 })
+      .lean();
+
+    const supportTickets = await SupportTicket.find({ userId: decoded.userId })
+      .sort({ lastMessageAt: -1, createdAt: -1 })
+      .limit(8)
       .lean();
 
     // Count applications ahead in queue
@@ -73,6 +79,25 @@ export async function GET(req: NextRequest) {
               updatedAt: latestPayment.updatedAt,
             }
           : null,
+        supportTickets: supportTickets.map((ticket) => ({
+          _id: String(ticket._id),
+          subject: ticket.subject,
+          category: ticket.category,
+          priority: ticket.priority,
+          status: ticket.status,
+          lastMessageAt: ticket.lastMessageAt,
+          createdAt: ticket.createdAt,
+          updatedAt: ticket.updatedAt,
+          adminNotes: ticket.adminNotes || "",
+          assignedTo: ticket.assignedTo || "",
+          messages: (ticket.messages || []).map((message: any) => ({
+            senderType: message.senderType,
+            senderId: message.senderId || "",
+            senderName: message.senderName || "",
+            message: message.message,
+            createdAt: message.createdAt,
+          })),
+        })),
         address: user.address,
         city: user.city,
         state: user.state,

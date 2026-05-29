@@ -23,6 +23,7 @@ type LiveChatProps = {
   onClose: () => void;
   title?: string;
   storageKey?: string;
+  initialMessages?: ChatMessage[];
   onSendMessage?: (message: string, history: ChatMessage[]) => Promise<string>;
 };
 
@@ -75,6 +76,7 @@ export default function LiveChat({
   onClose,
   title = "Live Support",
   storageKey = DEFAULT_STORAGE_KEY,
+  initialMessages,
   onSendMessage,
 }: LiveChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([starterMessage]);
@@ -88,6 +90,11 @@ export default function LiveChat({
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (typeof window === "undefined") {
+      return;
+    }
+
+    if (open && initialMessages && initialMessages.length > 0) {
+      setMessages(initialMessages);
       return;
     }
 
@@ -106,7 +113,7 @@ export default function LiveChat({
     } catch {
       // Ignore invalid session state.
     }
-  }, [storageKey]);
+  }, [initialMessages, open, storageKey]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {

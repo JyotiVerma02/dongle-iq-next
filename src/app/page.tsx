@@ -34,6 +34,11 @@ import LiveChat from "@/components/LiveChat";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 
+import { motion } from "framer-motion";
+import SpotlightCard from "@/components/ui/SpotlightCard";
+import MagneticButton from "@/components/ui/MagneticButton";
+import ScrollReveal from "@/components/ui/ScrollReveal";
+
 type FaqEntry = {
   question: string;
   answer: string;
@@ -236,9 +241,21 @@ export default function DongleIQLanding() {
       className="page-shell min-h-screen theme-transition"
       style={{ color: colors.text }}
     >
-      <section className="section hero-section hero-section-full-bleed">
-        <div className="hero-shell hero-shell-full-bleed px-5 py-6 sm:px-6 sm:py-8 lg:px-9 lg:py-9">
-          <div className="container-shell hero-panel-inner">
+      <section className="section hero-section hero-section-full-bleed relative overflow-hidden">
+        {/* Glowing Cinematic Background Orbs */}
+        <motion.div 
+          animate={{ x: [0, 20, 0], y: [0, -20, 0] }} 
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[-10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-orange-600/20 blur-[120px] pointer-events-none" 
+        />
+        <motion.div 
+          animate={{ x: [0, -20, 0], y: [0, 20, 0] }} 
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-[20%] right-[-5%] h-[400px] w-[400px] rounded-full bg-purple-600/15 blur-[120px] pointer-events-none" 
+        />
+        
+        <div className="hero-shell hero-shell-full-bleed px-5 py-12 sm:px-6 sm:py-16 lg:px-9 lg:py-24">
+          <div className="container-shell hero-panel-inner relative z-10">
             <div className="relative z-10 max-w-2xl">
               <div className="eyebrow-chip mb-6">
                 <BadgeCheck size={14} />
@@ -257,13 +274,13 @@ export default function DongleIQLanding() {
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <button
+                <MagneticButton
                   onClick={() => router.push("/register")}
                   className="button-primary"
                 >
                   Start application
                   <ArrowRight size={18} />
-                </button>
+                </MagneticButton>
 
                 <a href="#contact" className="button-secondary">
                   Request a custom quote
@@ -292,7 +309,13 @@ export default function DongleIQLanding() {
                     <p className="dashboard-kicker">Application overview</p>
                     <h2 className="dashboard-heading">Approval flow</h2>
                   </div>
-                  <div className="status-pill success">Ready to submit</div>
+                  <div className="status-pill success flex items-center gap-1.5">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    Ready to submit
+                  </div>
                 </div>
 
                 <div className="dashboard-stack">
@@ -347,7 +370,7 @@ export default function DongleIQLanding() {
       </section>
 
       <section id="whyus" className="section">
-        <div className="container-shell">
+        <ScrollReveal className="container-shell">
           <SectionHeader
             label="Why teams choose DongleIQ"
             title={
@@ -361,7 +384,7 @@ export default function DongleIQLanding() {
             description="The design is tuned to reduce friction, look more professional, and help visitors understand what to do next without hesitation."
           />
 
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {valueProps.map((item, index) => (
               <FeatureCard
                 key={item.title}
@@ -373,11 +396,11 @@ export default function DongleIQLanding() {
               />
             ))}
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       <section className="section">
-        <div className="container-shell">
+        <ScrollReveal className="container-shell">
           <div className="split-band ">
             <div className="flex items-center  justify-center h-full" >
               <SectionHeader
@@ -409,7 +432,7 @@ export default function DongleIQLanding() {
               ))}
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       <section
@@ -417,7 +440,7 @@ export default function DongleIQLanding() {
         className="section section-muted"
         style={{ backgroundColor: colors.panelStrong }}
       >
-        <div className="container-shell">
+        <ScrollReveal className="container-shell">
           <SectionHeader
             label="How it works"
             title={
@@ -431,7 +454,7 @@ export default function DongleIQLanding() {
             description="The process is designed to look reassuring, move quickly, and avoid the messy handoff feeling common in older service portals."
           />
 
-          <div className="grid gap-5 lg:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {applicationSteps.map((item, index) => (
               <div
                 key={item.step}
@@ -444,11 +467,11 @@ export default function DongleIQLanding() {
               </div>
             ))}
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       <section id="agents" className="section">
-        <div className="container-shell">
+        <ScrollReveal className="container-shell">
           <SectionHeader
             label="Who it is for"
             title={
@@ -474,11 +497,11 @@ export default function DongleIQLanding() {
               />
             ))}
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       <section id="faqs" className="section">
-        <div className="container-shell">
+        <ScrollReveal className="container-shell">
           <SectionHeader
             label="Common questions"
             title={
@@ -502,11 +525,11 @@ export default function DongleIQLanding() {
               />
             ))}
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       <section id="contact" className="section">
-        <div className="container-shell">
+        <ScrollReveal className="container-shell">
                  <div className="contact-shell">
             <div className="contact-copy">
               <SectionHeader
@@ -610,7 +633,7 @@ export default function DongleIQLanding() {
 
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </section>
 
       <footer className="site-footer">
