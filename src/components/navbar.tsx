@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Cpu,
   LogIn,
   LogOut,
   Menu,
@@ -14,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 
+import BrandLogo from "@/components/BrandLogo";
 import { useTheme } from "@/components/ThemeContext";
 
 const NAV_LINKS = [
@@ -74,7 +74,16 @@ export default function Navbar() {
     };
   }, []);
 
- if (
+  useEffect(() => {
+    const html = document.documentElement;
+    html.classList.toggle("mobile-menu-open", isMenuOpen);
+
+    return () => {
+      html.classList.remove("mobile-menu-open");
+    };
+  }, [isMenuOpen]);
+
+  if (
   pathname === "/admin/dashboard" ||
   pathname === "/admin/create-application"
 ) {
@@ -104,28 +113,17 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`theme-transition nav-glass fixed inset-x-0 top-0 z-50 ${isScrolled ? "nav-glass--scrolled" : ""}`}
+      className={`theme-transition navbar-coder sticky top-0 left-0 right-0 z-50 ${isScrolled ? "scrolled" : ""}`}
       style={{ color: "var(--foreground)" }}
     >
       <div
-        className={`nav-surface mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-2 px-3 py-3 sm:px-4 lg:px-8 ${isScrolled ? "nav-surface--scrolled" : ""}`}
+        className="navbar-coder-content mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-2 px-3 py-3 sm:px-4 lg:px-8"
       >
-        <Link href="/" className="flex min-w-0 flex-nowrap items-center gap-2.5 transition-opacity hover:opacity-80 sm:gap-3">
-          <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white"
-            style={{
-              backgroundColor: "var(--accent)",
-              boxShadow: "0 16px 30px -18px var(--accent-shadow)",
-            }}
-          >
-            <Cpu size={18} />
-          </div>
-
-          <div className="min-w-0">
-            <p className={`nav-wordmark truncate text-[0.95rem] font-semibold tracking-wide sm:text-[1.05rem] ${isScrolled ? "nav-wordmark--scrolled" : ""}`} style={{ color: "var(--foreground)" }}>
-              Dongle<span style={{ color: "var(--accent)" }}>IQ</span>
-            </p>
-          </div>
+        <Link href="/" className="transition-opacity hover:opacity-80">
+          <BrandLogo
+            size="md"
+            wordmarkClassName={`nav-wordmark sm:text-[1.05rem] ${isScrolled ? "nav-wordmark--scrolled" : ""}`}
+          />
         </Link>
 
         <div className="hidden items-center gap-2 md:flex">
@@ -192,6 +190,7 @@ export default function Navbar() {
           <button
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
             className={`nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden ${isScrolled ? "nav-action--scrolled" : ""}`}
             style={{
               backgroundColor: "var(--card)",
@@ -205,7 +204,7 @@ export default function Navbar() {
 
       {isMenuOpen ? (
         <div
-          className="ud-enter mx-auto mt-3 max-w-7xl rounded-[1.35rem] border p-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl lg:hidden"
+          className="ud-enter mobile-menu-container mx-auto mt-3 rounded-[1.35rem] border p-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl lg:hidden"
           style={{
             backgroundColor: "var(--overlay)",
             borderColor: "var(--border-soft)",

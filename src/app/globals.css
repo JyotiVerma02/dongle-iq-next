@@ -258,6 +258,12 @@ input:focus, textarea:focus, select:focus {
   box-sizing: border-box;
 }
 
+.navbar-coder-content {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .page-shell::before {
   display: none;
 }
@@ -342,8 +348,26 @@ html.dark .site-footer {
 /* ============================================================
    HERO SECTION
 ============================================================ */
-.hero-section-full-bleed { padding-inline: 0; }
-.hero-shell-full-bleed { width: 100%; background: transparent; }
+.hero-section-full-bleed { padding-inline: 0; margin-top: 0; }
+.hero-shell-full-bleed { width: 100%; background: var(--background); }
+
+.navbar-coder {
+  background-color: transparent !important;
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.navbar-coder.scrolled {
+  background-color: rgba(9, 14, 33, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 18px 36px -20px rgba(0, 0, 0, 0.28) !important;
+}
+
+html:not(.dark) .navbar-coder.scrolled {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 18px 36px -20px rgba(15, 23, 42, 0.12) !important;
+}
 
 .hero-panel {
   position: relative;
@@ -483,11 +507,17 @@ html:not(.dark) .text-gradient-cool {
    HERO TYPOGRAPHY
 ============================================================ */
 .hero-title {
-  max-width: 12ch;
+  max-width: min(44ch, 100%);
   font-size: clamp(1.9rem, 7vw, 3.5rem);
   line-height: 0.96;
   font-weight: 900;
-  text-wrap: balance;
+  white-space: normal;
+}
+
+.hero-title-line {
+  display: block;
+  white-space: normal;
+  overflow-wrap: break-word;
   word-break: break-word;
 }
 
@@ -514,7 +544,7 @@ html:not(.dark) .text-gradient-cool {
   }
 
   .hero-title {
-    max-width: 11ch;
+    max-width: 100%;
     font-size: clamp(1.8rem, 11vw, 2.7rem);
   }
 
@@ -526,8 +556,50 @@ html:not(.dark) .text-gradient-cool {
 
 @media (min-width: 1024px) {
   .hero-title {
-    max-width: 12.5ch;
+    max-width: min(44ch, 100%);
     font-size: clamp(2.6rem, 3.6vw, 3.55rem);
+  }
+}
+
+@media (max-width: 1023px) {
+  .hero-panel-inner {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-copy-block,
+  .hero-visual-block {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+
+  .hero-title {
+    font-size: clamp(1.8rem, 9vw, 2.8rem);
+  }
+
+  .hero-title-line {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbar-coder-content {
+    justify-content: space-between;
+  }
+
+  .hero-shell-full-bleed {
+    padding-inline: 0.75rem;
+  }
+
+  .hero-title {
+    font-size: clamp(1.7rem, 10vw, 2.4rem);
+  }
+
+  .hero-copy {
+    font-size: 0.92rem;
   }
 }
 
@@ -2454,7 +2526,17 @@ html.dark .hero-dashboard-wrap {
 /* ============================================================
    MOBILE MENU
 ============================================================ */
-.mobile-menu-open body { overflow: hidden; }
+html.mobile-menu-open body { overflow: hidden; touch-action: none; }
+
+.mobile-menu-container {
+  width: min(100%, 42rem);
+  margin: 0.75rem auto 0;
+}
+
+.mobile-menu-container a {
+  min-width: 0;
+  width: 100%;
+}
 
 /* ============================================================
    CUSTOM OTP INPUT

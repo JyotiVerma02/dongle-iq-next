@@ -251,9 +251,10 @@ export default function DongleIQLanding() {
                 Trusted onboarding for DSC and IRCTC agents
               </div>
 
-              <h1 className="hero-title max-w-3xl">
-                Secure digital identity, redesigned for{" "}
-                <span className="text-gradient-brand">speed and trust</span>
+              <h1 className="hero-title max-w-2xl">
+                <span className="hero-title-line">Secure digital identity,</span>
+                <span className="hero-title-line">redesigned for</span>
+                <span className="hero-title-line text-gradient-brand">speed and trust</span>
               </h1>
 
               <p className="hero-copy mt-6 max-w-xl">

@@ -53,7 +53,7 @@ async function RootLayoutInner({
 `;
 
   return (
-    <html lang="en" suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang="en" className={initialTheme} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&f[]=clash-display@200,400,700,500,600,300&display=swap" rel="stylesheet" />
         <Script

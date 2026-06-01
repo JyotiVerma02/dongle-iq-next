@@ -39,7 +39,7 @@ export function Header({
 
   return (
     <header
-      className="sticky top-0 z-30 flex h-[60px] min-h-[60px] shrink-0 w-full items-center justify-between gap-3 border-b px-3 sm:px-4 lg:px-5"
+      className="sticky top-0 z-30 flex h-[50px] min-h-[50px] shrink-0 w-full items-center justify-between gap-3 border-b px-3 sm:px-4 lg:px-5"
       style={{
         background: isDarkMode
           ? "linear-gradient(180deg, rgba(12,14,20,0.96), rgba(8,10,16,0.92))"
@@ -78,7 +78,7 @@ export function Header({
 
         {/* Search Bar */}
         <div
-          className="hidden sm:flex items-center gap-2.5 rounded-xl border px-3.5 py-2 min-w-[240px] lg:min-w-[360px] xl:min-w-[420px] cursor-pointer"
+          className="hidden sm:flex items-center gap-2 rounded-lg border px-3 py-1.5 min-w-[240px] lg:min-w-[360px] xl:min-w-[420px] cursor-pointer"
           style={{
             borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
             background: isDarkMode
@@ -86,12 +86,12 @@ export function Header({
               : "rgba(0,0,0,0.02)",
           }}
         >
-          <Search className="h-4 w-4 shrink-0" style={{ color: isDarkMode ? "rgba(255,255,255,0.3)" : "#94a3b8" }} />
-          <span className="text-[12px] flex-1" style={{ color: isDarkMode ? "rgba(255,255,255,0.3)" : "#94a3b8" }}>
+          <Search className="h-3.5 w-3.5 shrink-0" style={{ color: isDarkMode ? "rgba(255,255,255,0.3)" : "#94a3b8" }} />
+          <span className="text-[11px] flex-1" style={{ color: isDarkMode ? "rgba(255,255,255,0.3)" : "#94a3b8" }}>
             Search applications, users, DSC, Invoices... (Ctrl + K)
           </span>
           <span
-            className="hidden md:inline-flex items-center gap-0.5 rounded-md border px-1.5 py-0.5 text-[10px] font-bold"
+            className="hidden md:inline-flex items-center gap-0.5 rounded-md border px-1 py-0.5 text-[8px] font-bold"
             style={{
               borderColor: isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
               color: isDarkMode ? "rgba(255,255,255,0.35)" : "#94a3b8",
@@ -117,7 +117,7 @@ export function Header({
         >
           <Bell className="h-[17px] w-[17px]" />
           <span
-            className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full text-[9px] font-bold text-white"
+            className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none text-white"
             style={{
               backgroundColor: "#ef4444",
               boxShadow: "0 2px 8px -2px rgba(239,68,68,0.5)",

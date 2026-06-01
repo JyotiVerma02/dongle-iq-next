@@ -17,6 +17,8 @@ import {
   SunMedium,
 } from "lucide-react";
 
+import BrandLogo from "@/components/BrandLogo";
+
 export type UserDashboardView =
   | "overview"
   | "applications"
@@ -40,16 +42,6 @@ type NavEntry = {
   icon: React.ReactNode;
   badge?: number;
 };
-
-function LogoIcon() {
-  return (
-    <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
-      <div className="flex h-6 w-6 rotate-45 items-center justify-center rounded bg-gradient-to-br from-orange-500 to-red-600 shadow-[0_0_12px_rgba(249,115,22,0.4)]">
-        <div className="h-2 w-2 rotate-45 rounded-sm bg-white" />
-      </div>
-    </div>
-  );
-}
 
 export function UserSidebar({
   view,
@@ -118,16 +110,6 @@ export function UserSidebar({
       label: "Support Tickets",
       icon: <Headset size={18} />,
     },
-    {
-      view: "profile-settings",
-      label: "Profile & Settings",
-      icon: <Settings size={18} />,
-    },
-    {
-      view: "upgrade-pro",
-      label: "Upgrade to Pro",
-      icon: <Gem size={18} />,
-    },
   ];
 
   const handleItemClick = (entry: NavEntry) => {
@@ -136,19 +118,18 @@ export function UserSidebar({
 
   return (
     <aside
-      className={`ud-user-sidebar fixed inset-y-0 left-0 z-50 flex transform flex-col border-r transition-[transform,width] duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
+      className={`ud-user-sidebar ud-sidebar-surface fixed inset-y-0 left-0 z-50 flex transform flex-col border-r transition-[transform,width] duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       } ${isCollapsed ? "w-14" : "w-58"}`}
     >
       <div className="hide-scrollbar flex h-full flex-col justify-between overflow-y-auto px-4 py-6">
         <div className="space-y-6">
           <div className="flex items-center gap-3 px-2">
-            <LogoIcon />
-            {!isCollapsed && (
-              <span className="ud-sidebar-brand text-xl font-bold tracking-tight">
-                Dongle<span className="ud-sidebar-brand-accent">IQ</span>
-              </span>
-            )}
+            <BrandLogo
+              showText={!isCollapsed}
+              size="sm"
+              wordmarkClassName="ud-sidebar-brand text-xl font-bold tracking-tight"
+            />
           </div>
 
           {!isCollapsed && (
@@ -279,26 +260,14 @@ export function UserSidebar({
               )}
             </div>
 
-            {!isCollapsed && (
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => onViewChange("profile-settings")}
-                  className="ud-sidebar-logout ud-hover-surface flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[10px] font-semibold transition"
-                >
-                  <Settings size={13} />
-                  Settings
-                </button>
-                <button
-                  type="button"
-                  onClick={onToggleTheme}
-                  className="ud-sidebar-logout ud-hover-surface flex items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[10px] font-semibold transition"
-                >
-                  {isDarkMode ? <SunMedium size={13} /> : <Moon size={13} />}
-                  Theme
-                </button>
-              </div>
-            )}
+            <button
+              type="button"
+              onClick={() => onViewChange("profile-settings")}
+              className="ud-sidebar-logout ud-hover-surface flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold transition"
+            >
+              <Settings size={16} />
+              {!isCollapsed && <span>Settings</span>}
+            </button>
 
             <button
               type="button"

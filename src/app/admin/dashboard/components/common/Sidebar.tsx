@@ -14,6 +14,7 @@ import {
   LogOut,
   ArrowRight,
 } from "lucide-react";
+import BrandLogo from "@/components/BrandLogo";
 import { DashboardView, AdminProfile } from "../../types";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
@@ -91,35 +92,11 @@ export function Sidebar({
           className={`flex h-[60px] shrink-0 items-center border-b ${isCollapsed ? "justify-center px-2" : "px-5"}`}
           style={{ borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}
         >
-          {!isCollapsed ? (
-            <div className="flex items-center gap-2.5">
-              <div
-                className="flex h-9 w-9 items-center justify-center rounded-xl text-white font-extrabold text-xs"
-                style={{
-                  background: "linear-gradient(135deg, #ff6a00 0%, #ff8533 100%)",
-                  boxShadow: "0 4px 14px -4px rgba(255,106,0,0.5)",
-                }}
-              >
-                IQ
-              </div>
-              <span
-                className="text-[15px] font-extrabold uppercase tracking-[0.08em]"
-                style={{ color: isDarkMode ? "#ffffff" : "#0f172a" }}
-              >
-                DONGLE <span style={{ color: "#ff6a00" }}>IQ</span>
-              </span>
-            </div>
-          ) : (
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-xl text-white font-extrabold text-xs"
-              style={{
-                background: "linear-gradient(135deg, #ff6a00 0%, #ff8533 100%)",
-                boxShadow: "0 4px 14px -4px rgba(255,106,0,0.5)",
-              }}
-            >
-              IQ
-            </div>
-          )}
+          <BrandLogo
+            showText={!isCollapsed}
+            size="sm"
+            wordmarkClassName="text-[15px] font-extrabold"
+          />
         </div>
 
         {/* ── Navigation ───────────────────────────────────────── */}
