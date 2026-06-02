@@ -483,7 +483,7 @@ html:not(.dark) .navbar-coder:hover {
 
 /* Ensure content starts below navbar */
 .page-shell {
-  padding-top: 80px;
+  padding-top: 40px;
 }
 
 /* Navbar content styling */
@@ -614,7 +614,7 @@ body>div:first-child,
   border: 1px solid var(--border);
   background: color-mix(in srgb, var(--card-strong) 90%, white);
   color: var(--accent);
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 600;
   line-height: 1;
   box-shadow: 0 0 20px -8px var(--accent-glow);
@@ -629,8 +629,8 @@ html.dark .eyebrow-chip {
 .eyebrow-text {
   margin-bottom: 1rem;
   color: var(--accent);
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 0.62rem;
+  font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -679,8 +679,8 @@ html:not(.dark) .text-gradient-cool {
 ============================================================ */
 .hero-title {
   max-width: min(44ch, 100%);
-  font-size: clamp(1.9rem, 7vw, 3.5rem);
-  line-height: 0.96;
+  font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+  line-height: 1.1;
   font-weight: 900;
   white-space: normal;
 }
@@ -694,8 +694,8 @@ html:not(.dark) .text-gradient-cool {
 
 .hero-copy {
   color: var(--muted);
-  font-size: clamp(0.95rem, 1.15vw, 1.05rem);
-  line-height: 1.68;
+  font-size: 0.85rem;
+  line-height: 1.6;
   max-width: 36rem;
 }
 
@@ -716,19 +716,19 @@ html:not(.dark) .text-gradient-cool {
 
   .hero-title {
     max-width: 100%;
-    font-size: clamp(1.8rem, 11vw, 2.7rem);
+    font-size: clamp(1.2rem, 7vw, 1.6rem);
   }
 
   .hero-copy {
     max-width: 34rem;
-    font-size: 0.92rem;
+    font-size: 0.75rem;
   }
 }
 
 @media (min-width: 1024px) {
   .hero-title {
     max-width: min(44ch, 100%);
-    font-size: clamp(2.6rem, 3.6vw, 3.55rem);
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
   }
 }
 
@@ -748,7 +748,7 @@ html:not(.dark) .text-gradient-cool {
   }
 
   .hero-title {
-    font-size: clamp(1.8rem, 9vw, 2.8rem);
+    font-size: clamp(1.3rem, 6vw, 1.8rem);
   }
 
   .hero-title-line {
@@ -766,11 +766,11 @@ html:not(.dark) .text-gradient-cool {
   }
 
   .hero-title {
-    font-size: clamp(1.7rem, 10vw, 2.4rem);
+    font-size: clamp(1.1rem, 7vw, 1.4rem);
   }
 
   .hero-copy {
-    font-size: 0.92rem;
+    font-size: 0.7rem;
   }
 }
 
@@ -3122,3 +3122,212 @@ html.dark .accent-badge {
   min-width: 0;
 }
 
+/* ============================================================
+   CONSISTENT FONT SIZE REDUCTIONS
+============================================================ */
+
+/* Make body text smaller - consistent reduction */
+body, p, li, .section-header p, .hero-copy {
+  font-size: 0.85rem;
+}
+
+/* Section headers - properly reduced */
+.section-header h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem) !important;
+}
+
+/* Cards - smaller but readable */
+.premium-card h3, .feature-tile h3, .process-card h3, .audience-card h3 {
+  font-size: 0.85rem !important;
+}
+
+.premium-card p, .feature-tile p, .process-card p, .audience-card p {
+  font-size: 0.75rem !important;
+}
+
+/* Buttons - smaller */
+.button-primary, .button-secondary {
+  font-size: 0.75rem !important;
+  padding: 0.5rem 1rem !important;
+  min-height: 2.4rem !important;
+}
+
+/* Stats */
+.stat-value {
+  font-size: 1.2rem !important;
+}
+
+.stat-label {
+  font-size: 0.6rem !important;
+}
+
+/* Trust pills */
+.inline-trust-pill {
+  font-size: 0.65rem !important;
+  padding: 0.3rem 0.6rem !important;
+}
+
+/* FAQ */
+.faq-button span {
+  font-size: 0.8rem !important;
+}
+
+.faq-content p {
+  font-size: 0.75rem !important;
+}
+
+/* Footer */
+.site-footer, .footer-copy, .footer-links a, .footer-contact p {
+  font-size: 0.7rem !important;
+}
+
+.footer-links h4 {
+  font-size: 0.7rem !important;
+}
+
+/* Forms */
+.field span {
+  font-size: 0.65rem !important;
+}
+
+.field input, .field textarea, .field select {
+  font-size: 0.75rem !important;
+  padding: 0.45rem 0.7rem !important;
+}
+
+/* Info cards */
+.info-card-title {
+  font-size: 0.6rem !important;
+}
+
+.info-card-text {
+  font-size: 0.75rem !important;
+}
+
+.info-card-subtext {
+  font-size: 0.6rem !important;
+}
+
+/* Dashboard elements */
+.dashboard-heading {
+  font-size: 1rem !important;
+}
+
+.metric-value {
+  font-size: 0.9rem !important;
+}
+
+.metric-card p {
+  font-size: 0.65rem !important;
+}
+
+/* Navbar links */
+.navbar-coder a, .nav-link span {
+  font-size: 0.75rem !important;
+}
+
+/* ============================================================
+   LESS ROUNDED - SQUARE CORNERS
+============================================================ */
+
+/* Make all buttons less rounded */
+button,
+.button-primary,
+.button-secondary,
+.theme-primary-btn,
+.nav-cta,
+.nav-action,
+.ud-upgrade-btn,
+[class*="button"],
+[class*="btn"] {
+  border-radius: 0.5rem !important;
+}
+
+/* Make cards less rounded */
+.premium-card,
+.feature-tile,
+.process-card,
+.audience-card,
+.info-card,
+.faq-card,
+.quote-panel,
+.split-band,
+.site-footer,
+.dashboard-preview,
+.stat-surface,
+.contact-shell,
+.hero-panel,
+.metric-card,
+.preview-row,
+.ud-surface,
+.ud-sidebar-surface,
+.live-chat-panel,
+.admin-compact-panel,
+.dashboard-shell-surface,
+.feature-strip-card {
+  border-radius: 0.75rem !important;
+}
+
+/* Make navbar less rounded */
+.navbar-coder {
+  border-radius: 0 !important;
+}
+
+/* Make mobile menu less rounded */
+.mobile-menu-container {
+  border-radius: 0.75rem !important;
+}
+
+/* Make inputs less rounded */
+input,
+textarea,
+select,
+.field input,
+.field textarea,
+.field select,
+.otp-slot {
+  border-radius: 0.4rem !important;
+}
+
+/* Make pills/badges less rounded */
+.eyebrow-chip,
+.inline-trust-pill,
+.status-pill,
+.accent-badge,
+.ud-hero-badge,
+.ud-hero-badge--green,
+.ud-hero-badge--purple {
+  border-radius: 0.5rem !important;
+}
+
+/* Make avatar/profile images less rounded */
+.ud-header-avatar,
+.ud-sidebar-avatar,
+.ud-header-avatar img {
+  border-radius: 0.5rem !important;
+}
+
+/* Make icons containers less rounded */
+.premium-card-icon,
+.feature-icon,
+.audience-icon,
+.info-card-icon,
+.support-badge,
+.footer-brand-icon,
+.preview-row-icon,
+.process-number {
+  border-radius: 0.5rem !important;
+}
+
+/* Make modals less rounded */
+.fixed.inset-0 > div,
+.InvoicePreviewModal,
+[class*="modal"] {
+  border-radius: 0.75rem !important;
+}
+
+/* Make tooltips less rounded */
+[class*="tooltip"],
+.fee-tooltip {
+  border-radius: 0.4rem !important;
+}
