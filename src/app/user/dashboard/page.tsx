@@ -62,6 +62,7 @@ import {
 import { OverviewHeroShield } from "@/components/user-dashboard/OverviewHeroShield";
 import { useUserKeyboardShortcuts } from "./hooks/useUserKeyboardShortcuts";
 import { ShortcutsModal } from "@/app/admin/dashboard/components/common/ShortcutsModal";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 type PaymentSummary = {
   _id: string;
@@ -180,16 +181,35 @@ function hasCompletedApplication(user: UserData | null) {
     user.addressProof,
   );
 }
+export default function DashboardPage() {
+  useAuthGuard();
 
-export default function DSCRegistrationForm() {
   return (
     <Suspense
-      fallback={<div className="min-h-screen bg-[var(--background)]" />}
+      fallback={
+        <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <LoaderCircle size={36} className="animate-spin" style={{ color: "var(--accent)" }} />
+            <p className="text-sm font-semibold" style={{ color: "var(--muted)" }}>Loading dashboard...</p>
+          </div>
+        </div>
+      }
     >
       <UserDashboardPage />
     </Suspense>
   );
 }
+
+
+// export default function DSCRegistrationForm() {
+//   return (
+//     <Suspense
+//       fallback={<div className="min-h-screen bg-[var(--background)]" />}
+//     >
+//       <UserDashboardPage />
+//     </Suspense>
+//   );
+// }
 
 function UserDashboardPage() {
   const router = useRouter();

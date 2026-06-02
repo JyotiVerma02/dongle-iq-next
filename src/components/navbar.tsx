@@ -46,33 +46,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const { isDarkMode, mounted, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMenuOpen(false);
   }, [pathname]);
-
-  useEffect(() => {
-    let raf = 0;
-
-    const update = () => {
-      setIsScrolled(window.scrollY > 10);
-      raf = 0;
-    };
-
-    const onScroll = () => {
-      if (raf) return;
-      raf = window.requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) window.cancelAnimationFrame(raf);
-    };
-  }, []);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -84,15 +61,19 @@ export default function Navbar() {
   }, [isMenuOpen]);
 
   if (
-  pathname === "/admin/dashboard" ||
-  pathname === "/admin/create-application"
-) {
-  return null;
-}
+    pathname === "/admin/dashboard" ||
+    pathname === "/admin/create-application"
+  ) {
+    return null;
+  }
 
   const showAuthButtons = AUTH_ROUTES.has(pathname);
   const showLogout = LOGOUT_ROUTES.has(pathname);
-  const themeIcon = !mounted ? null : isDarkMode ? <SunMedium size={18} /> : <Moon size={18} />;
+  const themeIcon = !mounted ? null : isDarkMode ? (
+    <SunMedium size={18} />
+  ) : (
+    <Moon size={18} />
+  );
   const authAction =
     pathname === "/login"
       ? { href: "/register", label: "Register", icon: <UserPlus size={16} /> }
@@ -100,30 +81,17 @@ export default function Navbar() {
         ? { href: "/login", label: "Login", icon: <LogIn size={16} /> }
         : { href: "/login", label: "Login", icon: <LogIn size={16} /> };
 
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/logout", { method: "POST" });
-    } catch {
-      // Keep the user moving even if logout request fails.
-    } finally {
-      router.push("/");
-      router.refresh();
-    }
-  };
+ const handleLogout = async () => {
+  await fetch("/api/logout", { method: "POST" });
 
+  router.replace("/login"); // 🔥 MUST
+  router.refresh();
+};
   return (
-    <nav
-      className={`theme-transition navbar-coder sticky top-0 left-0 right-0 z-50 ${isScrolled ? "scrolled" : ""}`}
-      style={{ color: "var(--foreground)" }}
-    >
-      <div
-        className="navbar-coder-content mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-2 px-3 py-3 sm:px-4 lg:px-8"
-      >
+    <nav className="navbar-coder">
+      <div className="navbar-coder-content mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-2 px-3 py-3 sm:px-4 lg:px-8">
         <Link href="/" className="transition-opacity hover:opacity-80">
-          <BrandLogo
-            size="md"
-            wordmarkClassName={`nav-wordmark sm:text-[1.05rem] ${isScrolled ? "nav-wordmark--scrolled" : ""}`}
-          />
+          <BrandLogo size="md" />
         </Link>
 
         <div className="hidden items-center gap-2 md:flex">
@@ -134,11 +102,14 @@ export default function Navbar() {
               className="nav-link group relative px-4 py-2 text-[0.9rem] font-medium transition-colors"
               style={{ color: "var(--muted)" }}
             >
-              <span className="nav-link-label group-hover:opacity-100 opacity-80 transition-opacity" style={{ color: "var(--foreground)" }}>
+              <span
+                className="nav-link-label opacity-80 transition-opacity group-hover:opacity-100"
+                style={{ color: "var(--foreground)" }}
+              >
                 {item.label}
               </span>
-              <span 
-                className="absolute bottom-1 left-4 right-4 h-[2px] scale-x-0 rounded-full transition-transform duration-300 ease-out group-hover:scale-x-100" 
+              <span
+                className="absolute bottom-1 left-4 right-4 h-[2px] scale-x-0 rounded-full transition-transform duration-300 ease-out group-hover:scale-x-100"
                 style={{ backgroundColor: "var(--accent)" }}
               />
             </a>
@@ -178,7 +149,7 @@ export default function Navbar() {
             onClick={toggleTheme}
             aria-label="Toggle theme"
             title="Toggle theme"
-            className={`nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] ${isScrolled ? "nav-action--scrolled" : ""}`}
+            className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)]"
             style={{
               backgroundColor: "var(--card)",
               borderColor: "var(--border-soft)",
@@ -191,7 +162,7 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMenuOpen}
-            className={`nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden ${isScrolled ? "nav-action--scrolled" : ""}`}
+            className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden"
             style={{
               backgroundColor: "var(--card)",
               borderColor: "var(--border-soft)",
@@ -204,10 +175,13 @@ export default function Navbar() {
 
       {isMenuOpen ? (
         <div
-          className="ud-enter mobile-menu-container mx-auto mt-3 rounded-[1.35rem] border p-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl lg:hidden"
+          className="mobile-menu-container mx-auto mt-3 rounded-[1.35rem] border p-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl lg:hidden"
           style={{
-            backgroundColor: "var(--overlay)",
+            backgroundColor:
+              "color-mix(in srgb, var(--overlay) 88%, transparent)",
             borderColor: "var(--border-soft)",
+            boxShadow:
+              "0 20px 60px -34px var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,0.12)",
           }}
         >
           <div className="grid gap-2">

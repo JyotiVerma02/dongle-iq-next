@@ -303,10 +303,7 @@ export default function DongleIQLanding() {
                     "Human support",
                   ].map((item) => (
                     <div key={item} className="inline-trust-pill">
-                      <CheckCircle2
-                        size={14}
-                        className="text-accent-strong"
-                      />
+                      <CheckCircle2 size={14} className="text-accent-strong" />
                       <span>{item}</span>
                     </div>
                   ))}
@@ -315,7 +312,8 @@ export default function DongleIQLanding() {
 
               <div className="hero-visual-block relative flex justify-center">
                 <div className="relative w-full max-w-[1000px] lg:max-w-[1100px]">
-                  <div className="hero-image-wrapper">
+                  <div className="hero-image-wrapper relative">
+                    {/* Dark Image */}
                     <Image
                       src="/images/hero-dashboard.png"
                       alt="DongleIQ Dashboard"
@@ -323,6 +321,22 @@ export default function DongleIQLanding() {
                       height={800}
                       priority
                       className="h-auto w-full scale-125 object-contain"
+                      style={{
+                        display: isDarkMode ? "block" : "none",
+                      }}
+                    />
+
+                    {/* Light Image */}
+                    <Image
+                      src="/images/hero-dashboard-light.png"
+                      alt="DongleIQ Dashboard"
+                      width={1200}
+                      height={800}
+                      priority
+                      className="h-auto w-full scale-125 object-contain"
+                      style={{
+                        display: !isDarkMode ? "block" : "none",
+                      }}
                     />
                   </div>
                 </div>
