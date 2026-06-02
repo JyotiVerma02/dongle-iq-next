@@ -110,13 +110,14 @@ function RegisterContent() {
   return (
     <div
       suppressHydrationWarning
-      className="auth-page-shell theme-transition relative overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition fixed inset-0 w-full overflow-hidden bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className="relative z-10 flex w-full app-page-min-height items-center justify-center py-6 sm:py-8">
-        <div className="content-container flex flex-col items-center justify-center lg:flex-row lg:gap-10 xl:gap-16">
+      <div className="relative z-10 flex h-screen w-full items-center justify-center overflow-hidden">
+        {" "}
+        <div className="content-container flex w-full items-center justify-center lg:justify-center lg:gap-6">
           <div
-            className="hidden lg:flex lg:w-full lg:max-w-[32rem] lg:flex-col lg:justify-center lg:pr-8 xl:max-w-[34rem] xl:pr-12"
+            className="hidden lg:flex lg:w-full lg:max-w-[24rem] lg:flex-col lg:justify-center lg:pr-4 xl:max-w-[34rem] xl:pr-6"
             style={{ borderRight: `1px solid ${colors.borderSoft}` }}
           >
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
@@ -171,8 +172,8 @@ function RegisterContent() {
             </div>
           </div>
 
-          <div className="no-scrollbar flex w-full max-w-md items-center justify-center px-4 py-6 lg:px-0">
-            <div className="group relative w-full max-w-[32rem] animate-[fadeIn_1.2s_ease-out]">
+          <div className="no-scrollbar flex w-full max-w-md items-center justify-center px-2  lg:px-0 lg:-ml-2">
+            <div className="group relative w-full max-w-[28rem] animate-[fadeIn_1.2s_ease-out]">
               <div
                 className="absolute -inset-px rounded-xl opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-90"
                 style={{ background: premiumGradient }}

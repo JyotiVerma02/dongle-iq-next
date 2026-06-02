@@ -39,7 +39,7 @@ export function Header({
 
   return (
     <header
-      className="sticky top-0 z-30 flex h-[50px] min-h-[50px] shrink-0 w-full items-center justify-between gap-3 border-b px-3 sm:px-4 lg:px-5"
+      className="sticky top-0 z-30 flex h-[60px] min-h-[60px] shrink-0 w-full items-center justify-between gap-3 border-b px-3 sm:px-4 lg:px-5"
       style={{
         background: isDarkMode
           ? "linear-gradient(180deg, rgba(12,14,20,0.96), rgba(8,10,16,0.92))"

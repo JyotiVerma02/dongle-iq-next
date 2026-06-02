@@ -38,6 +38,7 @@ import { motion } from "framer-motion";
 import SpotlightCard from "@/components/ui/SpotlightCard";
 import MagneticButton from "@/components/ui/MagneticButton";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import Image from "next/image";
 
 type FaqEntry = {
   question: string;
@@ -135,32 +136,38 @@ const applicationSteps = [
 const audienceCards: Audience[] = [
   {
     title: "Self-employed professionals",
-    description: "Add secure digital identity services without adding operational complexity.",
+    description:
+      "Add secure digital identity services without adding operational complexity.",
     icon: <Briefcase size={20} />,
   },
   {
     title: "Retail service centers",
-    description: "Turn walk-in demand into a higher-trust service offering with faster processing.",
+    description:
+      "Turn walk-in demand into a higher-trust service offering with faster processing.",
     icon: <Store size={20} />,
   },
   {
     title: "Freelancers and consultants",
-    description: "Offer onboarding help with a polished workflow clients can actually trust.",
+    description:
+      "Offer onboarding help with a polished workflow clients can actually trust.",
     icon: <Sparkles size={20} />,
   },
   {
     title: "Students and new earners",
-    description: "Start with a professional platform that makes learning, selling, and supporting easier.",
+    description:
+      "Start with a professional platform that makes learning, selling, and supporting easier.",
     icon: <GraduationCap size={20} />,
   },
   {
     title: "Retired professionals",
-    description: "Stay active with a service model built around clarity, assistance, and steady digital demand.",
+    description:
+      "Stay active with a service model built around clarity, assistance, and steady digital demand.",
     icon: <UserCheck size={20} />,
   },
   {
     title: "Agency operators",
-    description: "Standardize applications and deliver a stronger customer experience across every submission.",
+    description:
+      "Standardize applications and deliver a stronger customer experience across every submission.",
     icon: <Cpu size={20} />,
   },
 ];
@@ -241,124 +248,109 @@ export default function DongleIQLanding() {
       className="page-shell min-h-screen theme-transition"
       style={{ color: colors.text }}
     >
-      <section className="section hero-section hero-section-full-bleed relative overflow-hidden">
-        {/* Glowing Cinematic Background Orbs — Purple / Cyan / Blue */}
-        <div className="hero-shell hero-shell-full-bleed px-3 py-8 sm:px-4 sm:py-10 lg:px-6 lg:py-[3.5rem]">
-          <div className="container-shell hero-panel-inner relative z-10">
-            <div className="hero-copy-block relative z-10 max-w-2xl">
-              <div className="eyebrow-chip mb-6">
-                <BadgeCheck size={14} />
-                Trusted onboarding for DSC and IRCTC agents
-              </div>
-
-              <h1 className="hero-title max-w-2xl">
-                <span className="hero-title-line">Secure digital identity,</span>
-                <span className="hero-title-line">redesigned for</span>
-                <span className="hero-title-line text-gradient-brand">speed and trust</span>
-              </h1>
-
-              <p className="hero-copy mt-6 max-w-xl">
-                DongleIQ helps agents launch faster with a cleaner application
-                flow, sharper verification UX, and a modern platform that feels
-                credible from the first click.
-              </p>
-
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <MagneticButton
-                  onClick={() => router.push("/register")}
-                  className="button-primary"
-                >
-                  Start application
-                  <ArrowRight size={18} />
-                </MagneticButton>
-
-                <a href="#contact" className="button-secondary">
-                  Request a custom quote
-                  <ChevronRight size={18} />
-                </a>
-              </div>
-
-              <div className="mt-8 flex flex-wrap gap-3 text-sm">
-                {[
-                  "Fast onboarding",
-                  "Licensed trust flow",
-                  "Human support",
-                ].map((item) => (
-                  <div key={item} className="inline-trust-pill">
-                    <CheckCircle2 size={16} />
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="hero-visual-block relative z-10">
-              <div className="dashboard-preview">
-                <div className="dashboard-topbar">
-                  <div>
-                    <p className="dashboard-kicker">Application overview</p>
-                    <h2 className="dashboard-heading">Approval flow</h2>
-                  </div>
-                  <div className="status-pill success flex items-center gap-1.5">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                    </span>
-                    Ready to submit
-                  </div>
+      <section className="section hero-section-full-bleed">
+        <div className="hero-shell-full-bleed">
+          <div className="container-shell pt-4 pb-12 sm:pt-5 lg:pt-7 lg:pb-16">
+            <div className="hero-panel-inner">
+              <div className="hero-copy-block flex flex-col justify-center">
+                <div className="eyebrow-chip mb-6 self-start">
+                  <BadgeCheck size={14} />
+                  <span>
+                    A Trusted onboarding platform for DSC & IRCTC agents
+                  </span>
                 </div>
 
-                <div className="dashboard-stack">
-                  <PreviewRow
-                    title="Profile details"
-                    subtitle="Email, applicant details, service selection"
-                    status="Completed"
-                  />
-                  <PreviewRow
-                    title="Identity verification"
-                    subtitle="Aadhaar eKYC and OTP confirmation"
-                    status="In review"
-                  />
-                  <PreviewRow
-                    title="Document validation"
-                    subtitle="Files checked for compliance and clarity"
-                    status="Secure"
-                  />
+                <h1 className="hero-title">
+                  <span className="hero-title-line">
+                    Secure digital identity,
+                  </span>
+                  <span className="hero-title-line text-accent-soft">
+                    redesigned for{" "}
+                  </span>
+                  <span className="hero-title-line text-gradient-cool">
+                    speed and trust
+                  </span>
+                </h1>
+
+                <p className="hero-copy mt-6">
+                  DongleIQ accelerates agent onboarding with a streamlined
+                  application flow, enhanced verification UX, and a secure
+                  platform.
+                </p>
+
+                <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+                  <button
+                    onClick={() => router.push("/register")}
+                    className="button-primary group"
+                  >
+                    Start application
+                    <ArrowRight
+                      size={16}
+                      className="transition-transform duration-200 group-hover:translate-x-0.5"
+                    />
+                  </button>
+
+                  <a href="#contact" className="button-secondary">
+                    Request a custom quote
+                    <ChevronRight size={16} />
+                  </a>
                 </div>
 
-                <div className="dashboard-metrics">
-                  <MetricCard
-                    value="3"
-                    label="steps"
-                    caption="clear progress states"
-                  />
-                  <MetricCard
-                    value="5 min"
-                    label="support"
-                    caption="average first response"
-                  />
+                <div className="mt-10 flex flex-wrap gap-4">
+                  {[
+                    "Fast onboarding",
+                    "Licensed trust flow",
+                    "Human support",
+                  ].map((item) => (
+                    <div key={item} className="inline-trust-pill">
+                      <CheckCircle2
+                        size={14}
+                        className="text-accent-strong"
+                      />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="hero-visual-block relative flex justify-center">
+                <div className="relative w-full max-w-[1000px] lg:max-w-[1100px]">
+                  <div className="hero-image-wrapper">
+                    <Image
+                      src="/images/hero-dashboard.png"
+                      alt="DongleIQ Dashboard"
+                      width={1200}
+                      height={800}
+                      priority
+                      className="h-auto w-full scale-125 object-contain"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          </div>
 
-        <div className="container-shell">
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {trustMetrics.map((item, index) => (
-              <div
-                key={item.label}
-                className="stat-surface reveal-up"
-                style={{ animationDelay: `${index * 90}ms` }}
-              >
-                <div className="stat-value">{item.value}</div>
-                <div className="stat-label">{item.label}</div>
+            <div className="mt-8 lg:mt-10">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                {trustMetrics &&
+                  trustMetrics.map((item, index) => (
+                    <div
+                      key={item.label}
+                      className="stat-surface reveal-up"
+                      style={{ animationDelay: `${index * 90}ms` }}
+                    >
+                      <div className="stat-value text-accent-strong">
+                        {item.value}
+                      </div>
+                      <div className="stat-label mt-1 font-semibold uppercase tracking-wide">
+                        {item.label}
+                      </div>
+                    </div>
+                  ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
-
       <section id="whyus" className="section">
         <ScrollReveal className="container-shell">
           <SectionHeader
@@ -392,7 +384,7 @@ export default function DongleIQLanding() {
       <section className="section">
         <ScrollReveal className="container-shell">
           <div className="split-band ">
-            <div className="flex items-center  justify-center h-full" >
+            <div className="flex items-center  justify-center h-full">
               <SectionHeader
                 // align="center"
                 label="Platform highlights"
@@ -467,10 +459,8 @@ export default function DongleIQLanding() {
             title={
               <>
                 Built for{" "}
-                <span className="text-gradient-cool">
-                  real operators
-                </span>
-                {" "}not just generic traffic
+                <span className="text-gradient-cool">real operators</span> not
+                just generic traffic
               </>
             }
             description="The audience sections now speak more directly to the people most likely to apply, which strengthens trust and makes the site feel more specific."
@@ -520,7 +510,7 @@ export default function DongleIQLanding() {
 
       <section id="contact" className="section section-contact-compact">
         <ScrollReveal className="container-shell">
-                 <div className="contact-shell">
+          <div className="contact-shell">
             <div className="contact-copy">
               <SectionHeader
                 align="left"
@@ -620,7 +610,6 @@ export default function DongleIQLanding() {
                   <ArrowRight size={18} />
                 </button>
               </form>
-
             </div>
           </div>
         </ScrollReveal>
@@ -662,7 +651,11 @@ export default function DongleIQLanding() {
                 <a href="https://linkedin.com" target="_blank" rel="noreferrer">
                   <FaLinkedinIn size={14} />
                 </a>
-                <a href="https://instagram.com" target="_blank" rel="noreferrer">
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   <FaInstagram size={14} />
                 </a>
               </div>
@@ -738,7 +731,9 @@ function SectionHeader({
   align?: "left" | "center";
 }) {
   return (
-    <div className={`section-header ${align === "left" ? "section-header-left" : ""}`}>
+    <div
+      className={`section-header ${align === "left" ? "section-header-left" : ""}`}
+    >
       <p className="eyebrow-text">{label}</p>
       <h2>{title}</h2>
       <p>{description}</p>
@@ -767,7 +762,6 @@ function FeatureCard({
       <div
         className="premium-card-icon"
         style={{
-     
           backgroundColor: colors.accentSoft,
         }}
       >

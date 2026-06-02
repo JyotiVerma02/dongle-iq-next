@@ -71,7 +71,7 @@ export function UserSidebar({
         .map((part) => part.charAt(0).toUpperCase())
         .slice(0, 2)
         .join("")
-    : userData?.email?.charAt(0).toUpperCase() ?? "NV";
+    : (userData?.email?.charAt(0).toUpperCase() ?? "NV");
 
   const navigationItems: NavEntry[] = [
     {
@@ -110,6 +110,11 @@ export function UserSidebar({
       label: "Support Tickets",
       icon: <Headset size={18} />,
     },
+    {
+      view: "profile-settings",
+      label: "User Settings",
+      icon: <Settings size={18} />,
+    },
   ];
 
   const handleItemClick = (entry: NavEntry) => {
@@ -120,87 +125,111 @@ export function UserSidebar({
     <aside
       className={`ud-user-sidebar ud-sidebar-surface fixed inset-y-0 left-0 z-50 flex transform flex-col border-r transition-[transform,width] duration-300 ease-out lg:static lg:z-auto lg:translate-x-0 ${
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } ${isCollapsed ? "w-14" : "w-58"}`}
+      } ${isCollapsed ? "w-[68px]" : "w-60"}`}
     >
-      <div className="hide-scrollbar flex h-full flex-col justify-between overflow-y-auto px-4 py-6">
-        <div className="space-y-6">
-          <div className="flex items-center gap-3 px-2">
+      <div className="flex h-full flex-col overflow-hidden">
+        {/* Fixed Logo */}
+        <div
+          className={`flex h-[60px] shrink-0 items-center border-b border-white/5 ${
+            isCollapsed ? "justify-center px-0" : "px-6"
+          }`}
+        >
+          <div
+            className={`flex items-center ${
+              isCollapsed ? "justify-center" : "gap-3 px-2"
+            }`}
+          >
             <BrandLogo
               showText={!isCollapsed}
               size="sm"
               wordmarkClassName="ud-sidebar-brand text-xl font-bold tracking-tight"
             />
           </div>
-
-          {!isCollapsed && (
-            <div className="ud-sidebar-hint flex items-start gap-2.5 rounded-xl border p-3">
-              <div className="mt-0.5 shrink-0 rounded-md bg-orange-500/10 p-1 text-orange-500">
-                <Sparkles size={15} />
-              </div>
-              <p className="ud-sidebar-hint-text text-[11px] font-medium leading-normal">
-                Submit your application to unlock tracking and documents.
-              </p>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            {!isCollapsed && (
-              <p className="ud-sidebar-section-label px-2 text-[10px] font-bold uppercase tracking-[0.2em]">
-                MAIN MENU
-              </p>
-            )}
-            <nav className="flex flex-col gap-1.5">
-              {navigationItems.map((item) => {
-                const isActive = view === item.view;
-                return (
-                  <button
-                    key={item.label}
-                    type="button"
-                    onClick={() => handleItemClick(item)}
-                    className={`group relative flex items-center justify-between rounded-xl px-3.5 py-3 text-left transition-all duration-200 ${
-                      isActive
-                        ? "ud-nav-active font-semibold"
-                        : "ud-sidebar-nav-item ud-hover-surface"
-                    }`}
-                  >
-                    <div className="flex min-w-0 items-center gap-3">
-                      <span
-                        className={
-                          isActive
-                            ? "text-orange-500"
-                            : "ud-sidebar-nav-icon"
-                        }
-                      >
-                        {item.icon}
-                      </span>
-                      {!isCollapsed && (
-                        <span
-                          className={`truncate text-sm font-medium ${
-                            isActive ? "text-orange-500" : "ud-sidebar-nav-label"
-                          }`}
-                        >
-                          {item.label}
-                        </span>
-                      )}
-                    </div>
-
-                    {!isCollapsed && (
-                      <div className="flex shrink-0 items-center gap-1.5">
-                        {item.badge ? (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
-                            {item.badge}
-                          </span>
-                        ) : null}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
         </div>
 
-        <div className="mt-8 space-y-4">
+        {/* Scrollable Content */}
+        <div className="hide-scrollbar flex-1 overflow-y-auto px-4 py-6">
+          <div className="space-y-6">
+            {!isCollapsed && (
+              <div className="ud-sidebar-hint flex items-start gap-2.5 rounded-xl border p-3">
+                <div className="mt-0.5 shrink-0 rounded-md bg-orange-500/10 p-1 text-orange-500">
+                  <Sparkles size={15} />
+                </div>
+                <p className="ud-sidebar-hint-text text-[10px] font-medium leading-normal">
+                  Submit your application to unlock tracking and documents.
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {!isCollapsed && (
+                <p className="ud-sidebar-section-label px-2 text-[9px] font-bold uppercase tracking-[0.2em]">
+                  MAIN MENU
+                </p>
+              )}
+              <nav className="flex flex-col gap-1.5">
+                {navigationItems.map((item) => {
+                  const isActive = view === item.view;
+                  return (
+                    <button
+                      key={item.label}
+                      type="button"
+                      onClick={() => handleItemClick(item)}
+                     className={`group relative flex items-center text-left transition-all duration-200 ${
+  isCollapsed
+    ? `mx-auto h-10 w-10 justify-center rounded-full ${
+        isActive
+          ? "bg-orange-500/15 text-orange-500"
+          : "hover:bg-orange-500/10 hover:scale-105 active:scale-95"
+      }`
+    : `justify-between px-3 py-2.5 rounded-xl ${
+        isActive
+          ? "ud-nav-active font-semibold"
+          : "ud-sidebar-nav-item ud-hover-surface"
+      }`
+}`}
+                    >
+                      {isActive && !isCollapsed && (
+                        <div className="absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-orange-500 " />
+                      )}
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span
+                          className={`flex items-center justify-center ${
+                            isActive ? "text-orange-500" : "ud-sidebar-nav-icon"
+                          } ${isCollapsed ? "h-7 w-7" : ""}`}
+                        >
+                          {item.icon}
+                        </span>
+                        {!isCollapsed && (
+                          <span
+                            className={`truncate text-xs font-medium ${
+                              isActive
+                                ? "text-orange-500"
+                                : "ud-sidebar-nav-label"
+                            }`}
+                          >
+                            {item.label}
+                          </span>
+                        )}
+                      </div>
+
+                      {!isCollapsed && (
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          {item.badge ? (
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
+                              {item.badge}
+                            </span>
+                          ) : null}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          </div>
+        </div>
+       <div className="shrink-0 space-y-4 border-t border-white/5 p-4">
           {!isCollapsed && (
             <div className="ud-upgrade-card relative overflow-hidden rounded-2xl border p-4 shadow-sm">
               <div className="flex items-center gap-3">
@@ -225,9 +254,18 @@ export function UserSidebar({
             </div>
           )}
 
-          <div className="ud-sidebar-footer flex flex-col gap-3 border-t pt-4">
-            <div className="ud-sidebar-profile flex items-center gap-3 rounded-2xl p-1.5">
-              <div className="ud-sidebar-avatar flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white">
+          {/* <div className="ud-sidebar-footer flex flex-col gap-3 border-t pt-4">
+            <div
+              className={`ud-sidebar-profile flex items-center rounded-2xl p-1.5 ${
+                isCollapsed ? "justify-center" : "gap-3"
+              }`}
+            >
+              {" "}
+              <div
+                className={`ud-sidebar-avatar flex shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${
+                  isCollapsed ? "h-11 w-11" : "h-10 w-10"
+                }`}
+              >
                 {initials}
               </div>
               {!isCollapsed && (
@@ -262,15 +300,6 @@ export function UserSidebar({
 
             <button
               type="button"
-              onClick={() => onViewChange("profile-settings")}
-              className="ud-sidebar-logout ud-hover-surface flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold transition"
-            >
-              <Settings size={16} />
-              {!isCollapsed && <span>Settings</span>}
-            </button>
-
-            <button
-              type="button"
               onClick={onLogout}
               className={`ud-sidebar-logout ud-hover-surface flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold transition ${
                 isCollapsed ? "justify-center" : ""
@@ -278,8 +307,8 @@ export function UserSidebar({
             >
               <LogOut size={16} />
               {!isCollapsed && <span>Logout</span>}
-            </button>
-          </div>
+            </button> */}
+          {/* </div> */}
         </div>
       </div>
     </aside>

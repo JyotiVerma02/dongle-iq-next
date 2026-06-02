@@ -5,7 +5,9 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  type FormEvent,
   type ReactNode,
 } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,6 +15,7 @@ import {
   AlertCircle,
   Bell,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   Clock,
   CreditCard,
@@ -21,15 +24,19 @@ import {
   Headset,
   Info,
   LoaderCircle,
+  LogOut,
+  Mail,
   Menu,
   PencilLine,
   Search,
+  Settings,
   ShieldCheck,
   Sparkles,
   Moon,
   SunMedium,
   RefreshCw,
   Upload,
+  User,
   Users,
   X,
 } from "lucide-react";
@@ -147,6 +154,14 @@ const USER_VIEW_LABELS: Record<UserDashboardView, string> = {
   documents: "Documents",
 };
 
+const USER_SEARCH_ENTRIES: Array<{
+  view: UserDashboardView;
+  terms: string[];
+}> = Object.entries(USER_VIEW_LABELS).map(([view, label]) => ({
+  view: view as UserDashboardView,
+  terms: [label, view.replace(/-/g, " ")],
+}));
+
 function hasCompletedApplication(user: UserData | null) {
   if (!user) {
     return false;
@@ -192,9 +207,17 @@ function UserDashboardPage() {
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [view, setView] = useState<UserDashboardView>("overview");
+  const [dashboardSearch, setDashboardSearch] = useState("");
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
+  const userDropdownButtonRef = useRef<HTMLButtonElement>(null);
+  const [userDropdownPosition, setUserDropdownPosition] = useState({
+    top: 0,
+    right: 0,
+  });
   const [paymentSummary, setPaymentSummary] = useState<PaymentSummary | null>(
     null,
   );
@@ -212,6 +235,31 @@ function UserDashboardPage() {
     paymentStatus === "paid" ||
     paymentSummary?.status === "verified" ||
     paymentSummary?.status === "completed";
+  const userInitials = useMemo(() => {
+    if (userData?.name) {
+      return userData.name
+        .trim()
+        .split(/\s+/)
+        .map((part) => part.charAt(0))
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    }
+
+    return userData?.email?.charAt(0).toUpperCase() || "JV";
+  }, [userData?.email, userData?.name]);
+  const updateUserDropdownPosition = useCallback(() => {
+    const rect = userDropdownButtonRef.current?.getBoundingClientRect();
+
+    if (!rect) {
+      return;
+    }
+
+    setUserDropdownPosition({
+      top: rect.bottom + 8,
+      right: Math.max(window.innerWidth - rect.right, 16),
+    });
+  }, []);
   const statusTone = useMemo(() => {
     return applicationStatus === "approved"
       ? {
@@ -250,7 +298,48 @@ function UserDashboardPage() {
       window.removeEventListener("offline", handleOffline);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isUserDropdownOpen) {
+      return;
+    }
+
+    updateUserDropdownPosition();
+
+    window.addEventListener("resize", updateUserDropdownPosition);
+    window.addEventListener("scroll", updateUserDropdownPosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updateUserDropdownPosition);
+      window.removeEventListener("scroll", updateUserDropdownPosition, true);
+    };
+  }, [isUserDropdownOpen, updateUserDropdownPosition]);
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
 
   const fetchUserData = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -705,6 +794,27 @@ function UserDashboardPage() {
     if (typeof window !== "undefined" && window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
+  };
+
+  const handleDashboardSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const query = dashboardSearch.trim().toLowerCase();
+
+    if (!query) {
+      return;
+    }
+
+    const match = USER_SEARCH_ENTRIES.find((entry) =>
+      entry.terms.some((term) => term.toLowerCase().includes(query)),
+    );
+
+    if (match) {
+      selectView(match.view);
+      setDashboardSearch("");
+      return;
+    }
+
+    toast.error("No matching dashboard section found.");
   };
 
   useUserKeyboardShortcuts(selectView, () => setIsShortcutsOpen(true));
@@ -2317,10 +2427,15 @@ function UserDashboardPage() {
             </header>
 
             <header
-              className="ud-desktop-bar flex items-center justify-between"
+              className="ud-desktop-bar sticky top-0 z-50 h-[60px] items-center justify-between px-6 shadow-sm backdrop-blur-md"
               style={{
-                borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "#f1f5f9",
-                backgroundColor: isDarkMode ? "rgba(11,15,23,0.94)" : "#ffffff",
+                background: isDarkMode
+                  ? "rgba(15,23,42,0.75)"
+                  : "rgba(255,255,255,0.75)",
+                backdropFilter: "blur(20px)",
+                borderBottom: isDarkMode
+                  ? "1px solid rgba(255,255,255,0.08)"
+                  : "1px solid #e2e8f0",
               }}
             >
               <div className="flex items-center gap-4">
@@ -2346,18 +2461,22 @@ function UserDashboardPage() {
                 </button>
 
                 {/* Search Bar */}
-                <div className="relative flex w-80 max-w-full items-center rounded-full border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs text-slate-500">
+                <form
+                  onSubmit={handleDashboardSearchSubmit}
+                  className="hidden w-80 max-w-full items-center gap-2 rounded-lg  bg-slate-50 px-3 py-1.5 text-xs text-slate-500 sm:flex"
+                >
                   <Search size={14} className="mr-2 shrink-0 text-slate-400" />
                   <input
                     type="text"
-                    placeholder="Search anything..."
+                    placeholder="Search dashboard..."
+                    value={dashboardSearch}
+                    onChange={(event) => setDashboardSearch(event.target.value)}
                     className="w-full bg-transparent text-slate-800 outline-none placeholder:text-slate-400"
-                    disabled
                   />
-                  <span className="rounded bg-slate-200/50 border border-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 shrink-0 ml-1">
+                  {/* <span className="rounded bg-slate-200/50 border border-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 shrink-0 ml-1">
                     ⌘K
-                  </span>
-                </div>
+                  </span> */}
+                </form>
               </div>
 
               {/* Right widgets */}
@@ -2389,27 +2508,134 @@ function UserDashboardPage() {
                   </div>
                 </button>
 
-                {/* User profile */}
-                <div className="ud-header-user flex items-center gap-3 border-l border-slate-200 pl-4">
-                  <div className="ud-header-avatar flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-[0_0_14px_rgba(124,58,237,0.35)]">
-                    {userData?.name
-                      ? userData.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()
-                          .slice(0, 2)
-                      : "JV"}
-                  </div>
-                  <div className="hidden text-left xl:block">
-                    <p className="ud-header-user-name text-xs font-bold leading-tight text-slate-800">
-                      {userData?.name || "User"}
-                    </p>
-                    <span className="ud-header-user-meta mt-0.5 inline-flex items-center gap-1 text-[10px] font-medium text-slate-500">
-                      <CheckCircle2 size={10} className="text-violet-500" />
-                      Verified User
-                    </span>
-                  </div>
+                {/* User profile dropdown */}
+                <div
+                  ref={userDropdownRef}
+                  className="relative border-l border-slate-200 pl-4 dark:border-white/10"
+                >
+                  <button
+                    ref={userDropdownButtonRef}
+                    type="button"
+                    onClick={() => {
+                      updateUserDropdownPosition();
+                      setIsUserDropdownOpen((current) => !current);
+                    }}
+                    className="ud-header-user flex items-center gap-3 rounded-full px-1.5 py-1 transition-all hover:bg-slate-100/80 active:scale-[0.98] dark:hover:bg-white/5"
+                    aria-haspopup="menu"
+                    aria-expanded={isUserDropdownOpen}
+                    aria-label="Open user menu"
+                  >
+                    <div className="ud-header-avatar flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-[0_0_14px_rgba(124,58,237,0.35)]">
+                      {userInitials}
+                    </div>
+                    <div className="hidden text-left xl:block">
+                      <p className="ud-header-user-name text-xs font-bold leading-tight text-slate-800">
+                        {userData?.name || "User"}
+                      </p>
+                      <span className="ud-header-user-meta mt-0.5 inline-flex items-center gap-1 text-[10px] font-medium text-slate-500">
+                        <CheckCircle2 size={10} className="text-violet-500" />
+                        Verified User
+                      </span>
+                    </div>
+                    <ChevronDown
+                      size={15}
+                      className={`shrink-0 text-slate-400 transition-transform duration-200 ${
+                        isUserDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {isUserDropdownOpen ? (
+                    <div
+                      role="menu"
+                      className="fixed z-[9999] w-64 overflow-hidden rounded-2xl border py-2 shadow-2xl"
+                      style={{
+                        top: userDropdownPosition.top,
+                        right: userDropdownPosition.right,
+                        borderColor: isDarkMode
+                          ? "rgba(255,255,255,0.08)"
+                          : "#e2e8f0",
+                        backgroundColor: isDarkMode
+                          ? "rgba(11,15,23,0.98)"
+                          : "#ffffff",
+                        boxShadow: isDarkMode
+                          ? "0 24px 60px -24px rgba(0,0,0,0.85)"
+                          : "0 24px 60px -24px rgba(15,23,42,0.25)",
+                      }}
+                    >
+                      <div className="border-b px-4 pb-3 pt-2 dark:border-white/10">
+                        <div className="flex items-center gap-3">
+                          <div className="ud-header-avatar flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white">
+                            {userInitials}
+                          </div>
+                          <div className="min-w-0">
+                            <p
+                              className="truncate text-sm font-bold"
+                              style={{ color: colors.text }}
+                            >
+                              {userData?.name || "User"}
+                            </p>
+                            <p
+                              className="mt-0.5 flex min-w-0 items-center gap-1.5 truncate text-xs"
+                              style={{ color: colors.muted }}
+                            >
+                              <Mail size={12} className="shrink-0" />
+                              <span className="truncate">
+                                {userData?.email || "No email added"}
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          selectView("profile-settings");
+                          setIsUserDropdownOpen(false);
+                        }}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs font-semibold transition-colors hover:bg-violet-500/10"
+                        style={{ color: colors.text }}
+                      >
+                        <User size={15} className="text-violet-500" />
+                        Profile
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          selectView("profile-settings");
+                          setIsUserDropdownOpen(false);
+                        }}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs font-semibold transition-colors hover:bg-violet-500/10"
+                        style={{ color: colors.text }}
+                      >
+                        <Settings size={15} className="text-violet-500" />
+                        Settings
+                      </button>
+                      <div
+                        className="my-1 border-t"
+                        style={{
+                          borderColor: isDarkMode
+                            ? "rgba(255,255,255,0.08)"
+                            : "#e2e8f0",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setIsUserDropdownOpen(false);
+                          void handleLogout();
+                        }}
+                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-xs font-bold text-rose-500 transition-colors hover:bg-rose-500/10"
+                      >
+                        <LogOut size={15} />
+                        Logout
+                      </button>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </header>

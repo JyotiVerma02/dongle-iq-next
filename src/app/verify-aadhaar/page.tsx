@@ -152,7 +152,7 @@ export default function AadhaarVerifyPage() {
 
   return (
     <main
-      className="theme-transition hero-grid relative flex app-page-min-height items-center justify-center px-2 py-2 sm:px-3 sm:py-3"
+      className="theme-transition hero-grid fixed inset-0 flex h-dvh w-full items-center justify-center overflow-hidden px-2 py-2 sm:px-3 sm:py-3"
       style={{ color: colors.text }}
     >
       {/* Fixed Theme Toggle */}
