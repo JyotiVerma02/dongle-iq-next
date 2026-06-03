@@ -250,7 +250,7 @@ export default function DongleIQLanding() {
     >
       <section className="section hero-section-full-bleed">
         <div className="hero-shell-full-bleed">
-          <div className="container-shell pt-4 pb-12 sm:pt-5 lg:pt-7 lg:pb-16">
+          <div className="container-shell pt-4 sm:pt-5 lg:pt-7 ">
             <div className="hero-panel-inner">
               <div className="hero-copy-block flex flex-col justify-center">
                 <div className="eyebrow-chip mb-6 self-start">
@@ -418,7 +418,7 @@ export default function DongleIQLanding() {
               {productFeatures.map((item, index) => (
                 <div
                   key={item.title}
-                  className="feature-tile reveal-up"
+                  className=" without breaking anything__design color and all a"
                   style={{ animationDelay: `${index * 80}ms` }}
                 >
                   <div className="feature-icon">{item.icon}</div>

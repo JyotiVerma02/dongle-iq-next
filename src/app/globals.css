@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @import "./responsive-ever.css";
 
 /* ============================================================
@@ -114,7 +114,7 @@ html {
   width: 100%;
   max-width: 100%;
   scroll-behavior: smooth;
-  scroll-padding-top: calc(var(--app-navbar-offset) + 1rem);
+  scroll-padding-top: calc(var(--app-navbar-offset) - 1.5rem);
   margin: 0;
   padding: 0;
   background:
@@ -312,6 +312,7 @@ select:focus {
   max-width: 1150px;
   margin-inline: auto;
   padding-inline: clamp(1rem, 4vw, 2.25rem);
+   padding-block: 20px;
   box-sizing: border-box;
 }
 
@@ -335,7 +336,11 @@ select:focus {
 }
 
 .section[id] {
-  scroll-margin-top: calc(var(--app-navbar-offset) + 1rem);
+  scroll-margin-top: calc(var(--app-navbar-offset) - 1.5rem);
+}
+
+.section + .section {
+  margin-top: clamp(1.75rem, 3vw, 3rem);
 }
 
 .section-muted {
@@ -1298,7 +1303,7 @@ html.dark .metric-card {
 ============================================================ */
 .section-header {
   max-width: 48rem;
-  margin: 0 auto 2rem;
+  margin: 0 auto 2.75rem;
   text-align: center;
 }
 
@@ -3143,6 +3148,14 @@ body, p, li, .section-header p, .hero-copy {
 
 .premium-card p, .feature-tile p, .process-card p, .audience-card p {
   font-size: 0.75rem !important;
+}
+
+/* Keep a little space between each card title and paragraph */
+.premium-card h3 + p,
+.feature-tile h3 + p,
+.process-card h3 + p,
+.audience-card h3 + p {
+  margin-top: 0.35rem;
 }
 
 /* Buttons - smaller */

@@ -81,6 +81,10 @@ export default function Navbar() {
         ? { href: "/login", label: "Login", icon: <LogIn size={16} /> }
         : { href: "/login", label: "Login", icon: <LogIn size={16} /> };
 
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+  };
+
  const handleLogout = async () => {
   await fetch("/api/logout", { method: "POST" });
 
@@ -162,7 +166,7 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMenuOpen}
-            className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden"
+            className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] md:hidden"
             style={{
               backgroundColor: "var(--card)",
               borderColor: "var(--border-soft)",
@@ -189,6 +193,7 @@ export default function Navbar() {
               <a
                 key={item.label}
                 href={item.href}
+                onClick={closeMenu}
                 className="rounded-2xl px-4 py-3 text-sm font-medium shadow-[0_16px_28px_-26px_var(--accent-shadow)]"
                 style={{
                   backgroundColor: "var(--card)",
