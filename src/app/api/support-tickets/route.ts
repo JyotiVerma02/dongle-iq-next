@@ -5,6 +5,7 @@ import { connectDB } from "@/lib/mongodb";
 import { userOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
 import { invalidateUserDashboardCache } from "@/lib/dashboardCache";
+import { createNotification } from "@/lib/createNotification";
 import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
 import User from "@/models/user";
 import SupportTicket from "@/models/supportTicket";
@@ -81,6 +82,18 @@ const postHandler = async (req: NextRequest, decoded: AuthToken) => {
         },
       ],
       lastMessageAt: new Date(),
+    });
+
+    const notification = await createNotification({
+      userId: String(user._id),
+      title: "Support Ticket Created",
+      message: `Your support ticket "${validation.data.subject}" has been created successfully.`,
+      type: "support",
+      metadata: {
+        ticketId: String(ticket._id),
+        category: validation.data.category,
+        priority: validation.data.priority,
+      },
     });
 
     await invalidateUserDashboardCache(String(user._id));

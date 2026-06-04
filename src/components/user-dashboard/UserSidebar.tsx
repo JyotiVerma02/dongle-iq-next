@@ -163,7 +163,7 @@ export function UserSidebar({
 
             <div className="space-y-2">
               {!isCollapsed && (
-                <p className="ud-sidebar-section-label px-2 text-[9px] font-bold uppercase tracking-[0.2em]">
+                <p className="ud-sidebar-section-label px-2 text-[7px] font-bold uppercase ">
                   MAIN MENU
                 </p>
               )}

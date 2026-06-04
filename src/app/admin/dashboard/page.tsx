@@ -197,9 +197,10 @@ function AdminDashboard() {
     (event: { type: string }) => {
       if (
         event.type === "STATUS_UPDATE" ||
-        event.type === "PAYMENT_UPDATE" ||
+        event.type === "APPLICATION_UPDATED" ||
+        event.type === "PAYMENT_UPDATED" ||
         event.type === "SUPPORT_TICKET_CREATED" ||
-        event.type === "SUPPORT_TICKET_UPDATE"
+        event.type === "SUPPORT_TICKET_UPDATED"
       ) {
         void refreshUsers();
       }

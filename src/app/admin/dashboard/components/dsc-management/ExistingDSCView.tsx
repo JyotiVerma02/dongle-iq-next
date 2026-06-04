@@ -30,6 +30,35 @@ interface ExistingDSCViewProps {
   admin?: AdminProfile | null;
 }
 
+type ApiResponse = {
+  success?: boolean;
+  message?: string;
+  [key: string]: unknown;
+};
+
+async function parseApiResponse(response: Response): Promise<ApiResponse> {
+  const contentType = response.headers.get("content-type") || "";
+  const bodyText = await response.text();
+
+  if (!contentType.includes("application/json")) {
+    return {
+      success: false,
+      message: bodyText.trim()
+        ? bodyText.slice(0, 180)
+        : `Unexpected response format (${response.status})`,
+    };
+  }
+
+  try {
+    return JSON.parse(bodyText) as ApiResponse;
+  } catch {
+    return {
+      success: false,
+      message: "Invalid JSON response from server",
+    };
+  }
+}
+
 interface DSCApplication {
   _id: string;
   dscId: string;
@@ -256,14 +285,14 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
           resubmissionDocs: resubDocs,
         }),
       });
-      const data = await response.json();
+      const data = await parseApiResponse(response);
 
-      if (data.success) {
+      if (response.ok && data.success) {
         toast.success("Application updated successfully");
         setIsEditModalOpen(false);
         fetchApplications();
       } else {
-        toast.error(data.message || "Failed to update application");
+        toast.error(data.message || `Failed to update application (${response.status})`);
       }
     } catch (error) {
       console.error("Error updating application:", error);

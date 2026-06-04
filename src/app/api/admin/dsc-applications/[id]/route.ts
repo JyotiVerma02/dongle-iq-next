@@ -6,6 +6,7 @@ import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { getStatusPermission, validateStatusTransition } from "@/lib/applicationWorkflow";
+import { createNotification } from "@/lib/createNotification";
 import { connectDB } from "@/lib/mongodb";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
@@ -261,6 +262,29 @@ const putHandler = async (
     }
 
     await user.save();
+    if (payload.status) {
+      const notification = await createNotification({
+        userId: String(user._id),
+        title: "Application Status Updated",
+        message:
+          user.status === "approved"
+            ? "Your application has been approved."
+            : user.status === "rejected"
+              ? "Your application needs attention before approval."
+              : `Your application status is now ${user.status}.`,
+        type: "status_update",
+        metadata: {
+          status: user.status,
+          reason: payload.reason || "",
+          updatedBy: actor.id,
+        },
+      });
+    }
+    broadcastRealtimeEvent("APPLICATION_UPDATED", {
+      userId: String(user._id),
+      applicationId: String(user._id),
+      action: payload.status ? "status_changed" : "updated",
+    });
     broadcastRealtimeEvent("STATUS_UPDATE", { userId: id });
 
     return NextResponse.json({

@@ -12,6 +12,8 @@ import {
   verifyPaymentSignature,
 } from "@/lib/razorpay";
 import { sendPaymentNotifications } from "@/lib/notifications";
+import { createNotification } from "@/lib/createNotification";
+import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
 import { withAuth } from "@/lib/withAuth";
 import Payment from "@/models/payment";
 import User from "@/models/user";
@@ -135,6 +137,20 @@ const handler = async (req: NextRequest) => {
         amount: paymentDocument.amount || 0,
         dscId: paymentDocument.dscId || paymentUser?.dscId,
       });
+
+      if (paymentUser?._id) {
+        const notification = await createNotification({
+          userId: String(paymentUser._id),
+          title: "Payment Received",
+          message: "Your payment has been verified successfully.",
+          type: "payment",
+          metadata: {
+            paymentId: String(paymentDocument._id),
+            amount: paymentDocument.amount || 0,
+          },
+        });
+
+      }
     } else if (paymentDetails.payment.status === "failed") {
       await markPaymentFailed({
         paymentDocument,

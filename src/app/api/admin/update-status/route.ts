@@ -6,6 +6,7 @@ import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { validateStatusTransition, getStatusPermission } from "@/lib/applicationWorkflow";
 import { ADMIN_REPORTS_CACHE_KEY, invalidateAdminUsersCache, invalidateUserDashboardCache, invalidateCacheKey } from "@/lib/dashboardCache";
+import { createNotification } from "@/lib/createNotification";
 import { connectDB } from "@/lib/mongodb";
 import { sendStatusNotifications } from "@/lib/notifications";
 import { adminOnly } from "@/lib/withAuth";
@@ -158,6 +159,23 @@ const handler = async (req: Request, decoded: AuthToken) => {
       name: user.name,
       status: normalizedStatus,
       remarks,
+    });
+
+    const notification = await createNotification({
+      userId: user._id.toString(),
+      title: "Application Status Updated",
+      message:
+        normalizedStatus === "approved"
+          ? "Your application has been approved."
+          : normalizedStatus === "rejected"
+            ? "Your application needs attention before approval."
+            : `Your application status is now ${normalizedStatus}.`,
+      type: "status_update",
+      metadata: {
+        status: normalizedStatus,
+        remarks,
+        updatedBy: actor.id,
+      },
     });
 
     broadcastRealtimeEvent("STATUS_UPDATE", { userId: user._id.toString() });

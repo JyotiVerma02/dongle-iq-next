@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  Bell,
   LogIn,
   LogOut,
   Menu,
@@ -15,6 +16,7 @@ import {
 
 import BrandLogo from "@/components/BrandLogo";
 import { useTheme } from "@/components/ThemeContext";
+import { useRealtimeEvents } from "@/lib/useRealtimeEvents";
 
 const NAV_LINKS = [
   { label: "Why us", href: "/#whyus" },
@@ -41,14 +43,27 @@ const LOGOUT_ROUTES = new Set([
   "/preview",
 ]);
 
+type NotificationItem = {
+  _id: string;
+  title: string;
+  message: string;
+  isRead?: boolean;
+  createdAt?: string;
+};
+
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { isDarkMode, mounted, toggleTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setIsMenuOpen(false);
+    setNotificationOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -59,6 +74,72 @@ export default function Navbar() {
       html.classList.remove("mobile-menu-open");
     };
   }, [isMenuOpen]);
+
+  const refreshNotifications = useCallback(async () => {
+    console.log("[navbar:refresh]", { reason: "manual-or-scheduled" });
+    try {
+      const res = await fetch("/api/notifications");
+
+      if (!res.ok) {
+        setNotifications([]);
+        setUnreadCount(0);
+        return;
+      }
+
+      const data = (await res.json()) as {
+        notifications?: NotificationItem[];
+        unreadCount?: number;
+      };
+
+      setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+      setUnreadCount(typeof data.unreadCount === "number" ? data.unreadCount : 0);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  const scheduleRefreshNotifications = useCallback(() => {
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+    }
+
+    refreshTimerRef.current = setTimeout(() => {
+      void refreshNotifications();
+    }, 75);
+  }, [refreshNotifications]);
+
+  const handleRealtimeEvent = useCallback(
+    (event: { type: string }) => {
+      console.log("[navbar:realtime]", event);
+
+      const refreshEvents = new Set([
+        "NOTIFICATION_CREATED",
+        "STATUS_UPDATE",
+        "APPLICATION_UPDATED",
+        "PAYMENT_UPDATED",
+        "SUPPORT_TICKET_UPDATED",
+      ]);
+
+      if (refreshEvents.has(event.type)) {
+        scheduleRefreshNotifications();
+      }
+    },
+    [scheduleRefreshNotifications],
+  );
+
+  useEffect(() => {
+    void refreshNotifications();
+  }, [refreshNotifications]);
+
+  useRealtimeEvents(handleRealtimeEvent);
+
+  useEffect(() => {
+    return () => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
+      }
+    };
+  }, []);
 
   if (
     pathname === "/admin/dashboard" ||
@@ -85,12 +166,37 @@ export default function Navbar() {
     setIsMenuOpen(false);
   };
 
- const handleLogout = async () => {
-  await fetch("/api/logout", { method: "POST" });
+  const markNotificationRead = async (notificationId: string) => {
+    try {
+      await fetch("/api/notifications/read", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ notificationId }),
+      });
 
-  router.replace("/login"); // 🔥 MUST
-  router.refresh();
-};
+      setNotifications((prev) =>
+        prev.map((notification) =>
+          notification._id === notificationId
+            ? { ...notification, isRead: true }
+            : notification,
+        ),
+      );
+
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "POST" });
+
+    router.replace("/login");
+    router.refresh();
+  };
+
   return (
     <nav className="navbar-coder">
       <div className="navbar-coder-content mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-2 px-3 py-3 sm:px-4 lg:px-8">
@@ -148,6 +254,83 @@ export default function Navbar() {
               Logout
             </button>
           ) : null}
+
+          <div className="relative hidden md:block">
+            <button
+              onClick={() => setNotificationOpen((prev) => !prev)}
+              aria-label="Open notifications"
+              aria-expanded={notificationOpen}
+              className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)]"
+              style={{
+                backgroundColor: "var(--card)",
+                borderColor: "var(--border-soft)",
+              }}
+            >
+              <Bell size={18} />
+
+              {unreadCount > 0 ? (
+                <span
+                  className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
+                  style={{ backgroundColor: "var(--accent)" }}
+                >
+                  {unreadCount}
+                </span>
+              ) : null}
+            </button>
+
+            {notificationOpen ? (
+              <div
+                className="absolute right-0 top-14 z-50 w-80 rounded-xl border p-3 shadow-[0_24px_60px_-30px_var(--accent-shadow)]"
+                style={{
+                  backgroundColor: "var(--card)",
+                  borderColor: "var(--border-soft)",
+                }}
+              >
+                <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
+                  Notifications
+                </h3>
+
+                <div className="max-h-72 space-y-2 overflow-auto">
+                  {notifications.length === 0 ? (
+                    <p className="text-sm text-[var(--muted)]">
+                      No notifications
+                    </p>
+                  ) : (
+                    notifications.map((item) => (
+                      <div
+                        key={item._id}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => markNotificationRead(item._id)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" || event.key === " ") {
+                            event.preventDefault();
+                            void markNotificationRead(item._id);
+                          }
+                        }}
+                        className={`cursor-pointer rounded-lg border p-2 transition-colors ${
+                          item.isRead ? "opacity-70" : "font-semibold"
+                        }`}
+                        style={{
+                          backgroundColor: item.isRead
+                            ? "transparent"
+                            : "rgba(59,130,246,.08)",
+                          borderColor: "var(--border-soft)",
+                        }}
+                      >
+                        <div className="text-sm font-medium text-[var(--foreground)]">
+                          {item.title}
+                        </div>
+                        <div className="mt-1 text-xs leading-5 text-[var(--muted)]">
+                          {item.message}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            ) : null}
+          </div>
 
           <button
             onClick={toggleTheme}

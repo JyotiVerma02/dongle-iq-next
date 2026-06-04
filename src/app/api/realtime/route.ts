@@ -41,6 +41,8 @@ export function broadcastRealtimeEvent(type: string, data: Record<string, unknow
   const payload = `data: ${JSON.stringify({ type, ...data })}\n\n`;
   const encodedPayload = encoder.encode(payload);
 
+  console.log("[realtime:broadcast]", { type, data, clientCount: clients.size });
+
   for (const client of clients) {
     try {
       client.enqueue(encodedPayload);

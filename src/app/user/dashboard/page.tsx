@@ -1233,7 +1233,7 @@ function UserDashboardPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <p className="max-w-[10rem] truncate whitespace-nowrap text-[9px] font-bold uppercase leading-tight tracking-[0.1em] text-slate-500 sm:max-w-none sm:text-[10px]">
                     {stat.label}
                   </p>
                   <div className="shrink-0 text-slate-400">
@@ -1253,10 +1253,12 @@ function UserDashboardPage() {
                     </svg>
                   </div>
                 </div>
-                <p className="mt-1 text-3xl font-black leading-none text-slate-900">
+                <p className="mt-1 text-[1.55rem] font-black leading-none text-slate-900 sm:text-[1.9rem]">
                   {padOverviewStat(stat.value)}
                 </p>
-                <p className="mt-1 text-[10px] text-slate-400">{stat.sub}</p>
+                <p className="mt-1 text-[9px] leading-tight text-slate-400 sm:text-[10px]">
+                  {stat.sub}
+                </p>
               </div>
             </div>
             <div
@@ -1549,7 +1551,7 @@ function UserDashboardPage() {
         <div className="space-y-6 pt-6 border-t border-slate-100">
           {userData?.actionHistory && userData.actionHistory.length > 0 && (
             <div className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm">
-              <p className="text-[10px] font-black uppercase tracking-[0.24em] mb-4 text-slate-400">
+              <p className="mb-4 whitespace-nowrap text-[9px] font-black uppercase leading-none text-slate-400">
                 Application History Log
               </p>
               <div className="relative border-l border-slate-100 ml-2.5 pl-4 space-y-4">
@@ -2320,7 +2322,7 @@ function UserDashboardPage() {
 
   return (
     <div
-      className="theme-transition ud-dashboard-root ud-shell overflow-hidden relative"
+      className="theme-transition ud-dashboard-root ud-shell overflow-hidden relative text-[13px]"
       style={{ color: colors.text }}
     >
       {/* Offline Indicator Banner */}

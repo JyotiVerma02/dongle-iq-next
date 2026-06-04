@@ -49,19 +49,19 @@ export function StatsCard({ title, value, trend, icon: Icon, isCurrency, color =
         {/* Content */}
         <div className="min-w-0 flex-1">
           <p
-            className="text-[9px] font-bold uppercase tracking-[0.15em]"
+            className="truncate whitespace-nowrap text-[8px] font-bold uppercase leading-tight tracking-[0.1em] sm:text-[9px]"
             style={{ color: isDarkMode ? "rgba(255,255,255,0.4)" : "#94a3b8" }}
           >
             {title}
           </p>
           <h3
-            className="mt-1 text-xl font-black tracking-tight"
+            className="mt-1 text-[1.15rem] font-black leading-none tracking-tight sm:text-[1.3rem]"
             style={{ color: isDarkMode ? "#f8fafc" : "#0f172a" }}
           >
             {displayValue}
           </h3>
           {trend !== undefined && (
-            <div className="mt-1.5 flex items-center text-[10px] font-bold">
+            <div className="mt-1.5 flex items-center text-[9px] font-bold">
               <span className={`flex items-center ${isPositive ? "text-emerald-500" : "text-rose-500"}`}>
                 {isPositive ? (
                   <ArrowUpRight className="mr-0.5 h-3 w-3 stroke-[2.5]" />

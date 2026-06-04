@@ -24,6 +24,7 @@ export function useRealtimeEvents(
       try {
         const payload = JSON.parse(event.data) as RealtimeEventPayload;
         if (payload.type && payload.type !== "CONNECTED") {
+          console.log("[realtime:received]", payload);
           onEvent(payload);
         }
       } catch {

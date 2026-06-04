@@ -7,6 +7,7 @@ import { withAuth, type AuthToken } from "@/lib/withAuth";
 import { getTokenAdminRole, isAdminTokenPayload } from "@/lib/auth";
 import { resolveAdminActor } from "@/lib/admin";
 import { invalidateUserDashboardCache } from "@/lib/dashboardCache";
+import { createNotification } from "@/lib/createNotification";
 import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
 import SupportTicket from "@/models/supportTicket";
 
@@ -95,6 +96,25 @@ async function handler(req: NextRequest, decoded: AuthToken) {
     }
 
     await ticket.save();
+
+    if (isAdmin) {
+      const notification = await createNotification({
+        userId: String(ticket.userId),
+        title: validation.data.status
+          ? "Support Ticket Updated"
+          : "Support Ticket Replied",
+        message: validation.data.status
+          ? `Your support ticket status is now ${validation.data.status}.`
+          : "Your support ticket has a new reply from support.",
+        type: "support",
+        metadata: {
+          ticketId: String(ticket._id),
+          status: ticket.status,
+          updatedBy: actor?.name || "Admin",
+        },
+      });
+
+    }
 
     await invalidateUserDashboardCache(String(ticket.userId));
     broadcastRealtimeEvent("SUPPORT_TICKET_UPDATE", {

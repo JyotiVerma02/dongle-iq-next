@@ -6,6 +6,8 @@ import { connectDB } from "@/lib/mongodb";
 import { calculatePricing } from "@/lib/pricing";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { ADMIN_REPORTS_CACHE_KEY, invalidateUserDashboardCache, invalidateAdminUsersCache, invalidateCacheKey } from "@/lib/dashboardCache";
+import { createNotification } from "@/lib/createNotification";
+import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
 import User from "@/models/user";
 import { verifySessionToken } from "@/lib/auth";
 
@@ -181,6 +183,24 @@ try {
       { status: 500 }
   );
 }
+
+    await createNotification({
+      userId: String(existingUser._id),
+      title: "Application Submitted",
+      message: "Your application has been submitted successfully.",
+      type: "application",
+      metadata: {
+        certType: existingUser.certType,
+        validity: existingUser.validity,
+        createdBy: payload.isAdmin ? "admin" : "user",
+      },
+    });
+
+    broadcastRealtimeEvent("APPLICATION_UPDATED", {
+      userId: String(existingUser._id),
+      applicationId: String(existingUser._id),
+      action: "submitted",
+    });
 
     await invalidateUserDashboardCache(String(existingUser._id));
     await invalidateAdminUsersCache();
