@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Notification from "@/models/notification";
-import { verifySessionToken } from "@/lib/auth";
+import { verifySessionToken, isAdminTokenPayload } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
@@ -28,18 +28,27 @@ export async function GET(req: NextRequest) {
       });
     }
     const userId = String(decoded.userId);
+    const isAdmin = isAdminTokenPayload(decoded);
 
     console.log("[notification:get] resolving notifications", {
       userId,
+      isAdmin,
       tokenPresent: true,
     });
 
-    const notifications = await Notification.find({ userId })
+    const query = isAdmin 
+      ? { recipientType: "ADMIN" }
+      : { 
+          userId, 
+          $or: [{ recipientType: "USER" }, { recipientType: { $exists: false } }] 
+        };
+
+    const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })
       .limit(20);
 
     const unreadCount = await Notification.countDocuments({
-      userId,
+      ...query,
       isRead: false,
     });
 

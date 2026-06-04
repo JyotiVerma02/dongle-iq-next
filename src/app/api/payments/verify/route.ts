@@ -11,9 +11,8 @@ import {
   isMockPaymentGatewayEnabled,
   verifyPaymentSignature,
 } from "@/lib/razorpay";
-import { sendPaymentNotifications } from "@/lib/notifications";
-import { createNotification } from "@/lib/createNotification";
-import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import { sendPaymentNotifications, createAdminNotification } from "@/lib/notifications";
+import { broadcastRealtimeEvent } from "@/lib/realtime";
 import { withAuth } from "@/lib/withAuth";
 import Payment from "@/models/payment";
 import User from "@/models/user";
@@ -128,6 +127,8 @@ const handler = async (req: NextRequest) => {
 
       const paymentUser = await User.findById(paymentDocument.userId, {
         _id: 1,
+        name: 1,
+        email: 1,
         number: 1,
         dscId: 1,
       });
@@ -139,17 +140,21 @@ const handler = async (req: NextRequest) => {
       });
 
       if (paymentUser?._id) {
-        const notification = await createNotification({
-          userId: String(paymentUser._id),
+        await createAdminNotification({
           title: "Payment Received",
-          message: "Your payment has been verified successfully.",
+          message: `Payment of INR ${paymentDocument.amount?.toFixed(2) || "0.00"} received from ${paymentUser.name || paymentUser.email || "a user"}.`,
           type: "payment",
           metadata: {
+            userId: String(paymentUser._id),
             paymentId: String(paymentDocument._id),
             amount: paymentDocument.amount || 0,
           },
         });
 
+        broadcastRealtimeEvent("PAYMENT_UPDATED", {
+          userId: String(paymentUser._id),
+          paymentId: String(paymentDocument._id),
+        }, { recipientType: "ADMIN" });
       }
     } else if (paymentDetails.payment.status === "failed") {
       await markPaymentFailed({

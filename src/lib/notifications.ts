@@ -168,3 +168,56 @@ export async function sendPaymentNotifications(params: {
     logSkipped("whatsapp", "feature disabled or MSG91 WhatsApp not configured");
   }
 }
+
+// ==========================================
+// DB Notification Service (Role-based & SSE)
+// ==========================================
+
+import Notification from "@/models/notification";
+import { broadcastRealtimeEvent } from "@/lib/realtime";
+
+export async function createAdminNotification(params: {
+  title: string;
+  message: string;
+  type?: string;
+  metadata?: any;
+}) {
+  try {
+    const notif = await Notification.create({
+      recipientType: "ADMIN",
+      title: params.title,
+      message: params.message,
+      type: params.type || "general",
+      metadata: params.metadata || {},
+    });
+
+    broadcastRealtimeEvent("NOTIFICATION_CREATED", { notification: notif }, { recipientType: "ADMIN" });
+    return notif;
+  } catch (err) {
+    logger.error("[NOTIFICATIONS] Failed to create admin notification", err);
+  }
+}
+
+export async function createUserNotification(params: {
+  userId: string;
+  title: string;
+  message: string;
+  type?: string;
+  metadata?: any;
+}) {
+  try {
+    const notif = await Notification.create({
+      recipientType: "USER",
+      userId: params.userId,
+      title: params.title,
+      message: params.message,
+      type: params.type || "general",
+      metadata: params.metadata || {},
+    });
+
+    broadcastRealtimeEvent("NOTIFICATION_CREATED", { notification: notif }, { recipientType: "USER", userId: params.userId });
+    return notif;
+  } catch (err) {
+    logger.error("[NOTIFICATIONS] Failed to create user notification", err);
+  }
+}

@@ -7,8 +7,8 @@ import { withAuth, type AuthToken } from "@/lib/withAuth";
 import { getTokenAdminRole, isAdminTokenPayload } from "@/lib/auth";
 import { resolveAdminActor } from "@/lib/admin";
 import { invalidateUserDashboardCache } from "@/lib/dashboardCache";
-import { createNotification } from "@/lib/createNotification";
-import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import { createUserNotification } from "@/lib/notifications";
+import { broadcastRealtimeEvent } from "@/lib/realtime";
 import SupportTicket from "@/models/supportTicket";
 
 const updateSchema = z.object({
@@ -98,7 +98,7 @@ async function handler(req: NextRequest, decoded: AuthToken) {
     await ticket.save();
 
     if (isAdmin) {
-      const notification = await createNotification({
+      const notification = await createUserNotification({
         userId: String(ticket.userId),
         title: validation.data.status
           ? "Support Ticket Updated"
@@ -121,7 +121,7 @@ async function handler(req: NextRequest, decoded: AuthToken) {
       userId: String(ticket.userId),
       ticketId: String(ticket._id),
       status: ticket.status,
-    });
+    }, isAdmin ? { recipientType: "USER", userId: String(ticket.userId) } : { recipientType: "ADMIN" });
 
     return NextResponse.json({
       success: true,

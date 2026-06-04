@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { connectDB } from "@/lib/mongodb";
 import Notification from "@/models/notification";
-import { verifySessionToken } from "@/lib/auth";
+import { verifySessionToken, isAdminTokenPayload } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,32 +18,56 @@ export async function POST(req: NextRequest) {
 
     const decoded = await verifySessionToken(token);
     const userId = String(decoded.userId);
-    const { notificationId } = (await req.json()) as {
+    const isAdmin = isAdminTokenPayload(decoded);
+    
+    const { notificationId, markAll } = (await req.json()) as {
       notificationId?: string;
+      markAll?: boolean;
     };
 
     console.log("[notification:read] request", {
       userId,
+      isAdmin,
       notificationId,
+      markAll,
     });
 
-    if (!notificationId) {
+    if (!notificationId && !markAll) {
       return NextResponse.json(
-        { success: false, message: "Notification ID is required" },
+        { success: false, message: "Notification ID or markAll is required" },
         { status: 400 },
       );
     }
 
-    const result = await Notification.findOneAndUpdate(
-      { _id: notificationId, userId },
-      { $set: { isRead: true } },
-    );
+    if (markAll) {
+      const query = isAdmin
+        ? { recipientType: "ADMIN", isRead: false }
+        : {
+            userId,
+            $or: [{ recipientType: "USER" }, { recipientType: { $exists: false } }],
+            isRead: false,
+          };
 
-    console.log("[notification:read] update result", {
-      matched: Boolean(result),
-      userId,
-      notificationId,
-    });
+      await Notification.updateMany(query, { $set: { isRead: true } });
+    } else {
+      const query = isAdmin
+        ? { _id: notificationId, recipientType: "ADMIN" }
+        : {
+            _id: notificationId,
+            userId,
+            $or: [{ recipientType: "USER" }, { recipientType: { $exists: false } }],
+          };
+
+      const result = await Notification.findOneAndUpdate(query, {
+        $set: { isRead: true },
+      });
+
+      console.log("[notification:read] update result", {
+        matched: Boolean(result),
+        userId,
+        notificationId,
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

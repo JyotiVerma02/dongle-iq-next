@@ -28,6 +28,7 @@ interface SidebarProps {
   onToggleCollapse: () => void;
   onClose: () => void;
   admin?: AdminProfile | null;
+  unreadCount?: number;
 }
 
 const navItems = [
@@ -38,7 +39,7 @@ const navItems = [
   { id: "admin-settings", label: "Users Management", icon: Users, permission: "view_applications" },
   { id: "payments", label: "Payments & Invoices", icon: CreditCard, permission: "view_applications" },
   { id: "reports", label: "Reports & Analytics", icon: BarChart3, permission: "view_applications" },
-  { id: "notifications", label: "Notifications", icon: Bell, permission: "view_applications", badge: 8 },
+  { id: "notifications", label: "Notifications", icon: Bell, permission: "view_applications" },
   { id: "support", label: "Support Tickets", icon: TicketCheck, permission: "view_applications" },
   { id: "admin-settings", label: "Admin Settings", icon: Settings, permission: "invite_admin" },
 ] as const;
@@ -51,6 +52,7 @@ export function Sidebar({
   onToggleCollapse,
   onClose,
   admin,
+  unreadCount = 0,
 }: SidebarProps) {
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
@@ -104,7 +106,7 @@ export function Sidebar({
           {visibleNavItems.map((item, idx) => {
             const Icon = item.icon;
             const isActive = view === item.id;
-            const badge = "badge" in item ? item.badge : undefined;
+            const badge = item.id === "notifications" && unreadCount > 0 ? unreadCount : ("badge" in item ? item.badge : undefined);
 
             // Deduplicate: skip the second "admin-settings" if it's not the settings view
             if (

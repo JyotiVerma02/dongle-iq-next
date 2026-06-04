@@ -10,8 +10,8 @@ import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { ADMIN_REPORTS_CACHE_KEY, invalidateAdminUsersCache, invalidateUserDashboardCache, invalidateCacheKey } from "@/lib/dashboardCache";
-import { createNotification } from "@/lib/createNotification";
-import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import { createUserNotification } from "@/lib/notifications";
+import { broadcastRealtimeEvent } from "@/lib/realtime";
 import Payment from "@/models/payment";
 import User from "@/models/user";
 
@@ -178,7 +178,7 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
       );
       await updatedUser.save();
 
-      const notification = await createNotification({
+      const notification = await createUserNotification({
         userId: String(updatedUser._id),
         title: "Payment Status Updated",
         message:

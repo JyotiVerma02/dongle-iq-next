@@ -6,8 +6,8 @@ import { connectDB } from "@/lib/mongodb";
 import { calculatePricing } from "@/lib/pricing";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { ADMIN_REPORTS_CACHE_KEY, invalidateUserDashboardCache, invalidateAdminUsersCache, invalidateCacheKey } from "@/lib/dashboardCache";
-import { createNotification } from "@/lib/createNotification";
-import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import { createAdminNotification } from "@/lib/notifications";
+import { broadcastRealtimeEvent } from "@/lib/realtime";
 import User from "@/models/user";
 import { verifySessionToken } from "@/lib/auth";
 
@@ -184,12 +184,12 @@ try {
   );
 }
 
-    await createNotification({
-      userId: String(existingUser._id),
-      title: "Application Submitted",
-      message: "Your application has been submitted successfully.",
+    await createAdminNotification({
+      title: "New DSC Application Submitted",
+      message: `New DSC application submitted by ${existingUser.name} (${existingUser.email}).`,
       type: "application",
       metadata: {
+        userId: String(existingUser._id),
         certType: existingUser.certType,
         validity: existingUser.validity,
         createdBy: payload.isAdmin ? "admin" : "user",
@@ -200,7 +200,7 @@ try {
       userId: String(existingUser._id),
       applicationId: String(existingUser._id),
       action: "submitted",
-    });
+    }, { recipientType: "ADMIN" });
 
     await invalidateUserDashboardCache(String(existingUser._id));
     await invalidateAdminUsersCache();

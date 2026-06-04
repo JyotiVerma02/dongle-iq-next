@@ -13,8 +13,15 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 
-
 import type { DashboardView } from "./types";
+
+type NotificationItem = {
+  _id: string;
+  title: string;
+  message: string;
+  isRead?: boolean;
+  createdAt?: string;
+};
 import { useAuth } from "./hooks/useAuth";
 import { useApplications } from "./hooks/useApplications";
 import { useDashboardStats } from "./hooks/useDashboardStats";
@@ -137,6 +144,42 @@ function AdminDashboard() {
   const { users, loading: usersLoading, refresh: refreshUsers } = useApplications();
   const stats = useDashboardStats(users);
 
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await fetch("/api/notifications");
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadCount(typeof data.unreadCount === "number" ? data.unreadCount : 0);
+        setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const markNotificationRead = async (notificationId: string) => {
+    try {
+      await fetch("/api/notifications/read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationId }),
+      });
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === notificationId ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // ── URL-synced navigation ─────────────────────────────────────────────────
   const navigateTo = useCallback(
     (nextView: DashboardView) => {
@@ -195,17 +238,20 @@ function AdminDashboard() {
 
   const handleRealtimeEvent = useCallback(
     (event: { type: string }) => {
-      if (
-        event.type === "STATUS_UPDATE" ||
-        event.type === "APPLICATION_UPDATED" ||
-        event.type === "PAYMENT_UPDATED" ||
-        event.type === "SUPPORT_TICKET_CREATED" ||
-        event.type === "SUPPORT_TICKET_UPDATED"
-      ) {
+      const refreshEvents = new Set([
+        "NOTIFICATION_CREATED",
+        "STATUS_UPDATE",
+        "APPLICATION_UPDATED",
+        "PAYMENT_UPDATED",
+        "SUPPORT_TICKET_CREATED",
+        "SUPPORT_TICKET_UPDATED",
+      ]);
+      if (refreshEvents.has(event.type)) {
         void refreshUsers();
+        void fetchNotifications();
       }
     },
-    [refreshUsers],
+    [refreshUsers, fetchNotifications],
   );
 
   useRealtimeEvents(handleRealtimeEvent, true);
@@ -256,6 +302,7 @@ function AdminDashboard() {
           onToggleCollapse={handleToggleCollapse}
           onClose={() => setIsSidebarOpen(false)}
           admin={admin}
+          unreadCount={unreadCount}
         />
 
         {/* Main content — swipe gesture target */}
@@ -267,6 +314,9 @@ function AdminDashboard() {
             onToggleCollapse={handleToggleCollapse}
             logout={logout}
             onViewChange={navigateTo}
+            unreadCount={unreadCount}
+            notifications={notifications}
+            markNotificationRead={markNotificationRead}
           />
 
           <main className="ud-main-scroll relative z-10">

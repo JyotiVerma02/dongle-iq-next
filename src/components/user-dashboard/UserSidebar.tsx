@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   LayoutDashboard,
   FileText,
@@ -53,6 +53,7 @@ export function UserSidebar({
   onLogout,
   onToggleTheme,
   isDarkMode,
+  unreadCount,
 }: {
   view: UserDashboardView;
   userData: { name?: string; email?: string } | null;
@@ -63,6 +64,7 @@ export function UserSidebar({
   onLogout: () => void;
   onToggleTheme: () => void;
   isDarkMode: boolean;
+  unreadCount: number;
 }) {
   const initials = userData?.name
     ? userData.name
@@ -103,7 +105,7 @@ export function UserSidebar({
       view: "notifications",
       label: "Notifications",
       icon: <Bell size={18} />,
-      badge: 3,
+      badge: unreadCount > 0 ? unreadCount : undefined,
     },
     {
       view: "support-tickets",

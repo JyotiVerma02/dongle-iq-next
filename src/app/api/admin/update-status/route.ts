@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import { broadcastRealtimeEvent } from "@/lib/realtime";
 import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { validateStatusTransition, getStatusPermission } from "@/lib/applicationWorkflow";
 import { ADMIN_REPORTS_CACHE_KEY, invalidateAdminUsersCache, invalidateUserDashboardCache, invalidateCacheKey } from "@/lib/dashboardCache";
-import { createNotification } from "@/lib/createNotification";
-import { connectDB } from "@/lib/mongodb";
-import { sendStatusNotifications } from "@/lib/notifications";
+import { createUserNotification, sendStatusNotifications } from "@/lib/notifications";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
 import User from "@/models/user";
@@ -161,7 +159,7 @@ const handler = async (req: Request, decoded: AuthToken) => {
       remarks,
     });
 
-    const notification = await createNotification({
+    const notification = await createUserNotification({
       userId: user._id.toString(),
       title: "Application Status Updated",
       message:
@@ -178,7 +176,7 @@ const handler = async (req: Request, decoded: AuthToken) => {
       },
     });
 
-    broadcastRealtimeEvent("STATUS_UPDATE", { userId: user._id.toString() });
+    broadcastRealtimeEvent("STATUS_UPDATE", { userId: user._id.toString() }, { recipientType: "USER", userId: user._id.toString() });
     await invalidateUserDashboardCache(user._id.toString());
     await invalidateAdminUsersCache();
     await invalidateCacheKey(ADMIN_REPORTS_CACHE_KEY);

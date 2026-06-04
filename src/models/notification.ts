@@ -4,6 +4,14 @@ const NotificationSchema = new Schema(
   {
     userId: {
       type: String,
+      required: false,
+      index: true,
+    },
+
+    recipientType: {
+      type: String,
+      enum: ["ADMIN", "USER"],
+      default: "USER",
       required: true,
       index: true,
     },

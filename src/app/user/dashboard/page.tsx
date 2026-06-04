@@ -246,6 +246,58 @@ function UserDashboardPage() {
   const [paymentError, setPaymentError] = useState("");
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [notifications, setNotifications] = useState<{ _id: string; title: string; message: string; isRead?: boolean; type?: string; createdAt?: string }[]>([]);
+
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const res = await fetch("/api/notifications");
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadCount(typeof data.unreadCount === "number" ? data.unreadCount : 0);
+        setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  const fetchUnreadCount = fetchNotifications;
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const markNotificationRead = useCallback(async (notificationId: string) => {
+    try {
+      await fetch("/api/notifications/read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notificationId }),
+      });
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === notificationId ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
+  const markAllRead = useCallback(async () => {
+    try {
+      await fetch("/api/notifications/read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ markAll: true }),
+      });
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error(error);
+    }
+  }, []);
+
   const hasSubmittedApplication = hasCompletedApplication(userData);
   const applicationStatus = hasSubmittedApplication
     ? userData?.status || "pending"
@@ -453,6 +505,17 @@ function UserDashboardPage() {
           );
           void fetchUserData();
         }
+
+        const refreshEvents = new Set([
+          "NOTIFICATION_CREATED",
+          "STATUS_UPDATE",
+          "APPLICATION_UPDATED",
+          "PAYMENT_UPDATED",
+          "SUPPORT_TICKET_UPDATED",
+        ]);
+        if (refreshEvents.has(data.type)) {
+          void fetchUnreadCount();
+        }
       } catch (err) {
         console.error("Error parsing real-time event:", err);
       }
@@ -465,7 +528,7 @@ function UserDashboardPage() {
     return () => {
       eventSource.close();
     };
-  }, [hasSubmittedApplication, userData?._id, fetchUserData]);
+  }, [hasSubmittedApplication, userData?._id, fetchUserData, fetchUnreadCount]);
 
   // Mark rejection remarks as viewed when user is on dashboard and views rejection status
   useEffect(() => {
@@ -1173,7 +1236,7 @@ function UserDashboardPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => selectView("registration")}
+                  onClick={() => selectView("notifications")}
                   className="ud-cta-gradient mt-4 flex w-full cursor-pointer items-center justify-between rounded-xl bg-gradient-to-r from-purple-600 via-violet-500 to-orange-500 px-5 py-3 text-xs font-bold text-white shadow-[0_6px_24px_rgba(124,58,237,0.35)] transition hover:brightness-110 active:scale-[0.98]"
                 >
                   <span>Start New Application</span>
@@ -2122,28 +2185,98 @@ function UserDashboardPage() {
     ),
   });
 
-  const notificationsPanel = cleanPanel({
-    title: "Notifications",
-    eyebrow: "Account updates",
-    description: "Important application, payment, and admin review updates.",
-    children: (
-      <div className="grid gap-3">
-        {[
-          userData?.isVerified ? "Mobile verification completed." : "Mobile verification is pending.",
-          hasSubmittedApplication ? `Application status is ${applicationStatus}.` : "No submitted application yet.",
-          paymentIsSettled ? "Payment has been verified." : "Payment is pending.",
-        ].map((message) => (
-          <div
-            key={message}
-            className="rounded-lg border px-3 py-3 text-xs font-semibold"
-            style={{ borderColor: colors.inputBorder, backgroundColor: colors.panelStrong, color: colors.text }}
-          >
-            {message}
-          </div>
-        ))}
+  const notificationsPanel = (
+    <div className="space-y-4">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: colors.muted }}>
+        <span style={{ color: colors.accent }}>Dashboard</span>
+        <span>›</span>
+        <span style={{ color: colors.text }}>Notifications</span>
       </div>
-    ),
-  });
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: colors.muted }}>Account Updates</p>
+          <h2 className="text-lg font-black" style={{ color: colors.text }}>Notifications</h2>
+        </div>
+        {unreadCount > 0 && (
+          <button
+            type="button"
+            onClick={() => void markAllRead()}
+            className="rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all hover:opacity-80"
+            style={{ borderColor: colors.inputBorder, backgroundColor: colors.panelStrong, color: colors.accent }}
+          >
+            Mark all as read
+          </button>
+        )}
+      </div>
+
+      {/* Notifications List */}
+      <div
+        className="overflow-hidden rounded-xl border"
+        style={{ borderColor: colors.border, backgroundColor: colors.card }}
+      >
+        {notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 py-16">
+            <div
+              className="flex h-14 w-14 items-center justify-center rounded-full"
+              style={{ backgroundColor: colors.panelStrong }}
+            >
+              <Bell size={24} style={{ color: colors.muted }} />
+            </div>
+            <p className="text-sm font-semibold" style={{ color: colors.muted }}>No notifications yet</p>
+            <p className="text-xs" style={{ color: colors.muted }}>You&apos;ll see application & payment updates here.</p>
+          </div>
+        ) : (
+          <div className="divide-y" style={{ borderColor: colors.border }}>
+            {notifications.map((item) => (
+              <div
+                key={item._id}
+                onClick={() => { if (!item.isRead) void markNotificationRead(item._id); }}
+                className="flex cursor-pointer items-start gap-3 px-4 py-3.5 transition-colors hover:opacity-90"
+                style={{
+                  backgroundColor: item.isRead
+                    ? "transparent"
+                    : isDarkMode ? "rgba(249,115,22,0.07)" : "rgba(249,115,22,0.04)",
+                }}
+              >
+                {/* Unread dot */}
+                <div className="mt-1.5 shrink-0">
+                  {item.isRead ? (
+                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: colors.borderSoft }} />
+                  ) : (
+                    <div className="h-2 w-2 rounded-full bg-orange-500" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={`text-xs leading-snug ${item.isRead ? "font-semibold" : "font-bold"}`}
+                    style={{ color: colors.text }}
+                  >
+                    {item.title}
+                  </p>
+                  <p className="mt-0.5 text-[11px] leading-snug" style={{ color: colors.muted }}>
+                    {item.message}
+                  </p>
+                  {item.createdAt && (
+                    <p className="mt-1 text-[10px]" style={{ color: colors.muted }}>
+                      {new Date(item.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </p>
+                  )}
+                </div>
+                {!item.isRead && (
+                  <span className="mt-1 shrink-0 rounded-full bg-orange-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-orange-500">
+                    New
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 
   const supportPanel = cleanPanel({
     title: "Support Tickets",
@@ -2379,6 +2512,7 @@ function UserDashboardPage() {
             onLogout={handleLogout}
             onToggleTheme={toggleTheme}
             isDarkMode={isDarkMode}
+            unreadCount={unreadCount}
           />
           {isSidebarOpen ? (
             <div
@@ -2429,11 +2563,16 @@ function UserDashboardPage() {
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <div className="relative flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600">
+                <div
+                  className="relative flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 cursor-pointer"
+                  onClick={() => selectView("notifications")}
+                >
                   <Bell size={14} />
-                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white">
-                    3
-                  </span>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[9px] font-bold text-white">
+                      {unreadCount}
+                    </span>
+                  )}
                 </div>
                 <div className="ud-header-avatar flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white shadow-[0_0_12px_rgba(124,58,237,0.35)]">
                   {userData?.name
@@ -2504,11 +2643,16 @@ function UserDashboardPage() {
               {/* Right widgets */}
               <div className="flex items-center gap-4">
                 {/* Notification bell */}
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer">
+                <div
+                  className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-900 cursor-pointer"
+                  onClick={() => selectView("notifications")}
+                >
                   <Bell size={18} />
-                  <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white shadow-[0_0_8px_rgba(249,115,22,0.4)]">
-                    3
-                  </span>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white shadow-[0_0_8px_rgba(249,115,22,0.4)]">
+                      {unreadCount}
+                    </span>
+                  )}
                 </div>
 
                 {/* Sun/Moon Toggle — active state stays violet in both themes */}
@@ -2694,6 +2838,7 @@ function UserDashboardPage() {
           colors={colors}
           isDarkMode={isDarkMode}
           onClose={() => setShowInvoiceModal(false)}
+          unreadCount={unreadCount}
         />
       ) : null}
     </div>
@@ -2905,13 +3050,16 @@ function InvoicePreviewModal({
   colors,
   isDarkMode,
   onClose,
+  unreadCount,
 }: {
   payment: PaymentSummary;
   colors: ReturnType<typeof getThemePalette>;
   isDarkMode: boolean;
   onClose: () => void;
+  unreadCount: number;
 }) {
   void isDarkMode; // consumed by parent; kept for prop parity
+  void unreadCount;
   return (
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"

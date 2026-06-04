@@ -1,9 +1,18 @@
 import { Menu, Bell, ChevronDown, PanelLeft, PanelLeftClose, Search, Sun, Moon } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { AdminProfile, DashboardView } from "../../types";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 import { getAdminRoleLabel } from "@/lib/adminRoles";
+import { useRealtimeEvents } from "@/lib/useRealtimeEvents";
+
+type NotificationItem = {
+  _id: string;
+  title: string;
+  message: string;
+  isRead?: boolean;
+  createdAt?: string;
+};
 
 interface HeaderProps {
   admin: AdminProfile | null;
@@ -12,6 +21,9 @@ interface HeaderProps {
   onToggleCollapse: () => void;
   logout: () => void;
   onViewChange: (view: DashboardView) => void;
+  unreadCount?: number;
+  notifications?: NotificationItem[];
+  markNotificationRead?: (notificationId: string) => void;
 }
 
 export function Header({
@@ -21,6 +33,9 @@ export function Header({
   onToggleCollapse,
   logout,
   onViewChange,
+  unreadCount = 0,
+  notifications = [],
+  markNotificationRead,
 }: HeaderProps) {
   const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
@@ -106,26 +121,31 @@ export function Header({
       {/* Right side */}
       <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
         {/* Notification Bell */}
-        <button
-          data-testid="header-notifications"
-          className="relative flex h-9 w-9 items-center justify-center rounded-xl border transition-all hover:scale-105"
-          style={{
-            color: isDarkMode ? "rgba(255,255,255,0.5)" : "#64748b",
-            borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
-            background: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
-          }}
-        >
-          <Bell className="h-[17px] w-[17px]" />
-          <span
-            className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none text-white"
+        <div>
+          <button
+            onClick={() => onViewChange("notifications")}
+            data-testid="header-notifications"
+            className="relative flex h-9 w-9 items-center justify-center rounded-xl border transition-all hover:scale-105"
             style={{
-              backgroundColor: "#ef4444",
-              boxShadow: "0 2px 8px -2px rgba(239,68,68,0.5)",
+              color: isDarkMode ? "rgba(255,255,255,0.5)" : "#64748b",
+              borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+              background: isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)",
             }}
           >
-            5
-          </span>
-        </button>
+            <Bell className="h-[17px] w-[17px]" />
+            {unreadCount > 0 && (
+              <span
+                className="absolute right-0 top-0 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none text-white"
+                style={{
+                  backgroundColor: "#ef4444",
+                  boxShadow: "0 2px 8px -2px rgba(239,68,68,0.5)",
+                }}
+              >
+                {unreadCount}
+              </span>
+            )}
+          </button>
+        </div>
 
         {/* Theme Toggle */}
         <button

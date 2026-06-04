@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import { broadcastRealtimeEvent } from "@/lib/realtime";
 import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { getStatusPermission, validateStatusTransition } from "@/lib/applicationWorkflow";
-import { createNotification } from "@/lib/createNotification";
+import { createUserNotification } from "@/lib/notifications";
 import { connectDB } from "@/lib/mongodb";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
@@ -263,7 +263,7 @@ const putHandler = async (
 
     await user.save();
     if (payload.status) {
-      const notification = await createNotification({
+      const notification = await createUserNotification({
         userId: String(user._id),
         title: "Application Status Updated",
         message:
@@ -284,8 +284,8 @@ const putHandler = async (
       userId: String(user._id),
       applicationId: String(user._id),
       action: payload.status ? "status_changed" : "updated",
-    });
-    broadcastRealtimeEvent("STATUS_UPDATE", { userId: id });
+    }, { recipientType: "USER", userId: String(user._id) });
+    broadcastRealtimeEvent("STATUS_UPDATE", { userId: id }, { recipientType: "USER", userId: id });
 
     return NextResponse.json({
       success: true,

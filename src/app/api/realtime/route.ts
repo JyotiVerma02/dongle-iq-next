@@ -1,21 +1,54 @@
 import { NextRequest } from "next/server";
+import { verifySessionToken, isAdminTokenPayload } from "@/lib/auth";
+import { clients, RealtimeClient } from "@/lib/realtime";
 
-// In-memory set of active event stream controllers
-const clients = new Set<ReadableStreamDefaultController>();
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  let userId: string | undefined;
+  let isAdmin = false;
+
+  const token = req.cookies.get("token")?.value;
+  if (token) {
+    try {
+      const decoded = await verifySessionToken(token);
+      userId = String(decoded.userId);
+      isAdmin = isAdminTokenPayload(decoded);
+    } catch {
+      // Allow unauthenticated SSE or just ignore
+    }
+  }
+
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
     start(controller) {
-      clients.add(controller);
+      const clientInfo: RealtimeClient = {
+        controller,
+        userId,
+        isAdmin,
+      };
+      
+      clients.set(controller, clientInfo);
 
       // Send initial heartbeat connection event
       controller.enqueue(
         encoder.encode(`data: ${JSON.stringify({ type: "CONNECTED" })}\n\n`)
       );
 
+      const intervalId = setInterval(() => {
+        try {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: "HEARTBEAT" })}\n\n`)
+          );
+        } catch {
+          clearInterval(intervalId);
+          clients.delete(controller);
+        }
+      }, 15000);
+
       req.signal.addEventListener("abort", () => {
+        clearInterval(intervalId);
         clients.delete(controller);
       });
     },
@@ -33,21 +66,4 @@ export async function GET(req: NextRequest) {
   });
 }
 
-/**
- * Broadcast an event to all connected clients.
- */
-export function broadcastRealtimeEvent(type: string, data: Record<string, unknown>) {
-  const encoder = new TextEncoder();
-  const payload = `data: ${JSON.stringify({ type, ...data })}\n\n`;
-  const encodedPayload = encoder.encode(payload);
 
-  console.log("[realtime:broadcast]", { type, data, clientCount: clients.size });
-
-  for (const client of clients) {
-    try {
-      client.enqueue(encodedPayload);
-    } catch {
-      clients.delete(client);
-    }
-  }
-}
