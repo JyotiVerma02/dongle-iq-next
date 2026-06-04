@@ -186,7 +186,7 @@ h4,
 h5,
 h6 {
   /* font-family: 'Clash Display', 'Satoshi', system-ui, sans-serif; */
-  letter-spacing: -0.03em;
+
 }
 
 *,
@@ -213,6 +213,7 @@ canvas {
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--accent) transparent;
+  letter-spacing: normal !important;
 }
 
 *::selection {
@@ -644,7 +645,7 @@ html.dark .eyebrow-chip {
   color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
-  letter-spacing: 0.06em;
+ 
   text-transform: uppercase;
 }
 
@@ -841,7 +842,7 @@ html:not(.dark) .text-gradient-cool {
     0 20px 36px -20px rgba(99, 102, 241, 0.42),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
   font-weight: 700;
-  letter-spacing: 0.2px;
+  
   border: 1px solid rgba(255, 255, 255, 0.14);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1061,7 +1062,7 @@ html.dark .dashboard-preview:hover {
   color: var(--accent);
   font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+
   text-transform: uppercase;
 }
 
@@ -1666,7 +1667,7 @@ html.dark .info-card-icon {
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+ 
 }
 
 .info-card-text {
@@ -2564,7 +2565,7 @@ html.dark .live-chat-backdrop {
   color: var(--accent);
   font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 0.12em;
+ 
   text-transform: uppercase;
 }
 

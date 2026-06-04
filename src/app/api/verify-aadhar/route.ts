@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 
 import User from "@/models/user";
 import { connectDB } from "@/lib/mongodb";
-import { sendOtpViaSms } from "@/lib/notifications";
+import { createAdminNotification, sendOtpViaSms } from "@/lib/notifications";
 import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow, verifyOtpHash } from "@/lib/security";
 
 export async function POST(req: Request) {
@@ -52,6 +52,17 @@ export async function POST(req: Request) {
           isVerified: false,
           isAadhaarVerified: false,
           status: "pending",
+        });
+
+        await createAdminNotification({
+          title: "New Aadhaar Verification Request",
+          message: `A new pending user record was created for ${mobile}.`,
+          type: "user",
+          metadata: {
+            userId: String(user._id),
+            number: mobile,
+            source: "verify-aadhar",
+          },
         });
       }
 

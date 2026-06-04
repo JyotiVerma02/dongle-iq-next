@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import User from "@/models/user";
 import { connectDB } from "@/lib/mongodb";
 import { createUserOtpEmail } from "@/lib/emailTemplates";
+import { createAdminNotification } from "@/lib/notifications";
 import { registerSchema } from "@/schemas/registerSchema";
 import { transporter } from "@/lib/mailer";
 import { normalizeIndianMobile } from "@/lib/phone";
@@ -84,7 +85,7 @@ export async function POST(req: Request) {
     const otp = generateNumericOtp();
     const otpExpiry = minutesFromNow(10);
 
-    await User.create({
+    const user = await User.create({
       name,
       email,
       password: hashedPassword,
@@ -92,6 +93,22 @@ export async function POST(req: Request) {
       role,
       otp: hashOtp(otp),
       otpExpiry,
+    });
+
+    await createAdminNotification({
+      title: role === "admin" ? "New Admin Registered" : "New User Registered",
+      message:
+        role === "admin"
+          ? `${name} (${email}) created a new admin account.`
+          : `${name} (${email}) created a new account.`,
+      type: role === "admin" ? "admin" : "user",
+      metadata: {
+        userId: String(user._id),
+        email,
+        number,
+        role,
+        source: "register",
+      },
     });
 
     const verificationEmail = createUserOtpEmail({ otp, name });

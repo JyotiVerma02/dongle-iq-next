@@ -24,6 +24,9 @@ export function useRealtimeEvents(
       try {
         const payload = JSON.parse(event.data) as RealtimeEventPayload;
         if (payload.type && payload.type !== "CONNECTED") {
+          if (process.env.NODE_ENV === "development") {
+            console.debug("[realtime:sse]", payload);
+          }
           console.log("[realtime:received]", payload);
           onEvent(payload);
         }

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { connectDB } from "@/lib/mongodb";
-import { sendOtpViaSms } from "@/lib/notifications";
+import { createAdminNotification, sendOtpViaSms } from "@/lib/notifications";
 import User from "@/models/user";
 import { enforceRateLimit, generateNumericOtp, getClientIp, hashOtp, minutesFromNow } from "@/lib/security";
 
@@ -54,6 +54,17 @@ export async function POST(req: Request) {
         password,
         isVerified: false,
         status: "pending",
+      });
+
+      await createAdminNotification({
+        title: "New Pending User Created",
+        message: `A new pending user record was created for ${normalizedMobile}.`,
+        type: "user",
+        metadata: {
+          userId: String(user._id),
+          number: normalizedMobile,
+          source: "send-otp",
+        },
       });
     }
 

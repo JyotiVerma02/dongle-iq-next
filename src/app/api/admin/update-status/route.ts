@@ -166,14 +166,20 @@ const handler = async (req: Request, decoded: AuthToken) => {
 
     const notification = await createUserNotification({
       userId: user._id.toString(),
-      title: "Application Status Updated",
+      title:
+        normalizedStatus === "rejected"
+          ? "Application Rejection Reason"
+          : "Application Status Updated",
       message:
         normalizedStatus === "approved"
           ? "Your application has been approved."
           : normalizedStatus === "rejected"
-            ? "Your application needs attention before approval."
+            ? remarks || "Your application was rejected."
             : `Your application status is now ${normalizedStatus}.`,
-      type: "status_update",
+      type:
+        normalizedStatus === "rejected"
+          ? "rejection_reason"
+          : "status_update",
       metadata: {
         status: normalizedStatus,
         remarks,

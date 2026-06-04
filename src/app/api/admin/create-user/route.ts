@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
 import { connectDB } from "@/lib/mongodb";
+import { createAdminNotification } from "@/lib/notifications";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import User from "@/models/user";
 
@@ -73,6 +74,18 @@ export async function POST(req: Request) {
       password,
       role: "user",
       isVerified: false,
+    });
+
+    await createAdminNotification({
+      title: "New User Created",
+      message: `${name} (${email}) was created from the admin panel.`,
+      type: "user",
+      metadata: {
+        userId: String(user._id),
+        email,
+        number,
+        source: "admin-create-user",
+      },
     });
 
     return NextResponse.json({

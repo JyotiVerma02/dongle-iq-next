@@ -237,7 +237,15 @@ function AdminDashboard() {
   });
 
   const handleRealtimeEvent = useCallback(
-    (event: { type: string }) => {
+    (event: { type: string; notification?: { title?: string; _id?: string }; [key: string]: unknown }) => {
+      if (process.env.NODE_ENV === "development") {
+        console.debug("[admin-dashboard:sse]", {
+          type: event.type,
+          notificationId: event.notification?._id,
+          notificationTitle: event.notification?.title,
+        });
+      }
+
       const refreshEvents = new Set([
         "NOTIFICATION_CREATED",
         "STATUS_UPDATE",

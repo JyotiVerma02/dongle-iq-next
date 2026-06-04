@@ -47,6 +47,7 @@ type NotificationItem = {
   _id: string;
   title: string;
   message: string;
+  type?: string;
   isRead?: boolean;
   createdAt?: string;
 };
@@ -197,6 +198,12 @@ export default function Navbar() {
     router.refresh();
   };
 
+  const isRejectionNotification = (item: NotificationItem) => {
+    const title = item.title.toLowerCase();
+    const message = item.message.toLowerCase();
+    return item.type === "rejection_reason" || title.includes("rejection") || message.includes("rejected");
+  };
+
   return (
     <nav className="navbar-coder">
       <div className="navbar-coder-content mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-2 px-3 py-3 sm:px-4 lg:px-8">
@@ -314,15 +321,34 @@ export default function Navbar() {
                         style={{
                           backgroundColor: item.isRead
                             ? "transparent"
-                            : "rgba(59,130,246,.08)",
-                          borderColor: "var(--border-soft)",
+                            : isRejectionNotification(item)
+                              ? "rgba(244,63,94,.08)"
+                              : "rgba(59,130,246,.08)",
+                          borderColor: isRejectionNotification(item)
+                            ? "rgba(244,63,94,.18)"
+                            : "var(--border-soft)",
                         }}
                       >
-                        <div className="text-sm font-medium text-[var(--foreground)]">
-                          {item.title}
-                        </div>
-                        <div className="mt-1 text-xs leading-5 text-[var(--muted)]">
-                          {item.message}
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <div
+                              className={`text-sm font-medium ${
+                                isRejectionNotification(item)
+                                  ? "text-rose-500"
+                                  : "text-[var(--foreground)]"
+                              }`}
+                            >
+                              {item.title}
+                            </div>
+                            <div className="mt-1 text-xs leading-5 text-[var(--muted)]">
+                              {item.message}
+                            </div>
+                          </div>
+                          {isRejectionNotification(item) ? (
+                            <span className="shrink-0 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-rose-500">
+                              Rejected
+                            </span>
+                          ) : null}
                         </div>
                       </div>
                     ))

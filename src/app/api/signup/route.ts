@@ -4,6 +4,7 @@ import { z } from "zod";
 import User from "@/models/user";
 import { connectDB } from "@/lib/mongodb";
 import { createUserOtpEmail } from "@/lib/emailTemplates";
+import { createAdminNotification } from "@/lib/notifications";
 import { transporter } from "@/lib/mailer";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import {
@@ -99,6 +100,18 @@ export async function POST(req: NextRequest) {
     });
 
     await user.save();
+
+    await createAdminNotification({
+      title: "New User Registered",
+      message: `${String(name).trim()} (${normalizedEmail}) created a new account.`,
+      type: "user",
+      metadata: {
+        userId: String(user._id),
+        email: normalizedEmail,
+        number: normalizedNumber,
+        source: "signup",
+      },
+    });
 
     const verificationEmail = createUserOtpEmail({ otp, name });
     await transporter.sendMail({

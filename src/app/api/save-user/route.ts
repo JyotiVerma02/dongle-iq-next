@@ -6,6 +6,7 @@ import streamifier from "streamifier";
 import { connectDB } from "@/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/lib/admin";
 import { hashField } from "@/lib/encryption";
+import { createAdminNotification } from "@/lib/notifications";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { calculatePricing } from "@/lib/pricing";
 import cloudinary from "@/lib/cloudinary";
@@ -223,7 +224,7 @@ export async function POST(req: Request) {
       );
     }
 
-    await User.create({
+    const user = await User.create({
       name,
       email,
       pan,
@@ -248,6 +249,18 @@ export async function POST(req: Request) {
       photo: photoUrl,
       idProof: idProofUrl,
       addressProof: addressProofUrl,
+    });
+
+    await createAdminNotification({
+      title: "New User Saved",
+      message: `${name} (${email}) was added to the database.`,
+      type: "user",
+      metadata: {
+        userId: String(user._id),
+        email,
+        number: mobile,
+        source: "save-user",
+      },
     });
 
     return NextResponse.json({

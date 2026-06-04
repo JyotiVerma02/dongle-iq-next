@@ -30,7 +30,7 @@ function buildEmailShell(options: EmailShellOptions) {
       <body style="margin:0;padding:24px;background:#eef7f4;font-family:Inter,Arial,sans-serif;color:#102132;">
         <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid rgba(16,48,69,0.08);border-radius:24px;overflow:hidden;box-shadow:0 24px 60px -40px rgba(15,118,110,0.35);">
           <div style="padding:28px 32px;background:linear-gradient(135deg,#0f766e,#10b981,#14b8a6);color:#ffffff;">
-            <div style="font-size:11px;font-weight:800;letter-spacing:0.22em;text-transform:uppercase;opacity:0.8;">
+            <div style="font-size:11px;font-weight:800;;text-transform:uppercase;opacity:0.8;">
               ${escapeHtml(options.eyebrow)}
             </div>
             <h1 style="margin:12px 0 0;font-size:28px;line-height:1.1;font-weight:900;">
@@ -57,7 +57,7 @@ function buildOtpBody(otp: string, label: string) {
     <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#284455;">
       ${escapeHtml(label)}
     </p>
-    <div style="display:inline-block;padding:16px 22px;border-radius:18px;background:#f3fbf9;border:1px solid rgba(16,185,129,0.18);font-size:34px;font-weight:900;letter-spacing:0.18em;color:#0f766e;">
+    <div style="display:inline-block;padding:16px 22px;border-radius:18px;background:#f3fbf9;border:1px solid rgba(16,185,129,0.18);font-size:34px;font-weight:900;;color:#0f766e;">
       ${escapeHtml(otp)}
     </div>
     <p style="margin:16px 0 0;font-size:13px;line-height:1.7;color:#5f7384;">
@@ -127,7 +127,7 @@ export function createPasswordResetEmail(params: { resetLink: string }) {
         </p>
         <a
           href="${escapeHtml(params.resetLink)}"
-          style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;letter-spacing:0.02em;"
+          style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;;"
         >
           Reset Password
         </a>
@@ -165,7 +165,7 @@ export function createPaymentSuccessEmail(params: {
   referenceNumber?: string;
 }) {
   const invoiceLink = params.invoiceUrl
-    ? `<a href="${escapeHtml(params.invoiceUrl)}" style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;letter-spacing:0.02em;">View invoice</a>`
+    ? `<a href="${escapeHtml(params.invoiceUrl)}" style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;">View invoice</a>`
     : "";
 
   return {
@@ -228,7 +228,7 @@ export function createInvoiceEmail(params: {
         ])}
         <a
           href="${escapeHtml(params.invoiceUrl)}"
-          style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;letter-spacing:0.02em;"
+          style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;"
         >
           Download invoice
         </a>
@@ -257,7 +257,7 @@ export function createAdminInviteEmail(params: {
         </p>
         <a
           href="${escapeHtml(params.inviteLink)}"
-          style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;letter-spacing:0.02em;"
+          style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;"
         >
           Accept Invitation
         </a>
@@ -283,7 +283,7 @@ export function createAdminWelcomeEmail(params: { name: string; dashboardUrl: st
         </p>
         <a
           href="${escapeHtml(params.dashboardUrl)}"
-          style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;letter-spacing:0.02em;"
+          style="display:inline-block;padding:14px 22px;border-radius:16px;background:linear-gradient(135deg,#0f766e,#10b981);color:#ffffff;text-decoration:none;font-weight:800;"
         >
           Open Admin Dashboard
         </a>

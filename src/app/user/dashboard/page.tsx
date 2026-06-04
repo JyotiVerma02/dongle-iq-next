@@ -298,6 +298,12 @@ function UserDashboardPage() {
     }
   }, []);
 
+  const isRejectionNotification = useCallback((item: { title: string; message: string; type?: string }) => {
+    const title = item.title.toLowerCase();
+    const message = item.message.toLowerCase();
+    return item.type === "rejection_reason" || title.includes("rejection") || message.includes("rejected");
+  }, []);
+
   const hasSubmittedApplication = hasCompletedApplication(userData);
   const applicationStatus = hasSubmittedApplication
     ? userData?.status || "pending"
@@ -2265,24 +2271,54 @@ function UserDashboardPage() {
                 style={{
                   backgroundColor: item.isRead
                     ? "transparent"
-                    : isDarkMode ? "rgba(249,115,22,0.07)" : "rgba(249,115,22,0.04)",
+                    : isRejectionNotification(item)
+                      ? (isDarkMode ? "rgba(244,63,94,0.09)" : "rgba(244,63,94,0.05)")
+                      : isDarkMode ? "rgba(249,115,22,0.07)" : "rgba(249,115,22,0.04)",
+                  borderLeft: isRejectionNotification(item)
+                    ? "3px solid rgba(244,63,94,0.8)"
+                    : "3px solid transparent",
                 }}
               >
                 {/* Unread dot */}
                 <div className="mt-1.5 shrink-0">
                   {item.isRead ? (
-                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: colors.borderSoft }} />
+                    <div
+                      className="h-2 w-2 rounded-full"
+                      style={{
+                        backgroundColor: isRejectionNotification(item)
+                          ? "#fb7185"
+                          : colors.borderSoft,
+                      }}
+                    />
                   ) : (
-                    <div className="h-2 w-2 rounded-full bg-orange-500" />
+                    <div
+                      className="h-2 w-2 rounded-full"
+                      style={{
+                        backgroundColor: isRejectionNotification(item)
+                          ? "#fb7185"
+                          : "#f97316",
+                      }}
+                    />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p
-                    className={`text-xs leading-snug ${item.isRead ? "font-semibold" : "font-bold"}`}
-                    style={{ color: colors.text }}
-                  >
-                    {item.title}
-                  </p>
+                  <div className="flex items-start justify-between gap-2">
+                    <p
+                      className={`text-xs leading-snug ${item.isRead ? "font-semibold" : "font-bold"}`}
+                      style={{
+                        color: isRejectionNotification(item)
+                          ? (isDarkMode ? "#fb7185" : "#e11d48")
+                          : colors.text,
+                      }}
+                    >
+                      {item.title}
+                    </p>
+                    {isRejectionNotification(item) && (
+                      <span className="shrink-0 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-rose-500">
+                        Rejected
+                      </span>
+                    )}
+                  </div>
                   <p className="mt-0.5 text-[11px] leading-snug" style={{ color: colors.muted }}>
                     {item.message}
                   </p>

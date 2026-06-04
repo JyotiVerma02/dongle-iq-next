@@ -284,14 +284,14 @@ export function buildInvoiceHtml(params: {
       body { font-family: Arial, sans-serif; margin: 0; background: #f4f7fb; color: #10212b; }
       .page { max-width: 900px; margin: 24px auto; background: #fff; padding: 40px; box-shadow: 0 12px 40px rgba(16,33,43,0.08); }
       .header { display: flex; justify-content: space-between; gap: 24px; border-bottom: 2px solid #dce8f2; padding-bottom: 20px; }
-      .brand h1 { margin: 0; font-size: 32px; letter-spacing: 0.04em; }
+      .brand h1 { margin: 0; font-size: 32px;  }
       .muted { color: #5f7384; font-size: 13px; line-height: 1.5; }
       .section { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
       .card { border: 1px solid #dce8f2; border-radius: 12px; padding: 18px; }
-      h2 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.14em; color: #2f6d8c; }
+      h2 { margin: 0 0 12px; font-size: 14px; text-transform: uppercase;  color: #2f6d8c; }
       table { width: 100%; border-collapse: collapse; margin-top: 24px; }
       th, td { padding: 12px 10px; border-bottom: 1px solid #e6eef5; font-size: 14px; }
-      th { text-align: left; color: #5f7384; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+      th { text-align: left; color: #5f7384; font-size: 12px; text-transform: uppercase;  }
       .totals { margin-top: 16px; margin-left: auto; width: 320px; }
       .totals-row { display: flex; justify-content: space-between; padding: 8px 0; }
       .grand { border-top: 2px solid #10212b; font-weight: 700; font-size: 18px; margin-top: 8px; padding-top: 12px; }
