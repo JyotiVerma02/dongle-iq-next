@@ -110,11 +110,10 @@ function RegisterContent() {
   return (
     <div
       suppressHydrationWarning
-      className="auth-page-shell theme-transition fixed inset-0 w-full overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition fixed inset-0 w-full overflow-x-hidden overflow-y-auto bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className="relative z-10 flex h-screen w-full items-center justify-center overflow-hidden">
-        {" "}
+      <div className="relative z-10 flex min-h-dvh w-full items-start justify-center px-4 py-6 sm:items-center sm:px-6 sm:py-8 lg:py-0">
         <div className="content-container flex w-full items-center justify-center lg:justify-center lg:gap-6">
           <div
             className="hidden lg:flex lg:w-full lg:max-w-[24rem] lg:flex-col lg:justify-center lg:pr-4 xl:max-w-[34rem] xl:pr-6"
@@ -172,15 +171,15 @@ function RegisterContent() {
             </div>
           </div>
 
-          <div className="no-scrollbar flex w-full max-w-md items-center justify-center px-2  lg:px-0 lg:-ml-2">
-            <div className="group relative w-full max-w-[28rem] animate-[fadeIn_1.2s_ease-out]">
+          <div className="no-scrollbar flex w-full max-w-md items-start justify-center px-0 pt-2 sm:items-center lg:-ml-2 lg:px-0">
+            <div className="group relative w-full max-w-[28rem] animate-[fadeIn_1.2s_ease-out] sm:max-w-[30rem]">
               <div
                 className="absolute -inset-px rounded-xl opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-90"
                 style={{ background: premiumGradient }}
               />
 
               <div
-                className="auth-card shine-border relative w-full overflow-hidden p-4 sm:p-5 md:p-6"
+                className="auth-card shine-border relative w-full overflow-hidden p-4 shadow-2xl sm:p-5 md:p-6"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -208,7 +207,7 @@ function RegisterContent() {
                   </div>
                 )}
 
-                <form onSubmit={handleRegister} className="space-y-3">
+                <form onSubmit={handleRegister} className="space-y-3 sm:space-y-3.5">
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
                       <input

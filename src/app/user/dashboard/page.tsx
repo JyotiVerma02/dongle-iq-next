@@ -2121,8 +2121,25 @@ function UserDashboardPage() {
       className="ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-4 sm:p-6 lg:p-8"
       style={{ backgroundColor: colors.card, borderColor: colors.border }}
     >
+      <nav
+        aria-label="Section breadcrumb"
+        className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]"
+        style={{ color: colors.muted }}
+      >
+        <button
+          type="button"
+          onClick={() => selectView("overview")}
+          className="transition-colors hover:text-[var(--accent)]"
+          style={{ color: colors.accent }}
+          title="Back to Dashboard"
+        >
+          Dashboard
+        </button>
+        <ChevronRight className="h-3 w-3 flex-shrink-0" style={{ color: colors.muted }} />
+        <span style={{ color: colors.text }}>{title}</span>
+      </nav>
       <p
-        className="text-[10px] font-black uppercase tracking-[0.24em]"
+        className="mt-3 text-[10px] font-black uppercase tracking-[0.24em]"
         style={{ color: colors.muted }}
       >
         {eyebrow}
@@ -2187,13 +2204,23 @@ function UserDashboardPage() {
 
   const notificationsPanel = (
     <div className="space-y-4">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: colors.muted }}>
-        <span style={{ color: colors.accent }}>Dashboard</span>
-        <span>›</span>
+      <nav
+        aria-label="Notifications breadcrumb"
+        className="flex flex-wrap items-center gap-2 text-[10px] font-black uppercase tracking-[0.22em]"
+        style={{ color: colors.muted }}
+      >
+        <button
+          type="button"
+          onClick={() => selectView("overview")}
+          className="transition-colors hover:text-[var(--accent)]"
+          style={{ color: colors.accent }}
+          title="Back to Dashboard"
+        >
+          Dashboard
+        </button>
+        <ChevronRight className="h-3 w-3 flex-shrink-0" style={{ color: colors.muted }} />
         <span style={{ color: colors.text }}>Notifications</span>
-      </div>
-
+      </nav>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -3257,3 +3284,4 @@ function FeeTooltip({
     </span>
   );
 }
+

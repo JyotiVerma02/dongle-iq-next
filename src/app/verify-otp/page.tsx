@@ -86,10 +86,10 @@ export default function VerifyOTP() {
   return (
     <div
       suppressHydrationWarning
-      className="auth-page-shell theme-transition relative overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition relative overflow-x-hidden overflow-y-auto bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className="relative z-10 flex w-full app-page-min-height items-center justify-center px-4 py-8">
+      <div className="relative z-10 flex min-h-dvh w-full items-start justify-center px-4 py-6 sm:items-center sm:py-8">
         <div className="content-container flex w-full items-center justify-center">
           <div className="group relative w-full max-w-md">
             <div
@@ -98,7 +98,7 @@ export default function VerifyOTP() {
             />
 
             <div
-              className="auth-card shine-border relative w-full overflow-hidden p-5 sm:p-7"
+              className="auth-card shine-border relative w-full overflow-hidden p-5 shadow-2xl sm:p-7"
               style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border,

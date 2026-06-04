@@ -42,8 +42,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
       </a> */}
       {showNavbar && <Navbar />}
 
-      <main id="main-content"
-        className={`relative z-10 transition-all duration-300 ${showNavbar ? "app-shell-content" : ""}`}
+      <main
+        id="main-content"
+        className={`relative z-10 min-h-dvh overflow-x-hidden transition-all duration-300 ${showNavbar ? "app-shell-content" : ""}`}
       >
         {children}
       </main>

@@ -106,13 +106,11 @@ function LoginContent() {
   return (
     <div
       suppressHydrationWarning
-      className="auth-page-shell theme-transition fixed inset-0 w-full overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition fixed inset-0 w-full overflow-x-hidden overflow-y-auto bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className="relative z-10 flex h-screen w-full items-center justify-center overflow-hidden">
-        {" "}
+      <div className="relative z-10 flex min-h-dvh w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:py-0">
         <div className="flex w-full max-w-6xl items-center justify-center lg:justify-center lg:gap-6">
-          {" "}
           <div
             className="hidden lg:flex lg:w-full lg:max-w-[24rem] lg:flex-col lg:justify-center lg:pr-4 xl:max-w-[34rem] xl:pr-6"
             style={{ borderRight: `1px solid ${colors.borderSoft}` }}
@@ -168,16 +166,14 @@ function LoginContent() {
               </div>
             </div>
           </div>
-          <div className="flex w-full max-w-md items-center justify-center px-4 lg:px-0 lg:-ml-2">
-            {" "}
-            <div className="group relative w-full max-w-[28rem] animate-[fadeIn_1.2s_ease-out]">
-              {" "}
+          <div className="flex w-full max-w-md items-center justify-center px-0 lg:-ml-2 lg:px-0">
+            <div className="group relative w-full max-w-[28rem] animate-[fadeIn_1.2s_ease-out] sm:max-w-[30rem]">
               <div
                 className="absolute -inset-px rounded-xl opacity-35 blur-sm transition-opacity duration-500 group-hover:opacity-90"
                 style={{ background: premiumGradient }}
               />
               <div
-                className="auth-card glass-panel-premium shine-border relative w-full overflow-hidden p-4 md:p-5"
+                className="auth-card glass-panel-premium shine-border relative w-full overflow-hidden p-4 shadow-2xl sm:p-5 md:p-6"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -234,7 +230,7 @@ function LoginContent() {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-3.5">
+                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-3.5">
                   <div className="space-y-1.5">
                     <label
                       className="text-[10px] font-black uppercase tracking-[0.22em]"
@@ -293,9 +289,9 @@ function LoginContent() {
                     </div>
                   </div>
 
-                  <div className="flex flex-row items-center justify-between gap-2">
+                  <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
                     <label
-                      className="flex cursor-pointer items-center gap-2 text-xs font-semibold whitespace-nowrap"
+                      className="flex cursor-pointer items-center gap-2 text-xs font-semibold leading-none whitespace-nowrap"
                       style={{ color: colors.subtleText }}
                     >
                       <input
@@ -310,9 +306,9 @@ function LoginContent() {
                       />
                       Remember me
                     </label>
-                    <Link href="/forgot-password">
+                    <Link href="/forgot-password" className="self-end sm:self-auto">
                       <span
-                        className="text-[9px] uppercase tracking-widest underline underline-offset-4"
+                        className="text-[9px] uppercase tracking-[0.22em] underline underline-offset-4"
                         style={{ color: colors.muted }}
                       >
                         Forgot Password?

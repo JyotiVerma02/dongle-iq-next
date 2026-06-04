@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { ADMIN_ROLES } from "@/lib/adminRoles";
 
 // ==================== RATE LIMITER ====================
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -25,10 +26,17 @@ function isRateLimited(ip: string, maxRequests: number, windowMs: number): boole
 interface DecodedToken {
   userId: string;
   email?: string;
-  role: "admin" | "user";
+  role: string;
+  accountType?: "admin" | "user";
   iat?: number;
   exp?: number;
 }
+
+const LEGACY_ADMIN_ROLE_SET = new Set<string>([
+  ...ADMIN_ROLES,
+  "admin",
+  "superadmin",
+]);
 
 function decodeBase64Url(value: string): string | null {
   try {
@@ -118,6 +126,24 @@ async function validateToken(token: string): Promise<DecodedToken | null> {
     console.error("Token validation error:", error);
     return null;
   }
+}
+
+function getTokenAccountType(decoded: DecodedToken): "admin" | "user" | null {
+  if (decoded.accountType === "admin" || decoded.accountType === "user") {
+    return decoded.accountType;
+  }
+
+  const normalizedRole = String(decoded.role || "").trim().toLowerCase();
+
+  if (normalizedRole === "user") {
+    return "user";
+  }
+
+  if (LEGACY_ADMIN_ROLE_SET.has(normalizedRole)) {
+    return "admin";
+  }
+
+  return null;
 }
 
 // ==================== ROUTE CONFIGURATIONS ====================
@@ -216,9 +242,11 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  const tokenAccountType = getTokenAccountType(decodedToken);
+
   // 🛡️ Role-based access control
   if (isAdminPath(pathname)) {
-    if (decodedToken.role !== "admin") {
+    if (tokenAccountType !== "admin") {
       if (isApiPath(pathname)) {
         return NextResponse.json(
           { message: "Unauthorized: Admin access required" },
@@ -231,7 +259,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (isUserPath(pathname)) {
-    if (decodedToken.role !== "user" && decodedToken.role !== "admin") {
+    if (tokenAccountType !== "user" && tokenAccountType !== "admin") {
       if (isApiPath(pathname)) {
         return NextResponse.json(
           { message: "Unauthorized: User access required" },
@@ -247,7 +275,7 @@ export async function proxy(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-user-id", decodedToken.userId);
   requestHeaders.set("x-user-email", decodedToken.email || "");
-  requestHeaders.set("x-user-role", decodedToken.role);
+  requestHeaders.set("x-user-role", tokenAccountType || decodedToken.role);
 
   const response = NextResponse.next({
     request: {

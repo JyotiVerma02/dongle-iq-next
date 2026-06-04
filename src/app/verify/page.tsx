@@ -132,7 +132,7 @@ export default function VerifyPage() {
   };
 
   return (
-    <main className="theme-transition hero-grid fixed inset-0 flex h-dvh w-full items-center justify-center overflow-hidden px-2 py-2 sm:px-3 sm:py-3" style={{ color: colors.text }}>
+    <main className="theme-transition hero-grid fixed inset-0 flex min-h-dvh w-full items-start justify-center overflow-x-hidden overflow-y-auto px-3 py-4 sm:items-center sm:px-4 sm:py-6" style={{ color: colors.text }}>
       {/* Fixed Theme Toggle */}
       <button
         onClick={toggleTheme}
@@ -148,7 +148,7 @@ export default function VerifyPage() {
       >
         {isDarkMode ? <SunMedium size={20} /> : <Moon size={20} />}
       </button>
-      <div className="relative z-10 w-full max-w-sm">
+      <div className="relative z-10 w-full max-w-sm pt-2 sm:pt-0">
         <div
           className="pointer-events-none absolute -inset-px rounded-lg blur-sm"
           style={{ background: premiumGradient, opacity: isDarkMode ? 0.34 : 0.18 }}

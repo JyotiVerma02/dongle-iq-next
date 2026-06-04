@@ -775,12 +775,13 @@ html.dark .ud-dashboard-root input::placeholder {
 /* Auth page responsive fixes */
 @media (max-width: 480px) {
   .auth-page-shell {
-    align-items: flex-start !important;
+    align-items: center !important;
   }
 
   .auth-page-shell .content-container {
     min-height: auto;
-    padding-block: 1rem;
+    width: 100%;
+    padding-block: 1.25rem;
   }
 
   .auth-card {
@@ -795,11 +796,15 @@ html.dark .ud-dashboard-root input::placeholder {
   justify-content: center !important;
   align-items: center !important;
   width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Ensure auth pages feel balanced */
 .auth-page-shell .content-container {
-  min-height: calc(100vh - 120px);
+  min-height: calc(100dvh - 120px);
+  width: min(100%, 100vw);
+  box-sizing: border-box;
   align-content: center;
   padding-block: clamp(1rem, 3vw, 2rem);
 }
@@ -828,6 +833,17 @@ html.dark .ud-dashboard-root input::placeholder {
 
 /* Responsive blobs for mobile */
 @media (max-width: 767px) {
+  .auth-page-shell {
+    align-items: center !important;
+  }
+
+  .auth-page-shell .content-container {
+    min-height: 100dvh;
+    width: 100%;
+    padding-inline: 1rem;
+    padding-block: 1.25rem;
+  }
+
   .saas-bg__blobs {
     inset: -20%;
     opacity: 0.72;
