@@ -111,7 +111,9 @@ function LoginContent() {
     >
       <div className="relative z-10 flex h-screen w-full items-center justify-center overflow-hidden">
         {" "}
-<div className="flex w-full max-w-6xl items-center justify-center lg:justify-center lg:gap-6">          <div
+        <div className="flex w-full max-w-6xl items-center justify-center lg:justify-center lg:gap-6">
+          {" "}
+          <div
             className="hidden lg:flex lg:w-full lg:max-w-[24rem] lg:flex-col lg:justify-center lg:pr-4 xl:max-w-[34rem] xl:pr-6"
             style={{ borderRight: `1px solid ${colors.borderSoft}` }}
           >
@@ -166,7 +168,6 @@ function LoginContent() {
               </div>
             </div>
           </div>
-
           <div className="flex w-full max-w-md items-center justify-center px-4 lg:px-0 lg:-ml-2">
             {" "}
             <div className="group relative w-full max-w-[28rem] animate-[fadeIn_1.2s_ease-out]">

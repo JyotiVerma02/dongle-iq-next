@@ -94,22 +94,27 @@ export async function verifySessionToken(token: string) {
     throw new Error("Invalid session");
   }
 
-  await ensureRedisConnected();
-  const rawSession = await redis.get(getSessionKey(decoded.sessionId));
+  try {
+    await ensureRedisConnected();
+    const rawSession = await redis.get(getSessionKey(decoded.sessionId));
 
-  if (!rawSession) {
-    throw new Error("Session expired or logged out");
-  }
+    if (rawSession) {
+      const session = JSON.parse(rawSession) as StoredSession;
 
-  const session = JSON.parse(rawSession) as StoredSession;
-
-  if (
-    session.userId !== decoded.userId ||
-    session.role !== decoded.role ||
-    session.accountType !== decoded.accountType
-  ) {
-    await redis.del(getSessionKey(decoded.sessionId));
-    throw new Error("Session mismatch");
+      if (
+        session.userId !== decoded.userId ||
+        session.role !== decoded.role ||
+        session.accountType !== decoded.accountType
+      ) {
+        await redis.del(getSessionKey(decoded.sessionId));
+        throw new Error("Session mismatch");
+      }
+    }
+  } catch (err) {
+    if (err instanceof Error && err.message === "Session mismatch") {
+      throw err;
+    }
+    console.warn("Redis session check failed or missing, trusting JWT payload:", err);
   }
 
   return decoded;

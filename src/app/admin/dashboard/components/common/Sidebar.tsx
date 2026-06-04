@@ -106,7 +106,8 @@ export function Sidebar({
           {visibleNavItems.map((item, idx) => {
             const Icon = item.icon;
             const isActive = view === item.id;
-            const badge = item.id === "notifications" && unreadCount > 0 ? unreadCount : ("badge" in item ? item.badge : undefined);
+            const badge =
+              item.id === "notifications" && unreadCount > 0 ? unreadCount : undefined;
 
             // Deduplicate: skip the second "admin-settings" if it's not the settings view
             if (

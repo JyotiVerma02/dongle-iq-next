@@ -10,7 +10,7 @@ import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { ADMIN_REPORTS_CACHE_KEY, invalidateAdminUsersCache, invalidateUserDashboardCache, invalidateCacheKey } from "@/lib/dashboardCache";
-import { createUserNotification } from "@/lib/notifications";
+import { createAdminNotification, createUserNotification } from "@/lib/notifications";
 import { broadcastRealtimeEvent } from "@/lib/realtime";
 import Payment from "@/models/payment";
 import User from "@/models/user";
@@ -187,6 +187,19 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
             : `Your payment status is now ${paymentStatus}.`,
         type: "payment",
         metadata: {
+          paymentStatus,
+          paymentId: updatedPayment ? String(updatedPayment._id) : null,
+          updatedBy: actor.id,
+        },
+      });
+
+      await createAdminNotification({
+        title: "Admin updated payment status",
+        message: `${admin.name} marked ${updatedUser.name}'s payment as ${paymentStatus}.`,
+        type: "payment",
+        metadata: {
+          userId: String(updatedUser._id),
+          userName: updatedUser.name,
           paymentStatus,
           paymentId: updatedPayment ? String(updatedPayment._id) : null,
           updatedBy: actor.id,

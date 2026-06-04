@@ -16,14 +16,14 @@ export function useAuth() {
         if (response.status === 401 || response.status === 403) {
           localStorage.removeItem("adminToken");
           localStorage.removeItem("admin");
-          router.push("/admin/register");
+          router.push("/login");
           return;
         }
         if (response.status === 404 && data.message === "Admin not found") {
           toast.error("Admin not found. Please register.");
           localStorage.removeItem("adminToken");
           localStorage.removeItem("admin");
-          router.push("/admin/register");
+          router.push("/login");
           return;
         }
         throw new Error(data.message || "Failed to load admin");

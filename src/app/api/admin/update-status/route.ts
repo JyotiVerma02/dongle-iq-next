@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 
 import { broadcastRealtimeEvent } from "@/lib/realtime";
+import { connectDB } from "@/lib/mongodb";
 import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "@/lib/adminAudit";
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { validateStatusTransition, getStatusPermission } from "@/lib/applicationWorkflow";
 import { ADMIN_REPORTS_CACHE_KEY, invalidateAdminUsersCache, invalidateUserDashboardCache, invalidateCacheKey } from "@/lib/dashboardCache";
-import { createUserNotification, sendStatusNotifications } from "@/lib/notifications";
+import {
+  createAdminNotification,
+  createUserNotification,
+  sendStatusNotifications,
+} from "@/lib/notifications";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
 import User from "@/models/user";
@@ -172,6 +177,18 @@ const handler = async (req: Request, decoded: AuthToken) => {
       metadata: {
         status: normalizedStatus,
         remarks,
+        updatedBy: actor.id,
+      },
+    });
+
+    await createAdminNotification({
+      title: "Admin updated application status",
+      message: `${adminUser.name} changed ${user.name}'s application status to ${normalizedStatus}.`,
+      type: "status_update",
+      metadata: {
+        userId: user._id.toString(),
+        userName: user.name,
+        status: normalizedStatus,
         updatedBy: actor.id,
       },
     });

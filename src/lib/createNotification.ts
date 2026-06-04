@@ -1,6 +1,6 @@
 import Notification from "@/models/notification";
 import { connectDB } from "@/lib/mongodb";
-import { broadcastRealtimeEvent } from "@/app/api/realtime/route";
+import { broadcastRealtimeEvent } from "@/lib/realtime";
 
 export async function createNotification({
   userId,
