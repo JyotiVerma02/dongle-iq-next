@@ -248,7 +248,7 @@ export default function DongleIQLanding() {
       className="page-shell min-h-screen theme-transition"
       style={{ color: colors.text }}
     >
-      <section className="section hero-section-full-bleed">
+      <section id="hero" className="section hero-section-full-bleed">
         <div className="hero-shell-full-bleed">
           <div className="container-shell pt-4 sm:pt-5 lg:pt-7 ">
             <div className="hero-panel-inner">
@@ -315,7 +315,7 @@ export default function DongleIQLanding() {
                   <div className="hero-image-wrapper relative">
                     {/* Dark Image */}
                     <Image
-                      src="/images/hero-dashboard.png"
+                      src="/images/download.svg"
                       alt="DongleIQ Dashboard"
                       width={1200}
                       height={800}
@@ -328,7 +328,7 @@ export default function DongleIQLanding() {
 
                     {/* Light Image */}
                     <Image
-                      src="/images/hero-dashboard-light.png"
+                      src="/images/download light.svg"
                       alt="DongleIQ Dashboard"
                       width={1200}
                       height={800}

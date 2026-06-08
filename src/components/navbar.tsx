@@ -19,6 +19,7 @@ import { useTheme } from "@/components/ThemeContext";
 import { useRealtimeEvents } from "@/lib/useRealtimeEvents";
 
 const NAV_LINKS = [
+  { label: "Home", href: "/#hero" },
   { label: "Why us", href: "/#whyus" },
   { label: "Apply", href: "/#apply" },
   { label: "Agents", href: "/#agents" },
@@ -60,6 +61,7 @@ export default function Navbar() {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -92,8 +94,12 @@ export default function Navbar() {
         unreadCount?: number;
       };
 
-      setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
-      setUnreadCount(typeof data.unreadCount === "number" ? data.unreadCount : 0);
+      setNotifications(
+        Array.isArray(data.notifications) ? data.notifications : [],
+      );
+      setUnreadCount(
+        typeof data.unreadCount === "number" ? data.unreadCount : 0,
+      );
     } catch (error) {
       console.error(error);
     }
@@ -139,6 +145,17 @@ export default function Navbar() {
       if (refreshTimerRef.current) {
         clearTimeout(refreshTimerRef.current);
       }
+    };
+  }, []);
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
@@ -201,17 +218,66 @@ export default function Navbar() {
   const isRejectionNotification = (item: NotificationItem) => {
     const title = item.title.toLowerCase();
     const message = item.message.toLowerCase();
-    return item.type === "rejection_reason" || title.includes("rejection") || message.includes("rejected");
+    return (
+      item.type === "rejection_reason" ||
+      title.includes("rejection") ||
+      message.includes("rejected")
+    );
   };
 
   return (
-    <nav className="navbar-coder">
-      <div className="navbar-coder-content mx-auto flex w-full max-w-7xl flex-nowrap items-center justify-between gap-2 px-3 py-3 sm:px-4 lg:px-8">
-        <Link href="/" className="transition-opacity hover:opacity-80">
-          <BrandLogo size="md" />
-        </Link>
-
-        <div className="hidden items-center gap-2 md:flex">
+    <nav
+      className="navbar-coder fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      style={{
+        background: scrolled
+          ? isDarkMode
+            ? "rgba(7,11,26,0.85)"
+            : "rgba(255,255,255,0.85)"
+          : "transparent",
+        backdropFilter: scrolled ? "blur(20px)" : "none",
+        borderBottom: scrolled
+          ? isDarkMode
+            ? "1px solid rgba(255,255,255,0.08)"
+            : "1px solid rgba(0,0,0,0.06)"
+          : "none",
+        boxShadow: scrolled
+          ? isDarkMode
+            ? "0 10px 40px rgba(0,0,0,0.25)"
+            : "0 10px 40px rgba(15,23,42,0.08)"
+          : "none",
+      }}
+    >
+      <div
+        className={`mx-auto flex w-full max-w-[1400px] items-center px-8 transition-all duration-300 ${
+          scrolled ? "py-3" : "mt-5 py-2"
+        }`}
+      >
+        {" "}
+        <div className="w-[220px]  shrink-0 flex items-center justify-start gap-2">
+          <Link href="/" className="transition-opacity hover:opacity-80">
+            <BrandLogo size="md" />
+          </Link>
+        </div>
+        <div
+          className="
+    flex items-center justify-center
+    gap-16
+    h-14
+    w-[900px]
+    rounded-full
+    border
+    backdrop-blur-xl
+  "
+          style={{
+            background: isDarkMode
+              ? "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))"
+              : "linear-gradient(180deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9))",
+            borderColor: isDarkMode
+              ? "rgba(255,255,255,0.10)"
+              : "rgba(0,0,0,0.06)",
+            boxShadow: isDarkMode ? "none" : "0 10px 40px rgba(15,23,42,0.08)",
+          }}
+        >
           {NAV_LINKS.map((item) => (
             <a
               key={item.label}
@@ -232,8 +298,7 @@ export default function Navbar() {
             </a>
           ))}
         </div>
-
-        <div className="flex items-center gap-2">
+        <div className="w-[220px] shrink-0 flex items-center justify-end gap-2">
           {showAuthButtons ? (
             <button
               onClick={() => router.push(authAction.href)}
@@ -247,7 +312,6 @@ export default function Navbar() {
               {authAction.label}
             </button>
           ) : null}
-
           {showLogout ? (
             <button
               onClick={handleLogout}
@@ -261,7 +325,6 @@ export default function Navbar() {
               Logout
             </button>
           ) : null}
-
           <div className="relative hidden md:block">
             <button
               onClick={() => setNotificationOpen((prev) => !prev)}
@@ -357,7 +420,6 @@ export default function Navbar() {
               </div>
             ) : null}
           </div>
-
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"
@@ -370,7 +432,6 @@ export default function Navbar() {
           >
             {themeIcon}
           </button>
-
           <button
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -385,7 +446,6 @@ export default function Navbar() {
           </button>
         </div>
       </div>
-
       {isMenuOpen ? (
         <div
           className="mobile-menu-container mx-auto mt-3 rounded-[1.35rem] border p-3 shadow-[0_28px_80px_-40px_var(--accent-shadow)] backdrop-blur-2xl lg:hidden"

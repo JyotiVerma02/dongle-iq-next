@@ -1,0 +1,180 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+
+    <!-- Light gradient -->
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7c3aed"></stop>
+      <stop offset="50%" stop-color="#a855f7"></stop>
+      <stop offset="100%" stop-color="#06b6d4"></stop>
+    </linearGradient>
+
+    <!-- Soft glow -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="b"></feGaussianBlur>
+      <feMerge>
+        <feMergeNode in="b"></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+
+    <!-- Light shadow -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#7c3aed" flood-opacity="0.12"></feDropShadow>
+    </filter>
+
+    <style>
+      /* TRANSPARENT BACKGROUND ONLY */
+
+      .line {
+        stroke: url(#g);
+        stroke-width: 3;
+        stroke-dasharray: 12 10;
+        animation: flow 2.5s linear infinite;
+        opacity: 0.75;
+      }
+
+      @keyframes flow {
+        to { stroke-dashoffset: -220; }
+      }
+
+      .node {
+        fill: url(#g);
+        filter: url(#glow);
+        animation: pulse 2s infinite;
+        transform-origin: center;
+        cursor: pointer;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.35); opacity: 0.6; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      /* LIGHT MODE CARDS */
+      .card {
+        fill: #ffffff;
+        stroke: #e3e8f7;
+        filter: url(#shadow);
+        animation: fadeIn 1s ease forwards;
+        opacity: 0;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .text {
+        fill: #111827;
+        font-family: Arial;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .small {
+        fill: #55607f;
+        font-size: 13px;
+      }
+
+      .title {
+        fill: #111827;
+        font-size: 34px;
+        font-weight: bold;
+        font-family: Arial;
+      }
+
+      .sub {
+        fill: #55607f;
+        font-size: 14px;
+      }
+
+      /* soft particles */
+      .p {
+        fill: #a855f7;
+        opacity: 0.15;
+        animation: float 6s linear infinite;
+      }
+
+      @keyframes float {
+        0% { transform: translateY(0); opacity: 0; }
+        20% { opacity: 0.4; }
+        100% { transform: translateY(-600px); opacity: 0; }
+      }
+
+      /* FINAL UNLOCK (LIGHT MODE SOFT GLOW) */
+      .unlock {
+        animation: unlockPulse 1.5s infinite;
+      }
+
+      @keyframes unlockPulse {
+        0% { transform: scale(1); filter: drop-shadow(0 0 8px #7c3aed); }
+        50% { transform: scale(1.4); filter: drop-shadow(0 0 18px #06b6d4); }
+        100% { transform: scale(1); filter: drop-shadow(0 0 8px #7c3aed); }
+      }
+
+    </style>
+  </defs>
+
+  <!-- PARTICLES -->
+  <circle cx="200" cy="700" r="2" class="p"></circle>
+  <circle cx="320" cy="650" r="3" class="p"></circle>
+  <circle cx="520" cy="720" r="2" class="p"></circle>
+  <circle cx="880" cy="680" r="3" class="p"></circle>
+  <circle cx="1000" cy="750" r="2" class="p"></circle>
+
+  <!-- TITLE -->
+  <text x="600" y="60" text-anchor="middle" class="title">
+    DONGLE IQ — DSC ONBOARDING SYSTEM
+  </text>
+
+  <text x="600" y="90" text-anchor="middle" class="sub">
+    Light Mode • Clean Verification Flow • Agent Unlock System
+  </text>
+
+  <!-- FLOW LINE -->
+  <line x1="600" y1="120" x2="600" y2="700" class="line"></line>
+
+  <!-- STEP 1 -->
+  <circle cx="600" cy="150" r="12" class="node"></circle>
+  <rect x="160" y="120" width="320" height="70" rx="12" class="card"></rect>
+  <text x="180" y="150" class="text">1. Account Creation</text>
+  <text x="180" y="175" class="small">Signup + Agent ID generation</text>
+
+  <!-- STEP 2 -->
+  <circle cx="600" cy="250" r="12" class="node"></circle>
+  <rect x="720" y="220" width="320" height="70" rx="12" class="card"></rect>
+  <text x="740" y="250" class="text">2. KYC Verification</text>
+  <text x="740" y="275" class="small">Aadhaar / PAN validation</text>
+
+  <!-- STEP 3 -->
+  <circle cx="600" cy="350" r="12" class="node"></circle>
+  <rect x="160" y="320" width="340" height="70" rx="12" class="card"></rect>
+  <text x="180" y="350" class="text">3. Document Upload</text>
+  <text x="180" y="375" class="small">Certificates &amp; Proofs</text>
+
+  <!-- STEP 4 -->
+  <circle cx="600" cy="450" r="12" class="node"></circle>
+  <rect x="720" y="420" width="340" height="70" rx="12" class="card"></rect>
+  <text x="740" y="450" class="text">4. Video Verification</text>
+  <text x="740" y="475" class="small">Live Identity Check</text>
+
+  <!-- STEP 5 FINAL -->
+  <circle cx="600" cy="550" r="14" class="node unlock"></circle>
+  <rect x="160" y="520" width="340" height="80" rx="14" class="card"></rect>
+  <text x="180" y="550" class="text">5. Approval Complete</text>
+  <text x="180" y="575" class="small">DSC Activated Successfully</text>
+
+  <!-- UNLOCK BADGE -->
+  <g>
+    <rect x="430" y="300" width="340" height="140" rx="20" fill="rgba(255,255,255,0.95)" stroke="#e3e8f7" filter="url(#shadow)"></rect>
+    <text x="600" y="360" text-anchor="middle" fill="#7c3aed" font-size="22" font-family="Arial">
+      🎉 AGENT ID UNLOCKED
+    </text>
+    <text x="600" y="390" text-anchor="middle" fill="#55607f" font-size="14">
+      Welcome to Dongle IQ DSC System
+    </text>
+  </g>
+
+</svg>

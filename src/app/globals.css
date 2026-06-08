@@ -1,5 +1,7 @@
-﻿@import "tailwindcss";
+﻿@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
 @import "./responsive-ever.css";
+
 
 /* ============================================================
    DONGLE IQ — PREMIUM SAAS DESIGN SYSTEM
@@ -140,7 +142,7 @@ body {
   padding: 0;
   overflow-x: hidden;
   color: var(--foreground);
-  font-family: 'sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: "Nunito", sans-serif;
   line-height: 1.5;
   background: var(--background);
   text-rendering: optimizeLegibility;
@@ -339,7 +341,7 @@ select:focus {
   scroll-margin-top: calc(var(--app-navbar-offset) - 1.5rem);
 }
 
-.section + .section {
+.section+.section {
   margin-top: clamp(1.75rem, 3vw, 3rem);
 }
 
@@ -442,17 +444,17 @@ html.dark .site-footer {
   left: 0;
   right: 0;
   z-index: 9999;
-  
+
   /* Glass effect - consistent at all times */
   backdrop-filter: blur(40px) saturate(200%);
   -webkit-backdrop-filter: blur(40px) saturate(200%);
-  
+
   /* Subtle background for blur to work */
   background: rgba(5, 5, 15, 0.65);
-  
+
   /* Border definition */
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  
+
   /* Smooth hover transition (not scroll-based) */
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
 }
@@ -460,30 +462,30 @@ html.dark .site-footer {
 /* Hover effect - lifts slightly */
 .navbar-coder:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
-  border-bottom-color: rgba(139, 92, 246, 0.3);
+  /* box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25); */
+  /* border-bottom-color: rgba(139, 92, 246, 0.3); */
 }
 
 /* Dark mode */
-html.dark .navbar-coder {
+/* html.dark .navbar-coder {
   background: rgba(5, 5, 15, 0.75);
   border-bottom: 1px solid rgba(139, 92, 246, 0.15);
-}
+} */
 
 html.dark .navbar-coder:hover {
-  background: rgba(5, 5, 15, 0.85);
-  border-bottom-color: rgba(139, 92, 246, 0.4);
+  /* background: rgba(5, 5, 15, 0.85); */
+  /* border-bottom-color: rgba(139, 92, 246, 0.4); */
 }
 
 /* Light mode */
 html:not(.dark) .navbar-coder {
-  background: rgba(255, 255, 255, 0.7);
-  border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+  /* background: rgba(255, 255, 255, 0.7); */
+  /* border-bottom: 1px solid rgba(124, 58, 237, 0.1); */
 }
 
 html:not(.dark) .navbar-coder:hover {
-  background: rgba(255, 255, 255, 0.85);
-  border-bottom-color: rgba(124, 58, 237, 0.25);
+  /* background: rgba(255, 255, 255, 0.85); */
+  /* border-bottom-color: rgba(124, 58, 237, 0.25); */
 }
 
 /* Ensure content starts below navbar */
@@ -645,7 +647,7 @@ html.dark .eyebrow-chip {
   color: var(--accent);
   font-size: 0.62rem;
   font-weight: 900;
- 
+
   text-transform: uppercase;
 }
 
@@ -693,7 +695,7 @@ html:not(.dark) .text-gradient-cool {
 ============================================================ */
 .hero-title {
   max-width: min(44ch, 100%);
-  font-size: clamp(1.4rem, 4.5vw, 2.2rem);
+  font: size 50px important;
   line-height: 1.1;
   font-weight: 900;
   white-space: normal;
@@ -730,7 +732,7 @@ html:not(.dark) .text-gradient-cool {
 
   .hero-title {
     max-width: 100%;
-    font-size: clamp(1.2rem, 7vw, 1.6rem);
+    font-size: 50px important;
   }
 
   .hero-copy {
@@ -842,7 +844,7 @@ html:not(.dark) .text-gradient-cool {
     0 20px 36px -20px rgba(99, 102, 241, 0.42),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
   font-weight: 700;
-  
+
   border: 1px solid rgba(255, 255, 255, 0.14);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1344,7 +1346,7 @@ html.dark .theme-primary-btn {
 }
 
 .section-header h2 {
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: 50px important;
   line-height: 0.98;
   font-weight: 800;
   text-wrap: balance;
@@ -1667,7 +1669,7 @@ html.dark .info-card-icon {
   font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
- 
+
 }
 
 .info-card-text {
@@ -1842,10 +1844,10 @@ html.dark .field select {
    FOOTER
 ============================================================ */
 .site-footer {
-  padding: clamp(1.6rem, 4vw, 2.9rem);
-  border-radius: 1.75rem;
-  margin-top: clamp(1rem, 3vw, 2rem);
-  margin-bottom: 1rem;
+    padding: 10px 20px;
+  border-radius: 1.25rem;
+  margin-top: 8px;
+  margin-bottom: 8px;
   background:
     radial-gradient(circle at 12% 10%, rgba(168, 85, 247, 0.10), transparent 24%),
     radial-gradient(circle at 88% 0%, rgba(6, 182, 212, 0.10), transparent 20%),
@@ -2565,7 +2567,7 @@ html.dark .live-chat-backdrop {
   color: var(--accent);
   font-size: 0.78rem;
   font-weight: 800;
- 
+
   text-transform: uppercase;
 }
 
@@ -2886,7 +2888,7 @@ html:not(.dark) .glass-panel-premium:hover {
 }
 
 html.dark .glass-panel-premium:hover {
-  background: rgba(18, 18, 38, 0.92);
+  background: linear-gradient(180deg, rgba(93, 74, 239, 0.12), rgba(255, 255, 255, 0.02));
   box-shadow: 0 24px 60px -34px rgba(139, 92, 246, 0.30), 0 0 0 1px rgba(139, 92, 246, 0.14);
 }
 
@@ -3158,112 +3160,156 @@ html.dark .accent-badge {
    CONSISTENT FONT SIZE REDUCTIONS
 ============================================================ */
 
-/* Make body text smaller - consistent reduction */
-body, p, li, .section-header p, .hero-copy {
-  font-size: 0.85rem;
+/* Base text */
+body,
+p,
+li,
+.section-header p,
+.hero-copy {
+  font-size: 16px;
+  line-height: 1.6;
 }
 
-/* Section headers - properly reduced */
+/* Section headings */
 .section-header h2 {
-  font-size: clamp(1.6rem, 3.5vw, 2.2rem) !important;
+  font-size: 52px !important;
+  line-height: 1.1;
+  font-weight: 800;
 }
 
-/* Cards - smaller but readable */
-.premium-card h3, .feature-tile h3, .process-card h3, .audience-card h3 {
-  font-size: 0.85rem !important;
+/* Cards */
+.premium-card h3,
+.feature-tile h3,
+.process-card h3,
+.audience-card h3 {
+  font-size: 20px !important;
+  font-weight: 700;
 }
 
-.premium-card p, .feature-tile p, .process-card p, .audience-card p {
-  font-size: 0.75rem !important;
+.premium-card p,
+.feature-tile p,
+.process-card p,
+.audience-card p {
+  font-size: 15px !important;
+  line-height: 1.6;
 }
 
-/* Keep a little space between each card title and paragraph */
+/* Card spacing */
 .premium-card h3 + p,
 .feature-tile h3 + p,
 .process-card h3 + p,
 .audience-card h3 + p {
-  margin-top: 0.35rem;
+  margin-top: 10px;
 }
 
-/* Buttons - smaller */
-.button-primary, .button-secondary {
-  font-size: 0.75rem !important;
-  padding: 0.5rem 1rem !important;
-  min-height: 2.4rem !important;
+/* Buttons */
+.button-primary,
+.button-secondary {
+  font-size: 15px !important;
+  padding: 12px 24px !important;
+  min-height: 48px !important;
 }
 
 /* Stats */
 .stat-value {
-  font-size: 1.2rem !important;
+  font-size: 28px !important;
+  font-weight: 800;
 }
 
 .stat-label {
-  font-size: 0.6rem !important;
+  font-size: 13px !important;
 }
 
 /* Trust pills */
 .inline-trust-pill {
-  font-size: 0.65rem !important;
-  padding: 0.3rem 0.6rem !important;
+  font-size: 13px !important;
+  padding: 8px 14px !important;
 }
 
 /* FAQ */
 .faq-button span {
-  font-size: 0.8rem !important;
+  font-size: 16px !important;
+  font-weight: 600;
 }
 
 .faq-content p {
-  font-size: 0.75rem !important;
+  font-size: 15px !important;
+  line-height: 1.7;
 }
 
 /* Footer */
-.site-footer, .footer-copy, .footer-links a, .footer-contact p {
-  font-size: 0.7rem !important;
+.site-footer,
+.footer-copy,
+.footer-links a,
+.footer-contact p {
+  font-size: 14px !important;
 }
 
 .footer-links h4 {
-  font-size: 0.7rem !important;
+  font-size: 16px !important;
+  font-weight: 700;
 }
 
 /* Forms */
 .field span {
-  font-size: 0.65rem !important;
+  font-size: 14px !important;
+  font-weight: 600;
 }
 
-.field input, .field textarea, .field select {
-  font-size: 0.75rem !important;
-  padding: 0.45rem 0.7rem !important;
+.field input,
+.field textarea,
+.field select {
+  font-size: 15px !important;
+  padding: 12px 16px !important;
 }
 
 /* Info cards */
 .info-card-title {
-  font-size: 0.6rem !important;
+  font-size: 13px !important;
+  font-weight: 600;
 }
 
 .info-card-text {
-  font-size: 0.75rem !important;
+  font-size: 15px !important;
 }
 
 .info-card-subtext {
-  font-size: 0.6rem !important;
+  font-size: 13px !important;
 }
 
-/* Dashboard elements */
+/* Dashboard */
 .dashboard-heading {
-  font-size: 1rem !important;
+  font-size: 24px !important;
+  font-weight: 700;
 }
 
 .metric-value {
-  font-size: 0.9rem !important;
+  font-size: 20px !important;
+  font-weight: 700;
 }
 
 .metric-card p {
-  font-size: 0.65rem !important;
+  font-size: 14px !important;
 }
 
-/* Navbar links */
-.navbar-coder a, .nav-link span {
-  font-size: 0.75rem !important;
+/* Navbar */
+.navbar-coder a,
+.nav-link span {
+  font-size: 13px !important;
+  font-weight: 500;
+}
+
+/* Hero Title */
+.hero-title {
+  font-size: 52px !important;
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+/* Hero Subtitle */
+.hero-copy {
+  font-size: 18px !important;
+  line-height: 1.7;
 }
 
 /* ============================================================
@@ -3360,7 +3406,7 @@ select,
 }
 
 /* Make modals less rounded */
-.fixed.inset-0 > div,
+.fixed.inset-0>div,
 .InvoicePreviewModal,
 [class*="modal"] {
   border-radius: 0.75rem !important;
