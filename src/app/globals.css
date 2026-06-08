@@ -1,5 +1,6 @@
-﻿@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 @import "./responsive-ever.css";
 
 
@@ -65,8 +66,8 @@ html.dark {
   color-scheme: dark;
 
   /* ── Premium Cinematic Dark Mode — Navy + Electric Purple + Cyan ── */
-  --background: #05050f;
-  --background-alt: #080812;
+  --background: #020617;
+  --background-alt: #0f172a;
   --foreground: #f0f2ff;
   --muted: #9499c4;
   --subtle-text: #6b709e;
@@ -127,11 +128,7 @@ html {
 }
 
 html.dark {
-  background:
-    radial-gradient(circle at 12% 10%, rgba(139, 92, 246, 0.18), transparent 26%),
-    radial-gradient(circle at 88% 16%, rgba(6, 182, 212, 0.10), transparent 22%),
-    radial-gradient(circle at 18% 88%, rgba(59, 130, 246, 0.08), transparent 24%),
-    #05050f;
+  background: #020617;
 }
 
 body {
@@ -154,7 +151,7 @@ body {
 }
 
 html.dark body {
-  background: #05050f;
+  background: #020617;
 }
 
 html:not(.dark) body {

@@ -382,12 +382,11 @@ export default function DongleIQLanding() {
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {valueProps.map((item, index) => (
-              <FeatureCard
+              <GlowingCard
                 key={item.title}
                 icon={item.icon}
                 title={item.title}
                 description={item.description}
-                colors={colors}
                 index={index}
               />
             ))}
@@ -416,15 +415,13 @@ export default function DongleIQLanding() {
 
             <div className="grid gap-4 md:grid-cols-2">
               {productFeatures.map((item, index) => (
-                <div
+                <GlowingCard
                   key={item.title}
-                  className=" without breaking anything__design color and all a"
-                  style={{ animationDelay: `${index * 80}ms` }}
-                >
-                  <div className="feature-icon">{item.icon}</div>
-                  <h3>{item.title}</h3>
-                  <p>{item.description}</p>
-                </div>
+                  icon={item.icon}
+                  title={item.title}
+                  description={item.description}
+                  index={index}
+                />
               ))}
             </div>
           </div>
@@ -452,15 +449,13 @@ export default function DongleIQLanding() {
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {applicationSteps.map((item, index) => (
-              <div
+              <GlowingCard
                 key={item.step}
-                className="process-card reveal-up"
-                style={{ animationDelay: `${index * 90}ms` }}
-              >
-                <div className="process-number">{item.step}</div>
-                <h3>{item.title}</h3>
-                <p>{item.description}</p>
-              </div>
+                icon={<span className="text-sm">{item.step}</span>}
+                title={item.title}
+                description={item.description}
+                index={index}
+              />
             ))}
           </div>
         </ScrollReveal>
@@ -482,7 +477,7 @@ export default function DongleIQLanding() {
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {audienceCards.map((item, index) => (
-              <AudienceCard
+              <GlowingCard
                 key={item.title}
                 icon={item.icon}
                 title={item.title}
@@ -755,39 +750,16 @@ function SectionHeader({
   );
 }
 
-function FeatureCard({
-  icon,
-  title,
-  description,
-  colors,
-  index,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  colors: ReturnType<typeof getThemePalette>;
-  index: number;
-}) {
-  return (
-    <div
-      className="premium-card glass-panel-premium reveal-up"
-      style={{ animationDelay: `${index * 80}ms` }}
-    >
-      <div
-        className="premium-card-icon"
-        style={{
-          backgroundColor: colors.accentSoft,
-        }}
-      >
-        {icon}
-      </div>
-      <h3>{title}</h3>
-      <p>{description}</p>
-    </div>
-  );
-}
+const glowColors = [
+  "bg-blue-500",
+  "bg-purple-500",
+  "bg-pink-500",
+  "bg-red-500",
+  "bg-orange-500",
+  "bg-yellow-500",
+];
 
-function AudienceCard({
+function GlowingCard({
   icon,
   title,
   description,
@@ -798,14 +770,24 @@ function AudienceCard({
   description: string;
   index: number;
 }) {
+  const glow = glowColors[index % glowColors.length];
+
   return (
     <div
-      className="audience-card glass-panel-premium reveal-up"
+      className="group relative h-full min-h-[240px] rounded-[24px] bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-white/[0.08] overflow-hidden transition-all duration-500 hover:border-slate-300 dark:hover:border-white/[0.15] hover:-translate-y-2 reveal-up"
       style={{ animationDelay: `${index * 75}ms` }}
     >
-      <div className="audience-icon">{icon}</div>
-      <h3>{title}</h3>
-      <p>{description}</p>
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-white/10 to-transparent opacity-50"></div>
+      <div className={`absolute -top-20 -right-20 w-80 h-80 rounded-full ${glow} opacity-[0.05] dark:opacity-[0.15] blur-[80px] group-hover:opacity-[0.1] dark:group-hover:opacity-25 transition-opacity duration-700`}></div>
+      <div className="relative z-10 p-6 flex flex-col h-full justify-between">
+        <div>
+          <div className="mb-4 w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center backdrop-blur-md group-hover:bg-slate-100 dark:group-hover:bg-white/10 transition-colors">
+            <div className="text-slate-600 dark:text-slate-200 flex items-center justify-center font-bold">{icon}</div>
+          </div>
+          <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-slate-100 tracking-wide">{title}</h3>
+          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed font-medium">{description}</p>
+        </div>
+      </div>
     </div>
   );
 }
