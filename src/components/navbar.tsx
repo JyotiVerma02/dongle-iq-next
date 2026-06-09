@@ -248,22 +248,22 @@ export default function Navbar() {
       }}
     >
       <div
-        className={`mx-auto flex w-full max-w-[1400px] items-center px-8 transition-all duration-300 ${
+        className={`mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 md:px-8 transition-all duration-300 ${
           scrolled ? "py-3" : "mt-5 py-2"
         }`}
       >
-        {" "}
-        <div className="w-[220px]  shrink-0 flex items-center justify-start gap-2">
+        <div className="lg:w-[220px] w-auto shrink-0 flex items-center justify-start gap-2">
           <Link href="/" className="transition-opacity hover:opacity-80">
             <BrandLogo size="md" />
           </Link>
         </div>
         <div
           className="
-    flex items-center justify-center
-    gap-16
+    hidden lg:flex items-center justify-center
+    gap-2 lg:gap-4 xl:gap-8
     h-14
-    w-[900px]
+    flex-1
+    mx-4
     rounded-full
     border
     backdrop-blur-xl
@@ -282,7 +282,7 @@ export default function Navbar() {
             <a
               key={item.label}
               href={item.href}
-              className="nav-link group relative px-4 py-2 text-[0.9rem] font-medium transition-colors"
+              className="nav-link group relative px-2 lg:px-3 xl:px-4 py-2 text-[0.9rem] font-medium transition-colors whitespace-nowrap"
               style={{ color: "var(--muted)" }}
             >
               <span
@@ -298,7 +298,7 @@ export default function Navbar() {
             </a>
           ))}
         </div>
-        <div className="w-[220px] shrink-0 flex items-center justify-end gap-2">
+        <div className="lg:w-[220px] w-auto shrink-0 flex items-center justify-end gap-1.5 sm:gap-2">
           {showAuthButtons ? (
             <button
               onClick={() => router.push(authAction.href)}
@@ -436,7 +436,7 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMenuOpen}
-            className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] md:hidden"
+            className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden"
             style={{
               backgroundColor: "var(--card)",
               borderColor: "var(--border-soft)",

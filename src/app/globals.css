@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap");
+﻿@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 @import "./responsive-ever.css";
@@ -692,7 +692,7 @@ html:not(.dark) .text-gradient-cool {
 ============================================================ */
 .hero-title {
   max-width: min(44ch, 100%);
-  font: size 50px important;
+  font-size: clamp(2rem, 5vw, 3.5rem);
   line-height: 1.1;
   font-weight: 900;
   white-space: normal;
@@ -729,7 +729,7 @@ html:not(.dark) .text-gradient-cool {
 
   .hero-title {
     max-width: 100%;
-    font-size: 50px important;
+    font-size: clamp(1.8rem, 8vw, 2.5rem);
   }
 
   .hero-copy {
@@ -738,7 +738,7 @@ html:not(.dark) .text-gradient-cool {
   }
 
   .hero-image-wrapper {
-    max-width: min(100%, 18rem);
+    max-width: min(100%, 26rem);
     margin-inline: auto;
   }
 
@@ -778,7 +778,7 @@ html:not(.dark) .text-gradient-cool {
   }
 
   .hero-image-wrapper {
-    max-width: min(100%, 24rem);
+    max-width: min(100%, 44rem);
     margin-inline: auto;
   }
 
@@ -1343,7 +1343,7 @@ html.dark .theme-primary-btn {
 }
 
 .section-header h2 {
-  font-size: 50px important;
+  font-size: clamp(2rem, 5vw, 3.5rem);
   line-height: 0.98;
   font-weight: 800;
   text-wrap: balance;
@@ -3163,7 +3163,7 @@ p,
 li,
 .section-header p,
 .hero-copy {
-  font-size: 16px;
+  font-size: 12px;
   line-height: 1.6;
 }
 

@@ -110,10 +110,10 @@ function RegisterContent() {
   return (
     <div
       suppressHydrationWarning
-      className="auth-page-shell theme-transition fixed inset-0 w-full overflow-x-hidden overflow-y-auto bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition relative w-full bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className="relative z-10 flex min-h-dvh w-full items-start justify-center px-4 py-6 sm:items-center sm:px-6 sm:py-8 lg:py-0">
+      <div className="relative z-10 flex min-h-[calc(100dvh-100px)] w-full items-start justify-center px-4 py-8 sm:items-center sm:px-6 sm:py-12 lg:py-16">
         <div className="content-container flex w-full items-center justify-center lg:justify-center lg:gap-6">
           <div
             className="hidden lg:flex lg:w-full lg:max-w-[24rem] lg:flex-col lg:justify-center lg:pr-4 xl:max-w-[34rem] xl:pr-6"
@@ -179,7 +179,7 @@ function RegisterContent() {
               />
 
               <div
-                className="auth-card shine-border relative w-full overflow-hidden p-4 shadow-2xl sm:p-5 md:p-6"
+                className="auth-card shine-border relative w-full overflow-hidden p-4 sm:p-5 shadow-2xl"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -207,7 +207,7 @@ function RegisterContent() {
                   </div>
                 )}
 
-                <form onSubmit={handleRegister} className="space-y-3 sm:space-y-3.5">
+                <form onSubmit={handleRegister} className="space-y-2.5 sm:space-y-3">
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
                       <input
@@ -215,7 +215,7 @@ function RegisterContent() {
                         placeholder="Enter first name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="glass-input w-full rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none"
+                        className="glass-input w-full rounded-lg border px-3 py-2 text-sm font-semibold outline-none"
                         style={{
                           backgroundColor: colors.input,
                           borderColor: colors.inputBorder,
@@ -229,7 +229,7 @@ function RegisterContent() {
                         placeholder="Enter last name"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className="glass-input w-full rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none"
+                        className="glass-input w-full rounded-lg border px-3 py-2 text-sm font-semibold outline-none"
                         style={{
                           backgroundColor: colors.input,
                           borderColor: colors.inputBorder,
@@ -246,7 +246,7 @@ function RegisterContent() {
                         placeholder="Enter email address"
                         value={email}
                         onChange={(e) => setEmail(e.target.value.toLowerCase())}
-                        className="glass-input w-full rounded-lg border py-2.5 pl-9 pr-3 text-sm font-semibold outline-none"
+                        className="glass-input w-full rounded-lg border py-2 pl-9 pr-3 text-sm font-semibold outline-none"
                         style={{
                           backgroundColor: colors.input,
                           borderColor: colors.inputBorder,
@@ -276,7 +276,7 @@ function RegisterContent() {
                         onChange={(e) =>
                           setNumber(sanitizeNumber(e.target.value))
                         }
-                        className="glass-input w-full rounded-lg border py-2.5 pl-9 pr-3 text-sm font-semibold outline-none"
+                        className="glass-input w-full rounded-lg border py-2 pl-9 pr-3 text-sm font-semibold outline-none"
                         style={{
                           backgroundColor: colors.input,
                           borderColor: colors.inputBorder,
@@ -294,7 +294,7 @@ function RegisterContent() {
                           placeholder="Create password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="glass-input w-full rounded-lg border px-3 py-2.5 pr-10 text-sm font-semibold outline-none"
+                          className="glass-input w-full rounded-lg border px-3 py-2 pr-10 text-sm font-semibold outline-none"
                           style={{
                             backgroundColor: colors.input,
                             borderColor: colors.inputBorder,
@@ -322,7 +322,7 @@ function RegisterContent() {
                           placeholder="Confirm password"
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
-                          className="glass-input w-full rounded-lg border px-3 py-2.5 pr-10 text-sm font-semibold outline-none"
+                          className="glass-input w-full rounded-lg border px-3 py-2 pr-10 text-sm font-semibold outline-none"
                           style={{
                             backgroundColor: colors.input,
                             borderColor: colors.inputBorder,
@@ -351,7 +351,7 @@ function RegisterContent() {
                   <button
                     disabled={loading}
                     type="submit"
-                    className="theme-primary-btn mt-1 flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+                    className="theme-primary-btn mt-1 flex w-full items-center justify-center gap-2 rounded-lg py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
                   >
                     {loading ? "Creating Account..." : "Register"}{" "}
                     <UserPlus size={16} />

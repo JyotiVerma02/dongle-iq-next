@@ -310,7 +310,7 @@ export default function DongleIQLanding() {
                 </div>
               </div>
 
-              <div className="hero-visual-block relative flex justify-center">
+              <div className="hero-visual-block relative flex justify-center mt-8 lg:mt-0">
                 <div className="relative w-full max-w-[1000px] lg:max-w-[1100px]">
                   <div className="hero-image-wrapper relative">
                     {/* Dark Image */}
@@ -320,7 +320,8 @@ export default function DongleIQLanding() {
                       width={1200}
                       height={800}
                       priority
-                      className="h-auto w-full scale-125 object-contain"
+                      unoptimized
+                      className="h-auto w-full object-contain"
                       style={{
                         display: isDarkMode ? "block" : "none",
                       }}
@@ -333,7 +334,8 @@ export default function DongleIQLanding() {
                       width={1200}
                       height={800}
                       priority
-                      className="h-auto w-full scale-125 object-contain"
+                      unoptimized
+                      className="h-auto w-full object-contain"
                       style={{
                         display: !isDarkMode ? "block" : "none",
                       }}
@@ -778,14 +780,22 @@ function GlowingCard({
       style={{ animationDelay: `${index * 75}ms` }}
     >
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-white/10 to-transparent opacity-50"></div>
-      <div className={`absolute -top-20 -right-20 w-80 h-80 rounded-full ${glow} opacity-[0.05] dark:opacity-[0.15] blur-[80px] group-hover:opacity-[0.1] dark:group-hover:opacity-25 transition-opacity duration-700`}></div>
+      <div
+        className={`absolute -top-20 -right-20 w-80 h-80 rounded-full ${glow} opacity-[0.05] dark:opacity-[0.15] blur-[80px] group-hover:opacity-[0.1] dark:group-hover:opacity-25 transition-opacity duration-700`}
+      ></div>
       <div className="relative z-10 p-6 flex flex-col h-full justify-between">
         <div>
           <div className="mb-4 w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center backdrop-blur-md group-hover:bg-slate-100 dark:group-hover:bg-white/10 transition-colors">
-            <div className="text-slate-600 dark:text-slate-200 flex items-center justify-center font-bold">{icon}</div>
+            <div className="text-slate-600 dark:text-slate-200 flex items-center justify-center font-bold">
+              {icon}
+            </div>
           </div>
-          <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-slate-100 tracking-wide">{title}</h3>
-          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed font-medium">{description}</p>
+          <h3 className="text-xl font-bold mb-2 text-slate-900 dark:text-slate-100 tracking-wide">
+            {title}
+          </h3>
+          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed font-medium">
+            {description}
+          </p>
         </div>
       </div>
     </div>

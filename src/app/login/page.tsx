@@ -106,10 +106,10 @@ function LoginContent() {
   return (
     <div
       suppressHydrationWarning
-      className="auth-page-shell theme-transition fixed inset-0 w-full overflow-x-hidden overflow-y-auto bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition relative w-full bg-transparent font-sans antialiased tracking-tight"
       style={{ color: colors.text }}
     >
-      <div className="relative z-10 flex min-h-dvh w-full items-center justify-center px-4 py-6 sm:px-6 sm:py-8 lg:py-0">
+      <div className="relative z-10 flex min-h-[calc(100dvh-100px)] w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:py-16">
         <div className="flex w-full max-w-6xl items-center justify-center lg:justify-center lg:gap-6">
           <div
             className="hidden lg:flex lg:w-full lg:max-w-[24rem] lg:flex-col lg:justify-center lg:pr-4 xl:max-w-[34rem] xl:pr-6"
@@ -173,7 +173,7 @@ function LoginContent() {
                 style={{ background: premiumGradient }}
               />
               <div
-                className="auth-card glass-panel-premium shine-border relative w-full overflow-hidden p-4 shadow-2xl sm:p-5 md:p-6"
+                className="auth-card glass-panel-premium shine-border relative w-full overflow-hidden p-4 sm:p-5 shadow-2xl"
                 style={{
                   backgroundColor: colors.card,
                   borderColor: colors.border,
@@ -230,21 +230,21 @@ function LoginContent() {
                   </div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-3.5">
+                <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3">
                   <div className="space-y-1.5">
-                    <label
+                    {/* <label
                       className="text-[10px] font-black uppercase tracking-[0.22em]"
                       style={{ color: colors.subtleText }}
                     >
                       Email Address
-                    </label>
+                    </label> */}
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value.toLowerCase())}
                       autoComplete="username"
                       placeholder="Enter email address"
-                      className="glass-input w-full rounded-lg border px-3 py-2.5 text-sm font-semibold outline-none"
+                      className="glass-input w-full rounded-lg border px-3 py-2 text-sm font-semibold outline-none"
                       style={{
                         backgroundColor: colors.input,
                         borderColor: colors.inputBorder,
@@ -254,12 +254,12 @@ function LoginContent() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label
+                    {/* <label
                       className="text-[10px] font-black uppercase tracking-[0.22em]"
                       style={{ color: colors.subtleText }}
                     >
                       Password
-                    </label>
+                    </label> */}
                     <div className="relative">
                       <input
                         type={showPassword ? "text" : "password"}
@@ -267,7 +267,7 @@ function LoginContent() {
                         onChange={(e) => setPassword(e.target.value)}
                         autoComplete="current-password"
                         placeholder="Enter password"
-                        className="glass-input w-full rounded-lg border px-3 py-2.5 pr-11 text-sm font-semibold outline-none"
+                        className="glass-input w-full rounded-lg border px-3 py-2 pr-11 text-sm font-semibold outline-none"
                         style={{
                           backgroundColor: colors.input,
                           borderColor: colors.inputBorder,
@@ -319,7 +319,7 @@ function LoginContent() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
                     style={{ backgroundColor: colors.accent }}
                   >
                     {loading ? "Signing In..." : "Sign In"} <LogIn size={16} />
