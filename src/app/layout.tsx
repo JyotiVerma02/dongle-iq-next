@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { cookies } from "next/headers";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Poppins } from "next/font/google";
 
-const plusJakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-poppins",
+  display: "swap",
+});
 
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeContext";
@@ -62,7 +67,7 @@ async function RootLayoutInner({
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
       </head>
-      <body suppressHydrationWarning className={`${plusJakarta.variable} font-sans antialiased`}>
+      <body suppressHydrationWarning className={`${poppins.variable} font-sans antialiased`}>
         <ThemeProvider initialTheme={initialTheme as "light" | "dark"}>
           <Providers>
             <AppShell>{children}</AppShell>

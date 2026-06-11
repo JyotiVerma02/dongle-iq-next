@@ -1,0 +1,46 @@
+BEGIN:VCALENDAR
+PRODID:-//Google Inc//Google Calendar 70.9054//EN
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VTIMEZONE
+TZID:Asia/Kolkata
+X-LIC-LOCATION:Asia/Kolkata
+BEGIN:STANDARD
+TZOFFSETFROM:+0530
+TZOFFSETTO:+0530
+TZNAME:GMT+5:30
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Kolkata:20260612T201500
+DTEND;TZID=Asia/Kolkata:20260612T203000
+DTSTAMP:20260611T070610Z
+ORGANIZER;CN=Vaishnavi Srivastava:mailto:vaishnavi.srivastava@eta.in
+UID:48krs972jfe9a1tnadpgfullt5@google.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=
+ TRUE;CN=jyotiverma.feb9@gmail.com;X-NUM-GUESTS=0:mailto:jyotiverma.feb9@gma
+ il.com
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=ACCEPTED;RSVP=TRUE
+ ;CN=Vaishnavi Srivastava;X-NUM-GUESTS=0:mailto:vaishnavi.srivastava@eta.in
+ATTENDEE;CUTYPE=INDIVIDUAL;ROLE=REQ-PARTICIPANT;PARTSTAT=NEEDS-ACTION;RSVP=
+ TRUE;CN=mannu@hrengage.ai;X-NUM-GUESTS=0:mailto:mannu@hrengage.ai
+X-GOOGLE-CONFERENCE:https://meet.google.com/shr-wmpv-dyb
+X-MICROSOFT-CDO-OWNERAPPTID:-888209772
+CREATED:20260611T070558Z
+DESCRIPTION:-::~:~::~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~
+ :~:~:~:~:~:~:~:~::~:~::-\nJoin with Google Meet: https://meet.google.com/sh
+ r-wmpv-dyb\nOr dial: (US) +1 260-333-9566 PIN: 543155123#\nMore phone numbe
+ rs: https://tel.meet/shr-wmpv-dyb?pin=8636664125522&hs=7\n\nLearn more abou
+ t Meet at: https://support.google.com/a/users/answer/9282720\n\nPlease do n
+ ot edit this section.\n-::~:~::~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:~:
+ ~:~:~:~:~:~:~:~:~:~:~:~:~:~::~:~::-
+LAST-MODIFIED:20260611T070608Z
+LOCATION:https://meet.google.com/shr-wmpv-dyb
+SEQUENCE:0
+STATUS:CONFIRMED
+SUMMARY:Jyoti Verma | Frontend Developer | L1
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR

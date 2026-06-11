@@ -250,23 +250,29 @@ function UserDashboardPage() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<{ _id: string; title: string; message: string; isRead?: boolean; type?: string; createdAt?: string }[]>([]);
 
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (signal?: AbortSignal) => {
     try {
-      const res = await fetch("/api/notifications");
+      const res = await fetch("/api/notifications", { signal });
       if (res.ok) {
         const data = await res.json();
         setUnreadCount(typeof data.unreadCount === "number" ? data.unreadCount : 0);
         setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      if (error.name !== "AbortError" && error.message !== "Failed to fetch") {
+        console.error(error);
+      }
     }
   }, []);
 
   const fetchUnreadCount = fetchNotifications;
 
   useEffect(() => {
-    fetchNotifications();
+    const controller = new AbortController();
+    fetchNotifications(controller.signal);
+    return () => {
+      controller.abort();
+    };
   }, [fetchNotifications]);
 
   const markNotificationRead = useCallback(async (notificationId: string) => {
@@ -455,16 +461,14 @@ function UserDashboardPage() {
         setPaymentSummary(null);
       }
     } catch (err: any) {
-      if (err.name !== "AbortError") {
+      if (err.name !== "AbortError" && err.message !== "Failed to fetch") {
         console.error("Failed to fetch user data:", err);
         // Only show error if we don't already have data
         if (!userData) {
-          setError(
-            err.message === "Failed to fetch" 
-              ? "Network connection interrupted. Please check your internet." 
-              : "Failed to load dashboard data."
-          );
+          setError("Failed to load dashboard data.");
         }
+      } else if (err.message === "Failed to fetch" && !userData) {
+        setError("Network connection interrupted. Please check your internet.");
       }
     } finally {
       if (!signal?.aborted) {

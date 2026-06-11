@@ -1,4 +1,4 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 @import "./responsive-ever.css";
 
@@ -138,7 +138,7 @@ body {
   padding: 0;
   overflow-x: hidden;
   color: var(--foreground);
- font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: poppins, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.5;
   background: var(--background);
   text-rendering: optimizeLegibility;
@@ -547,42 +547,15 @@ body>div:first-child,
 .hero-panel-inner {
   position: relative;
   z-index: 1;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   align-items: center;
-  gap: 1.5rem;
 }
 
-.hero-copy-block,
-.hero-visual-block {
+.hero-copy-block {
   min-width: 0;
-}
-
-.hero-visual-block {
   width: 100%;
-  max-width: 36rem;
-  justify-self: start;
-}
-
-.hero-image-wrapper {
-  width: 100%;
-}
-
-.hero-image-wrapper img {
-  width: 100%;
-  height: auto;
-}
-
-@media (min-width: 1024px) {
-  .hero-panel-inner {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    gap: clamp(1.75rem, 3vw, 3.25rem);
-  }
-
-  .hero-visual-block {
-    max-width: none;
-    justify-self: stretch;
-  }
 }
 
 .hero-panel-contained {
@@ -735,15 +708,6 @@ html:not(.dark) .text-gradient-cool {
     max-width: 34rem;
     font-size: 0.75rem;
   }
-
-  .hero-image-wrapper {
-    max-width: min(100%, 26rem);
-    margin-inline: auto;
-  }
-
-  .hero-image-wrapper img {
-    transform: scale(1) !important;
-  }
 }
 
 @media (min-width: 1024px) {
@@ -754,16 +718,6 @@ html:not(.dark) .text-gradient-cool {
 }
 
 @media (max-width: 1023px) {
-  .hero-panel-inner {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-copy-block,
-  .hero-visual-block {
-    max-width: 100%;
-    width: 100%;
-  }
-
   .hero-copy {
     max-width: 100%;
   }
@@ -774,15 +728,6 @@ html:not(.dark) .text-gradient-cool {
 
   .hero-title-line {
     white-space: normal;
-  }
-
-  .hero-image-wrapper {
-    max-width: min(100%, 44rem);
-    margin-inline: auto;
-  }
-
-  .hero-image-wrapper img {
-    transform: scale(1) !important;
   }
 }
 
@@ -1840,7 +1785,7 @@ html.dark .field select {
    FOOTER
 ============================================================ */
 .site-footer {
-    padding: 10px 20px;
+  padding: 10px 20px;
   border-radius: 1.25rem;
   margin-top: 8px;
   margin-bottom: 8px;
@@ -3168,7 +3113,7 @@ li,
 
 /* Section headings */
 .section-header h2 {
-  font-size: 48px !important;
+  font-size: 40px !important;
   line-height: 1.1;
   font-weight: 800;
 }
@@ -3191,10 +3136,10 @@ li,
 }
 
 /* Card spacing */
-.premium-card h3 + p,
-.feature-tile h3 + p,
-.process-card h3 + p,
-.audience-card h3 + p {
+.premium-card h3+p,
+.feature-tile h3+p,
+.process-card h3+p,
+.audience-card h3+p {
   margin-top: 10px;
 }
 
@@ -3203,7 +3148,7 @@ li,
 .button-secondary {
   font-size: 15px !important;
   padding: 12px 24px !important;
-  min-height: 48px !important;
+  min-height: 40px !important;
 }
 
 /* Stats */
@@ -3213,12 +3158,12 @@ li,
 }
 
 .stat-label {
-  font-size: 13px !important;
+  font-size: 10px !important;
 }
 
 /* Trust pills */
 .inline-trust-pill {
-  font-size: 13px !important;
+  font-size: 10px !important;
   padding: 8px 14px !important;
 }
 
@@ -3261,7 +3206,7 @@ li,
 
 /* Info cards */
 .info-card-title {
-  font-size: 13px !important;
+  font-size: 10px !important;
   font-weight: 600;
 }
 
@@ -3270,7 +3215,7 @@ li,
 }
 
 .info-card-subtext {
-  font-size: 13px !important;
+  font-size: 10px !important;
 }
 
 /* Dashboard */
@@ -3291,13 +3236,13 @@ li,
 /* Navbar */
 .navbar-coder a,
 .nav-link span {
-  font-size: 13px !important;
+  font-size: 10px !important;
   font-weight: 500;
 }
 
 /* Hero Title */
 .hero-title {
-  font-size: 48px !important;
+  font-size: 40px !important;
   line-height: 1.05;
   font-weight: 800;
 }

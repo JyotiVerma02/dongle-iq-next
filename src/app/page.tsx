@@ -248,120 +248,178 @@ export default function DongleIQLanding() {
       className="page-shell min-h-screen theme-transition"
       style={{ color: colors.text }}
     >
-      <section id="hero" className="section hero-section-full-bleed">
-        <div className="hero-shell-full-bleed">
-          <div className="container-shell pt-4 sm:pt-5 lg:pt-7 ">
-            <div className="hero-panel-inner">
-              <div className="hero-copy-block flex flex-col justify-center">
-                <div className="eyebrow-chip mb-6 self-start">
-                  <BadgeCheck size={14} />
-                  <span>
-                    A Trusted onboarding platform for DSC & IRCTC agents
-                  </span>
-                </div>
+      <section
+        id="hero"
+        className="relative overflow-hidden min-h-screen flex items-center"
+      >
+        {/* Background */}
+        <div className="absolute inset-0 z-0">
+          {/* Dark */}
+          <Image
+            src="/images/hero-dashboard.png"
+            alt=""
+            fill
+            priority
+            className={`object-cover transition-opacity duration-500 ${
+              isDarkMode ? "opacity-100" : "opacity-0"
+            }`}
+          />
 
-                <h1 className="hero-title">
-                  <span className="hero-title-line">
-                    Secure digital identity,
-                  </span>
-                  <span className="hero-title-line text-accent-soft">
-                    redesigned for{" "}
-                  </span>
-                  <span className="hero-title-line text-gradient-cool">
-                    speed and trust
-                  </span>
-                </h1>
+          {/* Light */}
+          <Image
+            src="/images/hero-dashboard-light.png"
+            alt=""
+            fill
+            priority
+            className={`object-cover transition-opacity duration-500 ${
+              isDarkMode ? "opacity-0" : "opacity-100"
+            }`}
+          />
+        </div>
 
-                <p className="hero-copy mt-6">
-                  DongleIQ accelerates agent onboarding with a streamlined
-                  application flow, enhanced verification UX, and a secure
-                  platform.
-                </p>
+        {/* Glow */}
+        <div
+          className="absolute left-[-200px] top-[120px] h-[700px] w-[700px] rounded-full blur-[180px]"
+          // style={{
+          //   background:
+          //     "radial-gradient(circle, rgba(139,92,246,0.25) 0%, transparent 70%)",
+          // }}
+        />
 
-                <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-                  <button
-                    onClick={() => router.push("/register")}
-                    className="button-primary group"
-                  >
-                    Start application
-                    <ArrowRight
-                      size={16}
-                      className="transition-transform duration-200 group-hover:translate-x-0.5"
-                    />
-                  </button>
-
-                  <a href="#contact" className="button-secondary">
-                    Request a custom quote
-                    <ChevronRight size={16} />
-                  </a>
-                </div>
-
-                <div className="mt-10 flex flex-wrap gap-4">
-                  {[
-                    "Fast onboarding",
-                    "Licensed trust flow",
-                    "Human support",
-                  ].map((item) => (
-                    <div key={item} className="inline-trust-pill">
-                      <CheckCircle2 size={14} className="text-accent-strong" />
-                      <span>{item}</span>
-                    </div>
-                  ))}
-                </div>
+        <div className="relative z-10 w-full">
+          <div className="mx-auto max-w-[1600px] px-6 lg:px-12">
+            <div className="py-10 flex flex-col items-center text-center">
+              {/* Badge */}
+              <div className="eyebrow-chip mb-8 inline-flex mx-auto">
+                {" "}
+                <BadgeCheck size={14} />
+                <span>
+                  A Trusted onboarding platform for DSC & IRCTC agents
+                </span>
               </div>
 
-              <div className="hero-visual-block relative flex justify-center mt-8 lg:mt-0">
-                <div className="relative w-full max-w-[1000px] lg:max-w-[1100px]">
-                  <div className="hero-image-wrapper relative">
-                    {/* Dark Image */}
-                    <Image
-                      src="/images/download.svg"
-                      alt="DongleIQ Dashboard"
-                      width={1200}
-                      height={800}
-                      priority
-                      unoptimized
-                      className="h-auto w-full object-contain"
-                      style={{
-                        display: isDarkMode ? "block" : "none",
-                      }}
-                    />
+              {/* Heading */}
+              <h1
+                className="
+    text-[50px]
+    md:text-[60px]
+    lg:text-[75px]
+  
+    font-black
+    leading-[0.92]
+    tracking-[-0.06em]
+    max-w-[1250px]
+    mx-auto
+    text-center
+  "
+              >
+                Secure digital identity,
+                <br />
+                redesigned for
+                <br />
+                <span
+                  style={{
+                    background:
+                      "linear-gradient(90deg,#38BDF8 0%,#67E8F9 40%,#818CF8 70%,#A855F7 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  {" "}
+                  speed and trust
+                </span>
+              </h1>
 
-                    {/* Light Image */}
-                    <Image
-                      src="/images/download light.svg"
-                      alt="DongleIQ Dashboard"
-                      width={1200}
-                      height={800}
-                      priority
-                      unoptimized
-                      className="h-auto w-full object-contain"
-                      style={{
-                        display: !isDarkMode ? "block" : "none",
-                      }}
-                    />
+              {/* Description */}
+              <p
+                className="
+            mt-8
+            max-w-[900px]
+            mx-auto
+            text-center
+            text-lg
+            md:text-xl
+            leading-9
+          "
+                style={{
+                  color: isDarkMode
+                    ? "rgba(255,255,255,.78)"
+                    : "rgba(15,23,42,.75)",
+                }}
+              >
+                DongleIQ accelerates agent onboarding with a streamlined
+                application flow, enhanced verification UX, Aadhaar eKYC, secure
+                document verification, and a modern trust-first platform built
+                for DSC and IRCTC partners.
+              </p>
+
+              {/* CTA */}
+              <div className="mt-12 flex flex-col gap-4 sm:flex-row justify-center items-center">
+                <button
+                  onClick={() => router.push("/register")}
+                  className="button-primary group"
+                >
+                  Start application
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform duration-200 group-hover:translate-x-1"
+                  />
+                </button>
+
+                <a href="#contact" className="button-secondary">
+                  Request a custom quote
+                  <ChevronRight size={18} />
+                </a>
+              </div>
+
+              {/* Trust Pills */}
+              <div className="mt-12 flex flex-wrap gap-4">
+                {[
+                  "Fast onboarding",
+                  "Licensed trust flow",
+                  "Human support",
+                ].map((item) => (
+                  <div key={item} className="inline-trust-pill">
+                    <CheckCircle2 size={14} className="text-accent-strong" />
+                    <span>{item}</span>
                   </div>
-                </div>
+                ))}
               </div>
-            </div>
 
-            <div className="mt-8 lg:mt-10">
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {trustMetrics &&
-                  trustMetrics.map((item, index) => (
-                    <div
-                      key={item.label}
-                      className="stat-surface reveal-up"
-                      style={{ animationDelay: `${index * 90}ms` }}
-                    >
-                      <div className="stat-value text-accent-strong">
+              {/* Stats Container */}
+              <div className="mt-10 rounded-[32px] backdrop-blur-xl p-6">
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+                  {trustMetrics.map((item, index) => (
+                    <div key={item.label} className="stat-surface">
+                      <div
+                        className="text-5xl font-extrabold"
+                        style={{
+                          color:
+                            index === 0
+                              ? "#A855F7"
+                              : index === 1
+                                ? "#38BDF8"
+                                : index === 2
+                                  ? "#67E8F9"
+                                  : "#84CC16",
+                        }}
+                      >
                         {item.value}
                       </div>
-                      <div className="stat-label mt-1 font-semibold uppercase tracking-wide">
+
+                      <div
+                        className="mt-2 text-sm uppercase tracking-wider"
+                        style={{
+                          color: isDarkMode
+                            ? "rgba(255,255,255,.65)"
+                            : "rgba(15,23,42,.65)",
+                        }}
+                      >
                         {item.label}
                       </div>
                     </div>
                   ))}
+                </div>
               </div>
             </div>
           </div>
