@@ -325,101 +325,118 @@ export default function Navbar() {
               Logout
             </button>
           ) : null}
-          <div className="relative hidden md:block">
+          {pathname === "/" && (
             <button
-              onClick={() => setNotificationOpen((prev) => !prev)}
-              aria-label="Open notifications"
-              aria-expanded={notificationOpen}
-              className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)]"
+              onClick={() => router.push("/register")}
+              className="hidden min-h-11 items-center gap-2 rounded-xl border px-4 text-[0.9rem] font-semibold sm:inline-flex"
               style={{
                 backgroundColor: "var(--card)",
                 borderColor: "var(--border-soft)",
+                color: "var(--foreground)",
               }}
             >
-              <Bell size={18} />
-
-              {unreadCount > 0 ? (
-                <span
-                  className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
-                  style={{ backgroundColor: "var(--accent)" }}
-                >
-                  {unreadCount}
-                </span>
-              ) : null}
+              <UserPlus size={16} />
+              Register
             </button>
+          )}
 
-            {notificationOpen ? (
-              <div
-                className="absolute right-0 top-14 z-50 w-80 rounded-xl border p-3 shadow-[0_24px_60px_-30px_var(--accent-shadow)]"
+          {pathname !== "/" && (
+            <div className="relative hidden md:block">
+              <button
+                onClick={() => setNotificationOpen((prev) => !prev)}
+                aria-label="Open notifications"
+                aria-expanded={notificationOpen}
+                className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)]"
                 style={{
                   backgroundColor: "var(--card)",
                   borderColor: "var(--border-soft)",
                 }}
               >
-                <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
-                  Notifications
-                </h3>
+                <Bell size={18} />
 
-                <div className="max-h-72 space-y-2 overflow-auto">
-                  {notifications.length === 0 ? (
-                    <p className="text-sm text-[var(--muted)]">
-                      No notifications
-                    </p>
-                  ) : (
-                    notifications.map((item) => (
-                      <div
-                        key={item._id}
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => markNotificationRead(item._id)}
-                        onKeyDown={(event) => {
-                          if (event.key === "Enter" || event.key === " ") {
-                            event.preventDefault();
-                            void markNotificationRead(item._id);
-                          }
-                        }}
-                        className={`cursor-pointer rounded-lg border p-2 transition-colors ${
-                          item.isRead ? "opacity-70" : "font-semibold"
-                        }`}
-                        style={{
-                          backgroundColor: item.isRead
-                            ? "transparent"
-                            : isRejectionNotification(item)
-                              ? "rgba(244,63,94,.08)"
-                              : "rgba(59,130,246,.08)",
-                          borderColor: isRejectionNotification(item)
-                            ? "rgba(244,63,94,.18)"
-                            : "var(--border-soft)",
-                        }}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <div
-                              className={`text-sm font-medium ${
-                                isRejectionNotification(item)
-                                  ? "text-rose-500"
-                                  : "text-[var(--foreground)]"
-                              }`}
-                            >
-                              {item.title}
+                {unreadCount > 0 ? (
+                  <span
+                    className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
+                    style={{ backgroundColor: "var(--accent)" }}
+                  >
+                    {unreadCount}
+                  </span>
+                ) : null}
+              </button>
+
+              {notificationOpen ? (
+                <div
+                  className="absolute right-0 top-14 z-50 w-80 rounded-xl border p-3 shadow-[0_24px_60px_-30px_var(--accent-shadow)]"
+                  style={{
+                    backgroundColor: "var(--card)",
+                    borderColor: "var(--border-soft)",
+                  }}
+                >
+                  <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
+                    Notifications
+                  </h3>
+
+                  <div className="max-h-72 space-y-2 overflow-auto">
+                    {notifications.length === 0 ? (
+                      <p className="text-sm text-[var(--muted)]">
+                        No notifications
+                      </p>
+                    ) : (
+                      notifications.map((item) => (
+                        <div
+                          key={item._id}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => markNotificationRead(item._id)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              void markNotificationRead(item._id);
+                            }
+                          }}
+                          className={`cursor-pointer rounded-lg border p-2 transition-colors ${
+                            item.isRead ? "opacity-70" : "font-semibold"
+                          }`}
+                          style={{
+                            backgroundColor: item.isRead
+                              ? "transparent"
+                              : isRejectionNotification(item)
+                                ? "rgba(244,63,94,.08)"
+                                : "rgba(59,130,246,.08)",
+                            borderColor: isRejectionNotification(item)
+                              ? "rgba(244,63,94,.18)"
+                              : "var(--border-soft)",
+                          }}
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <div
+                                className={`text-sm font-medium ${
+                                  isRejectionNotification(item)
+                                    ? "text-rose-500"
+                                    : "text-[var(--foreground)]"
+                                }`}
+                              >
+                                {item.title}
+                              </div>
+                              <div className="mt-1 text-xs leading-5 text-[var(--muted)]">
+                                {item.message}
+                              </div>
                             </div>
-                            <div className="mt-1 text-xs leading-5 text-[var(--muted)]">
-                              {item.message}
-                            </div>
+                            {isRejectionNotification(item) ? (
+                              <span className="shrink-0 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-rose-500">
+                                Rejected
+                              </span>
+                            ) : null}
                           </div>
-                          {isRejectionNotification(item) ? (
-                            <span className="shrink-0 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-rose-500">
-                              Rejected
-                            </span>
-                          ) : null}
                         </div>
-                      </div>
-                    ))
-                  )}
+                      ))
+                    )}
+                  </div>
                 </div>
-              </div>
-            ) : null}
-          </div>
+              ) : null}
+            </div>
+          )}
           <button
             onClick={toggleTheme}
             aria-label="Toggle theme"

@@ -247,8 +247,9 @@ function DongleIQForm() {
         addressSize: addressFile?.size,
       });
 
+      const isGuest = searchParams.get("guest") === "true";
       savePreviewDraft({ formData, files: { photo, idProof, addressProof } });
-      router.push("/preview");
+      router.push(isGuest ? "/preview?guest=true" : "/preview");
     } catch (error) {
       console.error("FILE PROCESS ERROR:", error);
       telemetry.captureError(error instanceof Error ? error : String(error), {

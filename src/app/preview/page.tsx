@@ -89,7 +89,12 @@ const handleConfirm = async () => {
 
     alert("Form submitted successfully.");
 
-    router.push("/user/dashboard?stage=payment");
+    const isGuest = new URLSearchParams(window.location.search).get("guest") === "true";
+    if (isGuest) {
+      router.push("/apply-dsc?guest_success=true");
+    } else {
+      router.push("/user/dashboard?stage=payment");
+    }
   } catch {
     alert("Could not submit the form. Please try again.");
   } finally {

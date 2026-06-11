@@ -250,7 +250,7 @@ export default function DongleIQLanding() {
     >
       <section
         id="hero"
-        className="relative overflow-hidden min-h-screen flex items-center"
+        className="relative overflow-hidden min-h-[90vh] md:min-h-screen flex pt-[100px] md:pt-[110px] pb-20"
       >
         {/* Background */}
         <div className="absolute inset-0 z-0">
@@ -288,7 +288,7 @@ export default function DongleIQLanding() {
 
         <div className="relative z-10 w-full">
           <div className="mx-auto max-w-[1600px] px-6 lg:px-12">
-            <div className="py-10 flex flex-col items-center text-center">
+            <div className="pt-0 pb-10 flex flex-col items-center text-center">
               {/* Badge */}
               <div className="eyebrow-chip mb-8 inline-flex mx-auto">
                 {" "}
@@ -356,10 +356,10 @@ export default function DongleIQLanding() {
               {/* CTA */}
               <div className="mt-12 flex flex-col gap-4 sm:flex-row justify-center items-center">
                 <button
-                  onClick={() => router.push("/register")}
+                  onClick={() => router.push("/apply-dsc")}
                   className="button-primary group"
                 >
-                  Start application
+                  Apply DSC
                   <ArrowRight
                     size={18}
                     className="transition-transform duration-200 group-hover:translate-x-1"
