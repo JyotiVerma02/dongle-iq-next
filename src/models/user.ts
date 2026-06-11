@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { Document } from "mongoose";
 import {
   encryptField,
   decryptField,
@@ -7,6 +8,10 @@ import {
 } from "@/lib/encryption";
 import { APPLICATION_STATUSES } from "@/lib/applicationWorkflow";
 import { ADMIN_ROLES } from "@/lib/adminRoles";
+export interface IUser extends Document {
+  pan?: string;
+  panHash?: string;
+}
 
 const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
 
@@ -17,21 +22,6 @@ const UserSchema = new mongoose.Schema(
       required: [true, "Name is required"],
       trim: true,
       minlength: 3,
-    },
-
-    email: {
-      type: String,
-      required: [true, "Email is required"],
-      unique: true,
-      lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, "Invalid email format"],
-    },
-
-    number: {
-      type: String,
-      required: [true, "Mobile number is required"],
-      unique: true,
-      match: [/^[6-9][0-9]{9}$/, "Mobile must be a valid 10 digit Indian number"],
     },
 
     password: {
@@ -47,13 +37,6 @@ const UserSchema = new mongoose.Schema(
     },
     createdById: { type: String },
     clientId: { type: String },
-    dscId: {
-      type: String,
-      unique: true,
-      sparse: true,
-      trim: true,
-      uppercase: true,
-    },
 
     isVerified: { type: Boolean, default: false },
     isAadhaarVerified: { type: Boolean, default: false },
@@ -64,26 +47,26 @@ const UserSchema = new mongoose.Schema(
       default: "pending",
     },
 
-    pan: {
-      type: String,
-      uppercase: true,
-      sparse: true,
-      trim: true,
-      validate: {
-        validator(value: string) {
-          if (!value) return true;
-          if (isEncrypted(value)) return true;
-          return PAN_REGEX.test(value);
-        },
-        message: "Invalid PAN format",
-      },
+   pan: {
+  type: String,
+  uppercase: true,
+  sparse: true,
+  trim: true,
+  validate: {
+    validator(value: string) {
+      if (!value) return true;
+      if (isEncrypted(value)) return true;
+      return PAN_REGEX.test(value);
     },
-    panHash: {
-      type: String,
-      unique: true,
-      sparse: true,
-      index: true,
-    },
+    message: "Invalid PAN format",
+  },
+},
+
+panHash: {
+  type: String,
+  index: true,
+  select: false,
+},
 
     gender: { type: String },
     dob: { type: String },
@@ -204,18 +187,18 @@ const UserSchema = new mongoose.Schema(
  */
 function safeDecryptPAN(encryptedPan: string | undefined): string | undefined {
   if (!encryptedPan) return encryptedPan;
-  
+
   try {
     // Check if it's already a valid PAN format (plain text)
     if (PAN_REGEX.test(encryptedPan)) {
       return encryptedPan;
     }
-    
+
     // Check if it's encrypted
     if (isEncrypted(encryptedPan)) {
       return decryptField(encryptedPan);
     }
-    
+
     // Return as-is if neither
     return encryptedPan;
   } catch (error) {
@@ -227,12 +210,12 @@ function safeDecryptPAN(encryptedPan: string | undefined): string | undefined {
 /**
  * Pre-save middleware: Encrypt sensitive fields before saving
  */
-UserSchema.pre("validate", async function () {
+UserSchema.pre<IUser>("validate", function () {
   try {
     if (this.pan) {
       // Get plain PAN safely
       let plainPan = this.pan;
-      
+
       // Only try to decrypt if it looks encrypted
       if (isEncrypted(this.pan)) {
         try {
@@ -242,10 +225,10 @@ UserSchema.pre("validate", async function () {
           // Keep as-is
         }
       }
-      
+
       // Create hash from plain PAN
       this.panHash = hashField(plainPan);
-      
+
       // Only encrypt if it's not already encrypted
       if (!isEncrypted(this.pan)) {
         this.pan = encryptField(plainPan);
@@ -263,8 +246,8 @@ UserSchema.pre("validate", async function () {
  * Transform function to safely handle decryption when sending data to client
  * This replaces the problematic post-find middleware
  */
-UserSchema.set('toJSON', {
-  transform: function(doc, ret) {
+UserSchema.set("toJSON", {
+  transform: function (doc, ret) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const r = ret as any;
     // Safely decrypt PAN when sending to client
@@ -281,25 +264,25 @@ UserSchema.set('toJSON', {
     delete r.resetToken;
     delete r.resetTokenExpiry;
     return r;
-  }
+  },
 });
 
-UserSchema.set('toObject', {
-  transform: function(doc, ret) {
+UserSchema.set("toObject", {
+  transform: function (doc, ret) {
     if (ret.pan) {
       ret.pan = safeDecryptPAN(ret.pan);
     }
     return ret;
-  }
+  },
 });
 
 // Add a method to manually decrypt PAN when needed
-UserSchema.methods.getDecryptedPAN = function() {
+UserSchema.methods.getDecryptedPAN = function () {
   return safeDecryptPAN(this.pan);
 };
 
 // Add a method to manually encrypt PAN
-UserSchema.methods.setEncryptedPAN = function(plainPAN: string) {
+UserSchema.methods.setEncryptedPAN = function (plainPAN: string) {
   if (!plainPAN) {
     this.pan = undefined;
     this.panHash = undefined;

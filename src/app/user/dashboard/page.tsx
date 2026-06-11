@@ -223,6 +223,7 @@ function UserDashboardPage() {
 
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
@@ -421,6 +422,7 @@ function UserDashboardPage() {
 
   const fetchUserData = useCallback(async (signal?: AbortSignal) => {
     try {
+      setError(null);
       const res = await fetch("/api/get-user-data", {
         cache: "no-store",
         signal,
@@ -452,10 +454,17 @@ function UserDashboardPage() {
         setUserData(null);
         setPaymentSummary(null);
       }
-    } catch (err: unknown) {
-      const error = err as Error;
-      if (error.name !== "AbortError") {
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
         console.error("Failed to fetch user data:", err);
+        // Only show error if we don't already have data
+        if (!userData) {
+          setError(
+            err.message === "Failed to fetch" 
+              ? "Network connection interrupted. Please check your internet." 
+              : "Failed to load dashboard data."
+          );
+        }
       }
     } finally {
       if (!signal?.aborted) {
@@ -2374,6 +2383,25 @@ function UserDashboardPage() {
   });
 
   let mainSections: ReactNode = null;
+  
+  if (error && !userData) {
+    mainSections = (
+      <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+        <div className="bg-rose-50 dark:bg-rose-500/10 p-4 rounded-full mb-4">
+          <AlertCircle size={32} className="text-rose-500" />
+        </div>
+        <h3 className="text-lg font-black uppercase tracking-tight mb-2">Connection Issue</h3>
+        <p className="text-sm font-semibold text-slate-500 max-w-xs mb-6">{error}</p>
+        <button 
+          onClick={() => { setLoading(true); void fetchUserData(); }}
+          className="theme-primary-btn px-6 py-2 rounded-lg text-xs font-black uppercase tracking-wider text-white"
+        >
+          Retry Connection
+        </button>
+      </div>
+    );
+  } else 
+
   if (!loading) {
     switch (view) {
       case "overview":
@@ -3320,4 +3348,3 @@ function FeeTooltip({
     </span>
   );
 }
-

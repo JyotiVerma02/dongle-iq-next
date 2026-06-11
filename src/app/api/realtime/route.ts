@@ -23,9 +23,21 @@ export async function GET(req: NextRequest) {
 
   const stream = new ReadableStream({
     start(controller) {
+      const intervalId = setInterval(() => {
+        try {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: "HEARTBEAT" })}\n\n`)
+          );
+        } catch {
+          clearInterval(intervalId);
+          clients.delete(controller);
+          try { controller.close(); } catch { /* ignore */ }
+        }
+      }, 15000);
+
       const clientInfo: RealtimeClient = {
         controller,
-        userId,
+        userId: userId || "anonymous",
         isAdmin,
       };
       
@@ -36,24 +48,13 @@ export async function GET(req: NextRequest) {
         encoder.encode(`data: ${JSON.stringify({ type: "CONNECTED" })}\n\n`)
       );
 
-      const intervalId = setInterval(() => {
-        try {
-          controller.enqueue(
-            encoder.encode(`data: ${JSON.stringify({ type: "HEARTBEAT" })}\n\n`)
-          );
-        } catch {
-          clearInterval(intervalId);
-          clients.delete(controller);
-        }
-      }, 15000);
-
       req.signal.addEventListener("abort", () => {
         clearInterval(intervalId);
         clients.delete(controller);
       });
     },
     cancel() {
-      // Stream canceled by client
+      // Fallback for stream cancellation
     },
   });
 
@@ -65,5 +66,3 @@ export async function GET(req: NextRequest) {
     },
   });
 }
-
-

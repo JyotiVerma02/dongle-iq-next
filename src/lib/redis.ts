@@ -76,6 +76,17 @@ if (!globalForRedis.__dongleIqRedis) {
   globalForRedis.__dongleIqRedis = redis;
 }
 
+// console.log("REDIS_URL =", process.env.REDIS_URL);
+
+// redis.on("connect", () => {
+//   console.log("✅ Redis CONNECTED");
+// });
+
+// redis.on("ready", () => {
+//   console.log("✅ Redis READY");
+// });
+
+
 redis.on("error", (err) => {
   console.log("Redis Error:", err);
 });

@@ -217,18 +217,21 @@ export async function proxy(request: NextRequest) {
   if (isPublicPath(pathname)) {
     // Rate limiting for sensitive endpoints
     if (pathname === "/api/login" || pathname === "/api/signup" || pathname === "/api/send-otp") {
-      if (isRateLimited(clientIp, 10,5 * 60 * 1000)) {
+      if (isRateLimited(clientIp, 10, 5 * 60 * 1000)) {
         return NextResponse.json(
           { message: "Too many requests. Try again later." },
           { status: 429 }
         );
-      }
+      } 
     }
     return NextResponse.next();
   }
 
   // ❌ Require authentication for protected routes
   if (!token) {
+    if (isApiPath(pathname)) {
+      return NextResponse.json({ message: "Authentication required" }, { status: 401 });
+    }
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -237,7 +240,10 @@ export async function proxy(request: NextRequest) {
 
   if (!decodedToken) {
     // Token is invalid or expired
-    const response = NextResponse.redirect(new URL("/login", request.url));
+    const response = isApiPath(pathname)
+      ? NextResponse.json({ message: "Invalid or expired token" }, { status: 401 })
+      : NextResponse.redirect(new URL("/login", request.url));
+      
     response.cookies.delete("token");
     return response;
   }
@@ -309,3 +315,5 @@ export const config = {
     "/api/:path*",
   ],
 };
+
+
