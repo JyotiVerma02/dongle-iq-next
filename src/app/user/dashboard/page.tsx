@@ -49,9 +49,6 @@ import {
   clearPreviewDraft,
   saveFormState,
 } from "@/lib/applicationPreview";
-import ApplicationForm, {
-  type ApplicationFormData,
-} from "@/components/ApplicationForm";
 import { calculatePricing } from "@/lib/pricing";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
@@ -124,7 +121,7 @@ type UserData = {
   estimatedTimeMinutes?: number;
 };
 
-const DEFAULT_FORM_VALUES: ApplicationFormData = {
+const DEFAULT_FORM_VALUES = {
   name: "",
   email: "",
   mobile: "",
@@ -225,7 +222,6 @@ function UserDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [formSubmitting, setFormSubmitting] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [view, setView] = useState<UserDashboardView>("overview");
   const [dashboardSearch, setDashboardSearch] = useState("");
@@ -710,6 +706,79 @@ function UserDashboardPage() {
     router.push(`/bank-telecom-form?mobile=${userData.number || ""}`);
   };
 
+  const handleStartFullApplication = () => {
+    if (!userData) {
+      return;
+    }
+
+    const pricing = calculatePricing({
+      certType: userData.certType || DEFAULT_FORM_VALUES.certType,
+      validity: userData.validity || DEFAULT_FORM_VALUES.validity,
+      tokenType: userData.tokenType || DEFAULT_FORM_VALUES.tokenType,
+      assistedService:
+        userData.assistedService || DEFAULT_FORM_VALUES.assistedService,
+    });
+
+    clearPreviewDraft();
+    sessionStorage.setItem(
+      APPLICATION_CONFIG_KEY,
+      JSON.stringify({
+        certificateClass:
+          userData.certificateClass || DEFAULT_FORM_VALUES.classType,
+        certType: userData.certType || DEFAULT_FORM_VALUES.certType,
+        validity: userData.validity || DEFAULT_FORM_VALUES.validity,
+        tokenType: userData.tokenType || DEFAULT_FORM_VALUES.tokenType,
+        assistedService:
+          userData.assistedService || DEFAULT_FORM_VALUES.assistedService,
+        price: String(
+          typeof userData.price === "number" && userData.price > 0
+            ? userData.price
+            : pricing.total,
+        ),
+        name: userData.name || "",
+        email: userData.email || "",
+        mobile: userData.number || "",
+      }),
+    );
+    saveFormState({
+      name: userData.name || "",
+      gender: userData.gender || "",
+      dob: userData.dob || "",
+      pan: userData.pan || "",
+      email: userData.email || "",
+      mobile: userData.number || "",
+      ekycId: userData.ekycId || "",
+      ekycPin: "",
+      bpCode: "",
+      address: userData.address || "",
+      pincode: userData.pincode || "",
+      city: userData.city || "",
+      state: userData.state || "",
+      certificateClass:
+        userData.certificateClass || DEFAULT_FORM_VALUES.classType,
+      tokenType: userData.tokenType || DEFAULT_FORM_VALUES.tokenType,
+      certType: userData.certType || DEFAULT_FORM_VALUES.certType,
+      validity: userData.validity || DEFAULT_FORM_VALUES.validity,
+      addressProof: "",
+      idProof: "",
+      bpAvailable: "Yes",
+      internalRemarks: "",
+      photo: "",
+      assistedService:
+        userData.assistedService || DEFAULT_FORM_VALUES.assistedService,
+      price: String(
+        typeof userData.price === "number" && userData.price > 0
+          ? userData.price
+          : pricing.total,
+      ),
+    });
+
+    if (userData.number) {
+      sessionStorage.setItem("verifiedMobile", userData.number);
+    }
+    router.push(`/bank-telecom-form?mobile=${userData.number || ""}`);
+  };
+
   const handleSidebarToggle = () => {
     if (typeof window !== "undefined" && window.innerWidth >= 1024) {
       setIsCollapsed((current) => !current);
@@ -921,31 +990,6 @@ function UserDashboardPage() {
 
   useUserKeyboardShortcuts(selectView, () => setIsShortcutsOpen(true));
 
-  const initialFormValues = useMemo<ApplicationFormData>(
-    () => ({
-      ...DEFAULT_FORM_VALUES,
-      name: userData?.name || "",
-      email: userData?.email || "",
-      mobile: userData?.number || "",
-      classType: userData?.certificateClass || DEFAULT_FORM_VALUES.classType,
-      certType: userData?.certType || DEFAULT_FORM_VALUES.certType,
-      validity: userData?.validity || DEFAULT_FORM_VALUES.validity,
-      tokenType: userData?.tokenType || DEFAULT_FORM_VALUES.tokenType,
-      assistedService:
-        userData?.assistedService || DEFAULT_FORM_VALUES.assistedService,
-    }),
-    [
-      userData?.name,
-      userData?.email,
-      userData?.number,
-      userData?.certificateClass,
-      userData?.certType,
-      userData?.validity,
-      userData?.tokenType,
-      userData?.assistedService,
-    ],
-  );
-
   const pricingPreview = useMemo(
     () =>
       calculatePricing({
@@ -968,50 +1012,6 @@ function UserDashboardPage() {
       : pricingPreview.total;
   const estimatedGst = Number(((baseSubtotal * 18) / 100).toFixed(2));
   const payableAmount = paymentSummary?.amount || baseSubtotal + estimatedGst;
-
-  const handleApplicationStart = async (
-    formData: ApplicationFormData & { totalAmount: number },
-  ) => {
-    try {
-      setFormSubmitting(true);
-      const response = await fetch("/api/create-application", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.message || "Could not start verification.");
-      }
-
-      sessionStorage.setItem(
-        APPLICATION_CONFIG_KEY,
-        JSON.stringify({
-          certificateClass: formData.classType,
-          certType: formData.certType,
-          validity: formData.validity,
-          tokenType: formData.tokenType,
-          assistedService: formData.assistedService,
-          price: String(formData.totalAmount),
-          name: formData.name,
-          email: formData.email,
-          mobile: formData.mobile,
-        }),
-      );
-      sessionStorage.setItem("userEmail", formData.email);
-      router.push(
-        formData.ekycType === "Aadhaar" ? "/verify-aadhaar" : "/verify",
-      );
-    } catch (err: unknown) {
-      const error = err as Error;
-      toast.error(error.message || "Failed to start verification.");
-      console.error(err);
-    } finally {
-      setFormSubmitting(false);
-    }
-  };
 
   const postSubmitLocked = (
     <div
@@ -1748,14 +1748,42 @@ function UserDashboardPage() {
         ) : null}
       </div>
     ) : (
-      <div className="ud-registration-scope">
-        <ApplicationForm
-          embedded
-          initialValues={initialFormValues}
-          submitLabel="Generate Application"
-          mode="client"
-          onSubmit={handleApplicationStart}
-        />
+      <div
+        className="shine-border theme-transition ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-6 shadow-[0_24px_80px_rgba(0,0,0,0.12)] sm:p-8"
+        style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
+      >
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl">
+            <p
+              className="text-[10px] font-black uppercase tracking-[0.24em]"
+              style={{ color: colors.accent }}
+            >
+              Start DSC application
+            </p>
+            <h3
+              className="mt-2 text-2xl font-black uppercase tracking-tight"
+              style={{ color: colors.text }}
+            >
+              Complete the full application form
+            </h3>
+            <p
+              className="mt-2 text-sm font-semibold leading-relaxed"
+              style={{ color: colors.muted }}
+            >
+              Use the same full DSC form for service details, personal
+              information, address, eKYC, and document upload.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleStartFullApplication}
+            className="theme-primary-btn theme-transition inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-white"
+          >
+            <FileText size={15} />
+            Open Full Form
+          </button>
+        </div>
       </div>
     );
 
@@ -2558,25 +2586,6 @@ function UserDashboardPage() {
         <div className="fixed top-0 left-0 right-0 z-[9999] flex items-center justify-center gap-2 bg-rose-600 px-4 py-2 text-center text-xs font-black uppercase tracking-wider text-white shadow-md animate-bounce">
           <span>⚠️</span>
           <span>You are currently offline. Check your connection.</span>
-        </div>
-      )}
-
-      {/* Form Submission Loading Backdrop */}
-      {formSubmitting && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-3 rounded-xl bg-white dark:bg-gray-900 p-6 shadow-2xl border border-gray-100 dark:border-gray-800">
-            <LoaderCircle
-              size={36}
-              className="animate-spin"
-              style={{ color: colors.accent }}
-            />
-            <p
-              className="text-xs font-black uppercase tracking-wider"
-              style={{ color: colors.text }}
-            >
-              Generating Application...
-            </p>
-          </div>
         </div>
       )}
 

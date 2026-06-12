@@ -4,7 +4,7 @@ import User from "@/models/user";
 import Admin from "@/models/admin";
 import { connectDB } from "@/lib/mongodb";
 import { migrateLegacyAdminUser } from "@/lib/admin";
-import { enforceRateLimit, getClientIp } from "@/lib/security";
+import { enforceRateLimit, getClientIp, verifyOtpHash } from "@/lib/security";
 import { ensureRedisConnected, redis } from "@/lib/redis";
 
 export async function POST(req: NextRequest) {
@@ -39,13 +39,13 @@ export async function POST(req: NextRequest) {
 
     const user = await User.findOne(
       { email: normalizedEmail },
-      { _id: 1, isVerified: 1 },
+      { _id: 1, isVerified: 1, otp: 1, otpExpiry: 1 },
     );
     const admin = user
       ? null
       : await Admin.findOne(
           { email: normalizedEmail },
-          { _id: 1, isVerified: 1 },
+          { _id: 1, isVerified: 1, otp: 1, otpExpiry: 1 },
         );
     const account = user || admin;
 
@@ -60,12 +60,22 @@ export async function POST(req: NextRequest) {
     await ensureRedisConnected();
     const storedOtp = await redis.get(`otp:${normalizedEmail}`);
 
-    if (!storedOtp) {
-      return NextResponse.json({ message: "OTP expired" }, { status: 400 });
+    let isValid = false;
+
+    if (storedOtp && storedOtp === normalizedOtp) {
+      isValid = true;
+    } else {
+      // Fallback to checking MongoDB
+      // Ensure we project otp and otpExpiry when finding user/admin
+      if (account.otp && account.otpExpiry && new Date() < new Date(account.otpExpiry)) {
+        if (verifyOtpHash(account.otp, normalizedOtp)) {
+          isValid = true;
+        }
+      }
     }
 
-    if (storedOtp !== normalizedOtp) {
-      return NextResponse.json({ message: "Invalid OTP" }, { status: 400 });
+    if (!isValid) {
+      return NextResponse.json({ message: "Invalid or expired OTP" }, { status: 400 });
     }
 
     const accountModel = user ? User : Admin;

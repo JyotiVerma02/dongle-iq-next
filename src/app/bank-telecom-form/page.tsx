@@ -3,7 +3,7 @@
 
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Moon, SunMedium } from "lucide-react";
+import { Eye, EyeOff, Moon, SunMedium } from "lucide-react";
 import {
   APPLICATION_CONFIG_KEY,
   fileToStoredFile,
@@ -101,6 +101,17 @@ function DongleIQForm() {
   const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const sectionGreen = "#ff6a00";
+  const fieldSurface = isDarkMode ? "#20283d" : colors.input;
+  const fieldBorder = isDarkMode ? "rgba(139, 92, 246, 0.55)" : colors.inputBorder;
+  const fieldText = isDarkMode ? "#ffffff" : colors.text;
+  const mutedFieldText = isDarkMode ? "#aeb8d4" : colors.muted;
+  const formShellStyle = {
+    backgroundColor: isDarkMode ? "#000000" : colors.panelStrong,
+    "--form-field-bg": fieldSurface,
+    "--form-field-border": fieldBorder,
+    "--form-field-text": fieldText,
+    "--form-field-muted": mutedFieldText,
+  } as React.CSSProperties;
 
   const photoRef = useRef<HTMLInputElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
@@ -265,7 +276,7 @@ function DongleIQForm() {
   return (
     <div
       className="flex min-h-screen w-full flex-col overflow-hidden p-2 md:p-4"
-      style={{ backgroundColor: isDarkMode ? "#000000" : colors.panelStrong }}
+      style={formShellStyle}
     >
       <form
         onSubmit={handleSubmit}
@@ -295,7 +306,7 @@ function DongleIQForm() {
             />
             <HeaderStat
               label="Price"
-              value={`?${formData.price}`}
+              value={`INR ${formData.price}`}
               color={colors.accent}
             />
           </div>
@@ -315,7 +326,7 @@ function DongleIQForm() {
         </header>
 
         <div className="flex flex-1 overflow-hidden">
-          <div className="grid w-full grid-cols-1 md:grid-cols-12 overflow-hidden">
+          <div className="grid w-full grid-cols-1 overflow-hidden md:grid-cols-12 md:items-start">
             {/* LEFT SIDE: Tightened spacing to prevent scrolling */}
             <section
               className="flex flex-col border-b md:col-span-8 md:border-b-0 md:border-r"
@@ -324,6 +335,68 @@ function DongleIQForm() {
               }}
             >
               <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4">
+                <div>
+                  <SectionHeader title="DSC Service Details" color={sectionGreen} />
+                  <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <ThemeSelect
+                      name="certificateClass"
+                      label="Certificate Class"
+                      options={["Class III"]}
+                      value={formData.certificateClass}
+                      onChange={handleChange}
+                      colors={colors}
+                    />
+                    <ThemeSelect
+                      name="certType"
+                      label="Service Type"
+                      options={["Signature", "Encryption", "Signing & Encryption"]}
+                      value={formData.certType}
+                      onChange={handleChange}
+                      colors={colors}
+                      required
+                    />
+                    <ThemeSelect
+                      name="validity"
+                      label="Validity"
+                      options={["1 Year", "2 Years", "3 Years"]}
+                      value={formData.validity}
+                      onChange={handleChange}
+                      colors={colors}
+                      required
+                    />
+                    <ThemeSelect
+                      name="tokenType"
+                      label="USB Token"
+                      options={["Not Required", "USB Token"]}
+                      value={formData.tokenType}
+                      onChange={handleChange}
+                      colors={colors}
+                    />
+                    <ThemeSelect
+                      name="assistedService"
+                      label="Assisted Service"
+                      options={["Not Required", "Required"]}
+                      value={formData.assistedService}
+                      onChange={handleChange}
+                      colors={colors}
+                    />
+                    <div
+                      className="flex min-h-9 items-center justify-between rounded-md border px-3 py-2"
+                      style={{
+                        backgroundColor: `${colors.accent}10`,
+                        borderColor: colors.inputBorder,
+                      }}
+                    >
+                      <div>
+                        <p className="text-[8px] font-black uppercase opacity-60">Total Price</p>
+                        <p className="text-sm font-black" style={{ color: colors.accent }}>
+                          INR {formData.price}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <SectionHeader
                     title="Personal Information"
@@ -391,9 +464,9 @@ function DongleIQForm() {
                         onChange={handleChange}
                         className="w-full rounded-md border px-3 py-2 text-[13px] font-bold outline-none"
                         style={{
-                          backgroundColor: colors.input,
-                          borderColor: colors.inputBorder,
-                          color: colors.text,
+                          backgroundColor: fieldSurface,
+                          borderColor: fieldBorder,
+                          color: fieldText,
                           minHeight: "50px",
                         }}
                       />
@@ -436,7 +509,7 @@ function DongleIQForm() {
                     />
                     <div className="w-full">
                       <Label text="eKYC PIN" colors={colors} required />
-                      <div className="flex h-9">
+                      <div className="flex h-10">
                         <input
                           name="ekycPin"
                           type={showPin ? "text" : "password"}
@@ -444,23 +517,24 @@ function DongleIQForm() {
                           onChange={handleChange}
                           className="w-full rounded-l-md border px-3 text-[13px] font-bold outline-none"
                           style={{
-                            backgroundColor: colors.input,
-                            borderColor: colors.inputBorder,
-                            color: colors.text,
+                            backgroundColor: fieldSurface,
+                            borderColor: fieldBorder,
+                            color: fieldText,
                           }}
                         />
                         <button
                           type="button"
                           onClick={() => setShowPin(!showPin)}
-                          className="rounded-r-md border border-l-0 px-3 text-[9px] font-black uppercase"
+                          className="flex h-10 w-11 shrink-0 items-center justify-center rounded-r-md border border-l-0 transition hover:brightness-110"
                           style={{
-                            borderColor: colors.inputBorder,
-                            backgroundColor: isDarkMode
-                              ? colors.panel
-                              : colors.border,
+                            borderColor: fieldBorder,
+                            backgroundColor: isDarkMode ? "#2a1f52" : colors.border,
+                            color: isDarkMode ? "#ffffff" : colors.text,
                           }}
+                          aria-label={showPin ? "Hide eKYC PIN" : "Show eKYC PIN"}
+                          title={showPin ? "Hide eKYC PIN" : "Show eKYC PIN"}
                         >
-                          {showPin ? "Hide" : "Show"}
+                          {showPin ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                       </div>
                     </div>
@@ -477,15 +551,15 @@ function DongleIQForm() {
                   : colors.accentSubtle,
               }}
             >
-              <div className="flex-1 overflow-y-auto no-scrollbar p-5 space-y-5">
+              <div className="p-5 space-y-5">
                 <SectionHeader title="Documents" color={sectionGreen} />
                 <div className="flex flex-col gap-3">
                   <div
                     onClick={() => photoRef.current?.click()}
-                    className="relative flex h-28 w-full cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed overflow-hidden"
+                    className="relative flex h-28 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-2 border-dashed transition hover:-translate-y-0.5"
                     style={{
                       borderColor: colors.accent,
-                      backgroundColor: colors.input,
+                      backgroundColor: isDarkMode ? `${colors.accent}12` : colors.input,
                     }}
                   >
                     <input
@@ -573,6 +647,7 @@ function DongleIQForm() {
                 className="border-t p-5"
                 style={{
                   borderColor: isDarkMode ? colors.inputBorder : colors.border,
+                  backgroundColor: isDarkMode ? colors.panelStrong : colors.card,
                 }}
               >
                 <button
@@ -604,7 +679,7 @@ function HeaderStat({
 }) {
   return (
     <div>
-      <p className="text-[7px] font-black uppercase opacity-40 leading-tight">
+      <p className="text-[7px] font-black uppercase opacity-65 leading-tight">
         {label}
       </p>
       <p className="text-[12px] font-bold" style={{ color }}>
@@ -637,7 +712,7 @@ function Label({
   htmlFor?: string;
 }) {
   return (
-    <label htmlFor={htmlFor} className="mb-1 block text-[9px] font-black uppercase opacity-60">
+    <label htmlFor={htmlFor} className="mb-1 block text-[9px] font-black uppercase opacity-80">
       {text} {required && <span style={{ color: colors.accent }}>*</span>}
     </label>
   );
@@ -651,11 +726,12 @@ function ThemeInput({ label, required, colors, muted, ...props }: InputProps) {
       <input
         {...props}
         id={inputId}
-        className="h-9 w-full rounded-md border px-3 text-[13px] font-bold outline-none"
+        className="h-10 w-full rounded-md border px-3 text-[13px] font-bold outline-none transition focus:ring-2"
         style={{
-          backgroundColor: colors.input,
-          borderColor: colors.inputBorder,
-          color: muted ? colors.muted : colors.text,
+          backgroundColor: "var(--form-field-bg)",
+          borderColor: "var(--form-field-border)",
+          color: muted ? "var(--form-field-muted)" : "var(--form-field-text)",
+          boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset",
         }}
       />
     </div>
@@ -676,12 +752,12 @@ function ThemeSelect({
       <select
         {...props}
         id={selectId}
-        className="h-9 w-full rounded-md border px-3 text-[13px] font-bold outline-none"
+        className="h-10 w-full rounded-md border px-3 text-[13px] font-bold outline-none transition focus:ring-2"
         style={{
-          backgroundColor: colors.input,
-
-          borderColor: colors.inputBorder,
-          color: colors.text,
+          backgroundColor: "var(--form-field-bg)",
+          borderColor: "var(--form-field-border)",
+          color: "var(--form-field-text)",
+          boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset",
         }}
       >
         {options.map((opt) => (
@@ -714,13 +790,14 @@ function FileBox({
       <Label text={label} colors={colors} />
       <div
         onClick={onClick}
-        className="flex h-10 w-full cursor-pointer items-center justify-between rounded-md border px-3"
+        className="flex h-12 w-full cursor-pointer items-center justify-between rounded-md border px-3 transition hover:-translate-y-0.5"
         style={{
-          borderColor: isResubmission && !file ? "rgba(244, 63, 94, 0.4)" : colors.inputBorder,
-          backgroundColor: isVerified && !file ? "rgba(16, 185, 129, 0.08)" : colors.input,
+          borderColor: isResubmission && !file ? "rgba(244, 63, 94, 0.55)" : colors.accent,
+          backgroundColor: isVerified && !file ? "rgba(16, 185, 129, 0.12)" : `${colors.accent}10`,
+          color: "var(--form-field-text)",
         }}
       >
-        <span className="truncate text-[9px] font-bold opacity-60">
+        <span className="truncate text-[10px] font-black opacity-80">
           {file ? file.name : isVerified ? "Existing file verified ✅" : "Choose File..."}
         </span>
         <span

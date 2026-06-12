@@ -36,12 +36,9 @@ export async function GET(req: NextRequest) {
       tokenPresent: true,
     });
 
-    const query = isAdmin 
+    const query = isAdmin
       ? { recipientType: "ADMIN" }
-      : { 
-          userId, 
-          $or: [{ recipientType: "USER" }, { recipientType: { $exists: false } }] 
-        };
+      : { recipientType: "USER", userId };
 
     const notifications = await Notification.find(query)
       .sort({ createdAt: -1 })

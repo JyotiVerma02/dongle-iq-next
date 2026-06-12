@@ -11,6 +11,8 @@ import {
   enforceRateLimit,
   generateNumericOtp,
   getClientIp,
+  hashOtp,
+  minutesFromNow,
 } from "@/lib/security";
 import { ensureRedisConnected, redis } from "@/lib/redis";
 
@@ -88,15 +90,26 @@ export async function POST(req: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const otp = generateNumericOtp();
-    await ensureRedisConnected();
-    await redis.set(`otp:${normalizedEmail}`, otp.toString(), { EX: 300 });
+    const otpExpiry = minutesFromNow(10);
+    const hashedOtpValue = hashOtp(otp);
 
+    // Save OTP to Redis (fast lookup, in-memory fallback in dev)
+    try {
+      await ensureRedisConnected();
+      await redis.set(`otp:${normalizedEmail}`, otp.toString(), { EX: 600 });
+    } catch (redisErr) {
+      console.warn("Redis OTP save failed, will use DB fallback:", redisErr);
+    }
+
+    // Save user with hashed OTP in MongoDB (persistent fallback for dev server restarts)
     const user = new User({
       name: String(name).trim(),
       email: normalizedEmail,
       number: normalizedNumber,
       password: hashedPassword,
       isVerified: false,
+      otp: hashedOtpValue,
+      otpExpiry,
     });
 
     await user.save();

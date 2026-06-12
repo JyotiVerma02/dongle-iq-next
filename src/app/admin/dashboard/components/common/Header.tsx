@@ -1,19 +1,10 @@
 import { Menu, Bell, ChevronDown, PanelLeft, PanelLeftClose, Search, Sun, Moon } from "lucide-react";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AdminProfile, DashboardView } from "../../types";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 import { getAdminRoleLabel } from "@/lib/adminRoles";
 import { useRealtimeEvents } from "@/lib/useRealtimeEvents";
-
-type NotificationItem = {
-  _id: string;
-  title: string;
-  message: string;
-  type?: string;
-  isRead?: boolean;
-  createdAt?: string;
-};
 
 interface HeaderProps {
   admin: AdminProfile | null;
@@ -23,8 +14,6 @@ interface HeaderProps {
   logout: () => void;
   onViewChange: (view: DashboardView) => void;
   unreadCount?: number;
-  notifications?: NotificationItem[];
-  markNotificationRead?: (notificationId: string) => void;
 }
 
 export function Header({
@@ -35,15 +24,11 @@ export function Header({
   logout,
   onViewChange,
   unreadCount = 0,
-  notifications = [],
-  markNotificationRead,
 }: HeaderProps) {
   const { isDarkMode, toggleTheme } = useTheme();
   const colors = getThemePalette(isDarkMode);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const notificationsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -52,27 +37,10 @@ export function Header({
       if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         setIsDropdownOpen(false);
       }
-
-      if (
-        notificationsRef.current &&
-        !notificationsRef.current.contains(target)
-      ) {
-        setIsNotificationsOpen(false);
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const isRejectionNotification = (item: NotificationItem) => {
-    const title = item.title.toLowerCase();
-    const message = item.message.toLowerCase();
-    return (
-      item.type === "rejection_reason" ||
-      title.includes("rejection") ||
-      message.includes("rejected")
-    );
-  };
 
   return (
     <header
@@ -143,11 +111,11 @@ export function Header({
       {/* Right side */}
       <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
         {/* Notification Bell */}
-        <div className="relative" ref={notificationsRef}>
+        <div className="relative">
           <button
             onClick={() => {
-              setIsNotificationsOpen((prev) => !prev);
               setIsDropdownOpen(false);
+              onViewChange("notifications");
             }}
             data-testid="header-notifications"
             className="relative flex h-9 w-9 items-center justify-center rounded-xl border transition-all hover:scale-105"
@@ -170,99 +138,6 @@ export function Header({
               </span>
             )}
           </button>
-
-          {isNotificationsOpen ? (
-            <div
-              className="absolute right-0 top-12 z-50 w-80 overflow-hidden rounded-xl border shadow-xl"
-              style={{
-                background: isDarkMode ? "#0c0e14" : "#ffffff",
-                borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
-                boxShadow: isDarkMode
-                  ? "0 28px 64px -20px rgba(0,0,0,0.8)"
-                  : "0 28px 64px -20px rgba(0,0,0,0.15)",
-              }}
-            >
-              <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" }}>
-                <h3 className="text-sm font-semibold" style={{ color: isDarkMode ? "#f8fafc" : "#0f172a" }}>
-                  Notifications
-                </h3>
-                <button
-                  onClick={() => {
-                    onViewChange("notifications");
-                    setIsNotificationsOpen(false);
-                  }}
-                  className="text-[11px] font-semibold transition-colors hover:opacity-80"
-                  style={{ color: isDarkMode ? "rgba(255,255,255,0.55)" : "#64748b" }}
-                >
-                  View all
-                </button>
-              </div>
-
-              <div className="max-h-80 overflow-auto">
-                {notifications.length === 0 ? (
-                  <div className="px-4 py-8 text-center">
-                    <p className="text-sm font-medium" style={{ color: isDarkMode ? "rgba(255,255,255,0.55)" : "#64748b" }}>
-                      No notifications
-                    </p>
-                  </div>
-                ) : (
-                  notifications.map((item) => (
-                    <button
-                      key={item._id}
-                      onClick={() => {
-                        if (!item.isRead && markNotificationRead) {
-                          void markNotificationRead(item._id);
-                        }
-                      }}
-                      className="flex w-full items-start gap-3 border-b px-4 py-3 text-left transition-colors hover:opacity-95"
-                      style={{
-                        borderColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
-                        backgroundColor: item.isRead
-                          ? "transparent"
-                          : isRejectionNotification(item)
-                            ? (isDarkMode ? "rgba(244,63,94,0.09)" : "rgba(244,63,94,0.05)")
-                            : (isDarkMode ? "rgba(255,106,0,0.08)" : "rgba(255,106,0,0.05)"),
-                      }}
-                    >
-                      <div className="mt-0.5 shrink-0">
-                        <div
-                          className="h-2.5 w-2.5 rounded-full"
-                          style={{
-                            backgroundColor: item.isRead
-                              ? (isRejectionNotification(item) ? "#fb7185" : (isDarkMode ? "rgba(255,255,255,0.25)" : "#cbd5e1"))
-                              : (isRejectionNotification(item) ? "#fb7185" : "#f97316"),
-                          }}
-                        />
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <p
-                            className={`text-xs leading-snug ${item.isRead ? "font-semibold" : "font-bold"}`}
-                            style={{
-                              color: isRejectionNotification(item)
-                                ? (isDarkMode ? "#fb7185" : "#e11d48")
-                                : (isDarkMode ? "#f8fafc" : "#0f172a"),
-                            }}
-                          >
-                            {item.title}
-                          </p>
-                          {isRejectionNotification(item) ? (
-                            <span className="shrink-0 rounded-full border border-rose-500/20 bg-rose-500/10 px-2 py-0.5 text-[9px] font-black uppercase tracking-wide text-rose-500">
-                              Rejected
-                            </span>
-                          ) : null}
-                        </div>
-                        <p className="mt-1 text-[11px] leading-snug" style={{ color: isDarkMode ? "rgba(255,255,255,0.55)" : "#64748b" }}>
-                          {item.message}
-                        </p>
-                      </div>
-                    </button>
-                  ))
-                )}
-              </div>
-            </div>
-          ) : null}
         </div>
 
         {/* Theme Toggle */}
