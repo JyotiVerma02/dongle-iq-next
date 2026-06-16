@@ -8,14 +8,12 @@ export async function GET(req: NextRequest) {
     await connectDB();
 
     const token = req.cookies.get("token")?.value;
-
-    if (!token) {
-      console.log("[notification:get] no token cookie found");
-      return NextResponse.json({
-        notifications: [],
-        unreadCount: 0,
-      });
-    }
+if (!token) {
+  return NextResponse.json({
+    notifications: [],
+    unreadCount: 0,
+  });
+}
 
     let decoded;
     try {

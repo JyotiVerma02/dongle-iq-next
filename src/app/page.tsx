@@ -245,12 +245,12 @@ export default function DongleIQLanding() {
 
   return (
     <main
-      className="page-shell min-h-screen theme-transition"
+      className="page-shell min-h-screen theme-transition !pt-0"
       style={{ color: colors.text }}
     >
       <section
         id="hero"
-        className="relative overflow-hidden min-h-[90vh] md:min-h-screen flex pt-[100px] md:pt-[110px] pb-20"
+        className="relative overflow-hidden flex items-start pt-8 md:pt-10 pb-4 md:pb-6"
       >
         {/* Background */}
         <div className="absolute inset-0 z-0">
@@ -260,7 +260,7 @@ export default function DongleIQLanding() {
             alt=""
             fill
             priority
-            className={`object-cover transition-opacity duration-500 ${
+            className={`object-cover object-top transition-opacity duration-500 ${
               isDarkMode ? "opacity-100" : "opacity-0"
             }`}
           />
@@ -271,7 +271,7 @@ export default function DongleIQLanding() {
             alt=""
             fill
             priority
-            className={`object-cover transition-opacity duration-500 ${
+            className={`object-cover object-top transition-opacity duration-500 ${
               isDarkMode ? "opacity-0" : "opacity-100"
             }`}
           />
@@ -288,9 +288,9 @@ export default function DongleIQLanding() {
 
         <div className="relative z-10 w-full">
           <div className="mx-auto max-w-[1600px] px-6 lg:px-12">
-            <div className="pt-0 pb-10 flex flex-col items-center text-center">
+            <div className="pt-0 pb-4 flex flex-col items-center text-center">
               {/* Badge */}
-              <div className="eyebrow-chip mb-8 inline-flex mx-auto">
+              <div className="eyebrow-chip mb-5 inline-flex mx-auto">
                 {" "}
                 <BadgeCheck size={14} />
                 <span>
@@ -333,7 +333,7 @@ export default function DongleIQLanding() {
               {/* Description */}
               <p
                 className="
-            mt-8
+            mt-5
             max-w-[900px]
             mx-auto
             text-center
@@ -354,7 +354,7 @@ export default function DongleIQLanding() {
               </p>
 
               {/* CTA */}
-              <div className="mt-12 flex flex-col gap-4 sm:flex-row justify-center items-center">
+              <div className="mt-7 flex flex-col gap-4 sm:flex-row justify-center items-center">
                 <button
                   onClick={() => router.push("/apply-dsc")}
                   className="button-primary group"
@@ -373,7 +373,7 @@ export default function DongleIQLanding() {
               </div>
 
               {/* Trust Pills */}
-              <div className="mt-12 flex flex-wrap gap-4">
+              <div className="mt-7 flex flex-wrap gap-4">
                 {[
                   "Fast onboarding",
                   "Licensed trust flow",
@@ -387,7 +387,7 @@ export default function DongleIQLanding() {
               </div>
 
               {/* Stats Container */}
-              <div className="mt-10 rounded-[32px] backdrop-blur-xl p-6">
+              <div className="mt-6 rounded-[32px] backdrop-blur-xl p-4 md:p-5">
                 <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
                   {trustMetrics.map((item, index) => (
                     <div key={item.label} className="stat-surface">
@@ -425,6 +425,9 @@ export default function DongleIQLanding() {
           </div>
         </div>
       </section>
+
+
+      
       <section id="whyus" className="section">
         <ScrollReveal className="container-shell">
           <SectionHeader

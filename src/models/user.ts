@@ -308,12 +308,11 @@ UserSchema.methods.setEncryptedPAN = function (plainPAN: string) {
 };
 
 // Create indexes for better performance
-UserSchema.index({ email: 1 });
-UserSchema.index({ number: 1 });
+
 UserSchema.index({ dscId: 1 });
 UserSchema.index({ status: 1 });
 UserSchema.index({ createdAt: -1 });
-UserSchema.index({ panHash: 1 });
+
 
 if (process.env.NODE_ENV !== "production" && mongoose.models.User) {
   mongoose.deleteModel("User");

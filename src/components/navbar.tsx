@@ -233,8 +233,10 @@ export default function Navbar() {
           ? isDarkMode
             ? "rgba(7,11,26,0.85)"
             : "rgba(255,255,255,0.85)"
-          : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
+          : isDarkMode
+            ? "linear-gradient(180deg, rgba(3,4,18,0.78), rgba(3,4,18,0))"
+            : "linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0))",
+        backdropFilter: scrolled ? "blur(20px)" : "blur(10px)",
         borderBottom: scrolled
           ? isDarkMode
             ? "1px solid rgba(255,255,255,0.08)"
@@ -249,7 +251,7 @@ export default function Navbar() {
     >
       <div
         className={`mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 md:px-8 transition-all duration-300 ${
-          scrolled ? "py-3" : "mt-5 py-2"
+          scrolled ? "py-2.5" : "py-3"
         }`}
       >
         <div className="lg:w-[220px] w-auto shrink-0 flex items-center justify-start gap-2">
@@ -261,7 +263,7 @@ export default function Navbar() {
           className="
     hidden lg:flex items-center justify-center
     gap-2 lg:gap-4 xl:gap-8
-    h-14
+    h-12
     flex-1
     mx-4
     rounded-full
@@ -302,7 +304,7 @@ export default function Navbar() {
           {showAuthButtons ? (
             <button
               onClick={() => router.push(authAction.href)}
-              className="hidden min-h-11 items-center gap-2 rounded-xl px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
+              className="hidden min-h-10 items-center gap-2 rounded-xl px-4 text-[0.9rem] font-semibold text-white sm:inline-flex"
               style={{
                 backgroundColor: "var(--accent)",
                 boxShadow: "0 18px 34px -22px var(--accent-shadow)",
@@ -315,7 +317,7 @@ export default function Navbar() {
           {showLogout ? (
             <button
               onClick={handleLogout}
-              className="hidden min-h-11 items-center gap-2 rounded-xl border px-4 text-[0.9rem] font-semibold sm:inline-flex"
+              className="hidden min-h-10 items-center gap-2 rounded-xl border px-4 text-[0.9rem] font-semibold sm:inline-flex"
               style={{
                 backgroundColor: "var(--card)",
                 borderColor: "var(--border-soft)",
@@ -328,7 +330,7 @@ export default function Navbar() {
           {pathname === "/" && (
             <button
               onClick={() => router.push("/register")}
-              className="hidden min-h-11 items-center gap-2 rounded-xl border px-4 text-[0.9rem] font-semibold sm:inline-flex"
+              className="hidden min-h-10 items-center gap-2 rounded-xl border px-4 text-[0.9rem] font-semibold sm:inline-flex"
               style={{
                 backgroundColor: "var(--card)",
                 borderColor: "var(--border-soft)",

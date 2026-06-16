@@ -59,20 +59,26 @@ export async function sendOtpViaSms(params: {
   otp: string;
   expiryMinutes?: number;
 }) {
+
+  console.log("\n================ OTP =================");
+  console.log("Mobile:", params.mobileNumber);
+  console.log("OTP:", params.otp);
+  console.log("======================================\n");
+
   if (!isSmsNotificationsEnabled()) {
     logSkipped("sms", "feature flag disabled");
     return { sent: false as const, channel: "sms" as const };
   }
 
-  const body = buildOtpSmsMessage(params.otp, params.expiryMinutes ?? 5);
+  const body = buildOtpSmsMessage(
+    params.otp,
+    params.expiryMinutes ?? 5
+  );
 
   if (!isMsg91SmsConfigured()) {
-    if (process.env.NODE_ENV !== "production") {
-      logger.info(`[SMS][DEV ONLY] OTP for ${params.mobileNumber}: ${params.otp}`);
-      return { sent: false as const, channel: "sms" as const };
-    }
+    logger.warn("[SMS] MSG91 SMS is not configured; OTP SMS was not sent");
 
-    throw new Error("MSG91 SMS is not configured");
+    return { sent: false as const, channel: "sms" as const };
   }
 
   const result = await sendSmsMessage({
@@ -80,7 +86,11 @@ export async function sendOtpViaSms(params: {
     body,
   });
 
-  return { sent: true as const, channel: "sms" as const, ...result };
+  return {
+    sent: true as const,
+    channel: "sms" as const,
+    ...result,
+  };
 }
 
 export async function sendStatusNotifications(params: {

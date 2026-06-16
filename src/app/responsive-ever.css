@@ -558,7 +558,7 @@ html.dark .ud-dashboard-root input::placeholder {
 /* Mobile fixes */
 @media (max-width: 768px) {
   .section {
-    padding-top: 2rem;
+    padding-top: 1rem;
   }
 
   .content-container {

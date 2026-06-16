@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     user.otpExpiry = otpExpiry;
     await user.save();
 
-    await sendOtpViaSms({
+    const smsResult = await sendOtpViaSms({
       mobileNumber: normalizedMobile,
       otp,
       expiryMinutes: 5,
@@ -80,14 +80,21 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "OTP sent successfully",
+      message: smsResult.sent
+        ? "OTP sent successfully"
+        : "OTP generated, but SMS is not configured. Please contact support.",
     });
   } catch (error) {
     console.error("Send OTP Error:", error);
 
+    const message =
+      error instanceof Error && error.message
+        ? error.message
+        : "Unable to send OTP. Please try again.";
+
     return NextResponse.json({
       success: false,
-      message: "Server Error",
+      message,
     }, { status: 500 });
   }
 }
