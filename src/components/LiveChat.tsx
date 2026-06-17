@@ -8,6 +8,8 @@ import {
   Send,
   X,
 } from "lucide-react";
+import { useTheme } from "@/components/ThemeContext";
+import { getThemePalette } from "@/lib/themePalette";
 
 type ChatRole = "user" | "support";
 
@@ -79,7 +81,9 @@ export default function LiveChat({
   initialMessages,
   onSendMessage,
 }: LiveChatProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([starterMessage]);
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
 
@@ -87,12 +91,7 @@ export default function LiveChat({
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
     if (open && initialMessages && initialMessages.length > 0) {
       setMessages(initialMessages);
       return;
@@ -109,19 +108,18 @@ export default function LiveChat({
 
       if (Array.isArray(parsed) && parsed.length > 0) {
         setMessages(parsed);
+      } else {
+        setMessages([starterMessage]);
       }
     } catch {
-      // Ignore invalid session state.
+      setMessages([starterMessage]);
     }
   }, [initialMessages, open, storageKey]);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
+    if (messages.length > 0) {
+      window.sessionStorage.setItem(storageKey, JSON.stringify(messages));
     }
-
-    window.sessionStorage.setItem(storageKey, JSON.stringify(messages));
   }, [messages, storageKey]);
 
   useEffect(() => {
@@ -214,7 +212,7 @@ export default function LiveChat({
 
   return (
     <div
-      className="live-chat-backdrop fixed inset-0 z-[999] flex items-end justify-end p-0 sm:p-6"
+      className="live-chat-backdrop fixed inset-0 z-[10000] flex items-end justify-end p-0 sm:p-6"
       onClick={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -223,24 +221,46 @@ export default function LiveChat({
     >
       <div
         ref={panelRef}
-        className="live-chat-panel relative z-[1000] flex h-dvh w-full flex-col overflow-hidden border text-(--foreground) shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(42rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
+        className="live-chat-panel relative z-[10001] flex h-dvh w-full flex-col overflow-hidden border text-(--foreground) shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(34rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
+        style={{
+          backgroundColor: colors.card,
+          borderColor: colors.border,
+          color: colors.text,
+        }}
       >
-        <div className="relative z-[1000] flex items-center justify-between border-b border-(--border-soft) bg-(--card) px-4 pb-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] sm:pt-3.5">
+        <div
+          className="relative z-[1000] flex items-center justify-between border-b px-4 pb-3.5 pt-[calc(env(safe-area-inset-top)+0.875rem)] sm:pt-3.5"
+          style={{
+            backgroundColor: colors.card,
+            borderColor: colors.borderSoft,
+          }}
+        >
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={onClose}
               aria-label="Go back"
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-(--border-soft) bg-(--background-alt) text-(--foreground) sm:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-full sm:hidden"
+              style={{
+                borderColor: colors.borderSoft,
+                backgroundColor: colors.panelStrong,
+                color: colors.text,
+              }}
             >
               <ChevronLeft size={20} />
             </button>
-            <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-2xl bg-(--accent-soft) text-(--accent)">
+            <div
+              className="hidden sm:flex h-10 w-10 items-center justify-center rounded-2xl"
+              style={{
+                backgroundColor: colors.accentSoft,
+                color: colors.accent,
+              }}
+            >
               <MessageSquare size={18} />
             </div>
             <div>
-              <p className="text-sm font-semibold">{title}</p>
-              <p className="text-xs text-(--muted)">Online now</p>
+              <p className="text-sm font-semibold" style={{ color: colors.text }}>{title}</p>
+              <p className="text-xs" style={{ color: colors.muted }}>Online now</p>
             </div>
           </div>
 
@@ -248,40 +268,89 @@ export default function LiveChat({
             type="button"
             onClick={onClose}
             aria-label="Close live chat"
-            className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full border border-(--border-soft) bg-(--card) text-(--foreground)"
+            className="hidden sm:flex h-10 w-10 items-center justify-center rounded-full"
+            style={{
+              borderColor: colors.borderSoft,
+              backgroundColor: colors.panelStrong,
+              color: colors.text,
+            }}
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="border-b border-(--border-soft) px-4 py-2.5 text-xs text-(--subtle-text)">
+        <div
+          className="border-b px-4 py-2.5 text-xs"
+          style={{
+            borderColor: colors.borderSoft,
+            color: colors.muted,
+            backgroundColor: colors.panel,
+          }}
+        >
           {messageCountLabel}
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <div className="space-y-3">
             {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.role === "user" ? "justify-end" : "justify-start"
-                }`}
-              >
+              <div key={message.id} className={`flex items-end gap-2 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                {message.role === "support" && (
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                    style={{
+                      backgroundColor: colors.accent,
+                      color: '#ffffff', // Fixed: Replaced colors.textContrast with explicit white
+                    }}
+                  >
+                    AI
+                  </div>
+                )}
                 <div
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 ${
+                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-6 shadow-md transition-all duration-300 ${
                     message.role === "user"
-                      ? "bg-(--accent) text-white"
-                      : "border border-(--border-soft) bg-(--card) text-(--foreground)"
+                      ? "rounded-br-none"
+                      : "border rounded-bl-none"
                   }`}
+                  style={{
+                    backgroundColor: message.role === "user" ? colors.accent : colors.panel,
+                    borderColor: colors.borderSoft, // Keep existing border color
+                    color: message.role === "user" ? '#ffffff' : colors.text, // Fixed: Replaced colors.textContrast with explicit white
+                  }}
                 >
                   {message.content}
+                  <p
+                    className={`mt-1 text-[10px] text-right ${
+                      message.role === "user" ? "text-white/70" : ""
+                    }`}
+                    style={{ color: message.role === "user" ? "rgba(255,255,255,0.7)" : colors.muted }}
+                  >
+                    {new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </p>
                 </div>
+                {message.role === "user" && (
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                    style={{
+                      backgroundColor: colors.accent, // Assuming primary is a good user color
+                      color: '#ffffff', // Fixed: Replaced colors.textContrast with explicit white
+                    }}
+                  >
+                    U
+                  </div>
+                )}
               </div>
             ))}
 
             {isSending ? (
               <div className="flex justify-start">
-                <div className="inline-flex items-center gap-2 rounded-2xl border border-(--border-soft) bg-(--card) px-3.5 py-2.5 text-sm text-(--muted)">
+                <div
+                  className="inline-flex items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-sm"
+                  style={{
+                    borderColor: colors.borderSoft,
+                    backgroundColor: colors.panel,
+                    color: colors.muted,
+                  }}
+                >
                   <LoaderCircle size={14} className="animate-spin" />
                   Support is typing...
                 </div>
@@ -292,7 +361,13 @@ export default function LiveChat({
           <div ref={bottomRef} />
         </div>
 
-        <div className="border-t border-(--border-soft) bg-(--card) p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:pb-4">
+        <div
+          className="border-t p-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] sm:pb-4"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.card,
+          }}
+        >
           <div className="flex items-center gap-2">
             <input
               ref={inputRef}
@@ -305,14 +380,23 @@ export default function LiveChat({
                 }
               }}
               placeholder="Type your message..."
-              className="live-chat-input h-12 flex-1 rounded-2xl border border-(--input-border) bg-(--input) px-4 text-sm outline-none"
+              className="live-chat-input h-12 flex-1 rounded-2xl border px-4 text-sm outline-none"
+              style={{
+                backgroundColor: colors.input,
+                borderColor: colors.inputBorder,
+                color: colors.text,
+              }}
             />
 
             <button
               type="button"
               onClick={() => void sendMessage()}
               disabled={isSending || !input.trim()}
-              className="flex h-12 w-12 items-center justify-center rounded-2xl bg-(--accent) text-white shadow-[0_16px_34px_-18px_var(--accent-shadow)] disabled:cursor-not-allowed disabled:opacity-55"
+              className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-[0_16px_34px_-18px_var(--accent-shadow)] disabled:cursor-not-allowed disabled:opacity-55"
+              style={{
+                backgroundColor: colors.accent,
+                color: '#ffffff', // Fixed: Replaced colors.textContrast with explicit white
+              }}
             >
               <Send size={16} />
             </button>

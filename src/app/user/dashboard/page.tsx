@@ -2728,8 +2728,8 @@ function UserDashboardPage() {
                 {/* Search Bar */}
                 <form
                   onSubmit={handleDashboardSearchSubmit}
-                  className="hidden w-80 max-w-full items-center gap-2 rounded-lg  bg-slate-50 px-3 py-1.5 text-xs text-slate-500 sm:flex"
-                >
+                  className="hidden w-80 max-w-full items-center gap-2 rounded-sm  bg-slate-50 px-3 py-1.5 text-xs text-slate-500 sm:flex"
+                 >
                   <Search size={14} className="mr-2 shrink-0 text-slate-400" />
                   <input
                     type="text"

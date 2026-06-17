@@ -3271,7 +3271,7 @@ li,
 }
 
 .info-card-text {
-  font-size: 15px !important;
+  font-size: 10px !important;
 }
 
 .info-card-subtext {
@@ -3946,7 +3946,7 @@ html:not(.dark) .section-contact-compact .contact-shell {
 
 .section-contact-compact .info-card-text {
   margin-top: 0.3rem !important;
-  font-size: clamp(1rem, 1.5vw, 1.18rem) !important;
+  /* font-size: clamp(1rem, 1.5vw, 1.18rem) !important; */
   line-height: 1.2 !important;
 }
 
@@ -3970,7 +3970,7 @@ html:not(.dark) .section-contact-compact .contact-shell {
 }
 
 .section-contact-compact .quote-intro h3 {
-  font-size: clamp(1.2rem, 1.8vw, 1.45rem) !important;
+  font-size: clamp(1.0rem, 1.5vw, 1.25rem) !important;
   line-height: 1.12 !important;
 }
 

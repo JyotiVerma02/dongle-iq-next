@@ -34,9 +34,6 @@ import LiveChat from "@/components/LiveChat";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 
-import { motion } from "framer-motion";
-import SpotlightCard from "@/components/ui/SpotlightCard";
-import MagneticButton from "@/components/ui/MagneticButton";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import Image from "next/image";
 
@@ -781,9 +778,14 @@ export default function DongleIQLanding() {
           type="button"
           onClick={() => setChatOpen(true)}
           aria-label="Open live support chat"
-          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-(--accent) text-white shadow-[0_16px_34px_-18px_var(--accent-shadow)] border border-white/10 hover:-translate-y-1 hover:brightness-110 transition-all duration-200"
+          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-(--accent) text-white shadow-[0_16px_34px_-18px_var(--accent-shadow)] border border-white/10 hover:-translate-y-1 hover:brightness-110 transition-all duration-200"
+          style={{
+            backgroundColor: colors.accent,
+            color: '#ffffff', // Fixed: Replaced colors.textContrast with explicit white
+            boxShadow: `0 16px 34px -18px ${colors.accentShadow}`
+          }}
         >
-          <MessageSquare size={24} />
+          <MessageSquare size={22} />
         </button>
       )}
       <LiveChat open={chatOpen} onClose={() => setChatOpen(false)} />
@@ -837,17 +839,17 @@ function GlowingCard({
 
   return (
     <div
-      className="group relative h-full min-h-[240px] rounded-[24px] bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-white/[0.08] overflow-hidden transition-all duration-500 hover:border-slate-300 dark:hover:border-white/[0.15] hover:-translate-y-2 reveal-up"
+      className="group relative h-full min-h-[240px] rounded-xl bg-white dark:bg-[#0B0F19] border border-slate-200 dark:border-white/[0.08] overflow-hidden transition-all duration-500 hover:border-slate-300 dark:hover:border-white/[0.15] hover:-translate-y-2 reveal-up"
       style={{ animationDelay: `${index * 75}ms` }}
     >
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-white/10 to-transparent opacity-50"></div>
-      <div
+      <div 
         className={`absolute -top-20 -right-20 w-80 h-80 rounded-full ${glow} opacity-[0.05] dark:opacity-[0.15] blur-[80px] group-hover:opacity-[0.1] dark:group-hover:opacity-25 transition-opacity duration-700`}
       ></div>
       <div className="relative z-10 p-6 flex flex-col h-full justify-between">
         <div>
-          <div className="mb-4 w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center backdrop-blur-md group-hover:bg-slate-100 dark:group-hover:bg-white/10 transition-colors">
-            <div className="text-slate-600 dark:text-slate-200 flex items-center justify-center font-bold">
+          <div className="mb-4 w-10 h-10 rounded-full bg-[var(--accent-soft)] dark:bg-[rgba(139,92,246,0.14)] text-[var(--accent)] dark:text-[#a78bfa] flex items-center justify-center transition-colors">
+            <div className="flex items-center justify-center font-bold">
               {icon}
             </div>
           </div>
