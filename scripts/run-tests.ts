@@ -1,4 +1,10 @@
 import { calculatePricing } from "../src/lib/pricing";
+import { validateStatusTransition } from "../src/lib/applicationWorkflow";
+import { hasAdminPermission } from "../src/lib/adminRoles";
+import { sortUserNotifications } from "../src/lib/userNotificationOrder";
+import { createAuditEntry } from "../src/lib/adminAudit";
+import { verifyWebhookSignature } from "../src/lib/razorpay";
+import crypto from "crypto";
 
 // Helper for testing
 let passedTests = 0;
@@ -149,6 +155,120 @@ describe("Integration Tests: User Application Lifecycle Simulation", () => {
     });
     expect(mockUser.status).toBe("issued");
     expect(mockUser.actionHistory.length).toBe(5);
+  });
+});
+
+describe("Workflow Tests: Status validation", () => {
+  it("should block approval when payment is pending", () => {
+    const result = validateStatusTransition(
+      {
+        status: "pending",
+        paymentStatus: "pending",
+        photo: true,
+        idProof: true,
+        addressProof: true,
+        pan: "ABCDE1234F",
+        address: "A",
+        city: "B",
+        state: "C",
+        pincode: "400001",
+        certificateClass: "Class III",
+        certType: "Signature",
+        validity: "2 Years",
+        tokenType: "USB Token",
+      },
+      "approved"
+    );
+
+    expect(result.ok).toBe(false);
+  });
+
+  it("should allow issue only after delivery", () => {
+    const result = validateStatusTransition(
+      {
+        status: "delivered",
+        paymentStatus: "paid",
+        photo: true,
+        idProof: true,
+        addressProof: true,
+        pan: "ABCDE1234F",
+        address: "A",
+        city: "B",
+        state: "C",
+        pincode: "400001",
+        certificateClass: "Class III",
+        certType: "Signature",
+        validity: "2 Years",
+        tokenType: "USB Token",
+      },
+      "issued"
+    );
+
+    expect(result.ok).toBe(true);
+  });
+});
+
+describe("Permission Tests: Admin roles", () => {
+  it("should let reviewer approve applications", () => {
+    expect(hasAdminPermission("reviewer", "review_application")).toBe(true);
+  });
+
+  it("should not let finance admin approve applications", () => {
+    expect(hasAdminPermission("finance_admin", "review_application")).toBe(false);
+  });
+});
+
+describe("Notification Ordering", () => {
+  it("should sort user notifications in workflow order", () => {
+    const sorted = sortUserNotifications([
+      { title: "DSC Ready", createdAt: "2026-06-18T10:00:00.000Z" },
+      { title: "Application Submitted", createdAt: "2026-06-18T13:00:00.000Z" },
+      { title: "Documents Verified", createdAt: "2026-06-18T11:00:00.000Z" },
+      { title: "Payment Successful", createdAt: "2026-06-18T12:00:00.000Z" },
+    ]);
+
+    expect(sorted.map((item) => item.title)).toEqual([
+      "Application Submitted",
+      "Payment Successful",
+      "Documents Verified",
+      "DSC Ready",
+    ]);
+  });
+});
+
+describe("Security Checks", () => {
+  it("should verify a valid Razorpay webhook signature", () => {
+    const secret = "test_webhook_secret";
+    const body = JSON.stringify({ event: "payment.captured" });
+    const signature = crypto
+      .createHmac("sha256", secret)
+      .update(body)
+      .digest("hex");
+
+    const previousSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    process.env.RAZORPAY_WEBHOOK_SECRET = secret;
+
+    try {
+      expect(verifyWebhookSignature(body, signature)).toBe(true);
+    } finally {
+      process.env.RAZORPAY_WEBHOOK_SECRET = previousSecret;
+    }
+  });
+
+  it("should normalize audit actor role", () => {
+    const entry = createAuditEntry({
+      action: "status_changed",
+      actor: {
+        id: "1",
+        name: "Admin",
+        email: "admin@example.com",
+        role: "superadmin",
+      },
+      fromStatus: "pending",
+      toStatus: "approved",
+    });
+
+    expect(entry.actorRole).toBe("super_admin");
   });
 });
 

@@ -83,7 +83,8 @@ export function Header({
 
         {/* Search Bar */}
         <div
-          className="hidden sm:flex items-center gap-2 rounded-lg border px-3 py-1.5 min-w-[240px] lg:min-w-[360px] xl:min-w-[420px] cursor-pointer"
+          onClick={() => document.dispatchEvent(new CustomEvent("open-command-palette"))}
+          className="hidden sm:flex items-center gap-2 rounded-lg border px-3 py-1.5 min-w-[240px] lg:min-w-[360px] xl:min-w-[420px] cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           style={{
             borderColor: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
             background: isDarkMode

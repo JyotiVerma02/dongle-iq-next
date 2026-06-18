@@ -1,4 +1,4 @@
-import { hasAdminPermission, type AdminRole } from "@/lib/adminRoles";
+import { hasAdminPermission, type AdminRole } from "./adminRoles";
 
 export const APPLICATION_STATUSES = [
   "pending",

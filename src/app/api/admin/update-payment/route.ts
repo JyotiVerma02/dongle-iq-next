@@ -180,10 +180,10 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
 
       const notification = await createUserNotification({
         userId: String(updatedUser._id),
-        title: "Payment Status Updated",
+        title: "Payment Successful",
         message:
           paymentStatus === "paid"
-            ? "Your payment has been marked as paid."
+            ? "Your payment was received successfully and your application will move to the next step."
             : `Your payment status is now ${paymentStatus}.`,
         type: "payment",
         metadata: {
@@ -194,8 +194,11 @@ const handler = async (req: NextRequest, decoded: { userId: string; role: string
       });
 
       await createAdminNotification({
-        title: "Admin updated payment status",
-        message: `${admin.name} marked ${updatedUser.name}'s payment as ${paymentStatus}.`,
+        title: paymentStatus === "paid" ? "Payment Received" : "Payment Status Updated",
+        message:
+          paymentStatus === "paid"
+            ? `${admin.name} received payment for ${updatedUser.name}.`
+            : `${admin.name} marked ${updatedUser.name}'s payment as ${paymentStatus}.`,
         type: "payment",
         metadata: {
           userId: String(updatedUser._id),

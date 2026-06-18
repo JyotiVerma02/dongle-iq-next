@@ -25,13 +25,6 @@ export async function POST(req: NextRequest) {
       markAll?: boolean;
     };
 
-    console.log("[notification:read] request", {
-      userId,
-      isAdmin,
-      notificationId,
-      markAll,
-    });
-
     if (!notificationId && !markAll) {
       return NextResponse.json(
         { success: false, message: "Notification ID or markAll is required" },
@@ -60,12 +53,6 @@ export async function POST(req: NextRequest) {
 
       const result = await Notification.findOneAndUpdate(query, {
         $set: { isRead: true },
-      });
-
-      console.log("[notification:read] update result", {
-        matched: Boolean(result),
-        userId,
-        notificationId,
       });
     }
 

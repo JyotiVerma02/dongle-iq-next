@@ -28,12 +28,6 @@ if (!token) {
     const userId = String(decoded.userId);
     const isAdmin = isAdminTokenPayload(decoded);
 
-    console.log("[notification:get] resolving notifications", {
-      userId,
-      isAdmin,
-      tokenPresent: true,
-    });
-
     const query = isAdmin
       ? { recipientType: "ADMIN" }
       : { recipientType: "USER", userId };
@@ -45,12 +39,6 @@ if (!token) {
     const unreadCount = await Notification.countDocuments({
       ...query,
       isRead: false,
-    });
-
-    console.log("[notification:get] query result", {
-      userId,
-      found: notifications.length,
-      unreadCount,
     });
 
     return NextResponse.json({

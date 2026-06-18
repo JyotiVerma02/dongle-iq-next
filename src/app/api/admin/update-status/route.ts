@@ -164,22 +164,53 @@ const handler = async (req: Request, decoded: AuthToken) => {
       remarks,
     });
 
-    const notification = await createUserNotification({
+    const userNotificationByStatus: Record<
+      string,
+      { title: string; message: string; type: string }
+    > = {
+      approved: {
+        title: "Documents Verified",
+        message:
+          "Your documents have been verified. Your application is approved and ready for the next step.",
+        type: "status_update",
+      },
+      rejected: {
+        title: "Action Required",
+        message: remarks || "Your application needs changes before approval.",
+        type: "rejection_reason",
+      },
+      dispatched: {
+        title: "Application Approved",
+        message:
+          "Your application has been approved and is now moving forward.",
+        type: "status_update",
+      },
+      delivered: {
+        title: "Application In Transit",
+        message:
+          "Your DSC application has been dispatched and is on the way.",
+        type: "status_update",
+      },
+      issued: {
+        title: "DSC Ready",
+        message:
+          "Your DSC has been generated successfully and is ready.",
+        type: "status_update",
+      },
+    };
+
+    const userNotification =
+      userNotificationByStatus[normalizedStatus] || {
+        title: "Application Status Updated",
+        message: `Your application status is now ${normalizedStatus}.`,
+        type: "status_update",
+      };
+
+    await createUserNotification({
       userId: user._id.toString(),
-      title:
-        normalizedStatus === "rejected"
-          ? "Application Rejection Reason"
-          : "Application Status Updated",
-      message:
-        normalizedStatus === "approved"
-          ? "Your application has been approved."
-          : normalizedStatus === "rejected"
-            ? remarks || "Your application was rejected."
-            : `Your application status is now ${normalizedStatus}.`,
-      type:
-        normalizedStatus === "rejected"
-          ? "rejection_reason"
-          : "status_update",
+      title: userNotification.title,
+      message: userNotification.message,
+      type: userNotification.type,
       metadata: {
         status: normalizedStatus,
         remarks,
@@ -188,8 +219,22 @@ const handler = async (req: Request, decoded: AuthToken) => {
     });
 
     await createAdminNotification({
-      title: "Admin updated application status",
-      message: `${adminUser.name} changed ${user.name}'s application status to ${normalizedStatus}.`,
+      title:
+        normalizedStatus === "issued"
+          ? "DSC Generated"
+          : normalizedStatus === "approved"
+            ? "Documents Verified"
+            : normalizedStatus === "rejected"
+              ? "Application Action Required"
+              : "Admin updated application status",
+      message:
+        normalizedStatus === "issued"
+          ? `${adminUser.name} generated the DSC for ${user.name}.`
+          : normalizedStatus === "approved"
+            ? `${adminUser.name} verified documents for ${user.name}.`
+            : normalizedStatus === "rejected"
+              ? `${adminUser.name} requested changes for ${user.name}.`
+              : `${adminUser.name} changed ${user.name}'s application status to ${normalizedStatus}.`,
       type: "status_update",
       metadata: {
         userId: user._id.toString(),

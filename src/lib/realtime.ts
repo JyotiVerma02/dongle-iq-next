@@ -24,7 +24,9 @@ export function broadcastRealtimeEvent(
   const payload = `data: ${JSON.stringify({ type, ...data })}\n\n`;
   const encodedPayload = encoder.encode(payload);
 
-  console.log("[realtime:broadcast]", { type, target, data, totalClients: clients.size });
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[realtime:broadcast]", { type, target, data, totalClients: clients.size });
+  }
 
   for (const [controller, client] of clients.entries()) {
     try {

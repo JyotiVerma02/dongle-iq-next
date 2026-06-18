@@ -111,6 +111,9 @@ panHash: {
     addressProof: { type: String },
     idProof: { type: String },
     photo: { type: String },
+    photoPublicId: { type: String },
+    idProofPublicId: { type: String },
+    addressProofPublicId: { type: String },
 
     internalRemarks: { type: String },
     remarksViewed: { type: Boolean, default: false },

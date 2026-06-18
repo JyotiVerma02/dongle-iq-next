@@ -455,7 +455,7 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMenuOpen}
-            className="nav-action flex h-11 w-11 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden"
+            className="nav-action flex  size-11 shrink-0  items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden"
             style={{
               backgroundColor: "var(--card)",
               borderColor: "var(--border-soft)",

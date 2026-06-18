@@ -1,4 +1,4 @@
-import { normalizeAdminRole, type AdminRole } from "@/lib/adminRoles";
+import { normalizeAdminRole, type AdminRole } from "./adminRoles";
 
 type Primitive = string | number | boolean | null | undefined;
 

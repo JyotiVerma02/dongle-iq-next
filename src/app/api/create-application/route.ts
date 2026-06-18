@@ -6,7 +6,7 @@ import { connectDB } from "@/lib/mongodb";
 import { calculatePricing } from "@/lib/pricing";
 import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { ADMIN_REPORTS_CACHE_KEY, invalidateUserDashboardCache, invalidateAdminUsersCache, invalidateCacheKey } from "@/lib/dashboardCache";
-import { createAdminNotification } from "@/lib/notifications";
+import { createAdminNotification, createUserNotification } from "@/lib/notifications";
 import { broadcastRealtimeEvent } from "@/lib/realtime";
 import User from "@/models/user";
 import { verifySessionToken } from "@/lib/auth";
@@ -82,19 +82,13 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      const decoded = await verifySessionToken(token) as DecodedToken;
-      console.log("DEBUG CREATE_APPLICATION:", {
-        decoded,
-        tokenExisted: !!token,
-        isAdminPayload: payload.isAdmin
-      });
+      const decoded = (await verifySessionToken(token)) as DecodedToken;
 
       targetUserId = decoded.userId;
       createdById = decoded.userId;
     }
 
     if (!targetUserId || !mongoose.Types.ObjectId.isValid(targetUserId)) {
-      console.log("DEBUG: Invalid or missing targetUserId:", targetUserId);
       return NextResponse.json(
         {
           success: false,
@@ -110,7 +104,6 @@ export async function POST(req: NextRequest) {
     });
 
     if (!existingUser) {
-      console.log("DEBUG: existingUser is null for targetUserId:", targetUserId);
       return NextResponse.json(
         {
           success: false,
@@ -166,23 +159,36 @@ export async function POST(req: NextRequest) {
     existingUser.createdById = createdById;
     existingUser.clientId = String(existingUser._id);
 
-try {
-  await existingUser.save();
-} catch (saveError) {
-  console.error("USER SAVE ERROR:", saveError);
+    try {
+      await existingUser.save();
+    } catch (saveError) {
+      console.error("USER SAVE ERROR:", saveError);
 
-  return NextResponse.json(
-    {
-      success: false,
-      message: "Database save failed",
-      error:
-        saveError instanceof Error
-          ? saveError.message
-          : "Unknown save error",
-    },
-      { status: 500 }
-  );
-}
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Database save failed",
+          error:
+            saveError instanceof Error
+              ? saveError.message
+              : "Unknown save error",
+        },
+        { status: 500 },
+      );
+    }
+
+    await createUserNotification({
+      userId: String(existingUser._id),
+      title: "Application Submitted",
+      message:
+        "Your application has been submitted successfully. We will review it and update you soon.",
+      type: "application",
+      metadata: {
+        userId: String(existingUser._id),
+        status: "pending",
+        createdBy: payload.isAdmin ? "admin" : "user",
+      },
+    });
 
     await createAdminNotification({
       title: "New DSC Application Submitted",

@@ -60,6 +60,8 @@ import { OverviewHeroShield } from "@/components/user-dashboard/OverviewHeroShie
 import { useUserKeyboardShortcuts } from "./hooks/useUserKeyboardShortcuts";
 import { ShortcutsModal } from "@/app/admin/dashboard/components/common/ShortcutsModal";
 import { useAuthGuard } from "@/hooks/useAuthGuard";
+import { sortUserNotifications } from "@/lib/userNotificationOrder";
+import { getDocumentRouteHref } from "@/lib/documentAccess";
 
 type PaymentSummary = {
   _id: string;
@@ -178,6 +180,7 @@ function hasCompletedApplication(user: UserData | null) {
     user.addressProof,
   );
 }
+
 export default function DashboardPage() {
   useAuthGuard();
 
@@ -186,8 +189,17 @@ export default function DashboardPage() {
       fallback={
         <div className="min-h-screen bg-[var(--background)] flex items-center justify-center">
           <div className="flex flex-col items-center gap-3">
-            <LoaderCircle size={36} className="animate-spin" style={{ color: "var(--accent)" }} />
-            <p className="text-sm font-semibold" style={{ color: "var(--muted)" }}>Loading dashboard...</p>
+            <LoaderCircle
+              size={36}
+              className="animate-spin"
+              style={{ color: "var(--accent)" }}
+            />
+            <p
+              className="text-sm font-semibold"
+              style={{ color: "var(--muted)" }}
+            >
+              Loading dashboard...
+            </p>
           </div>
         </div>
       }
@@ -196,7 +208,6 @@ export default function DashboardPage() {
     </Suspense>
   );
 }
-
 
 // export default function DSCRegistrationForm() {
 //   return (
@@ -244,15 +255,28 @@ function UserDashboardPage() {
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
   const [unreadCount, setUnreadCount] = useState(0);
-  const [notifications, setNotifications] = useState<{ _id: string; title: string; message: string; isRead?: boolean; type?: string; createdAt?: string }[]>([]);
+  const [notifications, setNotifications] = useState<
+    {
+      _id: string;
+      title: string;
+      message: string;
+      isRead?: boolean;
+      type?: string;
+      createdAt?: string;
+    }[]
+  >([]);
 
   const fetchNotifications = useCallback(async (signal?: AbortSignal) => {
     try {
       const res = await fetch("/api/notifications", { signal });
       if (res.ok) {
         const data = await res.json();
-        setUnreadCount(typeof data.unreadCount === "number" ? data.unreadCount : 0);
-        setNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+        setUnreadCount(
+          typeof data.unreadCount === "number" ? data.unreadCount : 0,
+        );
+        setNotifications(
+          Array.isArray(data.notifications) ? data.notifications : [],
+        );
       }
     } catch (error: any) {
       if (error.name !== "AbortError" && error.message !== "Failed to fetch") {
@@ -279,7 +303,9 @@ function UserDashboardPage() {
         body: JSON.stringify({ notificationId }),
       });
       setNotifications((prev) =>
-        prev.map((n) => (n._id === notificationId ? { ...n, isRead: true } : n))
+        prev.map((n) =>
+          n._id === notificationId ? { ...n, isRead: true } : n,
+        ),
       );
       setUnreadCount((prev) => Math.max(prev - 1, 0));
     } catch (error) {
@@ -301,11 +327,18 @@ function UserDashboardPage() {
     }
   }, []);
 
-  const isRejectionNotification = useCallback((item: { title: string; message: string; type?: string }) => {
-    const title = item.title.toLowerCase();
-    const message = item.message.toLowerCase();
-    return item.type === "rejection_reason" || title.includes("rejection") || message.includes("rejected");
-  }, []);
+  const isRejectionNotification = useCallback(
+    (item: { title: string; message: string; type?: string }) => {
+      const title = item.title.toLowerCase();
+      const message = item.message.toLowerCase();
+      return (
+        item.type === "rejection_reason" ||
+        title.includes("rejection") ||
+        message.includes("rejected")
+      );
+    },
+    [],
+  );
 
   const hasSubmittedApplication = hasCompletedApplication(userData);
   const applicationStatus = hasSubmittedApplication
@@ -1375,9 +1408,17 @@ function UserDashboardPage() {
             <div className="relative mt-6 grid grid-cols-5 gap-2">
               <div className="absolute top-5 left-6 right-6 z-0 hidden h-0 border-t border-dashed border-slate-200 md:block" />
               {[
-                { id: 1, label: "Personal Details", icon: <FileText size={14} /> },
+                {
+                  id: 1,
+                  label: "Personal Details",
+                  icon: <FileText size={14} />,
+                },
                 { id: 2, label: "Document Upload", icon: <Upload size={14} /> },
-                { id: 3, label: "Verification", icon: <ShieldCheck size={14} /> },
+                {
+                  id: 3,
+                  label: "Verification",
+                  icon: <ShieldCheck size={14} />,
+                },
                 { id: 4, label: "Review", icon: <Clock size={14} /> },
                 { id: 5, label: "Complete", icon: <CheckCircle2 size={14} /> },
               ].map((step) => {
@@ -1447,7 +1488,7 @@ function UserDashboardPage() {
                 </div>
                 <div className="text-left">
                   <h4 className="text-sm font-bold text-slate-800">
-                    Start your first application
+                    Apply for DSC Now{" "}
                   </h4>
                   <p className="mt-0.5 text-[11px] font-medium text-slate-500">
                     Submit your details to begin your DSC application journey.
@@ -1456,7 +1497,7 @@ function UserDashboardPage() {
               </div>
               <button
                 type="button"
-                onClick={() => selectView("registration")}
+          onClick={handleStartFullApplication}
                 className="ud-cta-gradient w-full shrink-0 cursor-pointer rounded-xl bg-gradient-to-r from-purple-600 via-violet-500 to-violet-600 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_4px_20px_rgba(124,58,237,0.35)] transition hover:brightness-110 active:scale-[0.98] sm:w-auto"
               >
                 Start Application &gt;
@@ -1668,14 +1709,36 @@ function UserDashboardPage() {
       )}
     </div>
   ) : (
-    <div
-      className="ud-surface ud-surface-glass rounded-xl border p-6 text-center sm:p-8"
-      style={{ backgroundColor: colors.card, borderColor: colors.border }}
-    >
-      <p className="text-sm font-semibold" style={{ color: colors.muted }}>
-        Sign in to load your profile overview. You can still start registration
-        below.
-      </p>
+    <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
+      <div className="max-w-2xl">
+        <p className="text-[10px] font-black uppercase tracking-[0.28em] text-orange-500">
+          Welcome
+        </p>
+        <h3 className="mt-2 text-2xl font-black tracking-tight text-slate-900">
+          Your dashboard is ready
+        </h3>
+        <p className="mt-3 max-w-xl text-sm leading-relaxed text-slate-500">
+          We could not load your profile data yet, so this page is showing a
+          safe empty state instead of a blank black overview. Submit your
+          application to unlock tracking, documents, payments, and DSC status.
+        </p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => selectView("registration")}
+            className="theme-primary-btn inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-xs font-black uppercase tracking-[0.18em] text-white"
+          >
+            Start Application
+          </button>
+          <button
+            type="button"
+            onClick={() => selectView("applications")}
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-2.5 text-xs font-black uppercase tracking-[0.18em] text-slate-700 transition hover:bg-slate-50"
+          >
+            View Applications
+          </button>
+        </div>
+      </div>
     </div>
   );
 
@@ -1750,9 +1813,12 @@ function UserDashboardPage() {
     ) : (
       <div
         className="shine-border theme-transition ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-6 shadow-[0_24px_80px_rgba(0,0,0,0.12)] sm:p-8"
-        style={{ backgroundColor: shellBackground, borderColor: strongBorderColor }}
+        style={{
+          backgroundColor: shellBackground,
+          borderColor: strongBorderColor,
+        }}
       >
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        {/* <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p
               className="text-[10px] font-black uppercase tracking-[0.24em]"
@@ -1783,7 +1849,7 @@ function UserDashboardPage() {
             <FileText size={15} />
             Open Full Form
           </button>
-        </div>
+        </div> */}
       </div>
     );
 
@@ -2128,21 +2194,21 @@ function UserDashboardPage() {
         <div className="mt-4 grid gap-3">
           <DocumentMeta
             label="Applicant Photo"
-            value={userData.photo}
+            value={getDocumentRouteHref(userData._id || "", "photo")}
             colors={colors}
             applicationStatus={applicationStatus}
             hasSubmittedApplication={hasSubmittedApplication}
           />
           <DocumentMeta
             label="Identity Proof"
-            value={userData.idProof}
+            value={getDocumentRouteHref(userData._id || "", "idProof")}
             colors={colors}
             applicationStatus={applicationStatus}
             hasSubmittedApplication={hasSubmittedApplication}
           />
           <DocumentMeta
             label="Address Proof"
-            value={userData.addressProof}
+            value={getDocumentRouteHref(userData._id || "", "addressProof")}
             colors={colors}
             applicationStatus={applicationStatus}
             hasSubmittedApplication={hasSubmittedApplication}
@@ -2182,7 +2248,10 @@ function UserDashboardPage() {
         >
           Dashboard
         </button>
-        <ChevronRight className="h-3 w-3 flex-shrink-0" style={{ color: colors.muted }} />
+        <ChevronRight
+          className="h-3 w-3 flex-shrink-0"
+          style={{ color: colors.muted }}
+        />
         <span style={{ color: colors.text }}>{title}</span>
       </nav>
       <p
@@ -2210,12 +2279,25 @@ function UserDashboardPage() {
   const applicationsPanel = cleanPanel({
     title: "My Applications",
     eyebrow: "Submitted DSC applications",
-    description: "Your submitted DSC application, review status, and payment progress stay here.",
+    description:
+      "Your submitted DSC application, review status, and payment progress stay here.",
     children: userData ? (
       <div className="ud-meta-grid">
-        <StatusMeta label="Application ID" value={userData._id?.slice(-6).toUpperCase() || "Not created"} colors={colors} />
-        <StatusMeta label="Type" value={userData.certType || "Not selected"} colors={colors} />
-        <StatusMeta label="Status" value={applicationStatus || "Not submitted"} colors={colors} />
+        <StatusMeta
+          label="Application ID"
+          value={userData._id?.slice(-6).toUpperCase() || "Not created"}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Type"
+          value={userData.certType || "Not selected"}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Status"
+          value={applicationStatus || "Not submitted"}
+          colors={colors}
+        />
         <StatusMeta label="Submitted" value={submittedOn} colors={colors} />
       </div>
     ) : null,
@@ -2224,13 +2306,30 @@ function UserDashboardPage() {
   const myDscPanel = cleanPanel({
     title: "My DSC",
     eyebrow: "Issued certificates",
-    description: "Issued certificate details will appear here after approval and issuance.",
+    description:
+      "Issued certificate details will appear here after approval and issuance.",
     children: (
       <div className="ud-meta-grid">
-        <StatusMeta label="Certificate" value={userData?.certType || "Not issued"} colors={colors} />
-        <StatusMeta label="Validity" value={userData?.validity || "Not available"} colors={colors} />
-        <StatusMeta label="Token" value={userData?.tokenType || "Not linked"} colors={colors} />
-        <StatusMeta label="Status" value={applicationStatus === "issued" ? "Issued" : "Pending issue"} colors={colors} />
+        <StatusMeta
+          label="Certificate"
+          value={userData?.certType || "Not issued"}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Validity"
+          value={userData?.validity || "Not available"}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Token"
+          value={userData?.tokenType || "Not linked"}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Status"
+          value={applicationStatus === "issued" ? "Issued" : "Pending issue"}
+          colors={colors}
+        />
       </div>
     ),
   });
@@ -2241,10 +2340,26 @@ function UserDashboardPage() {
     description: "Payment status, invoice, and Razorpay transaction details.",
     children: (
       <div className="ud-meta-grid">
-        <StatusMeta label="Payment Status" value={paymentSummary?.status || paymentStatus} colors={colors} />
-        <StatusMeta label="Amount" value={`INR ${payableAmount.toFixed(2)}`} colors={colors} />
-        <StatusMeta label="Invoice" value={paymentSummary?.invoiceNumber || "Pending"} colors={colors} />
-        <StatusMeta label="Razorpay ID" value={paymentSummary?.razorpayPaymentId || "Not available"} colors={colors} />
+        <StatusMeta
+          label="Payment Status"
+          value={paymentSummary?.status || paymentStatus}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Amount"
+          value={`INR ${payableAmount.toFixed(2)}`}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Invoice"
+          value={paymentSummary?.invoiceNumber || "Pending"}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Razorpay ID"
+          value={paymentSummary?.razorpayPaymentId || "Not available"}
+          colors={colors}
+        />
       </div>
     ),
   });
@@ -2265,21 +2380,35 @@ function UserDashboardPage() {
         >
           Dashboard
         </button>
-        <ChevronRight className="h-3 w-3 flex-shrink-0" style={{ color: colors.muted }} />
+        <ChevronRight
+          className="h-3 w-3 flex-shrink-0"
+          style={{ color: colors.muted }}
+        />
         <span style={{ color: colors.text }}>Notifications</span>
       </nav>
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: colors.muted }}>Account Updates</p>
-          <h2 className="text-lg font-black" style={{ color: colors.text }}>Notifications</h2>
+          <p
+            className="text-[9px] font-black uppercase tracking-[0.2em]"
+            style={{ color: colors.muted }}
+          >
+            Account Updates
+          </p>
+          <h2 className="text-lg font-black" style={{ color: colors.text }}>
+            Notifications
+          </h2>
         </div>
         {unreadCount > 0 && (
           <button
             type="button"
             onClick={() => void markAllRead()}
             className="rounded-lg border px-3 py-1.5 text-[11px] font-bold transition-all hover:opacity-80"
-            style={{ borderColor: colors.inputBorder, backgroundColor: colors.panelStrong, color: colors.accent }}
+            style={{
+              borderColor: colors.inputBorder,
+              backgroundColor: colors.panelStrong,
+              color: colors.accent,
+            }}
           >
             Mark all as read
           </button>
@@ -2299,22 +2428,35 @@ function UserDashboardPage() {
             >
               <Bell size={24} style={{ color: colors.muted }} />
             </div>
-            <p className="text-sm font-semibold" style={{ color: colors.muted }}>No notifications yet</p>
-            <p className="text-xs" style={{ color: colors.muted }}>You&apos;ll see application & payment updates here.</p>
+            <p
+              className="text-sm font-semibold"
+              style={{ color: colors.muted }}
+            >
+              No notifications yet
+            </p>
+            <p className="text-xs" style={{ color: colors.muted }}>
+              You&apos;ll see application & payment updates here.
+            </p>
           </div>
         ) : (
           <div className="divide-y" style={{ borderColor: colors.border }}>
-            {notifications.map((item) => (
+            {sortUserNotifications(notifications).map((item) => (
               <div
                 key={item._id}
-                onClick={() => { if (!item.isRead) void markNotificationRead(item._id); }}
+                onClick={() => {
+                  if (!item.isRead) void markNotificationRead(item._id);
+                }}
                 className="flex cursor-pointer items-start gap-3 px-4 py-3.5 transition-colors hover:opacity-90"
                 style={{
                   backgroundColor: item.isRead
                     ? "transparent"
                     : isRejectionNotification(item)
-                      ? (isDarkMode ? "rgba(244,63,94,0.09)" : "rgba(244,63,94,0.05)")
-                      : isDarkMode ? "rgba(249,115,22,0.07)" : "rgba(249,115,22,0.04)",
+                      ? isDarkMode
+                        ? "rgba(244,63,94,0.09)"
+                        : "rgba(244,63,94,0.05)"
+                      : isDarkMode
+                        ? "rgba(249,115,22,0.07)"
+                        : "rgba(249,115,22,0.04)",
                   borderLeft: isRejectionNotification(item)
                     ? "3px solid rgba(244,63,94,0.8)"
                     : "3px solid transparent",
@@ -2348,7 +2490,9 @@ function UserDashboardPage() {
                       className={`text-xs leading-snug ${item.isRead ? "font-semibold" : "font-bold"}`}
                       style={{
                         color: isRejectionNotification(item)
-                          ? (isDarkMode ? "#fb7185" : "#e11d48")
+                          ? isDarkMode
+                            ? "#fb7185"
+                            : "#e11d48"
                           : colors.text,
                       }}
                     >
@@ -2360,12 +2504,24 @@ function UserDashboardPage() {
                       </span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-[11px] leading-snug" style={{ color: colors.muted }}>
+                  <p
+                    className="mt-0.5 text-[11px] leading-snug"
+                    style={{ color: colors.muted }}
+                  >
                     {item.message}
                   </p>
                   {item.createdAt && (
-                    <p className="mt-1 text-[10px]" style={{ color: colors.muted }}>
-                      {new Date(item.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    <p
+                      className="mt-1 text-[10px]"
+                      style={{ color: colors.muted }}
+                    >
+                      {new Date(item.createdAt).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   )}
                 </div>
@@ -2385,13 +2541,15 @@ function UserDashboardPage() {
   const supportPanel = cleanPanel({
     title: "Support Tickets",
     eyebrow: "Customer support",
-    description: "Support ticket creation is not connected yet. Use live chat for help right now.",
+    description:
+      "Support ticket creation is not connected yet. Use live chat for help right now.",
   });
 
   const irctcPanel = cleanPanel({
     title: "IRCTC Agents",
     eyebrow: "IRCTC registrations",
-    description: "IRCTC agent registrations are not connected for this account yet.",
+    description:
+      "IRCTC agent registrations are not connected for this account yet.",
   });
 
   const profileSettingsPanel = cleanPanel({
@@ -2400,10 +2558,26 @@ function UserDashboardPage() {
     description: "Your core account details.",
     children: (
       <div className="ud-meta-grid">
-        <StatusMeta label="Name" value={userData?.name || "Not added"} colors={colors} />
-        <StatusMeta label="Email" value={userData?.email || "Not added"} colors={colors} />
-        <StatusMeta label="Mobile" value={userData?.number || "Not added"} colors={colors} />
-        <StatusMeta label="Aadhaar" value={userData?.isAadhaarVerified ? "Verified" : "Not verified"} colors={colors} />
+        <StatusMeta
+          label="Name"
+          value={userData?.name || "Not added"}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Email"
+          value={userData?.email || "Not added"}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Mobile"
+          value={userData?.number || "Not added"}
+          colors={colors}
+        />
+        <StatusMeta
+          label="Aadhaar"
+          value={userData?.isAadhaarVerified ? "Verified" : "Not verified"}
+          colors={colors}
+        />
       </div>
     ),
   });
@@ -2415,26 +2589,31 @@ function UserDashboardPage() {
   });
 
   let mainSections: ReactNode = null;
-  
+
   if (error && !userData) {
     mainSections = (
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
         <div className="bg-rose-50 dark:bg-rose-500/10 p-4 rounded-full mb-4">
           <AlertCircle size={32} className="text-rose-500" />
         </div>
-        <h3 className="text-lg font-black uppercase tracking-tight mb-2">Connection Issue</h3>
-        <p className="text-sm font-semibold text-slate-500 max-w-xs mb-6">{error}</p>
-        <button 
-          onClick={() => { setLoading(true); void fetchUserData(); }}
+        <h3 className="text-lg font-black uppercase tracking-tight mb-2">
+          Connection Issue
+        </h3>
+        <p className="text-sm font-semibold text-slate-500 max-w-xs mb-6">
+          {error}
+        </p>
+        <button
+          onClick={() => {
+            setLoading(true);
+            void fetchUserData();
+          }}
           className="theme-primary-btn px-6 py-2 rounded-lg text-xs font-black uppercase tracking-wider text-white"
         >
           Retry Connection
         </button>
       </div>
     );
-  } else 
-
-  if (!loading) {
+  } else if (!loading) {
     switch (view) {
       case "overview":
         mainSections = (
@@ -2728,19 +2907,46 @@ function UserDashboardPage() {
                 {/* Search Bar */}
                 <form
                   onSubmit={handleDashboardSearchSubmit}
-                  className="hidden w-80 max-w-full items-center gap-2 rounded-sm  bg-slate-50 px-3 py-1.5 text-xs text-slate-500 sm:flex"
-                 >
-                  <Search size={14} className="mr-2 shrink-0 text-slate-400" />
+                  className="hidden sm:flex items-center gap-2 rounded-lg border px-3 py-1.5 min-w-[240px] lg:min-w-[360px] xl:min-w-[420px]"
+                  style={{
+                    borderColor: isDarkMode
+                      ? "rgba(255,255,255,0.08)"
+                      : "rgba(0,0,0,0.08)",
+                    background: isDarkMode
+                      ? "rgba(255,255,255,0.04)"
+                      : "rgba(0,0,0,0.02)",
+                  }}
+                >
+                  <Search
+                    className="h-3.5 w-3.5 shrink-0"
+                    style={{
+                      color: isDarkMode ? "rgba(255,255,255,0.3)" : "#94a3b8",
+                    }}
+                  />
                   <input
                     type="text"
-                    placeholder="Search dashboard..."
+                    placeholder="Search dashboard... (Ctrl + K)"
                     value={dashboardSearch}
                     onChange={(event) => setDashboardSearch(event.target.value)}
-                    className="w-full bg-transparent text-slate-800 outline-none placeholder:text-slate-400"
+                    className="flex-1 bg-transparent text-[11px] outline-none placeholder:text-slate-400 dark:placeholder:text-white/30"
+                    style={{
+                      color: isDarkMode ? "rgba(255,255,255,0.9)" : "#0f172a",
+                    }}
                   />
-                  {/* <span className="rounded bg-slate-200/50 border border-slate-200 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500 shrink-0 ml-1">
-                    ⌘K
-                  </span> */}
+                  <span
+                    className="hidden md:inline-flex items-center gap-0.5 rounded-md border px-1 py-0.5 text-[8px] font-bold"
+                    style={{
+                      borderColor: isDarkMode
+                        ? "rgba(255,255,255,0.1)"
+                        : "rgba(0,0,0,0.08)",
+                      color: isDarkMode ? "rgba(255,255,255,0.35)" : "#94a3b8",
+                      background: isDarkMode
+                        ? "rgba(255,255,255,0.06)"
+                        : "rgba(0,0,0,0.03)",
+                    }}
+                  >
+                    ⌘ K
+                  </span>
                 </form>
               </div>
 

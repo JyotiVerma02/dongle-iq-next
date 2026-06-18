@@ -13,6 +13,7 @@ import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { ADMIN_REPORTS_CACHE_KEY, invalidateAdminUsersCache, invalidateUserDashboardCache, invalidateCacheKey } from "@/lib/dashboardCache";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
+import { createAdminNotification, createUserNotification } from "@/lib/notifications";
 import User from "@/models/user";
 
 const VALID_STATUSES = new Set(["pending", "approved", "rejected", "dispatched", "delivered", "issued"]);
@@ -395,6 +396,76 @@ const postHandler = async (req: NextRequest, decoded: AuthToken) => {
     }
 
     await user.save();
+
+    if (userId) {
+      const statusNotifications: Record<
+        string,
+        { userTitle: string; userMessage: string; adminTitle: string; adminMessage: string; type: string }
+      > = {
+        approved: {
+          userTitle: "Documents Verified",
+          userMessage:
+            "Your documents have been verified. Your application is approved.",
+          adminTitle: "Documents Verified",
+          adminMessage: `${admin.name} verified documents for ${user.name}.`,
+          type: "status_update",
+        },
+        rejected: {
+          userTitle: "Action Required",
+          userMessage:
+            String(body.reason || "").trim() || "Your application needs changes before approval.",
+          adminTitle: "Action Required",
+          adminMessage: `${admin.name} requested changes for ${user.name}.`,
+          type: "rejection_reason",
+        },
+        dispatched: {
+          userTitle: "Application Approved",
+          userMessage: "Your application has been approved and is moving to the next step.",
+          adminTitle: "Application Approved",
+          adminMessage: `${admin.name} approved ${user.name}'s application.`,
+          type: "status_update",
+        },
+        delivered: {
+          userTitle: "Application In Transit",
+          userMessage: "Your DSC application has been dispatched.",
+          adminTitle: "Application Dispatched",
+          adminMessage: `${admin.name} dispatched ${user.name}'s application.`,
+          type: "status_update",
+        },
+        issued: {
+          userTitle: "DSC Ready",
+          userMessage: "Your DSC has been generated and is ready.",
+          adminTitle: "DSC Generated",
+          adminMessage: `${admin.name} generated the DSC for ${user.name}.`,
+          type: "status_update",
+        },
+      };
+
+      const notification = statusNotifications[user.status];
+      if (notification) {
+        await createUserNotification({
+          userId: String(user._id),
+          title: notification.userTitle,
+          message: notification.userMessage,
+          type: notification.type,
+          metadata: {
+            status: user.status,
+            updatedBy: actor.id,
+          },
+        });
+
+        await createAdminNotification({
+          title: notification.adminTitle,
+          message: notification.adminMessage,
+          type: notification.type,
+          metadata: {
+            userId: String(user._id),
+            status: user.status,
+            updatedBy: actor.id,
+          },
+        });
+      }
+    }
     await invalidateUserDashboardCache(String(user._id));
     await invalidateAdminUsersCache();
     await invalidateCacheKey(ADMIN_REPORTS_CACHE_KEY);

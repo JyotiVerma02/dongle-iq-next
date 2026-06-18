@@ -16,8 +16,10 @@ class TelemetryService {
   private sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN || "";
   private analyticsId = process.env.NEXT_PUBLIC_GA_ID || "";
   private logrocketId = process.env.NEXT_PUBLIC_LOGROCKET_ID || "";
+  private globalListenersAttached = false;
 
   constructor() {
+    this.attachGlobalErrorHandlers();
     this.initSessionRecording();
   }
 
@@ -103,6 +105,36 @@ class TelemetryService {
         console.error("Failed to load LogRocket:", err);
       });
     }
+  }
+
+  private attachGlobalErrorHandlers() {
+    if (typeof window === "undefined" || this.globalListenersAttached) {
+      return;
+    }
+
+    this.globalListenersAttached = true;
+
+    window.addEventListener("error", (event) => {
+      if (event.error) {
+        this.captureError(event.error as Error, {
+          source: "window:error",
+          filename: event.filename,
+          lineno: event.lineno,
+          colno: event.colno,
+        });
+      }
+    });
+
+    window.addEventListener("unhandledrejection", (event) => {
+      const reason =
+        event.reason instanceof Error
+          ? event.reason
+          : new Error(String(event.reason || "Unhandled promise rejection"));
+
+      this.captureError(reason, {
+        source: "window:unhandledrejection",
+      });
+    });
   }
 
   /**

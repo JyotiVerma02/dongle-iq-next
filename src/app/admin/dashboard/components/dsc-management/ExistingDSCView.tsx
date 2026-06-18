@@ -21,6 +21,7 @@ import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 import toast from "react-hot-toast";
 import { Table } from "../common/Table";
+import { getDocumentRouteHref } from "@/lib/documentAccess";
 import type { AdminProfile } from "../../types";
 import { getAdminRoleLabel, hasAdminPermission } from "@/lib/adminRoles";
 
@@ -994,7 +995,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                       {editingApp.photo && editingApp.photo.startsWith("http") ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img 
-                          src={editingApp.photo} 
+                          src={getDocumentRouteHref(editingApp._id, "photo")} 
                           alt="User Photo" 
                           className="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />
@@ -1004,7 +1005,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                     </div>
                     {editingApp.photo && (
                       <a 
-                        href={editingApp.photo} 
+                        href={getDocumentRouteHref(editingApp._id, "photo")} 
                         target="_blank" 
                         rel="noreferrer"
                         className="w-full text-center py-1.5 px-3 rounded border text-[10px] font-black uppercase tracking-wider bg-[var(--card)] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -1025,7 +1026,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                       {editingApp.idProof && editingApp.idProof.startsWith("http") ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img 
-                          src={editingApp.idProof} 
+                          src={getDocumentRouteHref(editingApp._id, "idProof")} 
                           alt="ID Proof" 
                           className="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />
@@ -1035,7 +1036,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                     </div>
                     {editingApp.idProof && (
                       <a 
-                        href={editingApp.idProof} 
+                        href={getDocumentRouteHref(editingApp._id, "idProof")} 
                         target="_blank" 
                         rel="noreferrer"
                         className="w-full text-center py-1.5 px-3 rounded border text-[10px] font-black uppercase tracking-wider bg-[var(--card)] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -1056,7 +1057,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                       {editingApp.addressProof && editingApp.addressProof.startsWith("http") ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img 
-                          src={editingApp.addressProof} 
+                          src={getDocumentRouteHref(editingApp._id, "addressProof")} 
                           alt="Address Proof" 
                           className="h-full w-full object-cover transition-transform group-hover:scale-105"
                         />
@@ -1066,7 +1067,7 @@ export function ExistingDSCView({ onBack, onCreateNew, admin }: ExistingDSCViewP
                     </div>
                     {editingApp.addressProof && (
                       <a 
-                        href={editingApp.addressProof} 
+                        href={getDocumentRouteHref(editingApp._id, "addressProof")} 
                         target="_blank" 
                         rel="noreferrer"
                         className="w-full text-center py-1.5 px-3 rounded border text-[10px] font-black uppercase tracking-wider bg-[var(--card)] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

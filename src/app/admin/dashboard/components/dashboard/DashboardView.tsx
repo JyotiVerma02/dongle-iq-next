@@ -231,7 +231,7 @@ function RevenueOverview({ isDarkMode }: { isDarkMode: boolean }) {
           {revenueBarData.map((bar) => {
             const height = Math.max(8, (bar.value / maxValue) * 100);
             return (
-              <div key={bar.month} className="flex-1 flex flex-col items-center gap-1">
+              <div key={bar.month} className="flex-1 flex flex-col justify-end items-center gap-1 h-full">
                 <div
                   className="w-full rounded-t-sm transition-all hover:brightness-110"
                   style={{

@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 
 import { connectDB } from "@/lib/mongodb";
+import { withAuth } from "@/lib/withAuth";
 import Notification from "@/models/notification";
 
-export async function GET() {
+const handler = async () => {
   try {
     await connectDB();
 
@@ -26,4 +27,9 @@ export async function GET() {
       { status: 500 },
     );
   }
-}
+};
+
+export const GET = withAuth(handler, {
+  requireAuth: true,
+  requireRoles: ["admin", "superadmin"],
+});

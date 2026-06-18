@@ -71,7 +71,12 @@ export function normalizeAdminRole(role?: string | null): AdminRole {
 }
 
 export function isAdminRole(role?: string | null): boolean {
-  return ADMIN_ROLES.includes(normalizeAdminRole(role));
+  if (!role) return false;
+  const normalized = role.trim().toLowerCase();
+  return [
+    "reviewer", "dispatcher", "support_team", "support", 
+    "finance_admin", "finance", "super_admin", "superadmin", "admin"
+  ].includes(normalized);
 }
 
 export function hasAdminPermission(role: string | null | undefined, permission: AdminPermission) {

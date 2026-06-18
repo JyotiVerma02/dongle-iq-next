@@ -12,6 +12,8 @@
 :root {
   color-scheme: light;
 
+  --app-navbar-offset: 80px;
+
   --background: #f8fafc;
   --background-alt: #ffffff;
 
@@ -567,9 +569,8 @@ html:not(.dark) .navbar-coder:hover {
   margin-top: 0;
 }
 
-/* Ensure first element after navbar has spacing */
-body>div:first-child,
-#__next>div:first-child {
+/* Ensure the main content starts below navbar */
+.app-shell-content {
   padding-top: 80px;
 }
 

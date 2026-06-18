@@ -13,13 +13,14 @@ export const connectDB = async () => {
   }
 
   try {
-
     await mongoose.connect(MONGODB_URI, {
       ssl: true, // Enforce SSL
       authSource: "admin", // Specify auth source if needed
     });
 
-    console.log("MongoDB Connected");
+    if (process.env.NODE_ENV !== "production") {
+      console.log("MongoDB Connected");
+    }
 
   } catch (error) {
 

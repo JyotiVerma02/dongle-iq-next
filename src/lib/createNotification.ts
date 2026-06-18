@@ -17,11 +17,13 @@ export async function createNotification({
 }) {
   await connectDB();
 
-  console.log("[notification:create] attempting save", {
-    userId,
-    title,
-    type,
-  });
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[notification:create] attempting save", {
+      userId,
+      title,
+      type,
+    });
+  }
 
   try {
     const notification = await Notification.create({
@@ -33,11 +35,13 @@ export async function createNotification({
       isRead: false,
     });
 
-    console.log("[notification:create] saved", {
-      notificationId: String(notification._id),
-      userId: String(notification.userId),
-      type: notification.type,
-    });
+    if (process.env.NODE_ENV !== "production") {
+      console.log("[notification:create] saved", {
+        notificationId: String(notification._id),
+        userId: String(notification.userId),
+        type: notification.type,
+      });
+    }
 
     broadcastRealtimeEvent("NOTIFICATION_CREATED", {
       notificationId: String(notification._id),

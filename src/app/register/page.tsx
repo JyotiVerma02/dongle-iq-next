@@ -42,8 +42,11 @@ function RegisterContent() {
   const premiumGradient =
     "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
-  const sanitizeNumber = (value: string) =>
-    value.replace(/\D/g, "").slice(0, 10);
+  const sanitizeNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "");
+
+    return digits.length > 10 ? digits.slice(-10) : digits;
+  };
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -207,7 +210,10 @@ function RegisterContent() {
                   </div>
                 )}
 
-                <form onSubmit={handleRegister} className="space-y-2.5 sm:space-y-3">
+                <form
+                  onSubmit={handleRegister}
+                  className="space-y-2.5 sm:space-y-3"
+                >
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <div>
                       <input
@@ -271,6 +277,7 @@ function RegisterContent() {
                       <input
                         type="tel"
                         inputMode="numeric"
+                        autoComplete="tel-national"
                         placeholder="Enter mobile number"
                         value={number}
                         onChange={(e) =>

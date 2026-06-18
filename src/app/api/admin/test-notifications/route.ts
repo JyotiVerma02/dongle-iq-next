@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withAuth } from "@/lib/withAuth";
+import { adminOnly } from "@/lib/withAuth";
 import {
   isMsg91SmsConfigured,
   isMsg91WhatsAppConfigured,
@@ -100,7 +100,4 @@ const handler = async (req: NextRequest) => {
   });
 };
 
-export const POST = withAuth(handler, {
-  requireAuth: true,
-  requireRoles: ["admin", "superadmin"],
-});
+export const POST = adminOnly(handler);

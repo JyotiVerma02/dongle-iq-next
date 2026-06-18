@@ -6,7 +6,7 @@ import { buildChanges, createAuditEntry, createLegacyActionHistoryEntry } from "
 import { resolveAdminActor } from "@/lib/admin";
 import { hasAdminPermission, normalizeAdminRole } from "@/lib/adminRoles";
 import { getStatusPermission, validateStatusTransition } from "@/lib/applicationWorkflow";
-import { createUserNotification } from "@/lib/notifications";
+import { createAdminNotification, createUserNotification } from "@/lib/notifications";
 import { connectDB } from "@/lib/mongodb";
 import { adminOnly } from "@/lib/withAuth";
 import type { AuthToken } from "@/lib/withAuth";
@@ -113,13 +113,15 @@ const putHandler = async (
     };
 
     const hasDetailUpdate =
-      payload.name !== undefined ||
-      payload.email !== undefined ||
-      payload.mobile !== undefined ||
-      payload.certificateClass !== undefined ||
-      payload.certType !== undefined ||
-      payload.validity !== undefined ||
-      payload.tokenType !== undefined;
+      (payload.name !== undefined && payload.name !== user.name) ||
+      (payload.email !== undefined &&
+        payload.email.trim().toLowerCase() !== user.email) ||
+      (payload.mobile !== undefined && payload.mobile.trim() !== user.number) ||
+      (payload.certificateClass !== undefined &&
+        payload.certificateClass !== user.certificateClass) ||
+      (payload.certType !== undefined && payload.certType !== user.certType) ||
+      (payload.validity !== undefined && payload.validity !== user.validity) ||
+      (payload.tokenType !== undefined && payload.tokenType !== user.tokenType);
 
     if (hasDetailUpdate) {
       if (!hasAdminPermission(adminRole, "manage_application_details")) {
@@ -263,22 +265,75 @@ const putHandler = async (
 
     await user.save();
     if (payload.status) {
-      const notification = await createUserNotification({
-        userId: String(user._id),
-        title: "Application Status Updated",
-        message:
-          user.status === "approved"
-            ? "Your application has been approved."
-            : user.status === "rejected"
-              ? "Your application needs attention before approval."
-              : `Your application status is now ${user.status}.`,
-        type: "status_update",
-        metadata: {
-          status: user.status,
-          reason: payload.reason || "",
-          updatedBy: actor.id,
+      const notificationByStatus: Record<
+        string,
+        { userTitle: string; userMessage: string; adminTitle: string; adminMessage: string; type: string }
+      > = {
+        approved: {
+          userTitle: "Documents Verified",
+          userMessage:
+            "Your documents have been verified. Your application is approved.",
+          adminTitle: "Documents Verified",
+          adminMessage: `${adminUser.name} verified documents for ${user.name}.`,
+          type: "status_update",
         },
-      });
+        rejected: {
+          userTitle: "Action Required",
+          userMessage:
+            String(payload.reason || "").trim() || "Your application needs changes before approval.",
+          adminTitle: "Action Required",
+          adminMessage: `${adminUser.name} requested changes for ${user.name}.`,
+          type: "rejection_reason",
+        },
+        dispatched: {
+          userTitle: "Application Approved",
+          userMessage: "Your application has been approved and is moving to the next step.",
+          adminTitle: "Application Approved",
+          adminMessage: `${adminUser.name} approved ${user.name}'s application.`,
+          type: "status_update",
+        },
+        delivered: {
+          userTitle: "Application In Transit",
+          userMessage: "Your DSC application has been dispatched.",
+          adminTitle: "Application Dispatched",
+          adminMessage: `${adminUser.name} dispatched ${user.name}'s application.`,
+          type: "status_update",
+        },
+        issued: {
+          userTitle: "DSC Ready",
+          userMessage: "Your DSC has been generated and is ready.",
+          adminTitle: "DSC Generated",
+          adminMessage: `${adminUser.name} generated the DSC for ${user.name}.`,
+          type: "status_update",
+        },
+      };
+
+      const notification = notificationByStatus[user.status];
+      if (notification) {
+        await createUserNotification({
+          userId: String(user._id),
+          title: notification.userTitle,
+          message: notification.userMessage,
+          type: notification.type,
+          metadata: {
+            status: user.status,
+            reason: payload.reason || "",
+            updatedBy: actor.id,
+          },
+        });
+
+        await createAdminNotification({
+          title: notification.adminTitle,
+          message: notification.adminMessage,
+          type: notification.type,
+          metadata: {
+            userId: String(user._id),
+            status: user.status,
+            updatedBy: actor.id,
+          },
+        });
+      }
+
     }
     broadcastRealtimeEvent("APPLICATION_UPDATED", {
       userId: String(user._id),

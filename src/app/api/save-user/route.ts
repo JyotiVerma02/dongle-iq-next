@@ -17,7 +17,7 @@ const uploadToCloudinary = async (file: File, folder: string) => {
 
   return new Promise<any>((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      { folder },
+      { folder, type: "private" },
       (error, result) => {
         if (error) reject(error);
         else resolve(result);
@@ -118,15 +118,20 @@ export async function POST(req: Request) {
     let photoUrl = "";
     let idProofUrl = "";
     let addressProofUrl = "";
+    let photoPublicId = "";
+    let idProofPublicId = "";
+    let addressProofPublicId = "";
 
     if (photo) {
       const res = await uploadToCloudinary(photo, "dongleIQ/photo");
       photoUrl = res.secure_url;
+      photoPublicId = res.public_id || "";
     }
 
     if (idProof) {
       const res = await uploadToCloudinary(idProof, "dongleIQ/idProof");
       idProofUrl = res.secure_url;
+      idProofPublicId = res.public_id || "";
     }
 
     if (addressProof) {
@@ -135,6 +140,7 @@ export async function POST(req: Request) {
         "dongleIQ/addressProof",
       );
       addressProofUrl = res.secure_url;
+      addressProofPublicId = res.public_id || "";
     }
 
     const existingUser = await User.findOne({
@@ -196,8 +202,11 @@ export async function POST(req: Request) {
       existingUser.price = price;
 
       if (photoUrl) existingUser.photo = photoUrl;
+      if (photoPublicId) existingUser.photoPublicId = photoPublicId;
       if (idProofUrl) existingUser.idProof = idProofUrl;
+      if (idProofPublicId) existingUser.idProofPublicId = idProofPublicId;
       if (addressProofUrl) existingUser.addressProof = addressProofUrl;
+      if (addressProofPublicId) existingUser.addressProofPublicId = addressProofPublicId;
 
       await existingUser.save();
 
@@ -247,8 +256,11 @@ export async function POST(req: Request) {
       internalRemarks,
       price,
       photo: photoUrl,
+      photoPublicId,
       idProof: idProofUrl,
+      idProofPublicId,
       addressProof: addressProofUrl,
+      addressProofPublicId,
     });
 
     await createAdminNotification({
