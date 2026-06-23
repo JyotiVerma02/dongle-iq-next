@@ -42,6 +42,7 @@ const LOGOUT_ROUTES = new Set([
   "/verify-aadhaar",
   "/bank-telecom-form",
   "/preview",
+  "/apply-dsc",
 ]);
 
 type NotificationItem = {
@@ -251,7 +252,7 @@ export default function Navbar() {
     >
       <div
         className={`mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 md:px-8 transition-all duration-300 ${
-          scrolled ? "py-2.5" : "py-3"
+          scrolled ? "py-2.5" : "py-4"
         }`}
       >
         <div className="lg:w-[220px] w-auto shrink-0 flex items-center justify-start gap-2">

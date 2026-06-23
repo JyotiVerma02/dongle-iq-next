@@ -21,6 +21,8 @@ function RegisterContent() {
   const searchParams = useSearchParams();
   const googleEmail = (searchParams.get("email") || "").toLowerCase();
   const googleName = searchParams.get("name") || "";
+  const initialMobile = searchParams.get("mobile") || "";
+  const skipOtp = searchParams.get("skipOtp") === "true";
 
   const [prefillFirstName, ...prefillLastNameParts] = googleName.split(" ");
   const prefillLastName = prefillLastNameParts.join(" ");
@@ -29,7 +31,7 @@ function RegisterContent() {
   const [name, setName] = useState(prefillFirstName || "");
   const [lastName, setLastName] = useState(prefillLastName || "");
   const [email, setEmail] = useState(googleEmail);
-  const [number, setNumber] = useState("");
+  const [number, setNumber] = useState(initialMobile);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -82,6 +84,7 @@ function RegisterContent() {
           email: effectiveEmail,
           number,
           password,
+          skipOtp,
         }),
       });
 
@@ -100,8 +103,12 @@ function RegisterContent() {
         return;
       }
 
-      setShowOtp(true);
-      setEmail(effectiveEmail);
+      if (data.skipOtp) {
+        router.push("/login?registered=true");
+      } else {
+        setShowOtp(true);
+        setEmail(effectiveEmail);
+      }
       setLoading(false);
     } catch (error) {
       console.error("Registration error:", error);
@@ -218,7 +225,7 @@ function RegisterContent() {
                     <div>
                       <input
                         type="text"
-                        placeholder="Enter first name"
+                        placeholder="First name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="glass-input w-full rounded-lg border px-3 py-2 text-sm font-semibold outline-none"
@@ -232,7 +239,7 @@ function RegisterContent() {
                     <div>
                       <input
                         type="text"
-                        placeholder="Enter last name"
+                        placeholder="Last name"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         className="glass-input w-full rounded-lg border px-3 py-2 text-sm font-semibold outline-none"
@@ -249,7 +256,7 @@ function RegisterContent() {
                     <div className="relative">
                       <input
                         type="email"
-                        placeholder="Enter email address"
+                        placeholder="Email address"
                         value={email}
                         onChange={(e) => setEmail(e.target.value.toLowerCase())}
                         className="glass-input w-full rounded-lg border py-2 pl-9 pr-3 text-sm font-semibold outline-none"
@@ -278,7 +285,7 @@ function RegisterContent() {
                         type="tel"
                         inputMode="numeric"
                         autoComplete="tel-national"
-                        placeholder="Enter mobile number"
+                        placeholder="Mobile number"
                         value={number}
                         onChange={(e) =>
                           setNumber(sanitizeNumber(e.target.value))
@@ -360,7 +367,7 @@ function RegisterContent() {
                     type="submit"
                     className="theme-primary-btn mt-1 flex w-full items-center justify-center gap-2 rounded-lg py-2 text-[11px] font-black uppercase tracking-[0.2em] text-white shadow-2xl transition-all duration-500 hover:brightness-110 active:scale-[0.98] disabled:opacity-50"
                   >
-                    {loading ? "Creating Account..." : "Register"}{" "}
+                    {loading ? "Creating Account..." : "Create Account"}{" "}
                     <UserPlus size={16} />
                   </button>
                 </form>

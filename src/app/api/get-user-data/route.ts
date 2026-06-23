@@ -112,8 +112,11 @@ export async function GET(req: NextRequest) {
         estimatedTimeMinutes,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("get-user-data error:", error);
+    if (error?.name === "TokenExpiredError" || error?.name === "JsonWebTokenError" || error?.message === "Invalid session") {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 },

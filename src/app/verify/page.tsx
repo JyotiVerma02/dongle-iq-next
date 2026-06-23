@@ -163,7 +163,7 @@ export default function VerifyPage() {
               <ShieldCheck size={18} />
             </div>
             <h1 className="text-xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>
-              Identity <span style={{ color: colors.accent }}>Verification</span>
+              Mobile <span style={{ color: colors.accent }}>Verification</span>
             </h1>
           </div>
 
@@ -190,7 +190,7 @@ export default function VerifyPage() {
             className="mb-3 rounded-lg px-3 py-2 text-center text-[11px]"
             style={{ backgroundColor: colors.accentSoft, color: colors.text }}
           >
-            {activeTab === "telecom" ? "Verify via telecom records" : "Verify via bank identity API"}
+            {activeTab === "telecom" ? "Check with telecom records" : "Check with bank records"}
           </div>
 
           <div className="space-y-3">
@@ -199,7 +199,7 @@ export default function VerifyPage() {
                 type="tel"
                 maxLength={10}
                 inputMode="numeric"
-                placeholder="Mobile Number"
+                placeholder="Mobile number"
                 value={mobile}
                 disabled={otpSent}
                 onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
@@ -275,7 +275,7 @@ export default function VerifyPage() {
               className="theme-primary-btn theme-transition w-full rounded-2xl py-2.5 text-[11px] font-black uppercase tracking-[0.22em] text-white disabled:cursor-not-allowed disabled:opacity-60"
               style={{ opacity: isChecked && otp.join("").length === 6 ? 1 : 0.55 }}
             >
-              {isVerifying ? "Verifying..." : "Verify"}
+              {isVerifying ? "Verifying..." : "Continue"}
             </button>
           </div>
         </section>

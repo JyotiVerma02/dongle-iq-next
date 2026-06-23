@@ -1,16 +1,15 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LogIn, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
-import { isAdminRole } from "@/lib/adminRoles";
 
 function LoginContent() {
-  const router = useRouter();
+
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered") === "true";
 
@@ -46,6 +45,7 @@ function LoginContent() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           email: normalizedEmail,
           password,
@@ -88,12 +88,33 @@ function LoginContent() {
         return;
       }
 
-      // Check if role exists and is admin
-      if (data.role && data.role !== "user") {
-        router.push("/admin/dashboard");
-      } else {
-        router.push("/user/dashboard");
+      const destination =
+        data.role && data.role !== "user"
+          ? "/admin/dashboard"
+          : "/user/dashboard";
+
+      let sessionReady = false;
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const sessionCheck = await fetch("/api/me", {
+          method: "GET",
+          credentials: "include",
+          cache: "no-store",
+        });
+
+        if (sessionCheck.ok) {
+          sessionReady = true;
+          break;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, 200));
       }
+
+      if (!sessionReady) {
+        setError("Login succeeded, but the session was not ready yet. Please try again.");
+        return;
+      }
+
+      window.location.replace(destination);
     } catch (err) {
       console.error("LOGIN ERROR:", err);
 
@@ -106,26 +127,26 @@ function LoginContent() {
   return (
     <div
       suppressHydrationWarning
-      className="auth-page-shell theme-transition relative w-full bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition relative w-full bg-transparent font-sans antialiased tracking-tight text-base"
       style={{ color: colors.text }}
     >
       <div className="relative z-10 flex min-h-[calc(100dvh-100px)] w-full items-center justify-center px-4 py-8 sm:px-6 sm:py-12 lg:py-16">
         <div className="flex w-full max-w-6xl items-center justify-center lg:justify-center lg:gap-6">
           <div
-            className="hidden lg:flex lg:w-full lg:max-w-[24rem] lg:flex-col lg:justify-center lg:pr-4 xl:max-w-[34rem] xl:pr-6"
+            className="hidden lg:flex lg:w-full lg:max-w-[28rem] lg:flex-col lg:justify-center lg:pr-4 xl:max-w-[34rem] xl:pr-6" 
             style={{ borderRight: `1px solid ${colors.borderSoft}` }}
           >
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
-              <h1 className="mb-5 text-4xl font-black uppercase leading-tight tracking-tight xl:text-5xl">
-                <span style={{ color: colors.text }}>DSC & IRCTC</span>{" "}
-                <span className="text-gradient-brand">Access</span>
+              <h1 className="mb-5 text-3xl font-black uppercase leading-tight tracking-tight xl:text-4xl whitespace-nowrap">
+                <span style={{ color: colors.text }}>DSC and IRCTC</span>{" "}
+                <span className="text-gradient-brand">Sign In</span>
               </h1>
-              <p
-                className="mb-7 max-w-lg text-sm font-medium leading-relaxed opacity-80"
+              <p 
+                className="mb-7 max-w-lg font-medium leading-relaxed opacity-80"
                 style={{ color: colors.muted }}
               >
-                Log in to securely manage DSC applications, IRCTC services, and
-                customer onboarding from your dashboard.
+                Sign in to manage your application, payment, documents, and
+                dashboard updates in one place.
               </p>
               <div className="grid max-w-xl grid-cols-2 gap-4">
                 {[
@@ -185,14 +206,13 @@ function LoginContent() {
                     className="text-xl font-black uppercase tracking-tight"
                     style={{ color: colors.text }}
                   >
-                    <span className="text-gradient-cool">Agent Sign In</span>
+                    <span className="text-gradient-cool">Sign in</span> 
                   </h2>
                   <p
                     className="mt-1.5 text-xs font-medium opacity-80"
                     style={{ color: colors.muted }}
                   >
-                    Securely access your agent portal and continue managing
-                    applications.
+                    Use your account to continue where you left off.
                   </p>
                 </div>
 
@@ -292,7 +312,7 @@ function LoginContent() {
                   <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
                     <label
                       className="flex cursor-pointer items-center gap-2 text-xs font-semibold leading-none whitespace-nowrap"
-                      style={{ color: colors.subtleText }}
+                      style={{ color: colors.subtleText }} 
                     >
                       <input
                         type="checkbox"
@@ -326,13 +346,13 @@ function LoginContent() {
                   </button>
 
                   <div
-                    className="pt-2 text-center text-sm font-semibold"
+                    className="pt-2 text-center font-semibold"
                     style={{ color: colors.subtleText }}
                   >
                     Don&apos;t have an account?{" "}
                     <Link href="/register">
                       <span className="ml-1 underline text-gradient-brand">
-                        Register now
+                        Create account
                       </span>
                     </Link>
                   </div>

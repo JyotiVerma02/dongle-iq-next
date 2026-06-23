@@ -1,17 +1,19 @@
-"use client";
+﻿"use client";
 
-import React, { Suspense, useEffect, useMemo, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowLeft,
-  CheckCircle2,
-  FileText,
   RefreshCw,
   Search,
   ShieldCheck,
+  Lock,
+  Phone,
+  Compass
 } from "lucide-react";
 import toast from "react-hot-toast";
 
+import DSCStepHeader from "@/components/DSCStepHeader";
+import BankTelecomForm from "@/components/BankTelecomForm";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 
@@ -37,18 +39,18 @@ function ApplyDSCContent() {
   const searchParams = useSearchParams();
   const { isDarkMode } = useTheme();
   const colors = getThemePalette(isDarkMode);
-  const fieldSurface = isDarkMode ? "#151a2d" : colors.input;
-  const fieldBorder = isDarkMode
-    ? "rgba(139, 92, 246, 0.45)"
-    : colors.inputBorder;
-  const fieldText = isDarkMode ? "#ffffff" : colors.text;
+  const flowSource = searchParams.get("from") === "dashboard" ? "dashboard" : "landing";
+
+  const premiumGradient =
+    "linear-gradient(135deg, var(--accent), var(--accent-light), var(--accent-secondary))";
 
   const [activeTab, setActiveTab] = useState<"apply" | "track">("apply");
-  const [applicantType, setApplicantType] = useState<"Indian" | "Foreign">(
-    "Indian",
-  );
+  const [applyStep, setApplyStep] = useState<1 | 2>(1);
+  const [hasJustSubmitted, setHasJustSubmitted] = useState(false);
+  const [applicantType, setApplicantType] = useState<"Indian" | "Foreign">("Indian");
   const [mobile, setMobile] = useState("");
-const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInput] = useState("");
+  const [captcha, setCaptcha] = useState("");
+  const [captchaInput, setCaptchaInput] = useState("");
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
@@ -59,6 +61,28 @@ const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInpu
   const [trackLoading, setTrackLoading] = useState(false);
   const [trackResult, setTrackResult] = useState<TrackResult | null>(null);
   const [trackError, setTrackError] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const canAccessTrack = flowSource === "dashboard" || hasJustSubmitted;
+
+  useEffect(() => {
+    fetch("/api/me")
+      .then((res) => setIsLoggedIn(res.ok))
+      .catch(() => setIsLoggedIn(false));
+  }, []);
+
+  // Card Interactive Dynamic Glow Properties
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
 
   const normalizedMobile = useMemo(() => normalizeMobile(mobile), [mobile]);
   const canSendOtp =
@@ -67,30 +91,20 @@ const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInpu
     captchaInput.trim() === captcha;
 
   useEffect(() => {
-  if (searchParams.get("guest_success") === "true") {
-    setActiveTab("track");
-
-    const savedMobile = sessionStorage.getItem("guestMobile");
-    if (savedMobile) {
-      setTrackInput(savedMobile);
+    if (searchParams.get("guest_success") === "true") {
+      setHasJustSubmitted(true);
+      setActiveTab("track");
+      const savedMobile = sessionStorage.getItem("guestMobile");
+      if (savedMobile) setTrackInput(savedMobile);
+      sessionStorage.removeItem("verifiedMobile");
+      sessionStorage.removeItem("guestMobile");
+      setMobile("");
+      setOtp("");
+      setOtpSent(false);
+      toast.success("Application successfully submitted!", { duration: 5000 });
+      router.replace(`/apply-dsc?from=${flowSource}`);
     }
-
-    // Clear saved application data
-    sessionStorage.removeItem("verifiedMobile");
-    sessionStorage.removeItem("guestMobile");
-
-    // Clear local state
-    setMobile("");
-    setOtp("");
-    setOtpSent(false);
-
-    toast.success("Application successfully submitted!", {
-      duration: 5000,
-    });
-
-    router.replace("/apply-dsc");
-  }
-}, [searchParams, router]);
+  }, [flowSource, searchParams, router]);
 
   useEffect(() => {
     const savedMobile = sessionStorage.getItem("verifiedMobile");
@@ -98,9 +112,10 @@ const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInpu
       setMobile(savedMobile);
     }
   }, []);
+
   useEffect(() => {
-  setCaptcha(createCaptcha());
-}, []);
+    setCaptcha(createCaptcha());
+  }, []);
 
   const refreshCaptcha = () => {
     setCaptcha(createCaptcha());
@@ -110,28 +125,21 @@ const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInpu
 
   const handleSendOtp = async (event: React.FormEvent) => {
     event.preventDefault();
-
     if (applicantType === "Foreign") {
-      setGateError(
-        "Foreign applicant flow needs assisted support. Please request a custom quote.",
-      );
+      setGateError("Foreign applicant flow needs assisted support. Please request a custom quote.");
       return;
     }
-
     if (!/^[6-9]\d{9}$/.test(normalizedMobile)) {
       setGateError("Enter a valid 10-digit Indian mobile number.");
       return;
     }
-
     if (captchaInput.trim() !== captcha) {
       setGateError("Captcha does not match. Please try again.");
       refreshCaptcha();
       return;
     }
-
     setGateError("");
     setSendingOtp(true);
-
     try {
       const res = await fetch("/api/send-otp", {
         method: "POST",
@@ -139,18 +147,12 @@ const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInpu
         body: JSON.stringify({ mobile: normalizedMobile }),
       });
       const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || "Could not send OTP.");
-      }
-
+      if (!res.ok || !data.success) throw new Error(data.message || "Could not send OTP.");
       setOtpSent(true);
       sessionStorage.setItem("guestMobile", normalizedMobile);
       toast.success("OTP sent successfully.");
     } catch (error) {
-      setGateError(
-        error instanceof Error ? error.message : "Could not send OTP.",
-      );
+      setGateError(error instanceof Error ? error.message : "Could not send OTP.");
     } finally {
       setSendingOtp(false);
     }
@@ -158,15 +160,12 @@ const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInpu
 
   const handleVerifyOtp = async (event: React.FormEvent) => {
     event.preventDefault();
-
     if (!/^\d{6}$/.test(otp)) {
       setGateError("Enter the 6-digit OTP.");
       return;
     }
-
     setGateError("");
     setVerifyingOtp(true);
-
     try {
       const res = await fetch("/api/verify", {
         method: "POST",
@@ -174,19 +173,13 @@ const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInpu
         body: JSON.stringify({ mobile: normalizedMobile, otp }),
       });
       const data = await res.json();
-
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || "OTP verification failed.");
-      }
-
+      if (!res.ok || !data.success) throw new Error(data.message || "OTP verification failed.");
       sessionStorage.setItem("verifiedMobile", normalizedMobile);
       sessionStorage.setItem("guestMobile", normalizedMobile);
       toast.success("Mobile verified. Continue your DSC application.");
-      router.push(`/bank-telecom-form?mobile=${normalizedMobile}&guest=true`);
+      setApplyStep(2);
     } catch (error) {
-      setGateError(
-        error instanceof Error ? error.message : "OTP verification failed.",
-      );
+      setGateError(error instanceof Error ? error.message : "OTP verification failed.");
     } finally {
       setVerifyingOtp(false);
     }
@@ -195,26 +188,16 @@ const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInpu
   const handleTrackSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!trackInput.trim()) return;
-
     setTrackLoading(true);
     setTrackError("");
     setTrackResult(null);
-
     try {
-      const res = await fetch(
-        `/api/track-application?query=${encodeURIComponent(trackInput.trim())}`,
-      );
+      const res = await fetch(`/api/track-application?query=${encodeURIComponent(trackInput.trim())}`);
       const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.message || "Application not found");
-      }
-
+      if (!res.ok) throw new Error(data.message || "Application not found");
       setTrackResult(data.application);
     } catch (error) {
-      setTrackError(
-        error instanceof Error ? error.message : "Application not found",
-      );
+      setTrackError(error instanceof Error ? error.message : "Application not found");
     } finally {
       setTrackLoading(false);
     }
@@ -222,495 +205,563 @@ const [captcha, setCaptcha] = useState("");  const [captchaInput, setCaptchaInpu
 
   return (
     <main
-
-  className="theme-transition min-h-screen pb-12 pt-8"
-     style={{ backgroundColor: colors.shell, color: colors.text }}
+      suppressHydrationWarning
+      className="auth-page-shell theme-transition relative h-screen w-screen font-sans overflow-hidden flex flex-col select-none"
+      style={{ color: colors.text, background: "transparent" }}
     >
-      <div className="w-full ">
-        <div
-          className="mb-6 overflow-hidden  px-6 py-5 backdrop-blur-sm"
-          style={{
-            background: isDarkMode
-              ? "linear-gradient(135deg, rgba(139,92,246,0.12), rgba(15,23,42,0.74))"
-              : colors.card,
-            borderColor: colors.borderSoft,
-          }}
-        >
-          <div
-            className="mb-5 flex flex-col gap-4 border-b pb-4 sm:flex-row sm:items-center sm:justify-between"
-            style={{ borderColor: colors.borderSoft }}
-          >
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="inline-flex w-fit items-center gap-2 text-xs font-black uppercase tracking-[0.18em] transition hover:-translate-x-0.5"
-              style={{ color: colors.muted }}
-            >
-              <ArrowLeft size={15} />
-              Home
-            </button>
+      {/* Background Neon Spotlights – theme-aware */}
+      <div
+        className="absolute top-[20%] left-[-5%] w-[380px] h-[380px] rounded-full blur-[110px] pointer-events-none"
+        style={{ background: isDarkMode ? "rgba(139,92,246,0.10)" : "rgba(139,92,246,0.06)" }}
+      />
+      <div
+        className="absolute top-[35%] right-[-5%] w-[350px] h-[350px] rounded-full blur-[110px] pointer-events-none"
+        style={{ background: isDarkMode ? "rgba(56,189,248,0.05)" : "rgba(56,189,248,0.04)" }}
+      />
 
-            <div
-              className="flex w-full rounded-md border p-1 shadow-sm sm:w-auto"
+      <div className="w-full flex flex-col h-full relative z-10">
+
+        <DSCStepHeader
+          activeStep={applyStep === 2 ? 2 : (activeTab === "track" && hasJustSubmitted) ? 4 : 1}
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            if (tab === "apply" && applyStep === 2) {
+              setApplyStep(1);
+            }
+            setActiveTab(tab);
+          }}
+          showTrackTab={canAccessTrack}
+          onStepChange={(step) => {
+            if (step === 1) setApplyStep(1);
+            if (step === 2) setApplyStep(2);
+          }}
+        />
+
+        {/* Content area below topbar */}
+        <div className="flex-1 flex flex-col justify-between px-4 py-4 min-h-0">
+
+        {/* Viewport Card Container */}
+        <div className="flex-1 flex items-center justify-center py-2 min-h-0">
+          {activeTab === "apply" ? (
+            applyStep === 1 ? (
+            /* Apply Card with Dynamic Radial Neon Follow Blur */
+            <section
+              ref={cardRef}
+              onMouseMove={handleMouseMove}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+              className="group relative w-full max-w-[440px] rounded-[20px] p-6 md:p-7 flex flex-col justify-between overflow-hidden transition-all duration-300 shadow-2xl"
               style={{
-                backgroundColor: isDarkMode
-                  ? "rgba(9,13,29,0.72)"
-                  : colors.card,
-                borderColor: colors.borderSoft,
+                background: colors.card,
+                border: `1px solid ${colors.border}`,
+                boxShadow: isHovered
+                  ? `0 20px 50px -12px ${colors.accentShadow}, 0 0 20px 1px ${colors.accentFaint}`
+                  : `var(--shadow-deep)`,
               }}
             >
-              <button
-                type="button"
-                onClick={() => setActiveTab("apply")}
-                className={`flex flex-1 items-center justify-center gap-2 rounded px-4 py-2 text-xs font-black uppercase tracking-wider transition-all sm:flex-none ${
-                  activeTab === "apply"
-                    ? "shadow-md"
-                    : "opacity-70 hover:opacity-100"
-                }`}
-                style={{
-                  backgroundColor:
-                    activeTab === "apply"
-                      ? `${colors.accent}18`
-                      : "transparent",
-                  color: activeTab === "apply" ? colors.text : colors.muted,
-                }}
-              >
-                <FileText size={15} />
-                Apply
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("track")}
-                className={`flex flex-1 items-center justify-center gap-2 rounded px-4 py-2 text-xs font-black uppercase tracking-wider transition-all sm:flex-none ${
-                  activeTab === "track"
-                    ? "shadow-md"
-                    : "opacity-70 hover:opacity-100"
-                }`}
-                style={{
-                  backgroundColor:
-                    activeTab === "track"
-                      ? `${colors.accent}18`
-                      : "transparent",
-                  color: activeTab === "track" ? colors.text : colors.muted,
-                }}
-              >
-                <Search size={15} />
-                Track
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-            {/* Left Content */}
-            <div className="flex-1">
+              {/* Dynamic Interactive Tracking Radial Glow Layer */}
               <div
-                className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider"
+                className="pointer-events-none absolute -inset-px rounded-[20px] transition-opacity duration-300"
                 style={{
-                  background: `${colors.accent}15`,
-                  color: colors.accent,
+                  opacity: isHovered ? 1 : 0,
+                  background: `radial-gradient(220px circle at ${mousePos.x}px ${mousePos.y}px, ${colors.accentSoft}, transparent 80%)`,
                 }}
-              >
-                <ShieldCheck size={14} />
-                Secure DSC Portal
-              </div>
+              />
+              {/* Subtle Border Glow Mapping */}
+              <div
+                className="pointer-events-none absolute -inset-px rounded-[20px] transition-opacity duration-300"
+                style={{
+                  opacity: isHovered ? 0.7 : 0,
+                  background: `radial-gradient(110px circle at ${mousePos.x}px ${mousePos.y}px, var(--accent-soft), transparent 60%)`,
+                  maskImage: "linear-gradient(white, white)",
+                  WebkitMaskImage: "linear-gradient(white, white)",
+                  maskComposite: "exclude",
+                  WebkitMaskComposite: "xor",
+                  padding: "1px",
+                }}
+              />
 
-              <h1 className="mt-3 text-2xl font-black leading-tight sm:text-3xl">
-                Apply for Digital Signature Certificate
-              </h1>
-
-              <p
-                className="mt-2 max-w-2xl text-sm leading-6"
-                style={{ color: colors.muted }}
-              >
-                Complete mobile verification, submit your documents, and track
-                your application status online.
-              </p>
-            </div>
-
-            {/* Right Steps */}
-            <div className="flex flex-wrap gap-2 lg:justify-end">
-              {["Mobile Verify", "Fill Form", "Upload Docs", "Approval"].map(
-                (step, index) => (
+              <div className="relative z-10">
+                {/* Header Profile Title Row */}
+                <div className="flex items-start gap-3 mb-4">
                   <div
-                    key={step}
-                    className="flex items-center gap-2 rounded-full px-3 py-2 text-xs font-bold"
+                    className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
                     style={{
-                      background: `${colors.accent}12`,
-                      color: colors.accent,
-                      border: `1px solid ${colors.accent}25`,
+                      background: colors.accentSoft,
+                      border: `1px solid ${colors.accentSubtle}`,
+                      color: "var(--accent)",
                     }}
                   >
+                    <Compass size={16} className="stroke-[1.8]" />
+                  </div>
+                  <div>
                     <span
-                      className="flex h-5 w-5 items-center justify-center rounded-full text-[10px]"
-                      style={{
-                        background: colors.accent,
-                        color: "#fff",
-                      }}
+                      className="text-[9px] font-bold uppercase tracking-[0.2em] block"
+                      style={{ color: "var(--accent)" }}
                     >
-                      {index + 1}
+                      Step 1 of 4
                     </span>
-                    {step}
+                    <h2 className="text-base font-bold tracking-tight mt-0.5" style={{ color: colors.text }}>
+                      Apply for Digital Signature
+                    </h2>
+                    <p className="text-[11px]" style={{ color: colors.muted }}>
+                      Verify mobile number to establish identity
+                    </p>
                   </div>
-                ),
-              )}
-            </div>
-          </div>
-        </div>
+                </div>
 
-        {activeTab === "apply" ? (
-          <div className="space-y-6">
-            <section
-              className="mx-auto max-w-xl overflow-hidden rounded-lg border shadow-xl"
-              style={{
-                backgroundColor: colors.card,
-                borderColor: colors.borderSoft,
-              }}
-            >
-              <div
-                className="border-b px-5 py-5 sm:px-8"
-                style={{
-                  backgroundColor: colors.accentSubtle,
-                  borderColor: colors.borderSoft,
-                }}
-              >
-                <p
-                  className="text-[10px] font-black uppercase tracking-[0.22em]"
-                  style={{ color: colors.accent }}
-                >
-                  Apply new DSC
-                </p>
-                <h2 className="mt-2 text-2xl font-black">
-                  Verify your mobile number
-                </h2>
-                <p
-                  className="mt-2 text-sm font-medium"
-                  style={{ color: colors.muted }}
-                >
-                  We will use this number for your application and status
-                  updates.
-                </p>
-              </div>
+                <hr className="mb-4" style={{ borderColor: colors.borderSoft }} />
 
-              <div className="px-5 py-6 sm:px-8">
-                <form
-                  className="space-y-4"
-                  onSubmit={otpSent ? handleVerifyOtp : handleSendOtp}
-                >
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {(["Indian", "Foreign"] as const).map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => setApplicantType(type)}
-                        className="flex h-12 items-center gap-3 rounded-lg border px-4 text-left text-sm font-bold transition-all"
-                        style={{
-                          backgroundColor:
+                <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-3.5">
+
+                  {/* Applicant Type Selection Section */}
+                  <div className="space-y-1">
+                    <label
+                      className="text-[9px] font-bold uppercase tracking-widest block"
+                      style={{ color: colors.subtleText }}
+                    >
+                      Applicant Type
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(["Indian", "Foreign"] as const).map((type) => (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setApplicantType(type)}
+                          className="flex h-10 items-center gap-2 rounded-xl px-3 text-[12px] font-medium transition-all"
+                          style={
                             applicantType === type
-                              ? `${colors.accent}14`
-                              : fieldSurface,
-                          borderColor:
-                            applicantType === type
-                              ? colors.accent
-                              : fieldBorder,
-                          color: fieldText,
-                        }}
-                      >
-                        <span
-                          className="flex h-4 w-4 items-center justify-center rounded-full border"
-                          style={{
-                            borderColor:
-                              applicantType === type
-                                ? colors.accent
-                                : colors.muted,
-                          }}
+                              ? {
+                                  background: colors.accentSoft,
+                                  border: `1px solid var(--accent)`,
+                                  color: colors.text,
+                                  boxShadow: `0 0 12px ${colors.accentFaint}`,
+                                }
+                              : {
+                                  background: colors.input,
+                                  border: `1px solid ${colors.inputBorder}`,
+                                  color: colors.muted,
+                                }
+                          }
                         >
-                          <span
-                            className="h-2 w-2 rounded-full"
+                          <div
+                            className="w-3.5 h-3.5 rounded-full border flex items-center justify-center transition-all"
                             style={{
-                              backgroundColor:
-                                applicantType === type
-                                  ? colors.accent
-                                  : "transparent",
+                              borderColor: applicantType === type ? "var(--accent)" : colors.muted,
                             }}
-                          />
-                        </span>
-                        {type}
-                      </button>
-                    ))}
+                          >
+                            {applicantType === type && (
+                              <div
+                                className="w-1.5 h-1.5 rounded-full"
+                                style={{ background: "var(--accent)" }}
+                              />
+                            )}
+                          </div>
+                          {type}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    value={mobile}
-                    disabled={otpSent}
-                    onChange={(event) => setMobile(event.target.value)}
-                    placeholder="Mobile number"
-                    className="h-12 w-full rounded-lg border px-4 text-sm font-bold outline-none disabled:opacity-70"
-                    style={{
-                      backgroundColor: fieldSurface,
-                      borderColor: fieldBorder,
-                      color: fieldText,
-                    }}
-                  />
-
-                  {!otpSent ? (
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_176px_96px]">
+                  {/* Mobile Input Field */}
+                  <div className="space-y-1">
+                    <label
+                      className="text-[9px] font-bold uppercase tracking-widest block"
+                      style={{ color: colors.subtleText }}
+                    >
+                      Mobile Number
+                    </label>
+                    <div className="relative">
+                      <Phone
+                        size={13}
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                        style={{ color: colors.muted }}
+                      />
                       <input
-                        type="text"
+                        type="tel"
                         inputMode="numeric"
-                        value={captchaInput}
-                        onChange={(event) =>
-                          setCaptchaInput(
-                            event.target.value.replace(/\D/g, "").slice(0, 4),
-                          )
-                        }
-                        placeholder="Captcha"
-                        className="h-12 rounded-lg border px-4 text-sm font-bold outline-none"
+                        value={mobile}
+                        disabled={otpSent}
+                        onChange={(e) => setMobile(e.target.value)}
+                        placeholder="Enter mobile number"
+                        className="glass-input h-10 w-full rounded-xl pl-9 pr-3 text-[12px] font-medium outline-none transition-all"
                         style={{
-                          backgroundColor: fieldSurface,
-                          borderColor: fieldBorder,
-                          color: fieldText,
+                          background: colors.input,
+                          border: `1px solid ${colors.inputBorder}`,
+                          color: colors.text,
                         }}
                       />
-                      <div
-                        className="flex h-12 items-center justify-center rounded-lg border border-dashed text-3xl font-black tracking-[0.2em]"
-                        style={{
-                          backgroundColor: colors.panel,
-                          borderColor: fieldBorder,
-                          color: fieldText,
-                        }}
+                    </div>
+                  </div>
+
+                  {/* Code Security Block Group Row Frame */}
+                  {!otpSent ? (
+                    <div className="space-y-1">
+                      <label
+                        className="text-[9px] font-bold uppercase tracking-widest block"
+                        style={{ color: colors.subtleText }}
                       >
-                        {captcha}
+                        Captcha Verification
+                      </label>
+                      <div className="grid grid-cols-[1fr_85px_38px] gap-2">
+                        <div className="relative">
+                          <Lock
+                            size={13}
+                            className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                            style={{ color: colors.muted }}
+                          />
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={captchaInput}
+                            onChange={(e) => setCaptchaInput(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                            placeholder="Code"
+                            className="glass-input h-10 w-full rounded-xl pl-9 pr-3 text-[12px] font-medium outline-none transition-all"
+                            style={{
+                              background: colors.input,
+                              border: `1px solid ${colors.inputBorder}`,
+                              color: colors.text,
+                            }}
+                          />
+                        </div>
+                        <div
+                          className="flex h-10 items-center justify-center rounded-xl text-sm font-black tracking-[0.15em] font-mono select-none"
+                          style={{
+                            background: colors.accentSoft,
+                            border: `1px solid ${colors.accentSubtle}`,
+                            color: "var(--accent)",
+                          }}
+                        >
+                          {captcha}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={refreshCaptcha}
+                          className="flex h-10 items-center justify-center rounded-xl transition-all hover:opacity-70"
+                          style={{
+                            background: colors.input,
+                            border: `1px solid ${colors.inputBorder}`,
+                            color: colors.muted,
+                          }}
+                        >
+                          <RefreshCw size={12} />
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={refreshCaptcha}
-                        className="flex h-12 items-center justify-center gap-2 rounded-lg border px-3 text-xs font-bold"
-                        style={{
-                          backgroundColor: fieldSurface,
-                          borderColor: fieldBorder,
-                          color: fieldText,
-                        }}
-                      >
-                        <RefreshCw size={15} />
-                        Refresh
-                      </button>
                     </div>
                   ) : (
-                    <div className="space-y-2">
+                    /* Dynamic Entry Screen Row Display */
+                    <div className="space-y-1">
                       <label
-                        className="text-[10px] font-black uppercase tracking-wider"
-                        style={{ color: colors.muted }}
+                        className="text-[9px] font-bold uppercase tracking-widest block"
+                        style={{ color: colors.subtleText }}
                       >
-                        Enter OTP
+                        Enter OTP Code
                       </label>
                       <input
                         type="text"
                         inputMode="numeric"
                         value={otp}
-                        onChange={(event) =>
-                          setOtp(
-                            event.target.value.replace(/\D/g, "").slice(0, 6),
-                          )
-                        }
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
                         placeholder="6-digit OTP"
-                        className="h-12 w-full rounded-lg border px-4 text-center text-lg font-black tracking-[0.22em] outline-none"
+                        className="glass-input h-10 w-full rounded-xl text-center text-sm font-bold tracking-[0.2em] outline-none transition-all"
                         style={{
-                          backgroundColor: fieldSurface,
-                          borderColor: fieldBorder,
-                          color: fieldText,
+                          background: colors.input,
+                          border: `1px solid var(--accent)`,
+                          color: colors.text,
                         }}
                       />
                     </div>
                   )}
 
-                  {gateError ? (
-                    <p className="text-sm font-bold text-rose-500">
+                  {gateError && (
+                    <p
+                      className="text-[11px] font-semibold p-2 rounded-xl"
+                      style={{
+                        color: isDarkMode ? "#fda4af" : "#9f1239",
+                        background: isDarkMode ? "rgba(244,63,94,0.10)" : "rgba(244,63,94,0.07)",
+                        border: `1px solid ${isDarkMode ? "rgba(244,63,94,0.22)" : "rgba(244,63,94,0.18)"}`,
+                      }}
+                    >
                       {gateError}
                     </p>
-                  ) : null}
+                  )}
 
+                  {/* Trigger Call Action Execution Controller */}
                   <button
                     type="submit"
-                    disabled={
-                      otpSent ? verifyingOtp : sendingOtp || !canSendOtp
-                    }
-                    className="theme-primary-btn flex h-12 w-full items-center justify-center gap-2 rounded-lg text-xs font-black uppercase tracking-widest text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    disabled={otpSent ? verifyingOtp : sendingOtp || !canSendOtp}
+                    className="w-full h-10 rounded-xl text-white text-[10px] font-extrabold uppercase tracking-[0.12em] transition-all flex items-center justify-center gap-1.5 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed active:scale-[0.99] hover:brightness-110"
+                    style={{
+                      background: premiumGradient,
+                      boxShadow: `0 8px 24px -8px ${colors.accentShadow}`,
+                    }}
                   >
-                    <ShieldCheck size={16} />
+                    <ShieldCheck size={13} className="stroke-[2.5]" />
                     {otpSent
                       ? verifyingOtp
                         ? "Verifying..."
-                        : "Verify and Continue"
+                        : "Verify & Continue"
                       : sendingOtp
-                        ? "Sending..."
-                        : "Get OTP"}
+                      ? "Sending..."
+                      : "Get OTP"}
                   </button>
                 </form>
               </div>
-            </section>
-          </div>
-        ) : (
-          <div className="mx-auto w-full max-w-xl">
-            <div
-              className="rounded-lg border p-6 shadow-lg sm:p-8"
-              style={{
-                backgroundColor: colors.card,
-                borderColor: colors.borderSoft,
-              }}
-            >
-              <h2 className="mb-6 text-center text-xl font-bold">
-                Track Your Application Status
-              </h2>
 
-              <form
-                onSubmit={handleTrackSubmit}
-                className="flex flex-col gap-4"
+              {/* Secure Architecture Cryptographic Compliance Labels Row */}
+              <div
+                className="relative z-10 flex items-center justify-center gap-5 mt-5 pt-3.5 text-[9px] font-bold uppercase tracking-wider shrink-0"
+                style={{
+                  borderTop: `1px solid ${colors.borderSoft}`,
+                  color: colors.muted,
+                }}
               >
-                <div>
-                  <label
-                    className="mb-2 block text-xs font-bold uppercase"
-                    style={{ color: colors.muted }}
-                  >
-                    Application ID or Mobile Number
-                  </label>
-                  <div className="relative">
-                    <Search
-                      className="absolute left-3 top-1/2 -translate-y-1/2"
-                      size={18}
-                      style={{ color: colors.muted }}
-                    />
-                    <input
-                      type="text"
-                      value={trackInput}
-                      onChange={(event) => setTrackInput(event.target.value)}
-                      placeholder="Enter 10-digit mobile or App ID"
-                      className="w-full rounded-lg border py-3 pl-10 pr-4 font-medium outline-none"
-                      style={{
-                        backgroundColor: colors.input,
-                        borderColor: colors.inputBorder,
-                        color: colors.text,
-                      }}
-                      required
-                    />
-                  </div>
+                <div className="flex items-center gap-1">
+                  <ShieldCheck size={11} className="stroke-[2.5]" style={{ color: colors.muted }} />
+                  256-bit Secure
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={trackLoading}
-                  className="theme-primary-btn mt-2 w-full rounded-lg py-3.5 text-xs font-black uppercase tracking-widest text-white disabled:opacity-70"
-                >
-                  {trackLoading ? "Searching..." : "Track Status"}
-                </button>
-              </form>
-
-              {trackError ? (
-                <div className="mt-6 rounded-lg border border-red-500/20 bg-red-500/10 p-4 text-center">
-                  <p className="text-sm font-bold text-red-500">{trackError}</p>
+                <div className="w-[1px] h-2.5" style={{ background: colors.borderSoft }} />
+                <div className="flex items-center gap-1">
+                  <ShieldCheck size={11} className="stroke-[2.5]" style={{ color: colors.muted }} />
+                  CCA Certified
                 </div>
-              ) : null}
-
-              {trackResult ? (
+              </div>
+            </section>
+            ) : (
+              <BankTelecomForm embedded onBack={() => setApplyStep(1)} />
+            )
+          ) : (
+            activeTab === "track" && (
+            isLoggedIn === false ? (
+              <div className="w-full max-w-[440px]">
                 <div
-                  className="mt-8 rounded-lg border p-6"
+                  className="group relative rounded-[20px] p-6 md:p-8 overflow-hidden transition-all duration-300 shadow-2xl"
                   style={{
-                    backgroundColor: colors.panel,
-                    borderColor: colors.borderSoft,
+                    background: colors.card,
+                    border: `1px solid ${colors.border}`,
                   }}
                 >
-                  <div className="flex flex-col gap-4">
-                    <ResultRow
-                      label="Applicant Name"
-                      value={trackResult.name}
-                      colors={colors}
-                    />
-                    <ResultRow
-                      label="Application ID"
-                      value={trackResult._id}
-                      colors={colors}
-                      mono
-                    />
-                    <div className="flex items-center justify-between pt-2">
-                      <span
-                        className="text-xs font-bold uppercase"
-                        style={{ color: colors.muted }}
-                      >
-                        Current Status
-                      </span>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider ${
-                          trackResult.status === "approved"
-                            ? "bg-green-500/20 text-green-600 dark:text-green-400"
-                            : trackResult.status === "rejected"
-                              ? "bg-red-500/20 text-red-600 dark:text-red-400"
-                              : "bg-amber-500/20 text-amber-600 dark:text-amber-400"
-                        }`}
-                      >
-                        {trackResult.status}
-                      </span>
+                  <div className="relative z-10 text-center space-y-5">
+                    <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center bg-rose-500/10 mb-2">
+                      <Lock size={24} className="text-rose-500" />
                     </div>
-                  </div>
+                    
+                    <h2 className="text-lg font-black tracking-tight" style={{ color: colors.text }}>
+                      Account Required
+                    </h2>
+                    
+                    <div className="text-left space-y-3 pt-2 pb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+                        <span className="text-[11px] font-semibold" style={{ color: colors.muted }}>Track your DSC application</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+                        <span className="text-[11px] font-semibold" style={{ color: colors.muted }}>Receive status updates</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+                        <span className="text-[11px] font-semibold" style={{ color: colors.muted }}>Download issued certificates</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--accent)" }} />
+                        <span className="text-[11px] font-semibold" style={{ color: colors.muted }}>Manage renewals</span>
+                      </div>
+                    </div>
 
-                  {trackResult.status === "pending" ? (
                     <button
-                      type="button"
-                      onClick={() =>
-                        router.push(
-                          `/bank-telecom-form?mobile=${trackInput}&guest=true`,
-                        )
-                      }
-                      className="mt-6 w-full rounded-lg border py-2.5 text-sm font-bold transition-colors"
+                      onClick={() => router.push("/register")}
+                      className="w-full h-11 rounded-xl text-white text-[11px] font-extrabold uppercase tracking-wider transition-all hover:brightness-110 shadow-lg"
                       style={{
-                        borderColor: colors.accent,
-                        color: colors.accent,
+                        background: premiumGradient,
+                        boxShadow: `0 8px 24px -8px ${colors.accentShadow}`,
                       }}
                     >
-                      Complete Pending Application
+                      Create  Account
                     </button>
-                  ) : null}
+                  </div>
                 </div>
-              ) : null}
+              </div>
+            ) : (
+            /* Search Tracking Board Module */
+            <div className="w-full max-w-[440px]">
+              <div
+                className="group relative rounded-[20px] p-6 md:p-7 overflow-hidden transition-all duration-300 shadow-2xl hover:shadow-[0_20px_50px_-12px_var(--accent-shadow),0_0_20px_1px_var(--accent-faint)]"
+                style={{
+                  background: colors.card,
+                  border: `1px solid ${colors.border}`,
+                }}
+              >
+                <div className="relative z-10">
+                  <h2
+                    className="mb-4 text-center text-sm font-bold tracking-tight"
+                    style={{ color: colors.text }}
+                  >
+                    Track Application Status
+                  </h2>
+
+                  <form onSubmit={handleTrackSubmit} className="space-y-3.5">
+                    <div className="space-y-1">
+                      <label
+                        className="text-[9px] font-bold uppercase tracking-widest block"
+                        style={{ color: colors.subtleText }}
+                      >
+                        Application Query Reference
+                      </label>
+                      <div className="relative">
+                        <Search
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2"
+                          size={13}
+                          style={{ color: colors.muted }}
+                        />
+                        <input
+                          type="text"
+                          value={trackInput}
+                          onChange={(e) => setTrackInput(e.target.value)}
+                          placeholder="Enter mobile or Application ID"
+                          className="glass-input w-full h-10 rounded-xl pl-9 pr-3 text-[12px] font-medium outline-none transition-all"
+                          style={{
+                            background: colors.input,
+                            border: `1px solid ${colors.inputBorder}`,
+                            color: colors.text,
+                          }}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={trackLoading}
+                      className="w-full h-10 rounded-xl text-white text-[10px] font-extrabold uppercase tracking-wider transition-all hover:brightness-110 disabled:opacity-50"
+                      style={{
+                        background: premiumGradient,
+                        boxShadow: `0 8px 24px -8px ${colors.accentShadow}`,
+                      }}
+                    >
+                      {trackLoading ? "Searching..." : "Track Status"}
+                    </button>
+                  </form>
+
+                  {trackError && (
+                    <div
+                      className="mt-4 rounded-xl p-3 text-center"
+                      style={{
+                        background: isDarkMode ? "rgba(244,63,94,0.08)" : "rgba(244,63,94,0.06)",
+                        border: `1px solid ${isDarkMode ? "rgba(244,63,94,0.22)" : "rgba(244,63,94,0.18)"}`,
+                      }}
+                    >
+                      <p
+                        className="text-[11px] font-semibold"
+                        style={{ color: isDarkMode ? "#fda4af" : "#9f1239" }}
+                      >
+                        {trackError}
+                      </p>
+                    </div>
+                  )}
+
+                  {trackResult && (
+                    <div
+                      className="mt-4 rounded-xl p-3.5 space-y-2.5"
+                      style={{
+                        background: colors.input,
+                        border: `1px solid ${colors.borderSoft}`,
+                      }}
+                    >
+                      <div
+                        className="flex items-center justify-between pb-2"
+                        style={{ borderBottom: `1px solid ${colors.borderSoft}` }}
+                      >
+                        <span
+                          className="text-[9px] font-bold uppercase tracking-wider"
+                          style={{ color: colors.muted }}
+                        >
+                          Applicant
+                        </span>
+                        <span className="text-[12px] font-semibold" style={{ color: colors.text }}>
+                          {trackResult.name}
+                        </span>
+                      </div>
+                      <div
+                        className="flex items-center justify-between pb-2"
+                        style={{ borderBottom: `1px solid ${colors.borderSoft}` }}
+                      >
+                        <span
+                          className="text-[9px] font-bold uppercase tracking-wider"
+                          style={{ color: colors.muted }}
+                        >
+                          ID Reference
+                        </span>
+                        <span
+                          className="font-mono text-[11px]"
+                          style={{ color: "var(--accent)" }}
+                        >
+                          {trackResult._id}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between pt-0.5">
+                        <span
+                          className="text-[9px] font-bold uppercase tracking-wider"
+                          style={{ color: colors.muted }}
+                        >
+                          Status
+                        </span>
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider ${
+                            trackResult.status === "approved"
+                              ? "bg-green-500/10 text-green-500 border border-green-500/20"
+                              : trackResult.status === "rejected"
+                              ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                              : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                          }`}
+                        >
+                          {trackResult.status}
+                        </span>
+                      </div>
+
+                      {trackResult.status === "pending" && (
+                        <button
+                          type="button"
+                          onClick={() => router.push(`/bank-telecom-form?mobile=${trackInput}&guest=true&from=${flowSource}`)}
+                          className="mt-1 w-full h-8 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-colors hover:opacity-80"
+                          style={{
+                            border: `1px solid ${colors.accentSubtle}`,
+                            color: "var(--accent)",
+                            background: colors.accentFaint,
+                          }}
+                        >
+                          Complete Form
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
+            )
+          )
         )}
+        </div>
+
+        {/* Minimal Footer Label */}
+        <footer
+          className="h-4 shrink-0 text-center text-[9px] uppercase tracking-widest"
+          style={{ color: colors.muted }}
+        >
+          © {new Date().getFullYear()} DongleIQ.
+        </footer>
+        </div>{/* end content area */}
       </div>
     </main>
   );
 }
 
-function ResultRow({
-  label,
-  value,
-  colors,
-  mono,
-}: {
-  label: string;
-  value: string;
-  colors: ReturnType<typeof getThemePalette>;
-  mono?: boolean;
-}) {
-  return (
-    <div
-      className="flex items-center justify-between border-b pb-4"
-      style={{ borderColor: colors.borderSoft }}
-    >
-      <span
-        className="text-xs font-bold uppercase"
-        style={{ color: colors.muted }}
-      >
-        {label}
-      </span>
-      <span className={mono ? "font-mono text-sm" : "font-bold"}>{value}</span>
-    </div>
-  );
-}
-
 export default function ApplyDSCPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen w-full bg-black" />}>
+    <Suspense fallback={<div className="h-screen w-screen" style={{ background: "var(--background)" }} />}>
       <ApplyDSCContent />
     </Suspense>
   );
 }
+
+

@@ -291,7 +291,7 @@ export default function DongleIQLanding() {
                 {" "}
                 <BadgeCheck size={14} />
                 <span>
-                  A Trusted onboarding platform for DSC & IRCTC agents
+                  A trusted onboarding platform for DSC and IRCTC users
                 </span>
               </div>
 
@@ -310,9 +310,9 @@ export default function DongleIQLanding() {
     text-center
   "
               >
-                Secure digital identity,
+                Secure digital identity
                 <br />
-                redesigned for
+                made simple for
                 <br />
                 <span
                   style={{
@@ -344,16 +344,15 @@ export default function DongleIQLanding() {
                     : "rgba(15,23,42,.75)",
                 }}
               >
-                DongleIQ accelerates agent onboarding with a streamlined
-                application flow, enhanced verification UX, Aadhaar eKYC, secure
-                document verification, and a modern trust-first platform built
-                for DSC and IRCTC partners.
+                DongleIQ helps people apply, verify documents, and track
+                progress in a simpler way. It keeps the process clear, secure,
+                and easy to follow.
               </p>
 
               {/* CTA */}
               <div className="mt-7 flex flex-col gap-4 sm:flex-row justify-center items-center">
                 <button
-                  onClick={() => router.push("/apply-dsc")}
+                  onClick={() => router.push("/apply-dsc?from=landing")}
                   className="button-primary group"
                 >
                   Apply DSC
@@ -373,7 +372,7 @@ export default function DongleIQLanding() {
               <div className="mt-7 flex flex-wrap gap-4">
                 {[
                   "Fast onboarding",
-                  "Licensed trust flow",
+                  "Secure checks",
                   "Human support",
                 ].map((item) => (
                   <div key={item} className="inline-trust-pill">
@@ -428,16 +427,16 @@ export default function DongleIQLanding() {
       <section id="whyus" className="section">
         <ScrollReveal className="container-shell">
           <SectionHeader
-            label="Why teams choose DongleIQ"
+            label="Why people choose DongleIQ"
             title={
               <>
-                A sharper experience for{" "}
+                A clearer experience for{" "}
                 <span className="text-gradient-brand">
-                  trust, speed, and conversion
+                  trust, speed, and ease
                 </span>
               </>
             }
-            description="The design is tuned to reduce friction, look more professional, and help visitors understand what to do next without hesitation."
+            description="The design is made to feel clean, professional, and easy to understand."
           />
 
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -762,7 +761,7 @@ export default function DongleIQLanding() {
           </div>
 
           <div className="footer-bottom">
-            <p>© 2026 DongleIQ. All rights reserved.</p>
+            <p>Â© 2026 DongleIQ. All rights reserved.</p>
             <div>
               <a href="#">Privacy</a>
               <a href="#">Terms</a>

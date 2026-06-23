@@ -21,6 +21,7 @@ const signupSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
   number: z.string().trim().min(10, "Please enter a valid mobile number"),
   password: z.string().min(6, "Password must be at least 6 characters long"),
+  skipOtp: z.boolean().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, number, password } = validation.data;
+    const { name, email, number, password, skipOtp } = validation.data;
     const normalizedEmail = email.toLowerCase();
     const normalizedNumber = normalizeIndianMobile(number);
 
@@ -107,7 +108,7 @@ export async function POST(req: NextRequest) {
       email: normalizedEmail,
       number: normalizedNumber,
       password: hashedPassword,
-      isVerified: false,
+      isVerified: skipOtp ? true : false,
       otp: hashedOtpValue,
       otpExpiry,
     });
@@ -125,6 +126,13 @@ export async function POST(req: NextRequest) {
         source: "signup",
       },
     });
+
+    if (skipOtp) {
+      return NextResponse.json({
+        message: "Registration successful",
+        skipOtp: true
+      });
+    }
 
     const verificationEmail = createUserOtpEmail({ otp, name });
     await transporter.sendMail({

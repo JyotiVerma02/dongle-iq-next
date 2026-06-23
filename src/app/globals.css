@@ -195,7 +195,7 @@ body {
   padding: 0;
   overflow-x: hidden;
   color: var(--foreground);
-  font-family: poppins, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-poppins), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   line-height: 1.5;
   background: var(--background);
   text-rendering: optimizeLegibility;
@@ -240,8 +240,7 @@ h3,
 h4,
 h5,
 h6 {
-  /* font-family: 'Clash Display', 'Satoshi', system-ui, sans-serif; */
-
+  font-family: var(--font-poppins), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 *,
@@ -3471,13 +3470,50 @@ html.dark {
 html.dark,
 html.dark body,
 html.dark .page-shell,
-html.dark .app-shell-content {
+html.dark .app-shell-content,
+html.dark .auth-page-shell,
+html.dark .hero-grid,
+html.dark .hero-dashboard-wrap {
   background:
-    radial-gradient(circle at 8% 16%, rgba(136, 57, 255, 0.22), transparent 25%),
-    radial-gradient(circle at 92% 12%, rgba(0, 178, 255, 0.18), transparent 24%),
-    radial-gradient(circle at 50% 105%, rgba(89, 50, 255, 0.18), transparent 34%),
-    linear-gradient(180deg, #030414 0%, #05061a 48%, #02030f 100%) !important;
+    radial-gradient(circle at 16% 30%, rgba(183, 70, 255, 0.35), transparent 28%),
+    radial-gradient(circle at 84% 28%, rgba(54, 196, 255, 0.30), transparent 26%),
+    radial-gradient(circle at 50% 110%, rgba(88, 64, 255, 0.24), transparent 38%),
+    linear-gradient(180deg, #03020d 0%, #04061a 42%, #02030b 100%) !important;
   color: var(--foreground);
+}
+
+html.dark .auth-page-shell,
+html.dark .hero-grid,
+html.dark .hero-dashboard-wrap {
+  position: relative;
+  isolation: isolate;
+}
+
+html.dark .auth-page-shell::before,
+html.dark .hero-grid::before,
+html.dark .hero-dashboard-wrap::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(168, 85, 247, 0.28), transparent 24%),
+    radial-gradient(circle at 88% 22%, rgba(34, 211, 238, 0.22), transparent 22%),
+    radial-gradient(circle at 50% 12%, rgba(124, 58, 237, 0.12), transparent 30%);
+  opacity: 0.95;
+  z-index: -1;
+}
+
+html.dark .auth-page-shell::after,
+html.dark .hero-grid::after,
+html.dark .hero-dashboard-wrap::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.03), transparent 34%);
+  z-index: -1;
 }
 
 html.dark .premium-card,
@@ -3500,14 +3536,15 @@ html.dark .ud-sidebar-surface,
 html.dark .live-chat-panel {
   border-color: var(--border-soft) !important;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.065), rgba(255, 255, 255, 0.018)),
-    radial-gradient(circle at 12% 0%, rgba(139, 92, 246, 0.14), transparent 38%),
-    rgba(7, 9, 29, 0.86) !important;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+    radial-gradient(circle at 12% 0%, rgba(139, 92, 246, 0.18), transparent 38%),
+    radial-gradient(circle at 88% 0%, rgba(56, 189, 248, 0.12), transparent 34%),
+    rgba(5, 7, 24, 0.92) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.075),
-    0 22px 54px -40px rgba(0, 0, 0, 0.94),
-    0 0 0 1px rgba(75, 103, 255, 0.055),
-    0 0 38px -28px rgba(139, 92, 246, 0.78) !important;
+    0 22px 54px -40px rgba(0, 0, 0, 0.96),
+    0 0 0 1px rgba(75, 103, 255, 0.08),
+    0 0 48px -30px rgba(139, 92, 246, 0.90) !important;
 }
 
 html.dark .navbar-coder,
@@ -3515,12 +3552,12 @@ html.dark .nav-surface,
 html.dark .ud-dashboard-theme .ud-mobile-bar,
 html.dark .ud-dashboard-theme .ud-desktop-bar {
   background:
-    linear-gradient(180deg, rgba(12, 13, 35, 0.88), rgba(4, 5, 19, 0.72)) !important;
+    linear-gradient(180deg, rgba(10, 10, 28, 0.92), rgba(3, 4, 15, 0.76)) !important;
   border-color: rgba(132, 104, 255, 0.18) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.07),
     0 16px 42px -30px rgba(0, 0, 0, 0.9),
-    0 0 34px -28px rgba(56, 213, 255, 0.58) !important;
+    0 0 34px -28px rgba(56, 213, 255, 0.45) !important;
 }
 
 html.dark .button-primary,

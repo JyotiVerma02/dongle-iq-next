@@ -112,10 +112,10 @@ export default function VerifyOTP() {
                   <ShieldCheck size={18} />
                 </div>
                 <h2 className="text-xl font-black uppercase tracking-tight">
-                  Verify <span style={{ color: colors.accent }}>OTP</span>
+                  Check <span style={{ color: colors.accent }}>OTP</span>
                 </h2>
                 <p className="mt-2 text-xs font-medium" style={{ color: colors.muted }}>
-                  Enter the 6-digit OTP sent to your email.
+                  Enter the 6-digit code sent to your email.
                 </p>
               </div>
 
@@ -137,7 +137,7 @@ export default function VerifyOTP() {
                     className="text-[10px] font-black uppercase tracking-[0.22em]"
                     style={{ color: colors.subtleText }}
                   >
-                    Email
+                    Email address
                   </label>
                   <div className="relative">
                     <input
@@ -166,7 +166,7 @@ export default function VerifyOTP() {
                     className="text-[10px] font-black uppercase tracking-[0.22em]"
                     style={{ color: colors.subtleText }}
                   >
-                    OTP
+                    One-time password
                   </label>
                   <OTPInput
                     length={6}
@@ -180,7 +180,7 @@ export default function VerifyOTP() {
                   disabled={loading || otp.length !== 6}
                   className="theme-primary-btn theme-transition flex w-full items-center justify-center rounded-2xl py-3 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {loading ? "Verifying..." : "Verify OTP"}
+                  {loading ? "Verifying..." : "Continue"}
                 </button>
 
                 <button
@@ -194,7 +194,7 @@ export default function VerifyOTP() {
                     color: colors.accent,
                   }}
                 >
-                  {resending ? "Resending..." : "Resend OTP"}
+                  {resending ? "Resending..." : "Send again"}
                 </button>
               </form>
             </div>

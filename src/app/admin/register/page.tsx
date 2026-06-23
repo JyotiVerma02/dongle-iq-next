@@ -107,7 +107,7 @@ export default function AdminRegister() {
 
   return (
     <div
-      className="auth-page-shell theme-transition hero-grid relative overflow-hidden bg-transparent font-sans antialiased tracking-tight"
+      className="auth-page-shell theme-transition hero-grid relative overflow-hidden bg-transparent font-sans antialiased tracking-tight text-base"
       style={{ color: colors.text }}
     >
       <div className="relative z-10 flex app-page-min-height items-stretch">
@@ -127,14 +127,14 @@ export default function AdminRegister() {
               System administrator
             </div>
             <h1
-              className="mb-5 text-4xl font-black uppercase leading-tight tracking-tight xl:text-5xl"
+              className="mb-5 text-4xl font-black uppercase leading-tight tracking-tight xl:text-5xl whitespace-nowrap"
               style={{ color: colors.text }}
             >
               <span>Admin </span>
               <span style={{ color: colors.accent }}>Access</span>
             </h1>
-            <p
-              className="mb-7 max-w-lg text-sm font-medium leading-relaxed opacity-80"
+            <p 
+              className="mb-7 max-w-lg font-medium leading-relaxed opacity-80"
               style={{ color: colors.muted }}
             >
               Create the primary administrator profile and unlock secure
@@ -207,7 +207,7 @@ export default function AdminRegister() {
                   {adminExists ? "Admin Login" : "Register Admin"}
                 </h2>
                 <p
-                  className="mt-1.5 text-xs font-medium opacity-80"
+                  className="mt-1.5 font-medium opacity-80"
                   style={{ color: colors.muted }}
                 >
                   {adminExists

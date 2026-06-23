@@ -26,7 +26,7 @@ function ResetPasswordContent() {
     e.preventDefault();
     setMessage("");
     if (!token) {
-      setMessage("Invalid or expired reset link");
+      setMessage("This reset link is invalid or has expired");
       return;
     }
     if (!password || !confirmPassword) {
@@ -54,7 +54,7 @@ function ResetPasswordContent() {
       if (res.ok) setTimeout(() => router.push("/login"), 2000);
     } catch (error) {
       console.error(error);
-      setMessage("System handshake error occurred");
+      setMessage("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -71,11 +71,11 @@ function ResetPasswordContent() {
           <div className="hidden lg:flex lg:w-full lg:max-w-[32rem] lg:flex-col lg:justify-center lg:pr-12 xl:max-w-[34rem] xl:pr-24" style={{ borderRight: `1px solid ${colors.borderSoft}` }}>
             <div className="animate-[fadeInLeft_0.8s_ease-out]">
               <h1 className="mb-8 text-5xl font-black uppercase leading-[0.9] tracking-tight xl:text-6xl" style={{ color: colors.text }}>
-                Update <br />
-                <span className="text-gradient-brand">Credentials</span>
+                Reset <br />
+                <span className="text-gradient-brand">Password</span>
               </h1>
               <p className="text-lg max-w-lg leading-relaxed font-medium mb-12 opacity-70" style={{ color: colors.muted }}>
-                Finalize your account recovery by establishing a new high-entropy access key.
+                Create a new password to regain access to your account.
               </p>
               <div className="grid max-w-xl grid-cols-2 gap-4">
                 {[{ value: "Protected", label: "Credential update" }, { value: "Clean", label: "Access refresh" }].map((item, index) => (
@@ -98,9 +98,9 @@ function ResetPasswordContent() {
               <div className="auth-card relative w-full p-5 shadow-2xl sm:p-8" style={{ backgroundColor: colors.card, borderColor: colors.border }}>
                 <div className="mb-6 text-center">
                   <h2 className="text-2xl font-black uppercase tracking-tighter" style={{ color: colors.text }}>
-                    New <span className="text-gradient-cool">Access</span>
+                    New <span className="text-gradient-cool">Password</span>
                   </h2>
-                  <p className="mt-2 text-[9px] font-black uppercase tracking-[0.4em] opacity-50" style={{ color: colors.muted }}>Protocol Recovery</p>
+                  <p className="mt-2 text-[9px] font-black uppercase tracking-[0.4em] opacity-50" style={{ color: colors.muted }}>Account recovery</p>
                 </div>
 
                 {message && (
@@ -129,7 +129,7 @@ function ResetPasswordContent() {
                   </div>
 
                   <button type="submit" disabled={loading} className="theme-primary-btn w-full py-3.5 rounded-lg text-[11px] font-black uppercase tracking-[0.3em] text-white transition-all">
-                    {loading ? "Processing..." : "Reset Password"}
+                    {loading ? "Processing..." : "Save new password"}
                   </button>
                 </form>
               </div>

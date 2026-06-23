@@ -17,9 +17,9 @@ import AppShell from "@/components/AppShell";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "Dongle IQ | Secure DSC Portal",
+  title: "DongleIQ | Secure DSC and IRCTC Portal",
   description:
-    "Simplifying IRCTC Agent IDs and Digital Signature Certificates.",
+    "Track applications, manage documents, and complete DSC onboarding in a polished secure portal.",
 };
 
 export default function RootLayout({
@@ -68,7 +68,7 @@ async function RootLayoutInner({
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
       </head>
-      <body suppressHydrationWarning className={`${poppins.variable} font-sans antialiased`}>
+      <body suppressHydrationWarning className={`${poppins.variable} antialiased`}>
         <ThemeProvider initialTheme={initialTheme as "light" | "dark"}>
           <Providers>
             <AppShell>{children}</AppShell>

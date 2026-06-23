@@ -13,6 +13,7 @@ const HIDE_NAVBAR_PATHS = new Set([
   "/preview",
   "/user/dashboard",
   "/admin/dashboard",
+  "/apply-dsc",
 ]);
 
 const HIDE_NAVBAR_PREFIXES = ["/admin/dashboard", "/admin/create-application", "/user"];
@@ -53,11 +54,10 @@ export default function AppShell({ children }: { children: ReactNode }) {
         position="top-right"
         toastOptions={{
           className:
-            "dark:bg-zinc-900 dark:text-white border border-white/10",
+            "rounded-xl border border-white/10 bg-white/95 px-4 py-3 text-sm text-slate-800 shadow-[0_18px_48px_rgba(15,23,42,0.18)] backdrop-blur-md dark:bg-zinc-900/95 dark:text-white",
           duration: 4000,
         }}
       />
     </>
   );
-  
 }

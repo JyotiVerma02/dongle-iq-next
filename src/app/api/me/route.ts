@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifySessionToken } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get("token")?.value;
@@ -10,8 +11,14 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  // OPTIONAL: validate token from DB/session
-  // const user = await getUserFromSession(token);
+  try {
+    await verifySessionToken(token);
+  } catch {
+    return NextResponse.json(
+      { user: null },
+      { status: 401 }
+    );
+  }
 
   return NextResponse.json(
     { user: { token } }, // replace with real user later

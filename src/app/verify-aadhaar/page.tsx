@@ -188,7 +188,7 @@ export default function AadhaarVerifyPage() {
               <ShieldCheck size={18} />
             </div>
             <h1 className="text-xl font-black uppercase tracking-tighter">
-              Aadhaar <span style={{ color: colors.accent }}>Verification</span>
+              Aadhaar <span style={{ color: colors.accent }}>Check</span>
             </h1>
           </div>
 
@@ -211,7 +211,7 @@ export default function AadhaarVerifyPage() {
             className="mb-3 rounded-lg px-3 py-2 text-center text-[11px]"
             style={{ backgroundColor: colors.accentSoft, color: colors.text }}
           >
-            Enter Aadhaar linked mobile number
+            Enter the mobile number linked to Aadhaar
           </div>
 
           <div className="space-y-3">
@@ -222,7 +222,7 @@ export default function AadhaarVerifyPage() {
                 inputMode="numeric"
                 value={mobile}
                 disabled={otpSent}
-                placeholder="Mobile Number"
+                placeholder="Mobile number"
                 onChange={(event) => setMobile(event.target.value.replace(/\D/g, ""))}
                 className="glass-input theme-transition flex-1 rounded-2xl border px-4 py-2.5 text-sm font-semibold outline-none disabled:opacity-70"
                 style={{
@@ -295,7 +295,7 @@ export default function AadhaarVerifyPage() {
                 {isChecked ? <span className="text-xs font-bold">✓</span> : null}
               </div>
               <span style={{ color: colors.text }}>
-                I consent to Aadhaar-linked mobile verification for this application.
+                I agree to Aadhaar-linked mobile verification for this application.
               </span>
             </div>
 
@@ -305,7 +305,7 @@ export default function AadhaarVerifyPage() {
               className="theme-primary-btn theme-transition w-full rounded-2xl py-2.5 text-[11px] font-black uppercase tracking-[0.2em] text-white disabled:cursor-not-allowed disabled:opacity-60"
               style={{ opacity: isChecked && otp.join("").length === 6 ? 1 : 0.55 }}
             >
-              {isVerifying ? "Verifying..." : "Verify"}
+              {isVerifying ? "Verifying..." : "Continue"}
             </button>
           </div>
         </section>
