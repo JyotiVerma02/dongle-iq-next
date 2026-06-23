@@ -272,12 +272,12 @@ export default function BankTelecomForm({ embedded = false, onBack }: BankTeleco
 
   return (
     <div
-      className={embedded ? "flex h-full w-full flex-col overflow-hidden" : "flex min-h-screen w-full flex-col overflow-hidden p-2 md:p-4"}
+      className={embedded ? "flex w-full flex-col overflow-hidden" : "flex min-h-screen w-full flex-col overflow-hidden p-2 md:p-4"}
       style={formShellStyle}
     >
       <form
         onSubmit={handleSubmit}
-        className={embedded ? "flex h-full w-full flex-col overflow-hidden rounded-[24px] border shadow-2xl" : "flex flex-1 w-full flex-col overflow-hidden rounded-xl border shadow-xl"}
+        className={embedded ? "flex w-full flex-col overflow-hidden rounded-[24px] border shadow-2xl" : "flex flex-1 w-full flex-col overflow-hidden rounded-xl border shadow-xl"}
         style={{
           backgroundColor: isDarkMode ? colors.panelStrong : colors.card,
           borderColor: isDarkMode ? colors.inputBorder : colors.border,
@@ -823,6 +823,7 @@ function FileBox({
     </div>
   );
 }
+
 
 
 

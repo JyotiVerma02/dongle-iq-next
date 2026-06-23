@@ -241,7 +241,7 @@ function ApplyDSCContent() {
         <div className="flex-1 flex flex-col justify-between px-4 py-4 min-h-0">
 
         {/* Viewport Card Container */}
-        <div className="flex-1 flex items-center justify-center py-2 min-h-0">
+        <div className={activeTab === "apply" && applyStep === 2 ? "flex-1 min-h-0 overflow-y-auto py-2" : "flex-1 flex items-center justify-center py-2 min-h-0"}>
           {activeTab === "apply" ? (
             applyStep === 1 ? (
             /* Apply Card with Dynamic Radial Neon Follow Blur */
@@ -528,7 +528,7 @@ function ApplyDSCContent() {
               </div>
             </section>
             ) : (
-              <BankTelecomForm embedded onBack={() => setApplyStep(1)} />
+              <div className="w-full max-w-none"><BankTelecomForm embedded onBack={() => setApplyStep(1)} /></div>
             )
           ) : (
             activeTab === "track" && (
@@ -763,5 +763,6 @@ export default function ApplyDSCPage() {
     </Suspense>
   );
 }
+
 
 
