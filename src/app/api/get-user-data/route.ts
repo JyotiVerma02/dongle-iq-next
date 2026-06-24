@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import User from "@/models/user";
 import { connectDB } from "@/lib/mongodb";
@@ -58,6 +58,12 @@ export async function GET(req: NextRequest) {
         gender: user.gender,
         dob: user.dob,
         ekycId: user.ekycId,
+        ekycPin: user.ekycPin,
+        bpCode: user.bpCode,
+        clientId: user.clientId,
+        createdBy: user.createdBy,
+        createdById: user.createdById,
+        dscId: user.dscId,
         certificateClass: user.certificateClass,
         certType: user.certType,
         validity: user.validity,
@@ -123,3 +129,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
+

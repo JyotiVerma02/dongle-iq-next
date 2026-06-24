@@ -1,8 +1,10 @@
-"use client";
+﻿"use client";
 
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
+import { useTheme } from "@/components/ThemeContext";
+import { getThemePalette } from "@/lib/themePalette";
 
 import Navbar from "@/components/navbar";
 
@@ -30,8 +32,10 @@ function shouldHideNavbar(pathname: string) {
 
 export default function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname() || "";
+  const { isDarkMode } = useTheme();
+  const colors = getThemePalette(isDarkMode);
 
-  // ✅ Normalize path (fixes trailing slash + query bugs)
+  // âœ… Normalize path (fixes trailing slash + query bugs)
   const cleanPath = pathname.split("?")[0].replace(/\/$/, "");
 
   const showNavbar = !shouldHideNavbar(cleanPath);
@@ -53,11 +57,21 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <Toaster
         position="top-right"
         toastOptions={{
-          className:
-            "rounded-xl border border-white/10 bg-white/95 px-4 py-3 text-sm text-slate-800 shadow-[0_18px_48px_rgba(15,23,42,0.18)] backdrop-blur-md dark:bg-zinc-900/95 dark:text-white",
           duration: 4000,
+          style: {
+            background: colors.card,
+            color: colors.text,
+            border: `1px solid ${colors.borderSoft}`,
+            borderRadius: "14px",
+            boxShadow: "0 18px 48px rgba(15,23,42,0.18)",
+          },
         }}
       />
     </>
   );
 }
+
+
+
+
+

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+﻿/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import streamifier from "streamifier";
@@ -11,6 +11,7 @@ import { isValidIndianMobile, normalizeIndianMobile } from "@/lib/phone";
 import { calculatePricing } from "@/lib/pricing";
 import cloudinary from "@/lib/cloudinary";
 import User from "@/models/user";
+import { invalidateAdminUsersCache, invalidateCacheKey, invalidateUserDashboardCache, ADMIN_REPORTS_CACHE_KEY } from "@/lib/dashboardCache";
 
 const uploadToCloudinary = async (file: File, folder: string) => {
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -200,6 +201,7 @@ export async function POST(req: Request) {
       existingUser.assistedService = assistedService;
       existingUser.internalRemarks = internalRemarks;
       existingUser.price = price;
+      existingUser.status = existingUser.status || "pending";
 
       if (photoUrl) existingUser.photo = photoUrl;
       if (photoPublicId) existingUser.photoPublicId = photoPublicId;
@@ -209,6 +211,10 @@ export async function POST(req: Request) {
       if (addressProofPublicId) existingUser.addressProofPublicId = addressProofPublicId;
 
       await existingUser.save();
+
+      await invalidateUserDashboardCache(String(existingUser._id));
+      await invalidateAdminUsersCache();
+      await invalidateCacheKey(ADMIN_REPORTS_CACHE_KEY);
 
       return NextResponse.json({
         success: true,
@@ -255,6 +261,7 @@ export async function POST(req: Request) {
       assistedService,
       internalRemarks,
       price,
+      status: "pending",
       photo: photoUrl,
       photoPublicId,
       idProof: idProofUrl,
@@ -274,6 +281,10 @@ export async function POST(req: Request) {
         source: "save-user",
       },
     });
+
+    await invalidateUserDashboardCache(String(user._id));
+    await invalidateAdminUsersCache();
+    await invalidateCacheKey(ADMIN_REPORTS_CACHE_KEY);
 
     return NextResponse.json({
       success: true,
@@ -306,3 +317,7 @@ export async function POST(req: Request) {
     );
   }
 }
+
+
+
+

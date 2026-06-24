@@ -90,6 +90,12 @@ type UserData = {
   gender?: string;
   dob?: string;
   ekycId?: string;
+  ekycPin?: string;
+  bpCode?: string;
+  clientId?: string;
+  createdBy?: string;
+  createdById?: string;
+  dscId?: string;
   certificateClass?: string;
   certType?: string;
   validity?: string;
@@ -340,7 +346,9 @@ function UserDashboardPage() {
     [],
   );
 
-  const hasSubmittedApplication = hasCompletedApplication(userData);
+  const hasSubmittedApplication = Boolean(
+    userData && (userData.status || hasCompletedApplication(userData)),
+  );
   const applicationStatus = hasSubmittedApplication
     ? userData?.status || "pending"
     : null;
@@ -656,8 +664,8 @@ function UserDashboardPage() {
 
   const canEditApplication =
     hasSubmittedApplication &&
-    !paymentIsSettled &&
-    (applicationStatus === "pending" || applicationStatus === "rejected");
+    applicationStatus !== "approved" &&
+    applicationStatus !== "issued";
 
   const handleEditApplication = () => {
     if (!userData || !canEditApplication) {
@@ -2152,9 +2160,24 @@ function UserDashboardPage() {
             value={userData.dob || "Not added"}
             colors={colors}
           />
-          <StatusMeta
+                    <StatusMeta
             label="eKYC ID"
             value={userData.ekycId || "Not added"}
+            colors={colors}
+          />
+          <StatusMeta
+            label="eKYC PIN"
+            value={userData.ekycPin || "Not added"}
+            colors={colors}
+          />
+          <StatusMeta
+            label="BP Code"
+            value={userData.bpCode || "Not added"}
+            colors={colors}
+          />
+          <StatusMeta
+            label="Created By"
+            value={userData.createdBy || "client"}
             colors={colors}
           />
         </div>
@@ -2185,12 +2208,26 @@ function UserDashboardPage() {
         className="ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-4 sm:p-6 lg:p-8"
         style={{ backgroundColor: colors.card, borderColor: colors.border }}
       >
-        <p
+                <p
           className="text-[10px] font-black uppercase tracking-[0.24em]"
           style={{ color: colors.muted }}
         >
           Your Uploaded Documents
         </p>
+        <div className="mt-3 grid gap-2 rounded-xl border p-3 text-[10px] font-semibold" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+          <div className="flex items-center justify-between gap-3">
+            <span style={{ color: colors.muted }}>Unique ID</span>
+            <span className="font-mono break-all" style={{ color: colors.text }}>
+              {userData.clientId || userData._id}
+            </span>
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <span style={{ color: colors.muted }}>DSC ID</span>
+            <span className="font-mono break-all" style={{ color: colors.text }}>
+              {userData.dscId || "Pending"}
+            </span>
+          </div>
+        </div>
         <div className="mt-4 grid gap-3">
           <DocumentMeta
             label="Applicant Photo"
@@ -2280,30 +2317,129 @@ function UserDashboardPage() {
     title: "My Applications",
     eyebrow: "Submitted DSC applications",
     description:
-      "Your submitted DSC application, review status, and payment progress stay here.",
+      "This is the single source of truth for your submitted DSC application. It mirrors backend data, uploaded documents, and the live approval timeline.",
     children: userData ? (
-      <div className="ud-meta-grid">
-        <StatusMeta
-          label="Application ID"
-          value={userData._id?.slice(-6).toUpperCase() || "Not created"}
-          colors={colors}
-        />
-        <StatusMeta
-          label="Type"
-          value={userData.certType || "Not selected"}
-          colors={colors}
-        />
-        <StatusMeta
-          label="Status"
-          value={applicationStatus || "Not submitted"}
-          colors={colors}
-        />
-        <StatusMeta label="Submitted" value={submittedOn} colors={colors} />
+      <div className="space-y-5">
+        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+                Application Details
+              </p>
+              <h3 className="mt-2 text-lg font-black" style={{ color: colors.text }}>
+                {userData.name || "Applicant"}
+              </h3>
+              <p className="mt-1 text-sm font-medium" style={{ color: colors.muted }}>
+                Application ID {userData.clientId || userData.dscId || userData._id?.slice(-6).toUpperCase() || "Not created"}
+              </p>
+            </div>
+            <div className="rounded-xl border px-3 py-2 text-right" style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}>
+              <p className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: colors.muted }}>
+                Status
+              </p>
+              <p className="mt-1 text-sm font-black" style={{ color: colors.accent }}>
+                {applicationStatus || "Not submitted"}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+            Personal Details
+          </p>
+          <div className="ud-meta-grid mt-4 gap-3">
+            <StatusMeta label="Name" value={userData.name || "Not added"} colors={colors} />
+            <StatusMeta label="Mobile" value={userData.number || "Not added"} colors={colors} />
+            <StatusMeta label="Email" value={userData.email || "Not added"} colors={colors} />
+            <StatusMeta label="PAN" value={userData.pan || "Not added"} colors={colors} />
+            <StatusMeta label="DOB" value={userData.dob || "Not added"} colors={colors} />
+            <StatusMeta label="Gender" value={userData.gender || "Not added"} colors={colors} />
+          </div>
+        </section>
+
+        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+            Address Details
+          </p>
+          <div className="ud-meta-grid mt-4 gap-3">
+            <StatusMeta label="Address" value={userData.address || "Not added"} colors={colors} />
+            <StatusMeta label="State" value={userData.state || "Not added"} colors={colors} />
+            <StatusMeta label="City" value={userData.city || "Not added"} colors={colors} />
+            <StatusMeta label="Pincode" value={userData.pincode || "Not added"} colors={colors} />
+          </div>
+        </section>
+
+        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+            Certificate Details
+          </p>
+          <div className="ud-meta-grid mt-4 gap-3">
+            <StatusMeta label="DSC Type" value={userData.certType || "Not selected"} colors={colors} />
+            <StatusMeta label="Validity" value={userData.validity || "Not selected"} colors={colors} />
+            <StatusMeta label="Token Required" value={userData.tokenType || "Not linked"} colors={colors} />
+            <StatusMeta label="Assisted Service" value={userData.assistedService || "Not selected"} colors={colors} />
+          </div>
+        </section>
+
+        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+            Uploaded Documents
+          </p>
+          <div className="mt-3 grid gap-2 rounded-xl border p-3 text-[10px] font-semibold" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+            <div className="flex items-center justify-between gap-3">
+              <span style={{ color: colors.muted }}>Unique ID</span>
+              <span className="font-mono break-all" style={{ color: colors.text }}>
+                {userData.clientId || userData._id}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <span style={{ color: colors.muted }}>DSC ID</span>
+              <span className="font-mono break-all" style={{ color: colors.text }}>
+                {userData.dscId || "Pending"}
+              </span>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3">
+            <DocumentMeta
+              label="Photo"
+              value={getDocumentRouteHref(userData._id || "", "photo")}
+              colors={colors}
+              applicationStatus={applicationStatus}
+              hasSubmittedApplication={hasSubmittedApplication}
+            />
+            <DocumentMeta
+              label="Identity Proof"
+              value={getDocumentRouteHref(userData._id || "", "idProof")}
+              colors={colors}
+              applicationStatus={applicationStatus}
+              hasSubmittedApplication={hasSubmittedApplication}
+            />
+            <DocumentMeta
+              label="Address Proof"
+              value={getDocumentRouteHref(userData._id || "", "addressProof")}
+              colors={colors}
+              applicationStatus={applicationStatus}
+              hasSubmittedApplication={hasSubmittedApplication}
+            />
+          </div>
+        </section>
+
+        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
+          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+            Application Timeline
+          </p>
+          <div className="mt-4 space-y-3">
+            <TimelineStep label="Submitted" done={hasSubmittedApplication} accent={colors.accent} description={submittedOn} />
+            <TimelineStep label="Payment Success" done={paymentIsSettled} accent={colors.accent} description={paymentIsSettled ? "Payment verified" : "Waiting for payment"} />
+            <TimelineStep label="Review Started" done={Boolean(applicationStatus && applicationStatus !== "pending" && applicationStatus !== "rejected")} accent={colors.accent} description={applicationStatus === "pending" ? "Waiting for admin review" : "Admin is reviewing"} />
+            <TimelineStep label="Approved" done={applicationStatus === "approved" || applicationStatus === "issued"} accent={colors.accent} description={applicationStatus === "rejected" ? "Changes required" : applicationStatus === "approved" || applicationStatus === "issued" ? "Approved" : "Pending approval"} />
+            <TimelineStep label="Certificate Generated" done={applicationStatus === "issued"} accent={colors.accent} description={applicationStatus === "issued" ? "Certificate issued" : "Pending issue"} />
+          </div>
+        </section>
       </div>
     ) : null,
-  });
-
-  const myDscPanel = cleanPanel({
+  });  const myDscPanel = cleanPanel({
     title: "My DSC",
     eyebrow: "Issued certificates",
     description:
@@ -3155,6 +3291,39 @@ function UserDashboardPage() {
   );
 }
 
+function TimelineStep({
+  label,
+  description,
+  done,
+  accent,
+}: {
+  label: string;
+  description: string;
+  done: boolean;
+  accent: string;
+}) {
+  return (
+    <div className="flex items-start gap-3 rounded-xl border p-3" style={{ borderColor: done ? accent : "rgba(148,163,184,0.18)", backgroundColor: "rgba(255,255,255,0.02)" }}>
+      <div
+        className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[10px] font-black"
+        style={{
+          borderColor: done ? accent : "rgba(148,163,184,0.32)",
+          color: done ? accent : "rgba(148,163,184,0.7)",
+        }}
+      >
+        {done ? "✓" : "•"}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: done ? accent : "rgba(148,163,184,0.85)" }}>
+          {label}
+        </p>
+        <p className="mt-1 text-xs font-medium" style={{ color: "inherit" }}>
+          {description}
+        </p>
+      </div>
+    </div>
+  );
+}
 function StatusMeta({
   label,
   value,
@@ -3567,3 +3736,12 @@ function FeeTooltip({
     </span>
   );
 }
+
+
+
+
+
+
+
+
+
