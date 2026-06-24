@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
@@ -10,7 +10,6 @@ import Navbar from "@/components/navbar";
 
 const HIDE_NAVBAR_PATHS = new Set([
   "/verify",
-  "/verify-aadhaar",
   "/bank-telecom-form",
   "/preview",
   "/user/dashboard",

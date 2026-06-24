@@ -127,6 +127,7 @@ type UserData = {
   }>;
   queueLength?: number;
   estimatedTimeMinutes?: number;
+  is2FAEnabled?: boolean;
 };
 
 const DEFAULT_FORM_VALUES = {
@@ -1505,7 +1506,7 @@ function UserDashboardPage() {
               </div>
               <button
                 type="button"
-          onClick={handleStartFullApplication}
+                onClick={handleStartFullApplication}
                 className="ud-cta-gradient w-full shrink-0 cursor-pointer rounded-xl bg-gradient-to-r from-purple-600 via-violet-500 to-violet-600 px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-white shadow-[0_4px_20px_rgba(124,58,237,0.35)] transition hover:brightness-110 active:scale-[0.98] sm:w-auto"
               >
                 Start Application &gt;
@@ -2160,7 +2161,7 @@ function UserDashboardPage() {
             value={userData.dob || "Not added"}
             colors={colors}
           />
-                    <StatusMeta
+          <StatusMeta
             label="eKYC ID"
             value={userData.ekycId || "Not added"}
             colors={colors}
@@ -2208,22 +2209,34 @@ function UserDashboardPage() {
         className="ud-surface ud-surface-glass ud-surface--lift rounded-xl border p-4 sm:p-6 lg:p-8"
         style={{ backgroundColor: colors.card, borderColor: colors.border }}
       >
-                <p
+        <p
           className="text-[10px] font-black uppercase tracking-[0.24em]"
           style={{ color: colors.muted }}
         >
           Your Uploaded Documents
         </p>
-        <div className="mt-3 grid gap-2 rounded-xl border p-3 text-[10px] font-semibold" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+        <div
+          className="mt-3 grid gap-2 rounded-xl border p-3 text-[10px] font-semibold"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.panelStrong,
+          }}
+        >
           <div className="flex items-center justify-between gap-3">
             <span style={{ color: colors.muted }}>Unique ID</span>
-            <span className="font-mono break-all" style={{ color: colors.text }}>
+            <span
+              className="font-mono break-all"
+              style={{ color: colors.text }}
+            >
               {userData.clientId || userData._id}
             </span>
           </div>
           <div className="flex items-center justify-between gap-3">
             <span style={{ color: colors.muted }}>DSC ID</span>
-            <span className="font-mono break-all" style={{ color: colors.text }}>
+            <span
+              className="font-mono break-all"
+              style={{ color: colors.text }}
+            >
               {userData.dscId || "Pending"}
             </span>
           </div>
@@ -2320,82 +2333,217 @@ function UserDashboardPage() {
       "This is the single source of truth for your submitted DSC application. It mirrors backend data, uploaded documents, and the live approval timeline.",
     children: userData ? (
       <div className="space-y-5">
-        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
+        <section
+          className="rounded-2xl border p-4 sm:p-5"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.panel,
+          }}
+        >
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+              <p
+                className="text-[10px] font-black uppercase tracking-[0.24em]"
+                style={{ color: colors.muted }}
+              >
                 Application Details
               </p>
-              <h3 className="mt-2 text-lg font-black" style={{ color: colors.text }}>
+              <h3
+                className="mt-2 text-lg font-black"
+                style={{ color: colors.text }}
+              >
                 {userData.name || "Applicant"}
               </h3>
-              <p className="mt-1 text-sm font-medium" style={{ color: colors.muted }}>
-                Application ID {userData.clientId || userData.dscId || userData._id?.slice(-6).toUpperCase() || "Not created"}
+              <p
+                className="mt-1 text-sm font-medium"
+                style={{ color: colors.muted }}
+              >
+                Application ID{" "}
+                {userData.clientId ||
+                  userData.dscId ||
+                  userData._id?.slice(-6).toUpperCase() ||
+                  "Not created"}
               </p>
             </div>
-            <div className="rounded-xl border px-3 py-2 text-right" style={{ borderColor: colors.borderSoft, backgroundColor: colors.card }}>
-              <p className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: colors.muted }}>
+            <div
+              className="rounded-xl border px-3 py-2 text-right"
+              style={{
+                borderColor: colors.borderSoft,
+                backgroundColor: colors.card,
+              }}
+            >
+              <p
+                className="text-[9px] font-black uppercase tracking-[0.2em]"
+                style={{ color: colors.muted }}
+              >
                 Status
               </p>
-              <p className="mt-1 text-sm font-black" style={{ color: colors.accent }}>
+              <p
+                className="mt-1 text-sm font-black"
+                style={{ color: colors.accent }}
+              >
                 {applicationStatus || "Not submitted"}
               </p>
             </div>
           </div>
         </section>
 
-        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
-          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+        <section
+          className="rounded-2xl border p-4 sm:p-5"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.panel,
+          }}
+        >
+          <p
+            className="text-[10px] font-black uppercase tracking-[0.24em]"
+            style={{ color: colors.muted }}
+          >
             Personal Details
           </p>
           <div className="ud-meta-grid mt-4 gap-3">
-            <StatusMeta label="Name" value={userData.name || "Not added"} colors={colors} />
-            <StatusMeta label="Mobile" value={userData.number || "Not added"} colors={colors} />
-            <StatusMeta label="Email" value={userData.email || "Not added"} colors={colors} />
-            <StatusMeta label="PAN" value={userData.pan || "Not added"} colors={colors} />
-            <StatusMeta label="DOB" value={userData.dob || "Not added"} colors={colors} />
-            <StatusMeta label="Gender" value={userData.gender || "Not added"} colors={colors} />
+            <StatusMeta
+              label="Name"
+              value={userData.name || "Not added"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Mobile"
+              value={userData.number || "Not added"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Email"
+              value={userData.email || "Not added"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="PAN"
+              value={userData.pan || "Not added"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="DOB"
+              value={userData.dob || "Not added"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Gender"
+              value={userData.gender || "Not added"}
+              colors={colors}
+            />
           </div>
         </section>
 
-        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
-          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+        <section
+          className="rounded-2xl border p-4 sm:p-5"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.panel,
+          }}
+        >
+          <p
+            className="text-[10px] font-black uppercase tracking-[0.24em]"
+            style={{ color: colors.muted }}
+          >
             Address Details
           </p>
           <div className="ud-meta-grid mt-4 gap-3">
-            <StatusMeta label="Address" value={userData.address || "Not added"} colors={colors} />
-            <StatusMeta label="State" value={userData.state || "Not added"} colors={colors} />
-            <StatusMeta label="City" value={userData.city || "Not added"} colors={colors} />
-            <StatusMeta label="Pincode" value={userData.pincode || "Not added"} colors={colors} />
+            <StatusMeta
+              label="Address"
+              value={userData.address || "Not added"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="State"
+              value={userData.state || "Not added"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="City"
+              value={userData.city || "Not added"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Pincode"
+              value={userData.pincode || "Not added"}
+              colors={colors}
+            />
           </div>
         </section>
 
-        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
-          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+        <section
+          className="rounded-2xl border p-4 sm:p-5"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.panel,
+          }}
+        >
+          <p
+            className="text-[10px] font-black uppercase tracking-[0.24em]"
+            style={{ color: colors.muted }}
+          >
             Certificate Details
           </p>
           <div className="ud-meta-grid mt-4 gap-3">
-            <StatusMeta label="DSC Type" value={userData.certType || "Not selected"} colors={colors} />
-            <StatusMeta label="Validity" value={userData.validity || "Not selected"} colors={colors} />
-            <StatusMeta label="Token Required" value={userData.tokenType || "Not linked"} colors={colors} />
-            <StatusMeta label="Assisted Service" value={userData.assistedService || "Not selected"} colors={colors} />
+            <StatusMeta
+              label="DSC Type"
+              value={userData.certType || "Not selected"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Validity"
+              value={userData.validity || "Not selected"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Token Required"
+              value={userData.tokenType || "Not linked"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Assisted Service"
+              value={userData.assistedService || "Not selected"}
+              colors={colors}
+            />
           </div>
         </section>
 
-        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
-          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+        <section
+          className="rounded-2xl border p-4 sm:p-5"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.panel,
+          }}
+        >
+          <p
+            className="text-[10px] font-black uppercase tracking-[0.24em]"
+            style={{ color: colors.muted }}
+          >
             Uploaded Documents
           </p>
-          <div className="mt-3 grid gap-2 rounded-xl border p-3 text-[10px] font-semibold" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}>
+          <div
+            className="mt-3 grid gap-2 rounded-xl border p-3 text-[10px] font-semibold"
+            style={{
+              borderColor: colors.borderSoft,
+              backgroundColor: colors.panelStrong,
+            }}
+          >
             <div className="flex items-center justify-between gap-3">
               <span style={{ color: colors.muted }}>Unique ID</span>
-              <span className="font-mono break-all" style={{ color: colors.text }}>
+              <span
+                className="font-mono break-all"
+                style={{ color: colors.text }}
+              >
                 {userData.clientId || userData._id}
               </span>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span style={{ color: colors.muted }}>DSC ID</span>
-              <span className="font-mono break-all" style={{ color: colors.text }}>
+              <span
+                className="font-mono break-all"
+                style={{ color: colors.text }}
+              >
                 {userData.dscId || "Pending"}
               </span>
             </div>
@@ -2425,50 +2573,180 @@ function UserDashboardPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border p-4 sm:p-5" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
-          <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.muted }}>
+        <section
+          className="rounded-2xl border p-4 sm:p-5"
+          style={{
+            borderColor: colors.borderSoft,
+            backgroundColor: colors.panel,
+          }}
+        >
+          <p
+            className="text-[10px] font-black uppercase tracking-[0.24em]"
+            style={{ color: colors.muted }}
+          >
             Application Timeline
           </p>
           <div className="mt-4 space-y-3">
-            <TimelineStep label="Submitted" done={hasSubmittedApplication} accent={colors.accent} description={submittedOn} />
-            <TimelineStep label="Payment Success" done={paymentIsSettled} accent={colors.accent} description={paymentIsSettled ? "Payment verified" : "Waiting for payment"} />
-            <TimelineStep label="Review Started" done={Boolean(applicationStatus && applicationStatus !== "pending" && applicationStatus !== "rejected")} accent={colors.accent} description={applicationStatus === "pending" ? "Waiting for admin review" : "Admin is reviewing"} />
-            <TimelineStep label="Approved" done={applicationStatus === "approved" || applicationStatus === "issued"} accent={colors.accent} description={applicationStatus === "rejected" ? "Changes required" : applicationStatus === "approved" || applicationStatus === "issued" ? "Approved" : "Pending approval"} />
-            <TimelineStep label="Certificate Generated" done={applicationStatus === "issued"} accent={colors.accent} description={applicationStatus === "issued" ? "Certificate issued" : "Pending issue"} />
+            <TimelineStep
+              label="Submitted"
+              done={hasSubmittedApplication}
+              accent={colors.accent}
+              description={submittedOn}
+            />
+            <TimelineStep
+              label="Payment Success"
+              done={paymentIsSettled}
+              accent={colors.accent}
+              description={
+                paymentIsSettled ? "Payment verified" : "Waiting for payment"
+              }
+            />
+            <TimelineStep
+              label="Review Started"
+              done={Boolean(
+                applicationStatus &&
+                applicationStatus !== "pending" &&
+                applicationStatus !== "rejected",
+              )}
+              accent={colors.accent}
+              description={
+                applicationStatus === "pending"
+                  ? "Waiting for admin review"
+                  : "Admin is reviewing"
+              }
+            />
+            <TimelineStep
+              label="Approved"
+              done={
+                applicationStatus === "approved" ||
+                applicationStatus === "issued"
+              }
+              accent={colors.accent}
+              description={
+                applicationStatus === "rejected"
+                  ? "Changes required"
+                  : applicationStatus === "approved" ||
+                      applicationStatus === "issued"
+                    ? "Approved"
+                    : "Pending approval"
+              }
+            />
+            <TimelineStep
+              label="Certificate Generated"
+              done={applicationStatus === "issued"}
+              accent={colors.accent}
+              description={
+                applicationStatus === "issued"
+                  ? "Certificate issued"
+                  : "Pending issue"
+              }
+            />
           </div>
         </section>
       </div>
     ) : null,
-  });  const myDscPanel = cleanPanel({
-    title: "My DSC",
-    eyebrow: "Issued certificates",
-    description:
-      "Issued certificate details will appear here after approval and issuance.",
-    children: (
-      <div className="ud-meta-grid">
-        <StatusMeta
-          label="Certificate"
-          value={userData?.certType || "Not issued"}
-          colors={colors}
-        />
-        <StatusMeta
-          label="Validity"
-          value={userData?.validity || "Not available"}
-          colors={colors}
-        />
-        <StatusMeta
-          label="Token"
-          value={userData?.tokenType || "Not linked"}
-          colors={colors}
-        />
-        <StatusMeta
-          label="Status"
-          value={applicationStatus === "issued" ? "Issued" : "Pending issue"}
-          colors={colors}
-        />
-      </div>
-    ),
   });
+const myDscPanel = cleanPanel({
+  title: "My DSC",
+  eyebrow: "Issued certificates",
+  description: "View and download your issued Digital Signature Certificates.",
+  children: (
+    <div className="space-y-4">
+      {applicationStatus === "issued" || applicationStatus === "approved" ? (
+        <>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <StatusMeta
+              label="Certificate Number"
+              value={userData?.dscId || "DSC-" + (userData?._id?.slice(-6).toUpperCase() || "PENDING")}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Issued Date"
+              value={userData?.updatedAt ? new Date(userData.updatedAt).toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              }) : "Not issued"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Expiry Date"
+              value={userData?.validity ? getExpiryDate(userData.validity, userData.updatedAt) : "Not available"}
+              colors={colors}
+            />
+            <StatusMeta
+              label="Certificate Status"
+              value={applicationStatus === "issued" ? "Active ✅" : "Approved ⏳"}
+              colors={colors}
+            />
+          </div>
+          {applicationStatus === "issued" && (
+            <button
+              type="button"
+              onClick={() => {
+                // Fetch certificate download URL
+                fetch(`/api/certificate/download/${userData?._id}`)
+                  .then(res => res.json())
+                  .then(data => {
+                    if (data.success && data.url) {
+                      window.open(data.url, '_blank');
+                    } else {
+                      toast.error("Certificate download not available yet.");
+                    }
+                  })
+                  .catch(() => toast.error("Failed to download certificate."));
+              }}
+              className="theme-primary-btn mt-2 inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-white transition-all hover:-translate-y-0.5"
+            >
+              <Download size={15} />
+              Download Certificate
+            </button>
+          )}
+        </>
+      ) : (
+        <div
+          className="rounded-xl border p-6 text-center"
+          style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}
+        >
+          <ShieldCheck size={32} className="mx-auto mb-3" style={{ color: colors.muted }} />
+          <p className="text-sm font-semibold" style={{ color: colors.muted }}>
+            No certificate issued yet
+          </p>
+          <p className="mt-1 text-xs" style={{ color: colors.muted }}>
+            {applicationStatus === "pending" 
+              ? "Your application is under review." 
+              : applicationStatus === "rejected"
+              ? "Please resubmit your application."
+              : "Complete payment and admin verification first."}
+          </p>
+          {applicationStatus === "rejected" && canEditApplication && (
+            <button
+              type="button"
+              onClick={handleEditApplication}
+              className="mt-3 inline-flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/5 px-4 py-2 text-xs font-black uppercase tracking-wider text-rose-500 transition-all hover:bg-rose-500/10"
+            >
+              <PencilLine size={12} />
+              Resubmit Application
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  ),
+});
+
+// Helper function to calculate expiry date
+function getExpiryDate(validity: string, fromDate?: string) {
+  const baseDate = fromDate ? new Date(fromDate) : new Date();
+  const years = parseInt(validity) || 2;
+  const expiry = new Date(baseDate);
+  expiry.setFullYear(expiry.getFullYear() + years);
+  return expiry.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
   const transactionsPanel = cleanPanel({
     title: "Transactions",
@@ -2674,12 +2952,140 @@ function UserDashboardPage() {
     </div>
   );
 
-  const supportPanel = cleanPanel({
-    title: "Support Tickets",
-    eyebrow: "Customer support",
-    description:
-      "Support ticket creation is not connected yet. Use live chat for help right now.",
-  });
+  // Add state for support tickets
+const [supportTickets, setSupportTickets] = useState<{
+  _id: string;
+  subject: string;
+  message: string;
+  status: "open" | "in-progress" | "resolved" | "closed";
+  createdAt: string;
+  updatedAt: string;
+}[]>([]);
+
+const [ticketLoading, setTicketLoading] = useState(false);
+
+// Fetch support tickets
+const fetchSupportTickets = useCallback(async (signal?: AbortSignal) => {
+  try {
+    setTicketLoading(true);
+    const res = await fetch("/api/support/tickets", { signal });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.tickets) {
+        setSupportTickets(data.tickets);
+      }
+    }
+  } catch (error: any) {
+    if (error.name !== "AbortError") {
+      console.error("Failed to fetch support tickets:", error);
+    }
+  } finally {
+    setTicketLoading(false);
+  }
+}, []);
+
+// Fetch tickets when component mounts
+useEffect(() => {
+  const controller = new AbortController();
+  fetchSupportTickets(controller.signal);
+  return () => controller.abort();
+}, [fetchSupportTickets]);
+
+// Create support ticket function
+const handleCreateTicket = async () => {
+  // You can open a modal or navigate to a ticket creation page
+  router.push("/support/create");
+};
+
+const supportPanel = cleanPanel({
+  title: "Support Tickets",
+  eyebrow: "Customer support",
+  description: "Create and track your support tickets.",
+  children: (
+    <div className="space-y-4">
+      {/* Create Ticket Button */}
+      <button
+        type="button"
+        onClick={handleCreateTicket}
+        className="theme-primary-btn inline-flex w-full items-center justify-center gap-2 rounded-lg px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-white transition-all hover:-translate-y-0.5"
+      >
+        <Headset size={15} />
+        Create New Ticket
+      </button>
+
+      {/* Ticket History */}
+      {supportTickets.length > 0 ? (
+        <div className="space-y-3">
+          {supportTickets.map((ticket) => (
+            <div
+              key={ticket._id}
+              className="rounded-xl border p-4 transition-all hover:shadow-md"
+              style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold" style={{ color: colors.text }}>
+                    {ticket.subject}
+                  </p>
+                  <p className="mt-1 text-xs line-clamp-2" style={{ color: colors.muted }}>
+                    {ticket.message}
+                  </p>
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-[9px] font-black uppercase tracking-wider ${
+                    ticket.status === "resolved" || ticket.status === "closed"
+                      ? "bg-emerald-500/10 text-emerald-600"
+                      : ticket.status === "in-progress"
+                      ? "bg-blue-500/10 text-blue-600"
+                      : "bg-amber-500/10 text-amber-600"
+                  }`}
+                >
+                  {ticket.status}
+                </span>
+              </div>
+              <p className="mt-2 text-[9px]" style={{ color: colors.muted }}>
+                {new Date(ticket.createdAt).toLocaleDateString("en-IN", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div
+          className="rounded-xl border p-6 text-center"
+          style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}
+        >
+          <Headset size={32} className="mx-auto mb-3" style={{ color: colors.muted }} />
+          <p className="text-sm font-semibold" style={{ color: colors.muted }}>
+            No support tickets yet
+          </p>
+          <p className="mt-1 text-xs" style={{ color: colors.muted }}>
+            Create a support ticket and we'll get back to you.
+          </p>
+        </div>
+      )}
+
+      {/* Ticket Status Summary */}
+      {supportTickets.length > 0 && (
+        <div className="grid grid-cols-2 gap-3">
+          <StatusMeta
+            label="Open Tickets"
+            value={String(supportTickets.filter(t => t.status === "open" || t.status === "in-progress").length)}
+            colors={colors}
+          />
+          <StatusMeta
+            label="Resolved"
+            value={String(supportTickets.filter(t => t.status === "resolved" || t.status === "closed").length)}
+            colors={colors}
+          />
+        </div>
+      )}
+    </div>
+  ),
+});
 
   const irctcPanel = cleanPanel({
     title: "IRCTC Agents",
@@ -2688,35 +3094,237 @@ function UserDashboardPage() {
       "IRCTC agent registrations are not connected for this account yet.",
   });
 
-  const profileSettingsPanel = cleanPanel({
-    title: "Profile & Settings",
-    eyebrow: "Account settings",
-    description: "Your core account details.",
-    children: (
-      <div className="ud-meta-grid">
-        <StatusMeta
-          label="Name"
-          value={userData?.name || "Not added"}
-          colors={colors}
-        />
-        <StatusMeta
-          label="Email"
-          value={userData?.email || "Not added"}
-          colors={colors}
-        />
-        <StatusMeta
-          label="Mobile"
-          value={userData?.number || "Not added"}
-          colors={colors}
-        />
-        <StatusMeta
-          label="Aadhaar"
-          value={userData?.isAadhaarVerified ? "Verified" : "Not verified"}
-          colors={colors}
-        />
+const [showPasswordModal, setShowPasswordModal] = useState(false);
+const [isChangingPassword, setIsChangingPassword] = useState(false);
+
+// Change password function
+const handleChangePassword = async (oldPassword: string, newPassword: string) => {
+  try {
+    setIsChangingPassword(true);
+    const res = await fetch("/api/user/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      toast.success("Password changed successfully!");
+      setShowPasswordModal(false);
+    } else {
+      toast.error(data.message || "Failed to change password.");
+    }
+  } catch (error) {
+    toast.error("An error occurred. Please try again.");
+  } finally {
+    setIsChangingPassword(false);
+  }
+};
+
+const profileSettingsPanel = cleanPanel({
+  title: "Profile & Settings",
+  eyebrow: "Account settings",
+  description: "Manage your account information and security settings.",
+  children: (
+    <div className="space-y-4">
+      {/* Account Information */}
+      <div
+        className="rounded-xl border p-4"
+        style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}
+      >
+        <p className="mb-3 text-[9px] font-black uppercase tracking-[0.18em]" style={{ color: colors.muted }}>
+          Account Information
+        </p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <StatusMeta label="Full Name" value={userData?.name || "Not added"} colors={colors} />
+          <StatusMeta label="Email" value={userData?.email || "Not added"} colors={colors} />
+          <StatusMeta label="Mobile" value={userData?.number || "Not added"} colors={colors} />
+          <StatusMeta label="Aadhaar" value={userData?.isAadhaarVerified ? "Verified ✅" : "Not verified"} colors={colors} />
+          <StatusMeta label="PAN" value={userData?.pan || "Not added"} colors={colors} />
+          <StatusMeta label="Member Since" value={userData?.createdAt ? new Date(userData.createdAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          }) : "N/A"} colors={colors} />
+        </div>
       </div>
-    ),
-  });
+
+      {/* Security Settings */}
+      <div
+        className="rounded-xl border p-4"
+        style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}
+       >
+        <p className="mb-3 text-[9px] font-black uppercase tracking-[0.18em]" style={{ color: colors.muted }}>
+          Security Settings
+        </p>
+        <div className="space-y-2">
+          <button
+            type="button"
+            onClick={() => setShowPasswordModal(true)}
+            className="flex w-full items-center justify-between rounded-lg border px-4 py-2.5 text-xs font-semibold transition-all hover:bg-opacity-10"
+            style={{ borderColor: colors.borderSoft, color: colors.text }}
+          >
+            <span className="flex items-center gap-2">
+              <ShieldCheck size={14} style={{ color: colors.accent }} />
+              Change Password
+            </span>
+            <ChevronRight size={14} style={{ color: colors.muted }} />
+          </button>
+          <button
+            type="button"
+            className="flex w-full items-center justify-between rounded-lg border px-4 py-2.5 text-xs font-semibold transition-all hover:bg-opacity-10"
+            style={{ borderColor: colors.borderSoft, color: colors.text }}
+          >
+            <span className="flex items-center gap-2">
+              <Settings size={14} style={{ color: colors.accent }} />
+              Two-Factor Authentication
+            </span>
+            <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: colors.muted }}>
+              {userData?.is2FAEnabled ? "Enabled" : "Disabled"}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {/* Logout Button */}
+      <button
+        type="button"
+        onClick={handleLogout}
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/5 px-5 py-3 text-xs font-black uppercase tracking-[0.18em] text-rose-500 transition-all hover:bg-rose-500/10 hover:-translate-y-0.5"
+      >
+        <LogOut size={15} />
+        Logout
+      </button>
+
+      {/* Password Change Modal */}
+      {showPasswordModal && (
+        <PasswordChangeModal
+          colors={colors}
+          isChangingPassword={isChangingPassword}
+          onClose={() => setShowPasswordModal(false)}
+          onChangePassword={handleChangePassword}
+        />
+      )}
+    </div>
+  ),
+});
+
+// Password Change Modal Component
+function PasswordChangeModal({
+  colors,
+  isChangingPassword,
+  onClose,
+  onChangePassword,
+}: {
+  colors: ReturnType<typeof getThemePalette>;
+  isChangingPassword: boolean;
+  onClose: () => void;
+  onChangePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+}) {
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters.");
+      return;
+    }
+    await onChangePassword(oldPassword, newPassword);
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md rounded-2xl border shadow-2xl"
+        style={{ backgroundColor: colors.card, borderColor: colors.border }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b px-6 py-4" style={{ borderColor: colors.borderSoft }}>
+          <h3 className="text-base font-black uppercase tracking-tight" style={{ color: colors.text }}>
+            Change Password
+          </h3>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg border transition-all"
+            style={{ borderColor: colors.borderSoft, backgroundColor: colors.panelStrong }}
+          >
+            <X size={15} style={{ color: colors.muted }} />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4 p-6">
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-wider mb-1.5" style={{ color: colors.muted }}>
+              Current Password
+            </label>
+            <input
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              className="w-full rounded-lg border px-4 py-2.5 text-sm outline-none transition"
+              style={{ borderColor: colors.inputBorder, backgroundColor: colors.panelStrong, color: colors.text }}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-wider mb-1.5" style={{ color: colors.muted }}>
+              New Password
+            </label>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full rounded-lg border px-4 py-2.5 text-sm outline-none transition"
+              style={{ borderColor: colors.inputBorder, backgroundColor: colors.panelStrong, color: colors.text }}
+              required
+              minLength={8}
+            />
+          </div>
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-wider mb-1.5" style={{ color: colors.muted }}>
+              Confirm New Password
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full rounded-lg border px-4 py-2.5 text-sm outline-none transition"
+              style={{ borderColor: colors.inputBorder, backgroundColor: colors.panelStrong, color: colors.text }}
+              required
+            />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-lg border px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-all"
+              style={{ borderColor: colors.borderSoft, color: colors.muted }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isChangingPassword}
+              className="theme-primary-btn flex-1 rounded-lg px-4 py-2.5 text-xs font-black uppercase tracking-wider text-white transition-all hover:-translate-y-0.5 disabled:opacity-60"
+            >
+              {isChangingPassword ? "Changing..." : "Update Password"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
   const upgradeProPanel = cleanPanel({
     title: "Upgrade to Pro",
@@ -3303,7 +3911,13 @@ function TimelineStep({
   accent: string;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border p-3" style={{ borderColor: done ? accent : "rgba(148,163,184,0.18)", backgroundColor: "rgba(255,255,255,0.02)" }}>
+    <div
+      className="flex items-start gap-3 rounded-xl border p-3"
+      style={{
+        borderColor: done ? accent : "rgba(148,163,184,0.18)",
+        backgroundColor: "rgba(255,255,255,0.02)",
+      }}
+    >
       <div
         className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-[10px] font-black"
         style={{
@@ -3314,7 +3928,10 @@ function TimelineStep({
         {done ? "✓" : "•"}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[10px] font-black uppercase tracking-[0.18em]" style={{ color: done ? accent : "rgba(148,163,184,0.85)" }}>
+        <p
+          className="text-[10px] font-black uppercase tracking-[0.18em]"
+          style={{ color: done ? accent : "rgba(148,163,184,0.85)" }}
+        >
           {label}
         </p>
         <p className="mt-1 text-xs font-medium" style={{ color: "inherit" }}>
@@ -3736,12 +4353,3 @@ function FeeTooltip({
     </span>
   );
 }
-
-
-
-
-
-
-
-
-

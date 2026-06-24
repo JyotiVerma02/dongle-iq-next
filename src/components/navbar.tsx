@@ -39,7 +39,6 @@ const AUTH_ROUTES = new Set([
 
 const LOGOUT_ROUTES = new Set([
   "/verify",
-  "/verify-aadhaar",
   "/bank-telecom-form",
   "/preview",
   "/apply-dsc",

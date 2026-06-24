@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { ADMIN_ROLES } from "@/lib/adminRoles";
+import { verifySessionToken } from "@/lib/auth";
 
 // ==================== RATE LIMITER ====================
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
-function isRateLimited(ip: string, maxRequests: number, windowMs: number): boolean {
+function isRateLimited(
+  ip: string,
+  maxRequests: number,
+  windowMs: number,
+): boolean {
   const now = Date.now();
   const record = rateLimitMap.get(ip);
 
@@ -48,19 +53,22 @@ function decodeBase64Url(value: string): string | null {
   }
 }
 
-async function createHmacSignature(value: string, secret: string): Promise<string> {
+async function createHmacSignature(
+  value: string,
+  secret: string,
+): Promise<string> {
   const key = await crypto.subtle.importKey(
     "raw",
     new TextEncoder().encode(secret),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
 
   const signature = await crypto.subtle.sign(
     "HMAC",
     key,
-    new TextEncoder().encode(value)
+    new TextEncoder().encode(value),
   );
 
   const bytes = new Uint8Array(signature);
@@ -70,7 +78,10 @@ async function createHmacSignature(value: string, secret: string): Promise<strin
     binary += String.fromCharCode(byte);
   }
 
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return btoa(binary)
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
 }
 
 async function validateToken(token: string): Promise<DecodedToken | null> {
@@ -98,13 +109,15 @@ async function validateToken(token: string): Promise<DecodedToken | null> {
     const header = JSON.parse(headerJson) as { alg?: string; typ?: string };
 
     if (header.alg !== "HS256") {
-      console.error(`Token validation error: Unsupported JWT alg "${header.alg}".`);
+      console.error(
+        `Token validation error: Unsupported JWT alg "${header.alg}".`,
+      );
       return null;
     }
 
     const expectedSignature = await createHmacSignature(
       `${headerPart}.${payloadPart}`,
-      secret
+      secret,
     );
 
     if (expectedSignature !== signaturePart) {
@@ -133,7 +146,9 @@ function getTokenAccountType(decoded: DecodedToken): "admin" | "user" | null {
     return decoded.accountType;
   }
 
-  const normalizedRole = String(decoded.role || "").trim().toLowerCase();
+  const normalizedRole = String(decoded.role || "")
+    .trim()
+    .toLowerCase();
 
   if (normalizedRole === "user") {
     return "user";
@@ -170,28 +185,21 @@ const PUBLIC_PATHS = [
   "/api/resend-otp",
 ];
 
-const ADMIN_PATHS = [
-  "/admin/dashboard",
-  "/admin/agents",
-  "/api/admin",
-];
+const ADMIN_PATHS = ["/admin/dashboard", "/admin/agents", "/api/admin"];
 
-const USER_PATHS = [
-  "/user/dashboard",
-  "/api/user-dashboard",
-];
+const USER_PATHS = ["/user/dashboard", "/api/user-dashboard"];
 
 // ==================== HELPER FUNCTIONS ====================
 function isPublicPath(pathname: string): boolean {
-  return PUBLIC_PATHS.some(path => pathname.startsWith(path));
+  return PUBLIC_PATHS.some((path) => pathname.startsWith(path));
 }
 
 function isAdminPath(pathname: string): boolean {
-  return ADMIN_PATHS.some(path => pathname.startsWith(path));
+  return ADMIN_PATHS.some((path) => pathname.startsWith(path));
 }
 
 function isUserPath(pathname: string): boolean {
-  return USER_PATHS.some(path => pathname.startsWith(path));
+  return USER_PATHS.some((path) => pathname.startsWith(path));
 }
 
 function isApiPath(pathname: string): boolean {
@@ -216,13 +224,17 @@ export async function proxy(request: NextRequest) {
   // ✅ Allow public paths
   if (isPublicPath(pathname)) {
     // Rate limiting for sensitive endpoints
-    if (pathname === "/api/login" || pathname === "/api/signup" || pathname === "/api/send-otp") {
+    if (
+      pathname === "/api/login" ||
+      pathname === "/api/signup" ||
+      pathname === "/api/send-otp"
+    ) {
       if (isRateLimited(clientIp, 10, 5 * 60 * 1000)) {
         return NextResponse.json(
           { message: "Too many requests. Try again later." },
-          { status: 429 }
+          { status: 429 },
         );
-      } 
+      }
     }
     return NextResponse.next();
   }
@@ -230,20 +242,28 @@ export async function proxy(request: NextRequest) {
   // ❌ Require authentication for protected routes
   if (!token) {
     if (isApiPath(pathname)) {
-      return NextResponse.json({ message: "Authentication required" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Authentication required" },
+        { status: 401 },
+      );
     }
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // 🔍 Validate token
-  const decodedToken = await validateToken(token);
 
-  if (!decodedToken) {
-    // Token is invalid or expired
+  let decodedToken;
+
+  try {
+    decodedToken = await verifySessionToken(token);
+  } catch {
     const response = isApiPath(pathname)
-      ? NextResponse.json({ message: "Invalid or expired token" }, { status: 401 })
+      ? NextResponse.json(
+          { message: "Invalid or expired session" },
+          { status: 401 },
+        )
       : NextResponse.redirect(new URL("/login", request.url));
-      
+
     response.cookies.delete("token");
     return response;
   }
@@ -256,7 +276,7 @@ export async function proxy(request: NextRequest) {
       if (isApiPath(pathname)) {
         return NextResponse.json(
           { message: "Unauthorized: Admin access required" },
-          { status: 403 }
+          { status: 403 },
         );
       }
 
@@ -269,7 +289,7 @@ export async function proxy(request: NextRequest) {
       if (isApiPath(pathname)) {
         return NextResponse.json(
           { message: "Unauthorized: User access required" },
-          { status: 403 }
+          { status: 403 },
         );
       }
 
@@ -280,7 +300,7 @@ export async function proxy(request: NextRequest) {
   // ✨ Add user info to request headers for downstream use
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-user-id", decodedToken.userId);
-  requestHeaders.set("x-user-email", decodedToken.email || "");
+  requestHeaders.set("x-user-email", "");
   requestHeaders.set("x-user-role", tokenAccountType || decodedToken.role);
 
   const response = NextResponse.next({
@@ -308,12 +328,10 @@ export const config = {
     "/admin/register",
     "/bank-telecom-form",
     "/preview",
-    
+
     // Protected routes
     "/admin/:path*",
     "/user/:path*",
     "/api/:path*",
   ],
 };
-
-

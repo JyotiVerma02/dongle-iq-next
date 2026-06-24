@@ -14,7 +14,7 @@ export default function VerifyPage() {
 
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [activeTab, setActiveTab] = useState<"telecom" | "bank">("telecom");
+  const [activeTab, setActiveTab] = useState<"aadhaar" | "pan">("aadhaar");
   const [isChecked, setIsChecked] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -148,6 +148,7 @@ export default function VerifyPage() {
       >
         {isDarkMode ? <SunMedium size={20} /> : <Moon size={20} />}
       </button>
+
       <div className="relative z-10 w-full max-w-sm pt-2 sm:pt-0">
         <div
           className="pointer-events-none absolute -inset-px rounded-lg blur-sm"
@@ -167,8 +168,9 @@ export default function VerifyPage() {
             </h1>
           </div>
 
+          {/* Tabs: AADHAAR | PAN */}
           <div className="mb-3 flex rounded-lg p-1" style={{ backgroundColor: colors.panel }}>
-            {(["telecom", "bank"] as const).map((tab) => {
+            {(["aadhaar", "pan"] as const).map((tab) => {
               const active = activeTab === tab;
               return (
                 <button
@@ -190,7 +192,7 @@ export default function VerifyPage() {
             className="mb-3 rounded-lg px-3 py-2 text-center text-[11px]"
             style={{ backgroundColor: colors.accentSoft, color: colors.text }}
           >
-            {activeTab === "telecom" ? "Check with telecom records" : "Check with bank records"}
+            {activeTab === "aadhaar" ? "Check with Aadhaar records" : "Check with PAN records"}
           </div>
 
           <div className="space-y-3">

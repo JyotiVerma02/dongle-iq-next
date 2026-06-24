@@ -746,7 +746,7 @@ export default function DongleIQLanding() {
               items={[
                 { label: "Digital Signature Certificate", href: "/register" },
                 { label: "IRCTC Agent Registration", href: "/register" },
-                { label: "Aadhaar eKYC Verification", href: "/verify-aadhaar" },
+                { label: "Aadhaar eKYC Verification", href: "/verify" },
                 { label: "Renewal and reissue", href: "/login" },
               ]}
             />
