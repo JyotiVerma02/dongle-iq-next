@@ -577,7 +577,7 @@ export default function BankTelecomForm({ embedded = false, onBack }: BankTeleco
                       type="file"
                       ref={photoRef}
                       className="hidden"
-                      accept=".jpg,.jpeg,.png,.pdf"
+                    
                       onChange={(e) => {
                         const file = e.target.files?.[0];
 
@@ -631,7 +631,7 @@ export default function BankTelecomForm({ embedded = false, onBack }: BankTeleco
                     type="file"
                     ref={idProofRef}
                     className="hidden"
-                    accept=".jpg,.jpeg,.png,.pdf"
+                    accept=".pdf"
                     onChange={(e) => setIdFile(e.target.files?.[0] || null)}
                   />
                   <FileBox
@@ -646,7 +646,7 @@ export default function BankTelecomForm({ embedded = false, onBack }: BankTeleco
                     type="file"
                     ref={addressRef}
                     className="hidden"
-                    accept=".jpg,.jpeg,.png,.pdf"
+                    accept=".pdf"
                     onChange={(e) =>
                       setAddressFile(e.target.files?.[0] || null)
                     }

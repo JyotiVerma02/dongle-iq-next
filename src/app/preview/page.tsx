@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Moon, SunMedium } from "lucide-react";
+import { CheckCircle2, Moon, SunMedium, X } from "lucide-react";
 
 import {
   clearPreviewDraft,
@@ -20,6 +20,12 @@ export default function PreviewPage() {
   const colors = getThemePalette(isDarkMode);
   const [draft, setDraft] = useState<PreviewDraft | null>(null);
   const [loading, setLoading] = useState(false);
+  const [dialog, setDialog] = useState<null | {
+    title: string;
+    message: string;
+    actionLabel: string;
+    action: () => void;
+  }>(null);
 
   useEffect(() => {
     const savedDraft = readPreviewDraft();
@@ -32,75 +38,86 @@ export default function PreviewPage() {
     setDraft(savedDraft);
   }, [router]);
 
-const handleConfirm = async () => {
-  if (!draft) return;
+  const handleConfirm = async () => {
+    if (!draft) return;
 
-  const photoIsRequiredAndMissing = !draft.files.photo.file && !draft.files.photo.isExisting;
-  const idIsRequiredAndMissing = !draft.files.idProof.file && !draft.files.idProof.isExisting;
-  const addressIsRequiredAndMissing = !draft.files.addressProof.file && !draft.files.addressProof.isExisting;
+    const photoIsRequiredAndMissing = !draft.files.photo.file && !draft.files.photo.isExisting;
+    const idIsRequiredAndMissing = !draft.files.idProof.file && !draft.files.idProof.isExisting;
+    const addressIsRequiredAndMissing = !draft.files.addressProof.file && !draft.files.addressProof.isExisting;
 
-  if (photoIsRequiredAndMissing || idIsRequiredAndMissing || addressIsRequiredAndMissing) {
-    alert("Please re-upload missing files.");
-    router.push("/bank-telecom-form");
-    return;
-  }
-
-  setLoading(true);
-
-  try {
-    const form = new FormData();
-
-    Object.entries(draft.formData).forEach(([key, value]) => {
-      if (
-        key !== "photo" &&
-        key !== "idProof" &&
-        key !== "addressProof"
-      ) {
-        form.append(key, value);
-      }
-    });
-
-    if (draft.files.photo.file) {
-      const photoFile = await storedFileToFile(draft.files.photo);
-      form.append("photo", photoFile);
-    }
-    if (draft.files.idProof.file) {
-      const idProofFile = await storedFileToFile(draft.files.idProof);
-      form.append("idProofFile", idProofFile);
-    }
-    if (draft.files.addressProof.file) {
-      const addressProofFile = await storedFileToFile(draft.files.addressProof);
-      form.append("addressProofFile", addressProofFile);
-    }
-
-    const response = await fetch("/api/save-user", {
-      method: "POST",
-      body: form,
-    });
-
-    const data = await response.json();
-
-    if (!data.success) {
-      alert(`Error: ${data.message}`);
+    if (photoIsRequiredAndMissing || idIsRequiredAndMissing || addressIsRequiredAndMissing) {
+      setDialog({
+        title: "Missing Files",
+        message: "Please re-upload missing files before continuing.",
+        actionLabel: "Go Back",
+        action: () => {
+          setDialog(null);
+          router.push("/bank-telecom-form");
+        },
+      });
       return;
     }
 
-    clearPreviewDraft();
+    setLoading(true);
 
-    alert("Form submitted successfully.");
+    try {
+      const form = new FormData();
 
-    const isGuest = new URLSearchParams(window.location.search).get("guest") === "true";
-    if (isGuest) {
-      router.push("/apply-dsc?guest_success=true");
-    } else {
-      router.push("/user/dashboard?stage=payment");
+      Object.entries(draft.formData).forEach(([key, value]) => {
+        if (key !== "photo" && key !== "idProof" && key !== "addressProof") {
+          form.append(key, value);
+        }
+      });
+
+      if (draft.files.photo.file) {
+        const photoFile = await storedFileToFile(draft.files.photo);
+        form.append("photo", photoFile);
+      }
+      if (draft.files.idProof.file) {
+        const idProofFile = await storedFileToFile(draft.files.idProof);
+        form.append("idProofFile", idProofFile);
+      }
+      if (draft.files.addressProof.file) {
+        const addressProofFile = await storedFileToFile(draft.files.addressProof);
+        form.append("addressProofFile", addressProofFile);
+      }
+
+      const response = await fetch("/api/save-user", {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        setDialog({
+          title: "Submission Failed",
+          message: data.message || "We could not submit your form. Please try again.",
+          actionLabel: "Close",
+          action: () => setDialog(null),
+        });
+        return;
+      }
+
+      clearPreviewDraft();
+
+      const isGuest = new URLSearchParams(window.location.search).get("guest") === "true";
+      if (isGuest) {
+        router.push("/apply-dsc?guest_success=true&from=landing");
+      } else {
+        router.push("/user/dashboard?stage=payment");
+      }
+    } catch {
+      setDialog({
+        title: "Submission Error",
+        message: "Could not submit the form. Please try again.",
+        actionLabel: "Close",
+        action: () => setDialog(null),
+      });
+    } finally {
+      setLoading(false);
     }
-  } catch {
-    alert("Could not submit the form. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   if (!draft) {
     return null;
@@ -115,6 +132,56 @@ const handleConfirm = async () => {
 
   return (
     <div className="theme-transition hero-grid relative min-h-screen px-4 pb-10" style={{ color: colors.text }}>
+      {dialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+          <button
+            type="button"
+            aria-label="Close dialog backdrop"
+            className="absolute inset-0 cursor-default bg-black/75 backdrop-blur-md"
+            onClick={() => setDialog(null)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="preview-dialog-title"
+            className="relative w-full max-w-[620px] overflow-hidden rounded-[28px] border border-white/10 bg-[#0b1022] px-6 py-8 shadow-[0_30px_120px_rgba(0,0,0,0.7)] md:px-8 md:py-10"
+          >
+            <div className="absolute left-1/2 top-0 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/15 blur-3xl" />
+            <button
+              type="button"
+              onClick={() => setDialog(null)}
+              className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/80 transition hover:bg-white/10 hover:text-white"
+              aria-label="Close dialog"
+            >
+              <X size={22} />
+            </button>
+
+            <div className="relative flex flex-col items-center text-center">
+              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-400/15">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full border-4 border-emerald-400 text-emerald-400">
+                  <CheckCircle2 size={26} strokeWidth={2.75} />
+                </div>
+              </div>
+
+              <h2 id="preview-dialog-title" className="text-3xl font-black tracking-tight text-white md:text-[42px]">
+                {dialog.title}
+              </h2>
+              <p className="mt-4 max-w-[540px] text-[15px] leading-7 text-slate-300 md:text-lg">
+                {dialog.message}
+              </p>
+
+              <button
+                type="button"
+                onClick={dialog.action}
+                className="mt-8 inline-flex h-14 w-full max-w-[280px] items-center justify-center rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400 px-6 text-[15px] font-black text-white shadow-[0_16px_40px_rgba(99,102,241,0.45)] transition hover:brightness-110"
+              >
+                {dialog.actionLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="page-max-shell relative z-10 space-y-6 px-4 sm:px-6">
         <div
           className="theme-transition rounded-lg border p-6 shadow-[0_30px_80px_rgba(0,0,0,0.16)]"
@@ -184,7 +251,9 @@ const handleConfirm = async () => {
             <div className="mt-4">
               <PreviewItem
                 label="Address"
-                value={[draft.formData.address, draft.formData.city, draft.formData.state, draft.formData.pincode].filter(Boolean).join(", ")}
+                value={[draft.formData.address, draft.formData.city, draft.formData.state, draft.formData.pincode]
+                  .filter(Boolean)
+                  .join(", ")}
                 colors={colors}
               />
             </div>
@@ -204,10 +273,7 @@ const handleConfirm = async () => {
               <DocumentCard label="Address Proof" file={draft.files.addressProof} colors={colors} />
             </div>
 
-            <div
-              className="mt-6 rounded-lg border p-4"
-              style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}
-            >
+            <div className="mt-6 rounded-lg border p-4" style={{ borderColor: colors.borderSoft, backgroundColor: colors.panel }}>
               <div className="flex items-center justify-between text-sm">
                 <span style={{ color: colors.muted }}>Certificate</span>
                 <span>INR {pricing.certificate}</span>
@@ -297,9 +363,9 @@ function DocumentCard({
           <p className="mt-1 break-all text-sm font-semibold">{file.name}</p>
         </div>
       </div>
-      <div className="mt-2 text-xs font-bold text-orange-500">
-        File Uploaded Successfully
-      </div>
+      <div className="mt-2 text-xs font-bold text-orange-500">File Uploaded Successfully</div>
     </div>
   );
 }
+
+

@@ -8,7 +8,9 @@ import {
   ShieldCheck,
   Lock,
   Phone,
-  Compass
+  Compass,
+  CheckCircle2,
+  X
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -47,6 +49,7 @@ function ApplyDSCContent() {
   const [activeTab, setActiveTab] = useState<"apply" | "track">("apply");
   const [applyStep, setApplyStep] = useState<1 | 2>(1);
   const [hasJustSubmitted, setHasJustSubmitted] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [applicantType, setApplicantType] = useState<"Indian" | "Foreign">("Indian");
   const [mobile, setMobile] = useState("");
   const [captcha, setCaptcha] = useState("");
@@ -93,6 +96,7 @@ function ApplyDSCContent() {
   useEffect(() => {
     if (searchParams.get("guest_success") === "true") {
       setHasJustSubmitted(true);
+      setShowSuccessModal(true);
       setActiveTab("track");
       const savedMobile = sessionStorage.getItem("guestMobile");
       if (savedMobile) setTrackInput(savedMobile);
@@ -101,7 +105,6 @@ function ApplyDSCContent() {
       setMobile("");
       setOtp("");
       setOtpSent(false);
-      toast.success("Application successfully submitted!", { duration: 5000 });
       router.replace(`/apply-dsc?from=${flowSource}`);
     }
   }, [flowSource, searchParams, router]);
@@ -150,7 +153,7 @@ function ApplyDSCContent() {
       if (!res.ok || !data.success) throw new Error(data.message || "Could not send OTP.");
       setOtpSent(true);
       sessionStorage.setItem("guestMobile", normalizedMobile);
-      toast.success("OTP sent successfully.");
+      toast.success("OTP sent successfully.", { style: { color: isDarkMode ? "#fff" : "#0f172a", background: isDarkMode ? "rgba(15,23,42,0.95)" : "rgba(255,255,255,0.96)", border: isDarkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,23,42,0.08)" } });
     } catch (error) {
       setGateError(error instanceof Error ? error.message : "Could not send OTP.");
     } finally {
@@ -176,7 +179,7 @@ function ApplyDSCContent() {
       if (!res.ok || !data.success) throw new Error(data.message || "OTP verification failed.");
       sessionStorage.setItem("verifiedMobile", normalizedMobile);
       sessionStorage.setItem("guestMobile", normalizedMobile);
-      toast.success("Mobile verified. Continue your DSC application.");
+      toast.success("Mobile verified. Continue your DSC application.", { style: { color: isDarkMode ? "#fff" : "#0f172a", background: isDarkMode ? "rgba(15,23,42,0.95)" : "rgba(255,255,255,0.96)", border: isDarkMode ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,23,42,0.08)" } });
       setApplyStep(2);
     } catch (error) {
       setGateError(error instanceof Error ? error.message : "OTP verification failed.");
@@ -236,6 +239,64 @@ function ApplyDSCContent() {
             if (step === 2) setApplyStep(2);
           }}
         />
+
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-8" role="dialog" aria-modal="true">
+            <button
+              type="button"
+              aria-label="Close success dialog backdrop"
+              className="absolute inset-0 cursor-default bg-black/80 backdrop-blur-md"
+              onClick={() => setShowSuccessModal(false)}
+            />
+            <div className="relative w-full max-w-[660px] overflow-hidden rounded-[28px] border border-violet-500/25 bg-[#090e21] px-6 py-8 shadow-[0_30px_120px_rgba(0,0,0,0.72)] md:px-10 md:py-10">
+              <div className="absolute left-1/2 top-0 h-52 w-52 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/14 blur-3xl" />
+              <div className="absolute right-[92px] top-8 h-7 w-7 rounded-full border border-white/15 bg-white/5" />
+              <button
+                type="button"
+                onClick={() => setShowSuccessModal(false)}
+                className="absolute right-5 top-5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-white/80 transition hover:bg-white/10 hover:text-white"
+                aria-label="Close success dialog"
+              >
+                <X size={22} />
+              </button>
+
+              <div className="relative flex flex-col items-center text-center">
+                <div className="mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-emerald-500/10 ring-1 ring-emerald-400/15">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-emerald-400 text-emerald-400">
+                    <CheckCircle2 size={28} strokeWidth={2.8} />
+                  </div>
+                </div>
+
+                <h2 className="text-3xl font-black tracking-tight text-white md:text-[42px]">
+                  Successfully Submitted!
+                </h2>
+                <p className="mt-4 max-w-[560px] text-[15px] leading-7 text-slate-300 md:text-lg">
+                  Your application form has been successfully submitted. When you want to get full access like checking payment status and managing your applications, you have to sign in.
+                </p>
+
+                <div className="mt-10 grid w-full max-w-[560px] gap-4 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => router.push("/register")}
+                    className="inline-flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-violet-500 via-indigo-500 to-cyan-400 px-6 text-[15px] font-black text-white shadow-[0_16px_40px_rgba(99,102,241,0.45)] transition hover:brightness-110"
+                  >
+                    Sign In Now
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSuccessModal(false);
+                      router.push("/");
+                    }}
+                    className="inline-flex h-14 items-center justify-center rounded-2xl border border-white/10 bg-transparent px-6 text-[15px] font-black text-white transition hover:bg-white/5"
+                  >
+                    Later
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Content area below topbar */}
         <div className="flex-1 flex flex-col justify-between px-4 py-4 min-h-0">
@@ -763,6 +824,16 @@ export default function ApplyDSCPage() {
     </Suspense>
   );
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
