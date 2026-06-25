@@ -1,9 +1,9 @@
-﻿/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Moon, SunMedium } from "lucide-react";
+import { AlertCircle, ArrowRight, CreditCard, Eye, EyeOff, Fingerprint, Lock, Moon, ShieldCheck, SunMedium } from "lucide-react";
 import {
   APPLICATION_CONFIG_KEY,
   fileToStoredFile,
@@ -63,6 +63,8 @@ interface SelectProps
 interface BankTelecomFormProps {
   embedded?: boolean;
   onBack?: () => void;
+  /** When true, shows mobile OTP verify screen first before the form */
+  showVerify?: boolean;
 }
 
 const createInitialState = (mobile: string): FormState => ({
@@ -92,7 +94,7 @@ const createInitialState = (mobile: string): FormState => ({
   price: "800",
 });
 
-export default function BankTelecomForm({ embedded = false, onBack }: BankTelecomFormProps) {
+export default function BankTelecomForm({ embedded = false, onBack, showVerify = false }: BankTelecomFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isDarkMode, toggleTheme } = useTheme();
@@ -114,6 +116,18 @@ export default function BankTelecomForm({ embedded = false, onBack }: BankTeleco
   const addressRef = useRef<HTMLInputElement>(null);
   const idProofRef = useRef<HTMLInputElement>(null);
 
+  // --- Verify section state ---
+  const [isVerified, setIsVerified] = useState(!showVerify);
+  const [verifyMobile, setVerifyMobile] = useState("");
+  const [verifyActiveTab, setVerifyActiveTab] = useState<"aadhaar" | "pan">("aadhaar");
+  const [verifyIsChecked, setVerifyIsChecked] = useState(false);
+  const [verifyOtp, setVerifyOtp] = useState(["", "", "", "", "", ""]);
+  const [verifyOtpSent, setVerifyOtpSent] = useState(false);
+  const [verifyTimer, setVerifyTimer] = useState(0);
+  const [verifyIsSending, setVerifyIsSending] = useState(false);
+  const [verifyIsVerifying, setVerifyIsVerifying] = useState(false);
+  const verifyInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
   const [formData, setFormData] = useState<FormState>(createInitialState(""));
   const [loading, setLoading] = useState(false);
   const [showPin, setShowPin] = useState(false);
@@ -132,6 +146,77 @@ export default function BankTelecomForm({ embedded = false, onBack }: BankTeleco
     idProof?: string;
     addressProof?: string;
   }>({});
+
+  // --- Verify timer ---
+  useEffect(() => {
+    if (verifyTimer <= 0) return;
+    const interval = setInterval(() => setVerifyTimer((t) => Math.max(t - 1, 0)), 1000);
+    return () => clearInterval(interval);
+  }, [verifyTimer]);
+
+  useEffect(() => {
+    if (verifyOtpSent) verifyInputRefs.current[0]?.focus();
+  }, [verifyOtpSent]);
+
+  const handleVerifySendOtp = async () => {
+    if (verifyMobile.length !== 10) { alert("Enter 10 digit number"); return; }
+    setVerifyIsSending(true);
+    try {
+      const res = await fetch("/api/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile: verifyMobile }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.message || "Failed to send OTP"); return; }
+      setVerifyOtpSent(true);
+      setVerifyTimer(120);
+    } catch { alert("Error sending OTP"); }
+    finally { setVerifyIsSending(false); }
+  };
+
+  const handleVerifyOtpChange = (index: number, value: string) => {
+    if (!/^[0-9]?$/.test(value)) return;
+    const next = [...verifyOtp]; next[index] = value; setVerifyOtp(next);
+    if (value && index < 5) verifyInputRefs.current[index + 1]?.focus();
+  };
+
+  const handleVerifyOtpKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !verifyOtp[index] && index > 0) verifyInputRefs.current[index - 1]?.focus();
+  };
+
+  const handleVerifyOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    e.preventDefault();
+    const next = [...verifyOtp];
+    pasted.split("").forEach((d, i) => { next[i] = d; });
+    setVerifyOtp(next);
+    verifyInputRefs.current[Math.min(pasted.length, 6) - 1]?.focus();
+  };
+
+  const handleVerifySubmit = async () => {
+    if (!verifyMobile || verifyMobile.length < 10 || verifyOtp.join("").length !== 6) return;
+    if (verifyActiveTab === "pan" && !verifyIsChecked) return;
+    setVerifyIsVerifying(true);
+    try {
+      const res = await fetch("/api/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mobile: verifyMobile, otp: verifyOtp.join("") }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        alert(data.message || "Verification failed");
+        setVerifyOtp(["", "", "", "", "", ""]);
+        verifyInputRefs.current[0]?.focus();
+        return;
+      }
+      sessionStorage.setItem("verifiedMobile", verifyMobile);
+      setIsVerified(true);
+    } catch { alert("Server error"); }
+    finally { setVerifyIsVerifying(false); }
+  };
 
   useEffect(() => {
     fetch("/api/get-user-data")
@@ -269,6 +354,329 @@ export default function BankTelecomForm({ embedded = false, onBack }: BankTeleco
       setLoading(false);
     }
   };
+
+  // --- If showVerify mode and not yet verified, show verify UI ---
+  if (showVerify && !isVerified) {
+    const premiumGradient = "linear-gradient(135deg, #7c3aed, #6366f1, #06b6d4)";
+    const darkBg = isDarkMode
+      ? "radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.18) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.12) 0%, transparent 55%), #0d0a1f"
+      : "radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.06) 0%, transparent 55%), #f5f3ff";
+
+    const cardBg = isDarkMode ? "rgba(18,12,40,0.85)" : "rgba(255,255,255,0.95)";
+    const cardBorder = isDarkMode ? "rgba(124,58,237,0.45)" : "rgba(124,58,237,0.18)";
+    const inputBg = isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(124,58,237,0.04)";
+    const inputBorderC = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(124,58,237,0.18)";
+    const tabBg = isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(124,58,237,0.07)";
+    const textPrimary = isDarkMode ? "#ffffff" : "#1e1040";
+    const textMuted = isDarkMode ? "rgba(255,255,255,0.5)" : "rgba(30,16,64,0.5)";
+    const otpFilled = isDarkMode ? "rgba(124,58,237,0.25)" : "rgba(124,58,237,0.08)";
+    const otpBorder = isDarkMode ? "rgba(124,58,237,0.6)" : "rgba(124,58,237,0.35)";
+
+    const isOtpComplete = verifyOtp.join("").length === 6;
+    const canContinue = verifyActiveTab === "pan"
+      ? (verifyIsChecked && isOtpComplete)
+      : isOtpComplete;
+
+    return (
+      <main
+        className="theme-transition fixed inset-0 flex min-h-dvh w-full items-center justify-center overflow-hidden px-4 py-4"
+        style={{ background: darkBg }}
+      >
+        {/* Background orbs */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div
+            className="absolute -left-32 top-1/4 h-72 w-72 rounded-full opacity-30 blur-3xl"
+            style={{ background: "radial-gradient(circle, rgba(124,58,237,0.6), transparent)" }}
+          />
+          <div
+            className="absolute -right-20 bottom-1/4 h-60 w-60 rounded-full opacity-20 blur-3xl"
+            style={{ background: "radial-gradient(circle, rgba(6,182,212,0.5), transparent)" }}
+          />
+          <div
+            className="absolute left-1/2 top-0 h-40 w-80 -translate-x-1/2 rounded-full opacity-10 blur-3xl"
+            style={{ background: "radial-gradient(circle, rgba(99,102,241,0.8), transparent)" }}
+          />
+        </div>
+
+        {/* Card */}
+        <div className="relative z-10 w-full max-w-[400px]">
+          {/* Glow border */}
+          <div
+            className="pointer-events-none absolute -inset-[1px] rounded-[26px] opacity-60 blur-sm"
+            style={{ background: premiumGradient }}
+          />
+          <section
+            className="relative rounded-[24px] border p-5 shadow-2xl backdrop-blur-2xl"
+            style={{ background: cardBg, borderColor: cardBorder }}
+          >
+            {/* Shield icon + title */}
+            <div className="mb-4 flex flex-col items-center gap-2.5">
+              <div className="relative">
+                <div
+                  className="absolute inset-0 rounded-full blur-lg opacity-60"
+                  style={{ background: premiumGradient }}
+                />
+                <div
+                  className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 text-white shadow-xl"
+                  style={{
+                    background: premiumGradient,
+                    borderColor: isDarkMode ? "rgba(255,255,255,0.15)" : "rgba(124,58,237,0.3)",
+                    boxShadow: "0 0 28px rgba(124,58,237,0.5), 0 6px 24px rgba(0,0,0,0.3)",
+                  }}
+                >
+                  <ShieldCheck size={24} strokeWidth={2.5} />
+                </div>
+                <div className="absolute -right-1 -top-1 h-2 w-2 rounded-full" style={{ background: "#06b6d4" }} />
+                <div className="absolute -bottom-1 -left-1 h-1.5 w-1.5 rounded-full" style={{ background: "#7c3aed" }} />
+              </div>
+              <div className="text-center">
+                <h1 className="text-[22px] font-black uppercase tracking-tight leading-tight">
+                  <span style={{ color: textPrimary }}>MOBILE </span>
+                  <span
+                    className="bg-clip-text text-transparent"
+                    style={{ backgroundImage: premiumGradient }}
+                  >
+                    VERIFICATION
+                  </span>
+                </h1>
+                <p className="mt-0.5 text-[11px] font-medium" style={{ color: textMuted }}>
+                  Secure. Quick. Reliable.
+                </p>
+              </div>
+            </div>
+
+            {/* Tabs */}
+            <div
+              className="mb-3 flex rounded-xl p-1"
+              style={{ backgroundColor: tabBg, border: `1px solid ${isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(124,58,237,0.1)"}` }}
+            >
+              {(["aadhaar", "pan"] as const).map((tab) => {
+                const active = verifyActiveTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => { setVerifyActiveTab(tab); setVerifyIsChecked(false); }}
+                    className="relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-black uppercase tracking-widest transition-all duration-300"
+                    style={{
+                      background: active ? premiumGradient : "transparent",
+                      color: active ? "#ffffff" : textMuted,
+                      boxShadow: active ? "0 4px 15px rgba(124,58,237,0.4)" : "none",
+                    }}
+                  >
+                    {tab === "aadhaar" ? <Fingerprint size={13} /> : <CreditCard size={13} />}
+                    {tab.toUpperCase()}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Alert / Info banner — glass border on both */}
+            {verifyActiveTab === "aadhaar" ? (
+              <div className="relative mb-3">
+                {/* Glass glow border */}
+                <div
+                  className="pointer-events-none absolute -inset-[1px] rounded-xl opacity-50 blur-[2px]"
+                  style={{ background: "linear-gradient(135deg, rgba(220,38,38,0.7), rgba(239,68,68,0.3), rgba(220,38,38,0.5))" }}
+                />
+                <div
+                  className="relative flex items-start gap-2 rounded-xl px-3 py-2 backdrop-blur-sm"
+                  style={{
+                    backgroundColor: isDarkMode ? "rgba(220,38,38,0.1)" : "rgba(220,38,38,0.05)",
+                    border: "1px solid rgba(220,38,38,0.2)",
+                  }}
+                >
+                  <AlertCircle size={13} className="mt-0.5 shrink-0" style={{ color: "#dc2626" }} />
+                  <p className="text-[11px] font-semibold leading-snug" style={{ color: "#dc2626" }}>
+                    Please enter and verify Aadhaar Registered Mobile Number
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="relative mb-3">
+                {/* Glass glow border */}
+                <div
+                  className="pointer-events-none absolute -inset-[1px] rounded-xl opacity-50 blur-[2px]"
+                  style={{ background: premiumGradient }}
+                />
+                <div
+                  className="relative space-y-2 rounded-xl px-3 py-3 text-center backdrop-blur-sm"
+                  style={{
+                    backgroundColor: isDarkMode ? "rgba(18,12,40,0.7)" : "rgba(245,243,255,0.8)",
+                    border: `1px solid ${isDarkMode ? "rgba(124,58,237,0.2)" : "rgba(124,58,237,0.12)"}`,
+                  }}
+                >
+                  {/* VERIFICATION BY TELECOM pill */}
+                  <div className="flex justify-center">
+                    <div
+                      className="flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-wider text-white"
+                      style={{
+                        background: premiumGradient,
+                        boxShadow: "0 4px 14px rgba(124,58,237,0.4)",
+                      }}
+                    >
+                      {/* Radio/signal tower icon */}
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4.9 4.9a10 10 0 0 1 14.14 0" /><path d="M7.76 7.76a6 6 0 0 1 8.49 0" /><path d="M10.6 10.6a2 2 0 0 1 2.83 0" />
+                        <line x1="12" y1="12" x2="12" y2="21" /><line x1="9" y1="21" x2="15" y2="21" />
+                      </svg>
+                      VERIFICATION BY TELECOM
+                    </div>
+                  </div>
+                  <p className="text-[11px] leading-relaxed" style={{ color: textMuted }}>
+                    Enter the applicant&apos;s 10-digit registered mobile number. Ensure the name matches telecom records.
+                  </p>
+                </div>
+              </div>
+            )}
+
+
+            {/* Mobile input */}
+            <div
+              className="mb-2.5 flex items-center gap-2 rounded-xl border px-3"
+              style={{
+                backgroundColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(124,58,237,0.05)",
+                borderColor: inputBorderC,
+                height: "44px",
+              }}
+            >
+              {/* Phone icon */}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: textMuted, flexShrink: 0 }}>
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.62 1.2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 16z" />
+              </svg>
+              <input
+                type="tel"
+                maxLength={10}
+                inputMode="numeric"
+                placeholder="Mobile number"
+                value={verifyMobile}
+                disabled={verifyOtpSent}
+                onChange={(e) => setVerifyMobile(e.target.value.replace(/\D/g, ""))}
+                className="min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none border-none focus:ring-0 focus:outline-none disabled:opacity-60"
+                style={{ color: textPrimary, boxShadow: "none" }}
+              />
+              {!verifyOtpSent && (
+                <button
+                  onClick={handleVerifySendOtp}
+                  disabled={verifyIsSending || verifyMobile.length !== 10}
+                  className="shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white transition-all duration-200 disabled:opacity-50 hover:brightness-110 active:scale-95"
+                  style={{
+                    background: premiumGradient,
+                    boxShadow: "0 3px 10px rgba(124,58,237,0.4)",
+                  }}
+                >
+                  {verifyIsSending ? "..." : "SEND OTP"}
+                </button>
+              )}
+            </div>
+
+            {/* OTP inputs */}
+            {verifyOtpSent && (
+              <div className="mb-2.5 space-y-2 text-center">
+                <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: textMuted }}>
+                  Enter 6-digit OTP
+                </p>
+                <div className="flex justify-center gap-1.5">
+                  {verifyOtp.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(el) => { verifyInputRefs.current[index] = el; }}
+                      value={digit}
+                      maxLength={1}
+                      inputMode="numeric"
+                      autoComplete={index === 0 ? "one-time-code" : "off"}
+                      onChange={(e) => handleVerifyOtpChange(index, e.target.value)}
+                      onKeyDown={(e) => handleVerifyOtpKeyDown(index, e)}
+                      onPaste={handleVerifyOtpPaste}
+                      className="h-10 w-9 rounded-lg border text-center text-sm font-black outline-none transition-all duration-200 focus:scale-105"
+                      style={{
+                        backgroundColor: digit ? otpFilled : inputBg,
+                        borderColor: digit ? "rgba(124,58,237,0.7)" : otpBorder,
+                        color: textPrimary,
+                        boxShadow: digit ? "0 0 10px rgba(124,58,237,0.25)" : "none",
+                      }}
+                    />
+                  ))}
+                </div>
+                <button
+                  onClick={() => verifyTimer === 0 && handleVerifySendOtp()}
+                  disabled={verifyTimer > 0}
+                  className="text-[10px] font-semibold transition-opacity disabled:opacity-40"
+                  style={{ color: isDarkMode ? "rgba(167,139,250,1)" : "#7c3aed" }}
+                >
+                  {verifyTimer > 0 ? `Resend OTP in ${verifyTimer}s` : "Resend OTP"}
+                </button>
+              </div>
+            )}
+
+            {/* PAN consent checkbox */}
+            {verifyActiveTab === "pan" && (
+              <div
+                className="mb-2.5 flex cursor-pointer items-start gap-2.5 rounded-xl border px-3 py-2.5 transition-colors"
+                style={{
+                  borderColor: verifyIsChecked ? "rgba(124,58,237,0.5)" : inputBorderC,
+                  backgroundColor: verifyIsChecked
+                    ? isDarkMode ? "rgba(124,58,237,0.12)" : "rgba(124,58,237,0.06)"
+                    : inputBg,
+                }}
+                onClick={() => setVerifyIsChecked((c) => !c)}
+              >
+                <div
+                  className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all"
+                  style={{
+                    background: verifyIsChecked ? premiumGradient : "transparent",
+                    borderColor: verifyIsChecked ? "transparent" : inputBorderC,
+                  }}
+                >
+                  {verifyIsChecked && (
+                    <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                      <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+                <span className="text-[11px] leading-[1.55]" style={{ color: textMuted }}>
+                  I authorize verification of the mobile number and name with telecom records.
+                  <br />
+                  <span
+                    className="cursor-pointer font-semibold underline underline-offset-2"
+                    style={{ color: isDarkMode ? "rgba(167,139,250,1)" : "#7c3aed" }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    You must accept the terms and conditions
+                  </span>
+                  {" "}to continue.
+                </span>
+              </div>
+            )}
+
+            {/* CONTINUE button */}
+            <button
+              onClick={handleVerifySubmit}
+              disabled={!canContinue || verifyIsVerifying}
+              className="group relative flex w-full items-center justify-between overflow-hidden rounded-xl px-5 py-3 text-[12px] font-black uppercase tracking-[0.18em] text-white transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40 hover:brightness-110 active:scale-[0.98]"
+              style={{
+                background: canContinue ? premiumGradient : isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.15)",
+                boxShadow: canContinue ? "0 6px 24px rgba(124,58,237,0.45), 0 2px 8px rgba(0,0,0,0.2)" : "none",
+              }}
+            >
+              <ShieldCheck size={16} strokeWidth={2.5} />
+              <span>{verifyIsVerifying ? "Verifying..." : "CONTINUE"}</span>
+              <ArrowRight size={16} strokeWidth={2.5} className="transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
+
+            {/* Footer */}
+            <div className="mt-3 flex items-center justify-center gap-2">
+              <div className="h-px flex-1" style={{ background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.1)" }} />
+              <div className="flex items-center gap-1.5" style={{ color: textMuted }}>
+                <Lock size={9} />
+                <span className="text-[10px] font-medium">Your data is safe and encrypted</span>
+              </div>
+              <div className="h-px flex-1" style={{ background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.1)" }} />
+            </div>
+          </section>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <div

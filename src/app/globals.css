@@ -3575,11 +3575,11 @@ html.dark .ud-cta-gradient {
 
 html.dark .button-secondary,
 html.dark .nav-action,
-html.dark input,
-html.dark textarea,
+html.dark input:not(.bg-transparent),
+html.dark textarea:not(.bg-transparent),
 html.dark select,
-html.dark .field input,
-html.dark .field textarea,
+html.dark .field input:not(.bg-transparent),
+html.dark .field textarea:not(.bg-transparent),
 html.dark .field select {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018)),
@@ -3593,13 +3593,7 @@ html.dark .inline-trust-pill,
 html.dark .status-pill,
 html.dark .accent-badge,
 html.dark .ud-hero-badge,
-html.dark .ud-hero-badge--purple {
-  background:
-    linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(56, 213, 255, 0.08)) !important;
-  border-color: rgba(153, 117, 255, 0.3) !important;
-  color: #d9d7ff !important;
-}
-
+html.dark .ud-hero-badge--purple,
 html.dark .premium-card-icon,
 html.dark .feature-icon,
 html.dark .audience-icon,
