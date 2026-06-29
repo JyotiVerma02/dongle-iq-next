@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   Suspense,
@@ -348,7 +348,9 @@ function UserDashboardPage() {
   );
 
   const hasSubmittedApplication = Boolean(
-    userData && (userData.status || hasCompletedApplication(userData)),
+    userData &&
+      ((userData.status && userData.status !== "pending") ||
+        hasCompletedApplication(userData)),
   );
   const applicationStatus = hasSubmittedApplication
     ? userData?.status || "pending"
@@ -1297,7 +1299,7 @@ function UserDashboardPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => selectView("notifications")}
+                  onClick={() => selectView("registration")}
                   className="ud-cta-gradient mt-4 flex w-full cursor-pointer items-center justify-between rounded-xl bg-gradient-to-r from-purple-600 via-violet-500 to-orange-500 px-5 py-3 text-xs font-bold text-white shadow-[0_6px_24px_rgba(124,58,237,0.35)] transition hover:brightness-110 active:scale-[0.98]"
                 >
                   <span>Start New Application</span>

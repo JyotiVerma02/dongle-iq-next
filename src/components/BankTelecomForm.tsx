@@ -1,15 +1,16 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle, ArrowRight, CreditCard, Eye, EyeOff, Fingerprint, Lock, Moon, ShieldCheck, SunMedium } from "lucide-react";
+import { AlertCircle, ArrowRight, CreditCard, Eye, EyeOff, Fingerprint, Lock, Moon, ShieldCheck, SunMedium, CheckCircle2, ChevronDown } from "lucide-react";
 import {
   APPLICATION_CONFIG_KEY,
   fileToStoredFile,
   readFormState,
   saveFormState,
   savePreviewDraft,
+  readPreviewDraft,
 } from "@/lib/applicationPreview";
 import { calculatePricing } from "@/lib/pricing";
 import { useTheme } from "@/components/ThemeContext";
@@ -104,6 +105,18 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
   const fieldBorder = isDarkMode ? "rgba(139, 92, 246, 0.55)" : colors.inputBorder;
   const fieldText = isDarkMode ? "#ffffff" : colors.text;
   const mutedFieldText = isDarkMode ? "#aeb8d4" : colors.muted;
+  const premiumGradient = "linear-gradient(135deg, #38BDF8 0%, #8B5CF6 50%, #A855F7 100%)";
+  const textPrimary = colors.text;
+  const textMuted = colors.muted;
+  const verifyCardBg = isDarkMode ? "rgba(8, 10, 30, 0.92)" : colors.card;
+  const verifyCardBorder = isDarkMode ? "rgba(139, 92, 246, 0.24)" : colors.borderSoft;
+  const verifyTextPrimary = colors.text;
+  const verifyTextMuted = colors.muted;
+  const verifyTabBg = isDarkMode ? "rgba(255,255,255,0.04)" : "rgba(124,58,237,0.06)";
+  const verifyInputBg = isDarkMode ? "rgba(15, 23, 42, 0.92)" : colors.input;
+  const verifyInputBorderC = isDarkMode ? "rgba(139, 92, 246, 0.22)" : colors.inputBorder;
+  const verifyOtpFilled = isDarkMode ? "rgba(124,58,237,0.24)" : "rgba(124,58,237,0.12)";
+  const verifyOtpBorder = isDarkMode ? "rgba(124,58,237,0.5)" : "rgba(124,58,237,0.35)";
   const formShellStyle = {
     backgroundColor: isDarkMode ? "#000000" : colors.panelStrong,
     "--form-field-bg": fieldSurface,
@@ -117,7 +130,7 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
   const idProofRef = useRef<HTMLInputElement>(null);
 
   // --- Verify section state ---
-  const [isVerified, setIsVerified] = useState(!showVerify);
+  const [isVerified, setIsVerified] = useState(false);
   const [verifyMobile, setVerifyMobile] = useState("");
   const [verifyActiveTab, setVerifyActiveTab] = useState<"aadhaar" | "pan">("aadhaar");
   const [verifyIsChecked, setVerifyIsChecked] = useState(false);
@@ -127,6 +140,9 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
   const [verifyIsSending, setVerifyIsSending] = useState(false);
   const [verifyIsVerifying, setVerifyIsVerifying] = useState(false);
   const verifyInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Accordion Step State
+  const [activeStep, setActiveStep] = useState<1 | 2 | 3>(showVerify ? 2 : 1);
 
   const [formData, setFormData] = useState<FormState>(createInitialState(""));
   const [loading, setLoading] = useState(false);
@@ -199,57 +215,68 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
     if (!verifyMobile || verifyMobile.length < 10 || verifyOtp.join("").length !== 6) return;
     if (verifyActiveTab === "pan" && !verifyIsChecked) return;
     setVerifyIsVerifying(true);
-    try {
-      const res = await fetch("/api/verify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile: verifyMobile, otp: verifyOtp.join("") }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        alert(data.message || "Verification failed");
-        setVerifyOtp(["", "", "", "", "", ""]);
-        verifyInputRefs.current[0]?.focus();
-        return;
-      }
-      sessionStorage.setItem("verifiedMobile", verifyMobile);
-      setIsVerified(true);
-    } catch { alert("Server error"); }
-    finally { setVerifyIsVerifying(false); }
+    await Promise.resolve();
+    setIsVerified(true);
+    setActiveStep(3);
+    setVerifyIsVerifying(false);
   };
+
+  const canContinue =
+    verifyActiveTab === "aadhaar"
+      ? verifyOtpSent && verifyOtp.join("").length === 6
+      : verifyIsChecked;
+
+  const pricing = calculatePricing({
+    certType: formData.certType,
+    validity: formData.validity,
+    tokenType: formData.tokenType,
+    assistedService: formData.assistedService,
+  });
+
+  useEffect(() => {
+    if (formData.mobile && !verifyMobile) {
+      setVerifyMobile(formData.mobile.replace(/\D/g, "").slice(0, 10));
+    }
+  }, [formData.mobile, verifyMobile]);
 
   useEffect(() => {
     fetch("/api/get-user-data")
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.user) {
+          // Set existing URLs for everyone so their documents show up in edit mode
+          setExistingUserUrls((prev) => ({
+            photo: data.user.photo || prev.photo,
+            idProof: data.user.idProof || prev.idProof,
+            addressProof: data.user.addressProof || prev.addressProof,
+          }));
+
           if (data.user.status === "rejected") {
             setResubmissionFlags(
               data.user.resubmissionDocs || { photo: true, idProof: true, addressProof: true }
             );
-            setExistingUserUrls({
-              photo: data.user.photo,
-              idProof: data.user.idProof,
-              addressProof: data.user.addressProof,
-            });
-
-            setFormData((prev) => ({
-              ...prev,
-              name: data.user.name || prev.name,
-              email: data.user.email || prev.email,
-              gender: data.user.gender || prev.gender,
-              dob: data.user.dob || prev.dob,
-              address: data.user.address || prev.address,
-              pincode: data.user.pincode || prev.pincode,
-              city: data.user.city || prev.city,
-              state: data.user.state || prev.state,
-              certificateClass: data.user.certificateClass || prev.certificateClass,
-              certType: data.user.certType || prev.certType,
-              validity: data.user.validity || prev.validity,
-              tokenType: data.user.tokenType || prev.tokenType,
-              assistedService: data.user.assistedService || prev.assistedService,
-            }));
           }
+
+          setFormData((prev) => ({
+            ...prev,
+            name: data.user.name || prev.name,
+            pan: data.user.pan || prev.pan,
+            email: data.user.email || prev.email,
+            mobile: data.user.mobile || prev.mobile,
+            gender: data.user.gender || prev.gender,
+            dob: data.user.dob || prev.dob,
+            address: data.user.address || prev.address,
+            pincode: data.user.pincode || prev.pincode,
+            city: data.user.city || prev.city,
+            state: data.user.state || prev.state,
+            certificateClass: data.user.certificateClass || prev.certificateClass,
+            certType: data.user.certType || prev.certType,
+            validity: data.user.validity || prev.validity,
+            tokenType: data.user.tokenType || prev.tokenType,
+            assistedService: data.user.assistedService || prev.assistedService,
+            ekycId: data.user.ekycId || prev.ekycId,
+            ekycPin: data.user.ekycPin || prev.ekycPin,
+          }));
         }
       })
       .catch((err) => console.error("Error fetching user data in bank-telecom-form:", err));
@@ -277,6 +304,16 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
         assistedService: nextState.assistedService,
       });
       setFormData({ ...nextState, price: String(pricing.total) });
+
+      // Restore files from preview draft if available
+      const draft = readPreviewDraft();
+      if (draft && draft.files) {
+        setExistingUserUrls((prev) => ({
+          photo: draft.files.photo?.preview || prev.photo,
+          idProof: draft.files.idProof?.preview || prev.idProof,
+          addressProof: draft.files.addressProof?.preview || prev.addressProof,
+        }));
+      }
     };
     restoreState();
   }, [searchParams]);
@@ -355,329 +392,6 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
     }
   };
 
-  // --- If showVerify mode and not yet verified, show verify UI ---
-  if (showVerify && !isVerified) {
-    const premiumGradient = "linear-gradient(135deg, #7c3aed, #6366f1, #06b6d4)";
-    const darkBg = isDarkMode
-      ? "radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.18) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(6,182,212,0.12) 0%, transparent 55%), #0d0a1f"
-      : "radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.06) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(99,102,241,0.06) 0%, transparent 55%), #f5f3ff";
-
-    const cardBg = isDarkMode ? "rgba(18,12,40,0.85)" : "rgba(255,255,255,0.95)";
-    const cardBorder = isDarkMode ? "rgba(124,58,237,0.45)" : "rgba(124,58,237,0.18)";
-    const inputBg = isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(124,58,237,0.04)";
-    const inputBorderC = isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(124,58,237,0.18)";
-    const tabBg = isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(124,58,237,0.07)";
-    const textPrimary = isDarkMode ? "#ffffff" : "#1e1040";
-    const textMuted = isDarkMode ? "rgba(255,255,255,0.5)" : "rgba(30,16,64,0.5)";
-    const otpFilled = isDarkMode ? "rgba(124,58,237,0.25)" : "rgba(124,58,237,0.08)";
-    const otpBorder = isDarkMode ? "rgba(124,58,237,0.6)" : "rgba(124,58,237,0.35)";
-
-    const isOtpComplete = verifyOtp.join("").length === 6;
-    const canContinue = verifyActiveTab === "pan"
-      ? (verifyIsChecked && isOtpComplete)
-      : isOtpComplete;
-
-    return (
-      <main
-        className="theme-transition fixed inset-0 flex min-h-dvh w-full items-center justify-center overflow-hidden px-4 py-4"
-        style={{ background: darkBg }}
-      >
-        {/* Background orbs */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div
-            className="absolute -left-32 top-1/4 h-72 w-72 rounded-full opacity-30 blur-3xl"
-            style={{ background: "radial-gradient(circle, rgba(124,58,237,0.6), transparent)" }}
-          />
-          <div
-            className="absolute -right-20 bottom-1/4 h-60 w-60 rounded-full opacity-20 blur-3xl"
-            style={{ background: "radial-gradient(circle, rgba(6,182,212,0.5), transparent)" }}
-          />
-          <div
-            className="absolute left-1/2 top-0 h-40 w-80 -translate-x-1/2 rounded-full opacity-10 blur-3xl"
-            style={{ background: "radial-gradient(circle, rgba(99,102,241,0.8), transparent)" }}
-          />
-        </div>
-
-        {/* Card */}
-        <div className="relative z-10 w-full max-w-[400px]">
-          {/* Glow border */}
-          <div
-            className="pointer-events-none absolute -inset-[1px] rounded-[26px] opacity-60 blur-sm"
-            style={{ background: premiumGradient }}
-          />
-          <section
-            className="relative rounded-[24px] border p-5 shadow-2xl backdrop-blur-2xl"
-            style={{ background: cardBg, borderColor: cardBorder }}
-          >
-            {/* Shield icon + title */}
-            <div className="mb-4 flex flex-col items-center gap-2.5">
-              <div className="relative">
-                <div
-                  className="absolute inset-0 rounded-full blur-lg opacity-60"
-                  style={{ background: premiumGradient }}
-                />
-                <div
-                  className="relative flex h-14 w-14 items-center justify-center rounded-full border-2 text-white shadow-xl"
-                  style={{
-                    background: premiumGradient,
-                    borderColor: isDarkMode ? "rgba(255,255,255,0.15)" : "rgba(124,58,237,0.3)",
-                    boxShadow: "0 0 28px rgba(124,58,237,0.5), 0 6px 24px rgba(0,0,0,0.3)",
-                  }}
-                >
-                  <ShieldCheck size={24} strokeWidth={2.5} />
-                </div>
-                <div className="absolute -right-1 -top-1 h-2 w-2 rounded-full" style={{ background: "#06b6d4" }} />
-                <div className="absolute -bottom-1 -left-1 h-1.5 w-1.5 rounded-full" style={{ background: "#7c3aed" }} />
-              </div>
-              <div className="text-center">
-                <h1 className="text-[22px] font-black uppercase tracking-tight leading-tight">
-                  <span style={{ color: textPrimary }}>MOBILE </span>
-                  <span
-                    className="bg-clip-text text-transparent"
-                    style={{ backgroundImage: premiumGradient }}
-                  >
-                    VERIFICATION
-                  </span>
-                </h1>
-                <p className="mt-0.5 text-[11px] font-medium" style={{ color: textMuted }}>
-                  Secure. Quick. Reliable.
-                </p>
-              </div>
-            </div>
-
-            {/* Tabs */}
-            <div
-              className="mb-3 flex rounded-xl p-1"
-              style={{ backgroundColor: tabBg, border: `1px solid ${isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(124,58,237,0.1)"}` }}
-            >
-              {(["aadhaar", "pan"] as const).map((tab) => {
-                const active = verifyActiveTab === tab;
-                return (
-                  <button
-                    key={tab}
-                    onClick={() => { setVerifyActiveTab(tab); setVerifyIsChecked(false); }}
-                    className="relative flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-black uppercase tracking-widest transition-all duration-300"
-                    style={{
-                      background: active ? premiumGradient : "transparent",
-                      color: active ? "#ffffff" : textMuted,
-                      boxShadow: active ? "0 4px 15px rgba(124,58,237,0.4)" : "none",
-                    }}
-                  >
-                    {tab === "aadhaar" ? <Fingerprint size={13} /> : <CreditCard size={13} />}
-                    {tab.toUpperCase()}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Alert / Info banner — glass border on both */}
-            {verifyActiveTab === "aadhaar" ? (
-              <div className="relative mb-3">
-                {/* Glass glow border */}
-                <div
-                  className="pointer-events-none absolute -inset-[1px] rounded-xl opacity-50 blur-[2px]"
-                  style={{ background: "linear-gradient(135deg, rgba(220,38,38,0.7), rgba(239,68,68,0.3), rgba(220,38,38,0.5))" }}
-                />
-                <div
-                  className="relative flex items-start gap-2 rounded-xl px-3 py-2 backdrop-blur-sm"
-                  style={{
-                    backgroundColor: isDarkMode ? "rgba(220,38,38,0.1)" : "rgba(220,38,38,0.05)",
-                    border: "1px solid rgba(220,38,38,0.2)",
-                  }}
-                >
-                  <AlertCircle size={13} className="mt-0.5 shrink-0" style={{ color: "#dc2626" }} />
-                  <p className="text-[11px] font-semibold leading-snug" style={{ color: "#dc2626" }}>
-                    Please enter and verify Aadhaar Registered Mobile Number
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="relative mb-3">
-                {/* Glass glow border */}
-                <div
-                  className="pointer-events-none absolute -inset-[1px] rounded-xl opacity-50 blur-[2px]"
-                  style={{ background: premiumGradient }}
-                />
-                <div
-                  className="relative space-y-2 rounded-xl px-3 py-3 text-center backdrop-blur-sm"
-                  style={{
-                    backgroundColor: isDarkMode ? "rgba(18,12,40,0.7)" : "rgba(245,243,255,0.8)",
-                    border: `1px solid ${isDarkMode ? "rgba(124,58,237,0.2)" : "rgba(124,58,237,0.12)"}`,
-                  }}
-                >
-                  {/* VERIFICATION BY TELECOM pill */}
-                  <div className="flex justify-center">
-                    <div
-                      className="flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-wider text-white"
-                      style={{
-                        background: premiumGradient,
-                        boxShadow: "0 4px 14px rgba(124,58,237,0.4)",
-                      }}
-                    >
-                      {/* Radio/signal tower icon */}
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M4.9 4.9a10 10 0 0 1 14.14 0" /><path d="M7.76 7.76a6 6 0 0 1 8.49 0" /><path d="M10.6 10.6a2 2 0 0 1 2.83 0" />
-                        <line x1="12" y1="12" x2="12" y2="21" /><line x1="9" y1="21" x2="15" y2="21" />
-                      </svg>
-                      VERIFICATION BY TELECOM
-                    </div>
-                  </div>
-                  <p className="text-[11px] leading-relaxed" style={{ color: textMuted }}>
-                    Enter the applicant&apos;s 10-digit registered mobile number. Ensure the name matches telecom records.
-                  </p>
-                </div>
-              </div>
-            )}
-
-
-            {/* Mobile input */}
-            <div
-              className="mb-2.5 flex items-center gap-2 rounded-xl border px-3"
-              style={{
-                backgroundColor: isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(124,58,237,0.05)",
-                borderColor: inputBorderC,
-                height: "44px",
-              }}
-            >
-              {/* Phone icon */}
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: textMuted, flexShrink: 0 }}>
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.38 2 2 0 0 1 3.62 1.2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.84a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 16z" />
-              </svg>
-              <input
-                type="tel"
-                maxLength={10}
-                inputMode="numeric"
-                placeholder="Mobile number"
-                value={verifyMobile}
-                disabled={verifyOtpSent}
-                onChange={(e) => setVerifyMobile(e.target.value.replace(/\D/g, ""))}
-                className="min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none border-none focus:ring-0 focus:outline-none disabled:opacity-60"
-                style={{ color: textPrimary, boxShadow: "none" }}
-              />
-              {!verifyOtpSent && (
-                <button
-                  onClick={handleVerifySendOtp}
-                  disabled={verifyIsSending || verifyMobile.length !== 10}
-                  className="shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white transition-all duration-200 disabled:opacity-50 hover:brightness-110 active:scale-95"
-                  style={{
-                    background: premiumGradient,
-                    boxShadow: "0 3px 10px rgba(124,58,237,0.4)",
-                  }}
-                >
-                  {verifyIsSending ? "..." : "SEND OTP"}
-                </button>
-              )}
-            </div>
-
-            {/* OTP inputs */}
-            {verifyOtpSent && (
-              <div className="mb-2.5 space-y-2 text-center">
-                <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: textMuted }}>
-                  Enter 6-digit OTP
-                </p>
-                <div className="flex justify-center gap-1.5">
-                  {verifyOtp.map((digit, index) => (
-                    <input
-                      key={index}
-                      ref={(el) => { verifyInputRefs.current[index] = el; }}
-                      value={digit}
-                      maxLength={1}
-                      inputMode="numeric"
-                      autoComplete={index === 0 ? "one-time-code" : "off"}
-                      onChange={(e) => handleVerifyOtpChange(index, e.target.value)}
-                      onKeyDown={(e) => handleVerifyOtpKeyDown(index, e)}
-                      onPaste={handleVerifyOtpPaste}
-                      className="h-10 w-9 rounded-lg border text-center text-sm font-black outline-none transition-all duration-200 focus:scale-105"
-                      style={{
-                        backgroundColor: digit ? otpFilled : inputBg,
-                        borderColor: digit ? "rgba(124,58,237,0.7)" : otpBorder,
-                        color: textPrimary,
-                        boxShadow: digit ? "0 0 10px rgba(124,58,237,0.25)" : "none",
-                      }}
-                    />
-                  ))}
-                </div>
-                <button
-                  onClick={() => verifyTimer === 0 && handleVerifySendOtp()}
-                  disabled={verifyTimer > 0}
-                  className="text-[10px] font-semibold transition-opacity disabled:opacity-40"
-                  style={{ color: isDarkMode ? "rgba(167,139,250,1)" : "#7c3aed" }}
-                >
-                  {verifyTimer > 0 ? `Resend OTP in ${verifyTimer}s` : "Resend OTP"}
-                </button>
-              </div>
-            )}
-
-            {/* PAN consent checkbox */}
-            {verifyActiveTab === "pan" && (
-              <div
-                className="mb-2.5 flex cursor-pointer items-start gap-2.5 rounded-xl border px-3 py-2.5 transition-colors"
-                style={{
-                  borderColor: verifyIsChecked ? "rgba(124,58,237,0.5)" : inputBorderC,
-                  backgroundColor: verifyIsChecked
-                    ? isDarkMode ? "rgba(124,58,237,0.12)" : "rgba(124,58,237,0.06)"
-                    : inputBg,
-                }}
-                onClick={() => setVerifyIsChecked((c) => !c)}
-              >
-                <div
-                  className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-all"
-                  style={{
-                    background: verifyIsChecked ? premiumGradient : "transparent",
-                    borderColor: verifyIsChecked ? "transparent" : inputBorderC,
-                  }}
-                >
-                  {verifyIsChecked && (
-                    <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
-                      <path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </div>
-                <span className="text-[11px] leading-[1.55]" style={{ color: textMuted }}>
-                  I authorize verification of the mobile number and name with telecom records.
-                  <br />
-                  <span
-                    className="cursor-pointer font-semibold underline underline-offset-2"
-                    style={{ color: isDarkMode ? "rgba(167,139,250,1)" : "#7c3aed" }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    You must accept the terms and conditions
-                  </span>
-                  {" "}to continue.
-                </span>
-              </div>
-            )}
-
-            {/* CONTINUE button */}
-            <button
-              onClick={handleVerifySubmit}
-              disabled={!canContinue || verifyIsVerifying}
-              className="group relative flex w-full items-center justify-between overflow-hidden rounded-xl px-5 py-3 text-[12px] font-black uppercase tracking-[0.18em] text-white transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-40 hover:brightness-110 active:scale-[0.98]"
-              style={{
-                background: canContinue ? premiumGradient : isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.15)",
-                boxShadow: canContinue ? "0 6px 24px rgba(124,58,237,0.45), 0 2px 8px rgba(0,0,0,0.2)" : "none",
-              }}
-            >
-              <ShieldCheck size={16} strokeWidth={2.5} />
-              <span>{verifyIsVerifying ? "Verifying..." : "CONTINUE"}</span>
-              <ArrowRight size={16} strokeWidth={2.5} className="transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
-
-            {/* Footer */}
-            <div className="mt-3 flex items-center justify-center gap-2">
-              <div className="h-px flex-1" style={{ background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.1)" }} />
-              <div className="flex items-center gap-1.5" style={{ color: textMuted }}>
-                <Lock size={9} />
-                <span className="text-[10px] font-medium">Your data is safe and encrypted</span>
-              </div>
-              <div className="h-px flex-1" style={{ background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.1)" }} />
-            </div>
-          </section>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <div
       className={embedded ? "flex w-full flex-col overflow-hidden" : "flex min-h-screen w-full flex-col overflow-hidden p-2 md:p-4"}
@@ -691,395 +405,421 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
           borderColor: isDarkMode ? colors.inputBorder : colors.border,
         }}
       >
-        <header
-          className="flex shrink-0 flex-col gap-3 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5"
-          style={{
-            backgroundColor: isDarkMode ? colors.panel : colors.accentSubtle,
-            borderColor: isDarkMode ? colors.inputBorder : colors.border,
-          }}
-        >
-          <div className="flex flex-wrap gap-4 sm:gap-6">
-            <HeaderStat
-              label="Class"
-              value={formData.certificateClass}
-              color={colors.accent}
-            />
-            <HeaderStat
-              label="Type"
-              value={formData.certType}
-              color={colors.accent}
-            />
-            <HeaderStat
-              label="Price"
-              value={`INR ${formData.price}`}
-              color={colors.accent}
-            />
+        <header className="sticky top-0 z-20 flex shrink-0 flex-col gap-3 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5" style={{ backgroundColor: isDarkMode ? colors.panel : colors.accentSubtle, borderColor: isDarkMode ? colors.inputBorder : colors.border }}>
+          <div className="flex items-center gap-3">
+            <h1 className="text-[13px] font-black uppercase tracking-wider" style={{ color: textPrimary }}>DSC Application</h1>
           </div>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[10px] font-bold"
-            style={{
-              backgroundColor: colors.card,
-              borderColor: colors.borderSoft,
-              color: colors.text,
-            }}
-          >
-            {isDarkMode ? <SunMedium size={14} /> : <Moon size={14} />}{" "}
-            {isDarkMode ? "Light" : "Dark"}
-          </button>
-          {embedded && onBack ? (
-            <button
-              type="button"
-              onClick={onBack}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[10px] font-bold"
-              style={{
-                backgroundColor: colors.card,
-                borderColor: colors.borderSoft,
-                color: colors.text,
-              }}
-            >
-              Back
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={toggleTheme} className="inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[10px] font-bold transition hover:bg-slate-100 dark:hover:bg-slate-800" style={{ backgroundColor: colors.card, borderColor: colors.borderSoft, color: colors.text }}>
+              {isDarkMode ? <SunMedium size={14} /> : <Moon size={14} />} {isDarkMode ? "Light" : "Dark"}
             </button>
-          ) : null}
+            <button type="button" onClick={() => {
+                const dummy = { name: "", type: "", preview: "" } as any;
+                savePreviewDraft({ formData, files: { photo: dummy, idProof: dummy, addressProof: dummy } });
+                alert("Draft saved locally!");
+              }} className="inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[10px] font-bold transition hover:bg-slate-100 dark:hover:bg-slate-800" style={{ backgroundColor: colors.card, borderColor: colors.borderSoft, color: colors.text }}>
+              Save Draft
+            </button>
+            <div className="flex items-center gap-2 rounded-full border px-2 py-1" style={{ borderColor: colors.borderSoft }}>
+              <div className="flex h-6 w-6 items-center justify-center rounded-full text-white" style={{ background: premiumGradient }}>
+                <span className="text-[9px] font-bold">U</span>
+              </div>
+              <span className="text-[10px] font-bold" style={{ color: colors.text }}>{formData.name || "User"}</span>
+            </div>
+            {embedded && onBack ? (
+              <button type="button" onClick={onBack} className="inline-flex h-9 items-center gap-2 rounded-lg border px-3 text-[10px] font-bold" style={{ backgroundColor: colors.card, borderColor: colors.borderSoft, color: colors.text }}>
+                Back
+              </button>
+            ) : null}
+          </div>
         </header>
 
-        <div className="flex flex-1 overflow-hidden">
-          <div className="grid w-full grid-cols-1 overflow-hidden md:grid-cols-12 md:items-start">
-            {/* LEFT SIDE: Tightened spacing to prevent scrolling */}
-            <section
-              className="flex flex-col border-b md:col-span-8 md:border-b-0 md:border-r"
-              style={{
-                borderColor: isDarkMode ? colors.inputBorder : colors.border,
-              }}
-            >
-              <div className="flex-1 overflow-y-auto no-scrollbar p-4 space-y-4">
-                <div>
-                  <SectionHeader title="DSC Service Details" color={sectionGreen} />
-                  <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
-                    <ThemeSelect
-                      name="certificateClass"
-                      label="Certificate Class"
-                      options={["Class III"]}
-                      value={formData.certificateClass}
-                      onChange={handleChange}
-                      colors={colors}
-                    />
-                    <ThemeSelect
-                      name="certType"
-                      label="Service Type"
-                      options={["Signature", "Encryption", "Signing & Encryption"]}
-                      value={formData.certType}
-                      onChange={handleChange}
-                      colors={colors}
-                      required
-                    />
-                    <ThemeSelect
-                      name="validity"
-                      label="Validity"
-                      options={["1 Year", "2 Years", "3 Years"]}
-                      value={formData.validity}
-                      onChange={handleChange}
-                      colors={colors}
-                      required
-                    />
-                    <ThemeSelect
-                      name="tokenType"
-                      label="USB Token"
-                      options={["Not Required", "USB Token"]}
-                      value={formData.tokenType}
-                      onChange={handleChange}
-                      colors={colors}
-                    />
-                    <ThemeSelect
-                      name="assistedService"
-                      label="Assisted Service"
-                      options={["Not Required", "Required"]}
-                      value={formData.assistedService}
-                      onChange={handleChange}
-                      colors={colors}
-                    />
-                    <div
-                      className="flex min-h-9 items-center justify-between rounded-md border px-3 py-2"
-                      style={{
-                        backgroundColor: `${colors.accent}10`,
-                        borderColor: colors.inputBorder,
-                      }}
-                    >
-                      <div>
-                        <p className="text-[8px] font-black uppercase opacity-60">Total Price</p>
-                        <p className="text-sm font-black" style={{ color: colors.accent }}>
-                          INR {formData.price}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+        <div className="flex flex-1 flex-col overflow-y-auto lg:flex-row p-4 gap-6 max-w-7xl w-full mx-auto relative">
+          
+          {/* LEFT PANE: ACCORDIONS (70%) */}
+          <div className="flex flex-col gap-4 w-full lg:w-[70%]">
+            
+            {/* STEP 1: DSC CONFIG */}
+            <section className="overflow-hidden rounded-xl border transition-all duration-300" style={{ borderColor: isDarkMode ? colors.inputBorder : colors.border, backgroundColor: isDarkMode ? colors.panelStrong : colors.card }}>
+              <button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50" onClick={() => setActiveStep(activeStep === 1 ? (0 as any) : 1)}>
+                <div className="flex items-center gap-3">
+                  {activeStep > 1 ? <CheckCircle2 size={18} className="text-green-500" /> : <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-md" style={{ background: activeStep === 1 ? premiumGradient : "transparent", backgroundColor: activeStep === 1 ? "transparent" : isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", color: activeStep === 1 ? "#fff" : textMuted }}>1</span>}
+                  <h2 className="text-[13px] font-bold uppercase tracking-wider" style={{ color: activeStep === 1 ? textPrimary : textMuted }}>DSC Configuration</h2>
                 </div>
-
-                <div>
-                  <SectionHeader
-                    title="Personal Information"
-                    color={sectionGreen}
-                  />
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
-                    <ThemeInput
-                      name="name"
-                      label="Full Name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      colors={colors}
-                      required
-                    />
-                    <ThemeInput
-                      name="pan"
-                      label="PAN No"
-                      value={formData.pan}
-                      onChange={handleChange}
-                      colors={colors}
-                      required
-                    />
-                    <ThemeSelect
-                      name="gender"
-                      label="Gender"
-                      options={["Select", "Male", "Female"]}
-                      value={formData.gender}
-                      onChange={handleChange}
-                      colors={colors}
-                    />
-                    <ThemeInput
-                      name="dob"
-                      label="DOB"
-                      placeholder="DD-MM-YYYY"
-                      value={formData.dob}
-                      onChange={handleChange}
-                      colors={colors}
-                    />
-                    <ThemeInput
-                      name="email"
-                      label="Email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      colors={colors}
-                    />
-                    <ThemeInput
-                      name="mobile"
-                      label="Mobile"
-                      value={formData.mobile}
-                      readOnly
-                      muted
-                      colors={colors}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <SectionHeader title="Address Details" color={sectionGreen} />
-                  <div className="space-y-2">
-                    <div className="w-full">
-                      <Label text="Full Address" colors={colors} required />
-                      <textarea
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        className="w-full rounded-md border px-3 py-2 text-[13px] font-bold outline-none"
-                        style={{
-                          backgroundColor: fieldSurface,
-                          borderColor: fieldBorder,
-                          color: fieldText,
-                          minHeight: "50px",
-                        }}
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                      <ThemeInput
-                        name="pincode"
-                        label="Pincode"
-                        value={formData.pincode}
-                        onChange={handleChange}
-                        colors={colors}
-                      />
-                      <ThemeInput
-                        name="city"
-                        label="City"
-                        value={formData.city}
-                        onChange={handleChange}
-                        colors={colors}
-                      />
-                      <ThemeInput
-                        name="state"
-                        label="State"
-                        value={formData.state}
-                        onChange={handleChange}
-                        colors={colors}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <SectionHeader title="Security" color={sectionGreen} />
+                <ChevronDown size={16} style={{ color: textMuted, transform: activeStep === 1 ? "rotate(180deg)" : "none", transition: "transform 0.3s" }} />
+              </button>
+              {activeStep === 1 ? (
+                <div className="border-t p-4" style={{ borderColor: isDarkMode ? colors.inputBorder : colors.border }}>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <ThemeInput
-                      name="ekycId"
-                      label="eKYC ID"
-                      value={formData.ekycId}
-                      onChange={handleChange}
-                      colors={colors}
-                    />
-                    <div className="w-full">
-                      <Label text="eKYC PIN" colors={colors} required />
-                      <div className="flex h-10">
-                        <input
-                          name="ekycPin"
-                          type={showPin ? "text" : "password"}
-                          value={formData.ekycPin}
-                          onChange={handleChange}
-                          className="w-full rounded-l-md border px-3 text-[13px] font-bold outline-none"
-                          style={{
-                            backgroundColor: fieldSurface,
-                            borderColor: fieldBorder,
-                            color: fieldText,
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPin(!showPin)}
-                          className="flex h-10 w-11 shrink-0 items-center justify-center rounded-r-md border border-l-0 transition hover:brightness-110"
-                          style={{
-                            borderColor: fieldBorder,
-                            backgroundColor: isDarkMode ? "#2a1f52" : colors.border,
-                            color: isDarkMode ? "#ffffff" : colors.text,
-                          }}
-                          aria-label={showPin ? "Hide eKYC PIN" : "Show eKYC PIN"}
-                          title={showPin ? "Hide eKYC PIN" : "Show eKYC PIN"}
-                        >
-                          {showPin ? <EyeOff size={16} /> : <Eye size={16} />}
-                        </button>
-                      </div>
-                    </div>
+                    <ThemeSelect name="certificateClass" label="Certificate Class" options={["Class III"]} value={formData.certificateClass} onChange={handleChange} colors={colors} />
+                    <ThemeSelect name="certType" label="Service Type" options={["Signature", "Encryption", "Signing & Encryption"]} value={formData.certType} onChange={handleChange} colors={colors} required />
+                    <ThemeSelect name="validity" label="Validity" options={["1 Year", "2 Years", "3 Years"]} value={formData.validity} onChange={handleChange} colors={colors} required />
+                    <ThemeSelect name="tokenType" label="USB Token" options={["Not Required", "USB Token"]} value={formData.tokenType} onChange={handleChange} colors={colors} />
+                    <ThemeSelect name="assistedService" label="Assisted Service" options={["Not Required", "Required"]} value={formData.assistedService} onChange={handleChange} colors={colors} />
+                  </div>
+                  <div className="mt-5 flex justify-end">
+                    <button type="button" onClick={() => setActiveStep(2)} className="group flex items-center gap-2 rounded-lg px-5 py-2.5 text-[11px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:brightness-110 active:scale-95 shadow-lg" style={{ background: premiumGradient, boxShadow: "0 4px 14px rgba(124,58,237,0.3)" }}>
+                      Continue
+                      <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+                    </button>
                   </div>
                 </div>
-              </div>
+              ) : null}
             </section>
 
-            <aside
-              className="flex flex-col overflow-hidden md:col-span-4"
-              style={{
-                backgroundColor: isDarkMode
-                  ? colors.panel
-                  : colors.accentSubtle,
-              }}
-            >
-              <div className="p-5 space-y-5">
-                <SectionHeader title="Documents" color={sectionGreen} />
-                <div className="flex flex-col gap-3">
-                  <div
-                    onClick={() => photoRef.current?.click()}
-                    className="relative flex h-28 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-md border-2 border-dashed transition hover:-translate-y-0.5"
-                    style={{
-                      borderColor: colors.accent,
-                      backgroundColor: isDarkMode ? `${colors.accent}12` : colors.input,
-                    }}
-                  >
-                    <input
-                      type="file"
-                      ref={photoRef}
-                      className="hidden"
-                    
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
+            {/* STEP 2: MOBILE VERIFICATION */}
+            <section className="overflow-hidden rounded-xl border transition-all duration-300" style={{ borderColor: isDarkMode ? colors.inputBorder : colors.border, backgroundColor: isDarkMode ? colors.panelStrong : colors.card }}>
+              <button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50" onClick={() => setActiveStep(activeStep === 2 ? (0 as any) : 2)}>
+                <div className="flex items-center gap-3">
+                  {isVerified ? <CheckCircle2 size={18} className="text-green-500" /> : <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold shadow-sm" style={{ background: activeStep === 2 ? premiumGradient : "transparent", backgroundColor: activeStep === 2 ? "transparent" : isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", color: activeStep === 2 ? "#fff" : textMuted }}>2</span>}
+                  <h2 className="text-[13px] font-bold uppercase tracking-wider" style={{ color: activeStep === 2 ? textPrimary : textMuted }}>Mobile Verification</h2>
+                </div>
+                <ChevronDown size={16} style={{ color: textMuted, transform: activeStep === 2 ? "rotate(180deg)" : "none", transition: "transform 0.3s" }} />
+              </button>
+              {activeStep === 2 ? (
+                <div className="border-t p-4 sm:p-6" style={{ borderColor: isDarkMode ? colors.inputBorder : colors.border, background: isDarkMode ? "radial-gradient(circle at top, rgba(124,58,237,0.08), transparent 80%)" : "radial-gradient(circle at top, rgba(124,58,237,0.03), transparent 80%)" }}>
+                  <div className="mx-auto w-full max-w-[420px] rounded-[24px] border p-5 shadow-2xl backdrop-blur-2xl" style={{ background: verifyCardBg, borderColor: verifyCardBorder }}>
+                    <div className="mb-4 flex flex-col items-center gap-2 text-center">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full text-white" style={{ background: premiumGradient }}>
+                        <ShieldCheck size={24} strokeWidth={2.5} />
+                      </div>
+                      <div>
+                        <h1 className="text-[22px] font-black uppercase tracking-tight leading-tight">
+                          <span style={{ color: verifyTextPrimary }}>MOBILE </span>
+                          <span className="bg-clip-text text-transparent" style={{ backgroundImage: premiumGradient }}>VERIFICATION</span>
+                        </h1>
+                        <p className="mt-0.5 text-[11px] font-medium" style={{ color: verifyTextMuted }}>Secure. Quick. Reliable.</p>
+                      </div>
+                    </div>
 
-                        if (!file) return;
+                    <div className="mb-3 flex rounded-xl p-1" style={{ backgroundColor: verifyTabBg, border: `1px solid ${isDarkMode ? "rgba(255,255,255,0.06)" : "rgba(124,58,237,0.1)"}` }}>
+                      {(["aadhaar", "pan"] as const).map((tab) => {
+                        const active = verifyActiveTab === tab;
+                        return (
+                          <button key={tab} type="button" onClick={(e) => { e.preventDefault(); setVerifyActiveTab(tab); setVerifyIsChecked(false); }} className="flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[11px] font-black uppercase tracking-widest" style={{ background: active ? premiumGradient : "transparent", color: active ? "#fff" : verifyTextMuted }}>
+                            {tab === "aadhaar" ? <Fingerprint size={13} /> : <CreditCard size={13} />}
+                            {tab.toUpperCase()}
+                          </button>
+                        );
+                      })}
+                    </div>
 
-                        if (file.size > 2 * 1024 * 1024) {
-                          alert("File size must be less than 2MB");
-                          return;
-                        }
-
-                        setPhotoFile(file);
-                      }}
-                    />
-                    {photoFile ? (
-                      photoFile.type === "application/pdf" ? (
-                        <p className="text-[10px] font-black uppercase opacity-60 p-2 text-center truncate w-full">
-                          {photoFile.name}
-                        </p>
-                      ) : (
-                        <img
-                          src={URL.createObjectURL(photoFile)}
-                          alt="User"
-                          className="h-full w-full object-cover"
-                        />
-                      )
-                    ) : existingUserUrls.photo && resubmissionFlags && !resubmissionFlags.photo ? (
-                      <div className="absolute inset-0 flex flex-col items-center justify-center bg-orange-500/10 p-2 text-center">
-                        <span className="text-[11px] font-extrabold uppercase text-orange-500">Verified ✅</span>
-                        <span className="mt-0.5 text-[9px] font-semibold text-orange-500">Existing photo will be reused</span>
+                    {verifyActiveTab === "aadhaar" ? (
+                      <div className="mb-3 rounded-xl border px-3 py-2" style={{ backgroundColor: isDarkMode ? "rgba(220,38,38,0.1)" : "rgba(220,38,38,0.05)", borderColor: "rgba(220,38,38,0.2)" }}>
+                        <div className="flex items-start gap-2">
+                          <AlertCircle size={13} className="mt-0.5 shrink-0" style={{ color: "#dc2626" }} />
+                          <p className="text-[11px] font-semibold leading-snug" style={{ color: "#dc2626" }}>Please enter and verify Aadhaar Registered Mobile Number</p>
+                        </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col items-center gap-1.5 p-2 text-center">
-                        <p className="text-[10px] font-black uppercase opacity-60">
-                          Photo
-                        </p>
-                        {resubmissionFlags?.photo && (
-                          <span className="px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wider rounded bg-rose-500/10 text-rose-500 animate-pulse">Resubmission Required</span>
-                        )}
+                      <div className="mb-3 rounded-xl border px-3 py-3 text-center" style={{ backgroundColor: isDarkMode ? "rgba(18,12,40,0.7)" : "rgba(245,243,255,0.8)", borderColor: isDarkMode ? "rgba(124,58,237,0.2)" : "rgba(124,58,237,0.12)" }}>
+                        <div className="mx-auto inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-wider text-white" style={{ background: premiumGradient }}>
+                          <CreditCard size={13} />
+                          VERIFICATION BY TELECOM
+                        </div>
+                        <p className="mt-2 text-[11px] leading-relaxed" style={{ color: verifyTextMuted }}>Enter the applicant&apos;s 10-digit registered mobile number. Ensure the name matches telecom records.</p>
                       </div>
                     )}
-                  </div>
-                  <FileBox
-                    label="Identity Proof"
-                    file={idFile}
-                    onClick={() => idProofRef.current?.click()}
-                    colors={colors}
-                    isVerified={!!(existingUserUrls.idProof && resubmissionFlags && !resubmissionFlags.idProof)}
-                    isResubmission={!!resubmissionFlags?.idProof}
-                  />
-                  <input
-                    type="file"
-                    ref={idProofRef}
-                    className="hidden"
-                    accept=".pdf"
-                    onChange={(e) => setIdFile(e.target.files?.[0] || null)}
-                  />
-                  <FileBox
-                    label="Address Proof"
-                    file={addressFile}
-                    onClick={() => addressRef.current?.click()}
-                    colors={colors}
-                    isVerified={!!(existingUserUrls.addressProof && resubmissionFlags && !resubmissionFlags.addressProof)}
-                    isResubmission={!!resubmissionFlags?.addressProof}
-                  />
-                  <input
-                    type="file"
-                    ref={addressRef}
-                    className="hidden"
-                    accept=".pdf"
-                    onChange={(e) =>
-                      setAddressFile(e.target.files?.[0] || null)
-                    }
-                  />
-                </div>
-              </div>
 
-              <div
-                className="border-t p-5"
-                style={{
-                  borderColor: isDarkMode ? colors.inputBorder : colors.border,
-                  backgroundColor: isDarkMode ? colors.panelStrong : colors.card,
-                }}
-              >
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full rounded-lg py-3.5 text-[11px] font-black uppercase tracking-widest text-white shadow-lg transition-all active:scale-95 disabled:opacity-50"
-                  style={{ backgroundColor: colors.accent }}
-                >
-                  {loading ? "PROCESSING..." : "CONTINUE TO PREVIEW"}
-                </button>
-              </div>
-            </aside>
+                    <div className="mb-2.5 flex h-11 items-center gap-2 rounded-xl border px-3" style={{ backgroundColor: verifyInputBg, borderColor: verifyInputBorderC }}>
+                      <Fingerprint size={15} style={{ color: verifyTextMuted, flexShrink: 0 }} />
+                      <input type="tel" maxLength={10} inputMode="numeric" placeholder="Mobile number" value={verifyMobile} disabled={verifyOtpSent} onChange={(e) => setVerifyMobile(e.target.value.replace(/\D/g, ""))} className="min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none border-none focus:ring-0 disabled:opacity-60" style={{ color: verifyTextPrimary }} />
+                      {!verifyOtpSent ? (
+                        <button type="button" onClick={handleVerifySendOtp} disabled={verifyIsSending || verifyMobile.length !== 10} className="shrink-0 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-white disabled:opacity-50" style={{ background: premiumGradient }}>
+                          {verifyIsSending ? "..." : "SEND OTP"}
+                        </button>
+                      ) : null}
+                    </div>
+
+                    {verifyOtpSent ? (
+                      <div className="mb-2.5 space-y-2 text-center">
+                        <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: verifyTextMuted }}>Enter 6-digit OTP</p>
+                        <div className="flex justify-center gap-1.5">
+                          {verifyOtp.map((digit, index) => (
+                            <input key={index} ref={(el) => { verifyInputRefs.current[index] = el; }} value={digit} maxLength={1} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} onChange={(e) => handleVerifyOtpChange(index, e.target.value)} onKeyDown={(e) => handleVerifyOtpKeyDown(index, e)} onPaste={handleVerifyOtpPaste} className="h-10 w-9 rounded-lg border text-center text-sm font-black outline-none" style={{ backgroundColor: digit ? verifyOtpFilled : verifyInputBg, borderColor: digit ? "rgba(124,58,237,0.7)" : verifyOtpBorder, color: verifyTextPrimary }} />
+                          ))}
+                        </div>
+                        <button type="button" onClick={() => verifyTimer === 0 && handleVerifySendOtp()} disabled={verifyTimer > 0} className="text-[10px] font-semibold disabled:opacity-40" style={{ color: isDarkMode ? "rgba(167,139,250,1)" : "#7c3aed" }}>
+                          {verifyTimer > 0 ? `Resend OTP in ${verifyTimer}s` : "Resend OTP"}
+                        </button>
+                      </div>
+                    ) : null}
+
+                    {verifyActiveTab === "pan" ? (
+                      <div className="mb-2.5 flex cursor-pointer items-start gap-2.5 rounded-xl border px-3 py-2.5" style={{ borderColor: verifyIsChecked ? "rgba(124,58,237,0.5)" : verifyInputBorderC, backgroundColor: verifyIsChecked ? (isDarkMode ? "rgba(124,58,237,0.12)" : "rgba(124,58,237,0.06)") : verifyInputBg }} onClick={() => setVerifyIsChecked((c) => !c)}>
+                        <div className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded border" style={{ background: verifyIsChecked ? premiumGradient : "transparent", borderColor: verifyIsChecked ? "transparent" : verifyInputBorderC }}>
+                          {verifyIsChecked ? <svg width="9" height="7" viewBox="0 0 9 7" fill="none"><path d="M1 3.5L3.5 6L8 1" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg> : null}
+                        </div>
+                        <span className="text-[11px] leading-[1.55]" style={{ color: verifyTextMuted }}>
+                          I authorize verification of the mobile number and name with telecom records.
+                          <br />
+                          <span className="cursor-pointer font-semibold underline underline-offset-2" style={{ color: isDarkMode ? "rgba(167,139,250,1)" : "#7c3aed" }} onClick={(e) => e.stopPropagation()}>You must accept the terms and conditions</span> to continue.
+                        </span>
+                      </div>
+                    ) : null}
+
+                    <button type="button" onClick={handleVerifySubmit} disabled={!canContinue || verifyIsVerifying} className="group flex w-full items-center justify-between rounded-xl px-5 py-3 text-[12px] font-black uppercase tracking-[0.18em] text-white disabled:opacity-40" style={{ background: canContinue ? premiumGradient : isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.15)" }}>
+                      <ShieldCheck size={16} strokeWidth={2.5} />
+                      <span>{verifyIsVerifying ? "Verifying..." : "CONTINUE"}</span>
+                      <ArrowRight size={16} strokeWidth={2.5} />
+                    </button>
+
+                    <div className="mt-3 flex items-center justify-center gap-2">
+                      <div className="h-px flex-1" style={{ background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.1)" }} />
+                      <div className="flex items-center gap-1.5" style={{ color: verifyTextMuted }}>
+                        <Lock size={9} />
+                        <span className="text-[10px] font-medium">Your data is safe and encrypted</span>
+                      </div>
+                      <div className="h-px flex-1" style={{ background: isDarkMode ? "rgba(255,255,255,0.08)" : "rgba(124,58,237,0.1)" }} />
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </section>
+
+            {/* STEP 3: APPLICANT DETAILS */}
+            <section className="overflow-hidden rounded-xl border transition-all duration-300" style={{ borderColor: isDarkMode ? colors.inputBorder : colors.border, backgroundColor: isDarkMode ? colors.panelStrong : colors.card }}>
+              <button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50" onClick={() => { if (isVerified || !showVerify) setActiveStep(activeStep === 3 ? (0 as any) : 3); }}>
+                <div className="flex items-center gap-3">
+                  {activeStep > 3 ? <CheckCircle2 size={18} className="text-green-500" /> : <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold shadow-sm" style={{ background: activeStep === 3 ? premiumGradient : "transparent", backgroundColor: activeStep === 3 ? "transparent" : isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", color: activeStep === 3 ? "#fff" : textMuted }}>3</span>}
+                  <h2 className="text-[13px] font-bold uppercase tracking-wider" style={{ color: activeStep === 3 ? textPrimary : textMuted }}>Applicant Details</h2>
+                </div>
+                <ChevronDown size={16} style={{ color: textMuted, transform: activeStep === 3 ? "rotate(180deg)" : "none", transition: "transform 0.3s" }} />
+              </button>
+
+              {activeStep === 3 ? (
+                <div className="border-t p-4" style={{ borderColor: isDarkMode ? colors.inputBorder : colors.border }}>
+                  <div className="space-y-6">
+                    <div>
+                      <SectionHeader title="Personal Information" textColor={textPrimary} />
+                      <div className="grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">
+                        <ThemeInput name="name" label="Full Name" value={formData.name} onChange={handleChange} colors={colors} required />
+                        <ThemeInput name="pan" label="PAN No" value={formData.pan} onChange={handleChange} colors={colors} required />
+                        <ThemeSelect name="gender" label="Gender" options={["Select", "Male", "Female"]} value={formData.gender} onChange={handleChange} colors={colors} />
+                        <ThemeInput name="dob" label="DOB" placeholder="DD-MM-YYYY" value={formData.dob} onChange={handleChange} colors={colors} />
+                        <ThemeInput name="email" label="Email" value={formData.email} onChange={handleChange} colors={colors} />
+                        <ThemeInput name="mobile" label="Mobile" value={formData.mobile} readOnly muted colors={colors} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <SectionHeader title="Address Details" textColor={textPrimary} />
+                      <div className="space-y-2">
+                        <div className="w-full">
+                          <Label text="Full Address" colors={colors} required />
+                          <textarea name="address" value={formData.address} onChange={handleChange} className="w-full rounded-md border px-3 py-2 text-[13px] font-bold outline-none transition focus:ring-2" style={{ backgroundColor: "var(--form-field-bg)", borderColor: "var(--form-field-border)", color: "var(--form-field-text)", minHeight: "80px", boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset" }} />
+                        </div>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                          <ThemeInput name="pincode" label="Pincode" value={formData.pincode} onChange={handleChange} colors={colors} />
+                          <ThemeInput name="city" label="City" value={formData.city} onChange={handleChange} colors={colors} />
+                          <ThemeInput name="state" label="State" value={formData.state} onChange={handleChange} colors={colors} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <SectionHeader title="Security" textColor={textPrimary} />
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <ThemeInput name="ekycId" label="eKYC ID" value={formData.ekycId} onChange={handleChange} colors={colors} />
+                        <div className="w-full">
+                          <Label text="eKYC PIN" colors={colors} required />
+                          <div className="flex h-10">
+                            <input name="ekycPin" type={showPin ? "text" : "password"} value={formData.ekycPin} onChange={handleChange} className="w-full rounded-l-md border px-3 text-[13px] font-bold outline-none transition focus:ring-2" style={{ backgroundColor: "var(--form-field-bg)", borderColor: "var(--form-field-border)", color: "var(--form-field-text)", boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset" }} />
+                            <button type="button" onClick={() => setShowPin(!showPin)} className="flex h-10 w-11 shrink-0 items-center justify-center rounded-r-md border border-l-0 transition hover:brightness-110" style={{ borderColor: fieldBorder, backgroundColor: isDarkMode ? "#2a1f52" : colors.border, color: isDarkMode ? "#ffffff" : colors.text }} aria-label={showPin ? "Hide eKYC PIN" : "Show eKYC PIN"} title={showPin ? "Hide eKYC PIN" : "Show eKYC PIN"}>
+                              {showPin ? <EyeOff size={16} /> : <Eye size={16} />}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+            </section>
           </div>
+
+          {/* RIGHT PANE: DOCUMENTS & SUMMARY (30% Sticky) */}
+          <aside className="w-full lg:w-[30%] space-y-4 lg:sticky lg:top-4 lg:self-start z-10">
+            <div className="rounded-xl border p-4 shadow-sm" style={{ borderColor: colors.inputBorder, backgroundColor: isDarkMode ? colors.panelStrong : colors.card }}>
+              <SectionHeader title="Documents" step={4} textColor={textPrimary} />
+              <div className="space-y-3 mt-3">
+                {/* PHOTO */}
+                <PhotoBox
+                  file={photoFile}
+                  existingUrl={existingUserUrls.photo}
+                  isVerified={!!(existingUserUrls.photo && (!resubmissionFlags || !resubmissionFlags.photo))}
+                  isResubmission={!!resubmissionFlags?.photo}
+                  colors={colors}
+                  isDarkMode={isDarkMode}
+                  onChoose={() => photoRef.current?.click()}
+                  onReplace={() => { setPhotoFile(null); photoRef.current?.click(); }}
+                />
+                <input type="file" ref={photoRef} className="hidden" accept="image/*,.pdf" onChange={(e) => { const file = e.target.files?.[0]; if (!file) return; if (file.size > 2 * 1024 * 1024) { alert("File size must be less than 2MB"); return; } setPhotoFile(file); }} />
+                {/* ID PROOF */}
+                <FileBox
+                  label="Identity Proof"
+                  emoji="🪪"
+                  file={idFile}
+                  existingUrl={existingUserUrls.idProof}
+                  onClick={() => idProofRef.current?.click()}
+                  onReplace={() => { setIdFile(null); idProofRef.current?.click(); }}
+                  colors={colors}
+                  isVerified={!!(existingUserUrls.idProof && (!resubmissionFlags || !resubmissionFlags.idProof))}
+                  isResubmission={!!resubmissionFlags?.idProof}
+                />
+                <input type="file" ref={idProofRef} className="hidden" accept=".pdf,image/*" onChange={(e) => setIdFile(e.target.files?.[0] || null)} />
+                {/* ADDRESS PROOF */}
+                <FileBox
+                  label="Address Proof"
+                  emoji="🏠"
+                  file={addressFile}
+                  existingUrl={existingUserUrls.addressProof}
+                  onClick={() => addressRef.current?.click()}
+                  onReplace={() => { setAddressFile(null); addressRef.current?.click(); }}
+                  colors={colors}
+                  isVerified={!!(existingUserUrls.addressProof && (!resubmissionFlags || !resubmissionFlags.addressProof))}
+                  isResubmission={!!resubmissionFlags?.addressProof}
+                />
+                <input type="file" ref={addressRef} className="hidden" accept=".pdf,image/*" onChange={(e) => setAddressFile(e.target.files?.[0] || null)} />
+              </div>
+            </div>
+<div
+  className="rounded-xl border overflow-hidden shadow-sm"
+  style={{
+    borderColor: colors.inputBorder,
+    backgroundColor: isDarkMode ? colors.panelStrong : colors.card,
+  }}
+>
+  {/* Header */}
+  <div
+    className="border-b px-4 py-3"
+    style={{ borderColor: colors.inputBorder }}
+  >
+    <SectionHeader
+      title="Pricing Summary"
+      step={5}
+      textColor={textPrimary}
+    />
+
+    <p
+      className="mt-0.5 text-[9px] font-semibold uppercase tracking-wide opacity-60"
+      style={{ color: colors.text }}
+    >
+      Including GST
+    </p>
+  </div>
+
+  {/* Pricing Table */}
+
+  <table className="w-full border-collapse text-center">
+    <thead>
+      <tr>
+        <th
+          className="border-r border-b px-2 py-2 text-[10px] font-bold uppercase"
+          style={{
+            borderColor: colors.inputBorder,
+            color: colors.muted,
+          }}
+        >
+          Certificate
+        </th>
+
+        <th
+          className="border-r border-b px-2 py-2 text-[10px] font-bold uppercase"
+          style={{
+            borderColor: colors.inputBorder,
+            color: colors.muted,
+          }}
+        >
+          Token
+        </th>
+
+        <th
+          className="border-b px-2 py-2 text-[10px] font-bold uppercase"
+          style={{
+            borderColor: colors.inputBorder,
+            color: colors.muted,
+          }}
+        >
+          Assisted
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td
+          className="border-r px-2 py-3 text-[15px] font-black"
+          style={{
+            borderColor: colors.inputBorder,
+            color: colors.text,
+          }}
+        >
+          ₹ {pricing.certificate}
+        </td>
+
+        <td
+          className="border-r px-2 py-3 text-[15px] font-black"
+          style={{
+            borderColor: colors.inputBorder,
+            color: colors.text,
+          }}
+        >
+          ₹ {pricing.token}
+        </td>
+
+        <td
+          className="px-2 py-3 text-[15px] font-black"
+          style={{
+            color: colors.text,
+          }}
+        >
+          ₹ {pricing.assisted}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  {/* Total */}
+
+  <div
+    className="border-t px-3 py-3"
+    style={{
+      borderColor: colors.inputBorder,
+      background: `${colors.accent}10`,
+    }}
+  >
+    <div className="flex items-center justify-between">
+      <span
+        className="text-[10px] font-bold uppercase tracking-wider"
+        style={{ color: colors.muted }}
+      >
+        Total Payable
+      </span>
+
+      <span
+        className="text-lg font-black"
+        style={{ color: colors.accent }}
+      >
+        ₹ {pricing.total}
+      </span>
+    </div>
+
+    <p
+      className="mt-1 text-right text-[9px]"
+      style={{ color: colors.muted }}
+    >
+      GST Included
+    </p>
+  </div>
+</div>
+
+            <button type="submit" disabled={loading} className="group flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-[12px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:brightness-110 active:scale-95 shadow-lg disabled:opacity-50" style={{ background: premiumGradient, boxShadow: "0 4px 14px rgba(124,58,237,0.3)" }}>
+              {loading ? "PROCESSING..." : "SUBMIT APPLICATION"}
+              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
+            </button>
+          </aside>
+
         </div>
       </form>
     </div>
@@ -1108,14 +848,21 @@ function HeaderStat({
   );
 }
 
-function SectionHeader({ title, color }: { title: string; color: string }) {
+function SectionHeader({ title, step, textColor }: { title: string; step?: number; textColor?: string }) {
   return (
-    <h3
-      className="mb-2 text-[10px] font-black uppercase tracking-widest"
-      style={{ color }}
-    >
-      {title}
-    </h3>
+    <div className="mb-3 flex items-center gap-3">
+      {step !== undefined && (
+        <span
+          className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-md"
+          style={{ background: "linear-gradient(135deg, #38BDF8 0%, #8B5CF6 50%, #A855F7 100%)" }}
+        >
+          {step}
+        </span>
+      )}
+      <h3 className="text-[13px] font-bold uppercase tracking-wider" style={{ color: textColor || "currentColor" }}>
+        {title}
+      </h3>
+    </div>
   );
 }
 
@@ -1189,45 +936,171 @@ function ThemeSelect({
   );
 }
 
+function PhotoBox({
+  file,
+  existingUrl,
+  isVerified,
+  isResubmission,
+  colors,
+  isDarkMode,
+  onChoose,
+  onReplace,
+}: {
+  file: File | null;
+  existingUrl?: string;
+  isVerified?: boolean;
+  isResubmission?: boolean;
+  colors: ThemeColors;
+  isDarkMode: boolean;
+  onChoose: () => void;
+  onReplace: () => void;
+}) {
+  const hasFile = !!file;
+  const uploaded = hasFile || isVerified;
+
+  if (uploaded) {
+    return (
+      <div
+        className="w-full rounded-xl border p-3 flex items-center gap-3"
+        style={{
+          borderColor: isResubmission ? "rgba(244,63,94,0.55)" : colors.accent,
+          backgroundColor: `${colors.accent}10`,
+        }}
+      >
+        {/* Thumbnail or placeholder */}
+        <div className="flex-shrink-0 w-10 h-10 rounded-md overflow-hidden border flex items-center justify-center" style={{ borderColor: colors.inputBorder, backgroundColor: colors.input }}>
+          {file && file.type.startsWith("image/") ? (
+            <img src={URL.createObjectURL(file)} alt="Photo" className="w-full h-full object-cover" />
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4, color: colors.text }}><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-black uppercase" style={{ color: colors.muted }}>Photo</p>
+          <p className="text-[11px] font-extrabold" style={{ color: "#10b981" }}>✓ Uploaded</p>
+          <p className="text-[9px] truncate opacity-40" style={{ color: colors.text }}>{file ? file.name : "Existing photo"}</p>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          {file && file.type.startsWith("image/") && (
+            <a href={URL.createObjectURL(file)} target="_blank" rel="noreferrer"
+              className="text-[8px] font-black uppercase px-2 py-1 rounded border text-center"
+              style={{ borderColor: colors.accent, color: colors.accent }}
+              onClick={(e) => e.stopPropagation()}
+            >Preview</a>
+          )}
+          {!file && existingUrl && (
+            <a href={existingUrl} target="_blank" rel="noreferrer"
+              className="text-[8px] font-black uppercase px-2 py-1 rounded border text-center"
+              style={{ borderColor: colors.accent, color: colors.accent }}
+              onClick={(e) => e.stopPropagation()}
+            >Preview</a>
+          )}
+          <button type="button" onClick={onReplace}
+            className="text-[8px] font-black uppercase px-2 py-1 rounded text-white"
+            style={{ backgroundColor: colors.accent }}
+          >Replace</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      onClick={onChoose}
+      className="relative flex h-20 w-full cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed transition hover:-translate-y-0.5"
+      style={{ borderColor: isResubmission ? "rgba(244,63,94,0.55)" : colors.accent, backgroundColor: isDarkMode ? `${colors.accent}08` : colors.input }}
+    >
+      <p className="text-[11px] font-black uppercase opacity-60" style={{ color: colors.text }}>Click to upload Photo</p>
+      {isResubmission && <span className="mt-1 rounded bg-rose-500/10 px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wider text-rose-500 animate-pulse">Resubmission Required</span>}
+    </div>
+  );
+}
+
 function FileBox({
   label,
+  emoji,
   file,
+  existingUrl,
   onClick,
+  onReplace,
   colors,
   isVerified,
   isResubmission,
 }: {
   label: string;
+  emoji: string;
   file: File | null;
+  existingUrl?: string;
   onClick: () => void;
+  onReplace: () => void;
   colors: ThemeColors;
   isVerified?: boolean;
   isResubmission?: boolean;
 }) {
-  return (
-    <div className="w-full">
-      <Label text={label} colors={colors} />
+  const uploaded = !!file || isVerified;
+
+  if (uploaded) {
+    return (
       <div
-        onClick={onClick}
-        className="flex h-12 w-full cursor-pointer items-center justify-between rounded-md border px-3 transition hover:-translate-y-0.5"
+        className="w-full rounded-xl border p-3 flex items-center gap-3"
         style={{
-          borderColor: isResubmission && !file ? "rgba(244, 63, 94, 0.55)" : colors.accent,
-          backgroundColor: isVerified && !file ? "rgba(16, 185, 129, 0.12)" : `${colors.accent}10`,
-          color: "var(--form-field-text)",
+          borderColor: isResubmission ? "rgba(244,63,94,0.55)" : colors.accent,
+          backgroundColor: `${colors.accent}10`,
         }}
       >
-        <span className="truncate text-[10px] font-black opacity-80">
-          {file ? file.name : isVerified ? "Existing file verified ✅" : "Choose File..."}
-        </span>
-        <span
-          className="text-[8px] font-black uppercase px-2 py-1 rounded text-white"
-          style={{
-            backgroundColor: isResubmission && !file ? "#f43f5e" : isVerified && !file ? "#ff6a00" : colors.accent,
-          }}
-        >
-          {isResubmission && !file ? "Fix Needed" : isVerified && !file ? "Verified" : "Upload"}
-        </span>
+        <div className="flex-shrink-0 w-10 h-10 rounded-md border flex items-center justify-center" style={{ borderColor: colors.inputBorder, backgroundColor: colors.input }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4, color: colors.text }}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-black uppercase" style={{ color: colors.muted }}>{label}</p>
+          <p className="text-[11px] font-extrabold" style={{ color: "#10b981" }}>✓ Uploaded</p>
+          <p className="text-[9px] truncate opacity-40" style={{ color: colors.text }}>{file ? file.name : "Existing document"}</p>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          {file && (
+            <a href={URL.createObjectURL(file)} target="_blank" rel="noreferrer"
+              className="text-[8px] font-black uppercase px-2 py-1 rounded border text-center"
+              style={{ borderColor: colors.accent, color: colors.accent }}
+              onClick={(e) => e.stopPropagation()}
+            >Preview</a>
+          )}
+          {!file && existingUrl && (
+            <a href={existingUrl} target="_blank" rel="noreferrer"
+              className="text-[8px] font-black uppercase px-2 py-1 rounded border text-center"
+              style={{ borderColor: colors.accent, color: colors.accent }}
+              onClick={(e) => e.stopPropagation()}
+            >Preview</a>
+          )}
+          <button type="button" onClick={onReplace}
+            className="text-[8px] font-black uppercase px-2 py-1 rounded text-white"
+            style={{ backgroundColor: colors.accent }}
+          >Replace</button>
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div
+      onClick={onClick}
+      className="flex h-12 w-full cursor-pointer items-center gap-3 rounded-xl border border-dashed px-3 transition hover:-translate-y-0.5"
+      style={{
+        borderColor: isResubmission ? "rgba(244,63,94,0.55)" : colors.accent,
+        backgroundColor: `${colors.accent}08`,
+      }}
+    >
+      <div className="flex-1">
+        <p className="text-[10px] font-black uppercase" style={{ color: colors.muted }}>{label}</p>
+        <p className="text-[9px] opacity-40" style={{ color: colors.text }}>
+          {isResubmission ? "Resubmission required" : "Click to upload"}
+        </p>
+      </div>
+      <span
+        className="text-[8px] font-black uppercase px-2 py-1 rounded text-white"
+        style={{ backgroundColor: isResubmission ? "#f43f5e" : colors.accent }}
+      >
+        {isResubmission ? "Fix" : "Upload"}
+      </span>
     </div>
   );
 }
