@@ -1,4 +1,4 @@
-﻿/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
@@ -711,34 +711,46 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
 
   {/* Pricing Table */}
 
-  <table className="w-full border-collapse text-center">
+  <table className="w-full border-collapse text-left">
     <thead>
       <tr>
         <th
-          className="border-r border-b px-2 py-2 text-[10px] font-bold uppercase"
+          colSpan={3}
+          className="border-b px-2 py-2 text-[13px] font-bold"
           style={{
             borderColor: colors.inputBorder,
-            color: colors.muted,
+            color: colors.text,
+          }}
+        >
+          Bifurcation (including Tax)
+        </th>
+      </tr>
+      <tr>
+        <th
+          className="border-r border-b px-2 py-2 text-[12px] font-bold"
+          style={{
+            borderColor: colors.inputBorder,
+            color: colors.text,
           }}
         >
           Certificate
         </th>
 
         <th
-          className="border-r border-b px-2 py-2 text-[10px] font-bold uppercase"
+          className="border-r border-b px-2 py-2 text-[12px] font-bold"
           style={{
             borderColor: colors.inputBorder,
-            color: colors.muted,
+            color: colors.text,
           }}
         >
           Token
         </th>
 
         <th
-          className="border-b px-2 py-2 text-[10px] font-bold uppercase"
+          className="border-b px-2 py-2 text-[12px] font-bold"
           style={{
             borderColor: colors.inputBorder,
-            color: colors.muted,
+            color: colors.text,
           }}
         >
           Assisted
@@ -749,32 +761,32 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
     <tbody>
       <tr>
         <td
-          className="border-r px-2 py-3 text-[15px] font-black"
+          className="border-r px-2 py-2 text-[13px]"
           style={{
             borderColor: colors.inputBorder,
             color: colors.text,
           }}
         >
-          ₹ {pricing.certificate}
+          {pricing.certificate}
         </td>
 
         <td
-          className="border-r px-2 py-3 text-[15px] font-black"
+          className="border-r px-2 py-2 text-[13px]"
           style={{
             borderColor: colors.inputBorder,
             color: colors.text,
           }}
         >
-          ₹ {pricing.token}
+          {pricing.token}
         </td>
 
         <td
-          className="px-2 py-3 text-[15px] font-black"
+          className="px-2 py-2 text-[13px]"
           style={{
             color: colors.text,
           }}
         >
-          ₹ {pricing.assisted}
+          {pricing.assisted}
         </td>
       </tr>
     </tbody>

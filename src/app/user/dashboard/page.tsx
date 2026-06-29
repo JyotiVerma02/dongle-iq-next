@@ -838,6 +838,9 @@ function UserDashboardPage() {
     } catch {
       /* keep navigation */
     } finally {
+      if (typeof window !== "undefined") {
+        window.sessionStorage.clear();
+      }
       router.push("/");
       router.refresh();
     }

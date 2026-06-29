@@ -210,7 +210,9 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await fetch("/api/logout", { method: "POST" });
-
+    if (typeof window !== "undefined") {
+      window.sessionStorage.clear();
+    }
     router.replace("/login");
     router.refresh();
   };

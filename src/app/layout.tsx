@@ -22,15 +22,7 @@ export const metadata: Metadata = {
     "Track applications, manage documents, and complete DSC onboarding in a polished secure portal.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return RootLayoutInner({ children });
-}
-
-async function RootLayoutInner({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
