@@ -1,9 +1,9 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AlertCircle, ArrowRight, CreditCard, Eye, EyeOff, Fingerprint, Lock, Moon, ShieldCheck, SunMedium, CheckCircle2, ChevronDown } from "lucide-react";
+import { AlertCircle, ArrowRight, CreditCard, Eye, EyeOff, Fingerprint, Lock, Moon, ShieldCheck, SunMedium, CheckCircle2, ChevronDown, BadgeCheck, PenTool, Calendar, Usb, Headset, CloudUpload, Contact, MapPin, Shield, Clock, Send, FileBadge, FileText, CheckCircle } from "lucide-react";
 import {
   APPLICATION_CONFIG_KEY,
   fileToStoredFile,
@@ -54,11 +54,13 @@ interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement>, ThemeProps {
   label: string;
   muted?: boolean;
+  icon?: React.ReactNode;
 }
 interface SelectProps
   extends React.SelectHTMLAttributes<HTMLSelectElement>, ThemeProps {
   label: string;
   options: string[];
+  icon?: React.ReactNode;
 }
 
 interface BankTelecomFormProps {
@@ -434,12 +436,58 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
           </div>
         </header>
 
-        <div className="flex flex-1 flex-col overflow-y-auto lg:flex-row p-4 gap-6 max-w-7xl w-full mx-auto relative">
-          
-          {/* LEFT PANE: ACCORDIONS (70%) */}
-          <div className="flex flex-col gap-4 w-full lg:w-[70%]">
-            
-            {/* STEP 1: DSC CONFIG */}
+        <div className="flex flex-1 flex-col overflow-y-auto p-4 gap-6 max-w-[1400px] w-full mx-auto relative">
+          <div className="flex flex-col lg:flex-row gap-6 w-full">
+            {/* LEFT PANE: STEP TRACKER (~20%) */}
+            <aside className="hidden lg:flex flex-col w-[20%] border-r border-dashed pr-6" style={{ borderColor: isDarkMode ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)" }}>
+              <div className="sticky top-6">
+                <div className="flex flex-col gap-8 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-[2px] before:bg-indigo-500/20">
+                  {/* Step 1 */}
+                  <div className="flex items-start gap-4 relative z-10">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 transition-colors" style={{ borderColor: activeStep === 1 ? "rgba(124,58,237,0.3)" : "transparent", background: activeStep === 1 ? premiumGradient : isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" }}>
+                      <span className="text-[12px] font-bold text-white">1</span>
+                    </div>
+                    <div className="pt-1">
+                      <h4 className="text-[12px] font-bold" style={{ color: textPrimary }}>DSC Configuration</h4>
+                      <p className="text-[10px] leading-relaxed mt-1" style={{ color: textMuted }}>Choose your certificate and service preferences</p>
+                    </div>
+                  </div>
+                  {/* Step 2 */}
+                  <div className="flex items-start gap-4 relative z-10">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 transition-colors" style={{ borderColor: activeStep === 2 ? "rgba(124,58,237,0.3)" : "transparent", background: activeStep >= 2 ? premiumGradient : isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" }}>
+                      <span className="text-[12px] font-bold text-white">2</span>
+                    </div>
+                    <div className="pt-1">
+                      <h4 className="text-[12px] font-bold" style={{ color: activeStep >= 2 ? textPrimary : textMuted }}>Mobile Verification</h4>
+                      <p className="text-[10px] leading-relaxed mt-1" style={{ color: textMuted }}>Verify your mobile number with OTP</p>
+                    </div>
+                  </div>
+                  {/* Step 3 */}
+                  <div className="flex items-start gap-4 relative z-10">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-4 transition-colors" style={{ borderColor: activeStep === 3 ? "rgba(124,58,237,0.3)" : "transparent", background: activeStep === 3 ? premiumGradient : isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" }}>
+                      <span className="text-[12px] font-bold text-white">3</span>
+                    </div>
+                    <div className="pt-1">
+                      <h4 className="text-[12px] font-bold" style={{ color: activeStep === 3 ? textPrimary : textMuted }}>Applicant Details</h4>
+                      <p className="text-[10px] leading-relaxed mt-1" style={{ color: textMuted }}>Enter your personal and contact details</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-12 rounded-xl border p-4" style={{ backgroundColor: isDarkMode ? "rgba(124,58,237,0.03)" : "rgba(124,58,237,0.02)", borderColor: isDarkMode ? "rgba(124,58,237,0.15)" : "rgba(124,58,237,0.1)" }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <ShieldCheck size={14} className="text-indigo-500" />
+                    <span className="text-[11px] font-bold text-indigo-500">Your data is secure</span>
+                  </div>
+                  <p className="text-[10px] leading-relaxed" style={{ color: textMuted }}>We use bank-grade encryption to protect your information.</p>
+                </div>
+              </div>
+            </aside>
+
+            {/* CENTER PANE: ACCORDIONS (~50%) */}
+            <div className="flex flex-col gap-4 w-full lg:w-[50%]">
+              
+              {/* STEP 1: DSC CONFIG */}
             <section className="overflow-hidden rounded-xl border transition-all duration-300" style={{ borderColor: isDarkMode ? colors.inputBorder : colors.border, backgroundColor: isDarkMode ? colors.panelStrong : colors.card }}>
               <button type="button" className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/50" onClick={() => setActiveStep(activeStep === 1 ? (0 as any) : 1)}>
                 <div className="flex items-center gap-3">
@@ -636,9 +684,9 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
                 </div>
               ) : null}
             </section>
-          </div>
+            </div>
 
-          {/* RIGHT PANE: DOCUMENTS & SUMMARY (30% Sticky) */}
+          {/* RIGHT PANE: DOCUMENTS & SUMMARY (~30%) */}
           <aside className="w-full lg:w-[30%] space-y-4 lg:sticky lg:top-4 lg:self-start z-10">
             <div className="rounded-xl border p-4 shadow-sm" style={{ borderColor: colors.inputBorder, backgroundColor: isDarkMode ? colors.panelStrong : colors.card }}>
               <SectionHeader title="Documents" step={4} textColor={textPrimary} />
@@ -795,43 +843,45 @@ export default function BankTelecomForm({ embedded = false, onBack, showVerify =
   {/* Total */}
 
   <div
-    className="border-t px-3 py-3"
+    className="border-t px-4 py-4"
     style={{
       borderColor: colors.inputBorder,
-      background: `${colors.accent}10`,
     }}
   >
-    <div className="flex items-center justify-between">
-      <span
-        className="text-[10px] font-bold uppercase tracking-wider"
-        style={{ color: colors.muted }}
-      >
-        Total Payable
-      </span>
+    <div className="flex items-end justify-between mb-4">
+      <div>
+        <span
+          className="block text-[10px] font-bold uppercase tracking-wider mb-1"
+          style={{ color: textPrimary }}
+        >
+          Total Payable
+        </span>
+        <div className="flex items-center gap-1">
+          <span className="text-[10px]" style={{ color: textMuted }}>GST Included</span>
+          <CheckCircle2 size={12} className="text-green-500" />
+        </div>
+      </div>
 
       <span
-        className="text-lg font-black"
-        style={{ color: colors.accent }}
+        className="text-[26px] font-black tracking-tight bg-clip-text text-transparent"
+        style={{ backgroundImage: premiumGradient }}
       >
         ₹ {pricing.total}
       </span>
     </div>
 
-    <p
-      className="mt-1 text-right text-[9px]"
-      style={{ color: colors.muted }}
-    >
-      GST Included
-    </p>
+    <button type="submit" disabled={loading} className="group flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[12px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:brightness-110 active:scale-95 shadow-lg disabled:opacity-50" style={{ background: premiumGradient, boxShadow: "0 4px 14px rgba(124,58,237,0.3)" }}>
+      {loading ? "PROCESSING..." : "SUBMIT APPLICATION"}
+      <Send size={16} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+    </button>
   </div>
 </div>
-
-            <button type="submit" disabled={loading} className="group flex w-full items-center justify-center gap-2 rounded-xl px-6 py-4 text-[12px] font-black uppercase tracking-widest text-white transition-all duration-300 hover:brightness-110 active:scale-95 shadow-lg disabled:opacity-50" style={{ background: premiumGradient, boxShadow: "0 4px 14px rgba(124,58,237,0.3)" }}>
-              {loading ? "PROCESSING..." : "SUBMIT APPLICATION"}
-              <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
-            </button>
           </aside>
 
+          </div>
+
+          {/* GLOBAL FOOTER */}
+          
         </div>
       </form>
     </div>
@@ -896,22 +946,29 @@ function Label({
   );
 }
 
-function ThemeInput({ label, required, colors, muted, ...props }: InputProps) {
+function ThemeInput({ label, required, colors, muted, icon, ...props }: InputProps) {
   const inputId = label.toLowerCase().replace(/\s+/g, "-");
   return (
     <div className="w-full">
       <Label text={label} required={required} colors={colors} htmlFor={inputId} />
-      <input
-        {...props}
-        id={inputId}
-        className="h-10 w-full rounded-md border px-3 text-[13px] font-bold outline-none transition focus:ring-2"
-        style={{
-          backgroundColor: "var(--form-field-bg)",
-          borderColor: "var(--form-field-border)",
-          color: muted ? "var(--form-field-muted)" : "var(--form-field-text)",
-          boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset",
-        }}
-      />
+      <div className="relative">
+        {icon && (
+          <div className="absolute left-3 top-0 bottom-0 flex items-center justify-center pointer-events-none" style={{ color: "var(--form-field-muted)" }}>
+            {icon}
+          </div>
+        )}
+        <input
+          {...props}
+          id={inputId}
+          className={`h-10 w-full rounded-md border text-[13px] font-bold outline-none transition focus:ring-2 ${icon ? "pl-10 pr-3" : "px-3"}`}
+          style={{
+            backgroundColor: "var(--form-field-bg)",
+            borderColor: "var(--form-field-border)",
+            color: muted ? "var(--form-field-muted)" : "var(--form-field-text)",
+            boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset",
+          }}
+        />
+      </div>
     </div>
   );
 }
@@ -921,29 +978,37 @@ function ThemeSelect({
   options,
   required,
   colors,
+  icon,
   ...props
 }: SelectProps) {
   const selectId = label.toLowerCase().replace(/\s+/g, "-");
   return (
     <div className="w-full">
       <Label text={label} required={required} colors={colors} htmlFor={selectId} />
-      <select
-        {...props}
-        id={selectId}
-        className="h-10 w-full rounded-md border px-3 text-[13px] font-bold outline-none transition focus:ring-2"
-        style={{
-          backgroundColor: "var(--form-field-bg)",
-          borderColor: "var(--form-field-border)",
-          color: "var(--form-field-text)",
-          boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset",
-        }}
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt}
-          </option>
-        ))}
-      </select>
+      <div className="relative">
+        {icon && (
+          <div className="absolute left-3 top-0 bottom-0 flex items-center justify-center pointer-events-none" style={{ color: "var(--form-field-muted)" }}>
+            {icon}
+          </div>
+        )}
+        <select
+          {...props}
+          id={selectId}
+          className={`h-10 w-full rounded-md border text-[13px] font-bold outline-none transition focus:ring-2 ${icon ? "pl-10 pr-3" : "px-3"}`}
+          style={{
+            backgroundColor: "var(--form-field-bg)",
+            borderColor: "var(--form-field-border)",
+            color: "var(--form-field-text)",
+            boxShadow: "0 1px 0 rgba(255,255,255,0.04) inset",
+          }}
+        >
+          {options.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }
