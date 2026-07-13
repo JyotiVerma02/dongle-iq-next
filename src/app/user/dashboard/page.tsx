@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   Suspense,
@@ -501,8 +501,8 @@ function UserDashboardPage() {
         });
         setPaymentSummary(data.user.latestPayment ?? null);
       } else {
-        setUserData(null);
-        setPaymentSummary(null);
+        router.replace("/login");
+        return;
       }
     } catch (err: any) {
       if (err.name !== "AbortError" && err.message !== "Failed to fetch") {
@@ -1732,7 +1732,7 @@ const handleLogout = async () => {
     </div>
   ) : (
     <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
-      <div className="max-w-2xl">
+      {/* <div className="max-w-2xl">
         <p className="text-[10px] font-black uppercase tracking-[0.28em] text-orange-500">
           Welcome
         </p>
@@ -1760,7 +1760,7 @@ const handleLogout = async () => {
             View Applications
           </button>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 

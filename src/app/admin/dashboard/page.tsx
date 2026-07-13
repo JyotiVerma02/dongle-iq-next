@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import {
   useState,
@@ -13,6 +13,7 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 import { Bell, CheckCheck } from "lucide-react";
+import { AdminNotificationCenter } from "./components/notifications/AdminNotificationCenter";
 
 import type { DashboardView } from "./types";
 import { clearFormState, clearPreviewDraft } from "@/lib/applicationPreview";
@@ -441,135 +442,17 @@ function NotificationsView({
   isDarkMode: boolean;
   onMarkRead: (notificationId: string) => void | Promise<void>;
   onMarkAllRead: () => void | Promise<void>;
+
 }) {
-  const formatDate = (value?: string) => {
-    if (!value) return "";
-    return new Date(value).toLocaleString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   return (
-    <section className="space-y-5">
-      <div
-        className="rounded-xl border p-5 sm:p-6"
-        style={{ backgroundColor: colors.card, borderColor: colors.borderSoft }}
-      >
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.24em]" style={{ color: colors.accent }}>
-              Admin notifications
-            </p>
-            <h1 className="mt-2 text-2xl font-black" style={{ color: colors.text }}>
-              Notification Center
-            </h1>
-            <p className="mt-1 text-sm font-semibold" style={{ color: colors.muted }}>
-              {unreadCount > 0
-                ? `${unreadCount} unread update${unreadCount === 1 ? "" : "s"} need attention.`
-                : "All admin updates are read."}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => void onMarkAllRead()}
-            disabled={unreadCount === 0}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-xs font-black uppercase tracking-[0.18em] transition disabled:opacity-50"
-            style={{
-              backgroundColor: colors.panelStrong,
-              borderColor: colors.borderSoft,
-              color: colors.text,
-            }}
-          >
-            <CheckCheck size={15} />
-            Mark all read
-          </button>
-        </div>
-      </div>
-
-      <div className="grid gap-3">
-        {notifications.length === 0 ? (
-          <div
-            className="rounded-xl border p-8 text-center"
-            style={{ backgroundColor: colors.card, borderColor: colors.borderSoft }}
-          >
-            <Bell className="mx-auto mb-3" size={28} style={{ color: colors.muted }} />
-            <p className="text-sm font-bold" style={{ color: colors.text }}>
-              No notifications yet
-            </p>
-            <p className="mt-1 text-xs font-semibold" style={{ color: colors.muted }}>
-              New DSC applications, status changes, payments, and support updates will appear here.
-            </p>
-          </div>
-        ) : (
-          notifications.map((item) => {
-            const isUnread = !item.isRead;
-            const isRejection =
-              item.type === "rejection_reason" ||
-              item.title.toLowerCase().includes("rejection") ||
-              item.message.toLowerCase().includes("rejected");
-
-            return (
-              <button
-                key={item._id}
-                type="button"
-                onClick={() => {
-                  if (isUnread) void onMarkRead(item._id);
-                }}
-                className="rounded-xl border p-4 text-left transition hover:-translate-y-0.5"
-                style={{
-                  backgroundColor: isUnread
-                    ? isRejection
-                      ? isDarkMode
-                        ? "rgba(244,63,94,0.10)"
-                        : "rgba(244,63,94,0.06)"
-                      : isDarkMode
-                        ? "rgba(255,106,0,0.10)"
-                        : "rgba(255,106,0,0.06)"
-                    : colors.card,
-                  borderColor: isUnread
-                    ? isRejection
-                      ? "rgba(244,63,94,0.35)"
-                      : "rgba(255,106,0,0.35)"
-                    : colors.borderSoft,
-                }}
-              >
-                <div className="flex items-start gap-3">
-                  <span
-                    className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{
-                      backgroundColor: isUnread
-                        ? isRejection
-                          ? "#fb7185"
-                          : colors.accent
-                        : colors.borderSoft,
-                    }}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-                      <h2 className="text-sm font-black" style={{ color: colors.text }}>
-                        {item.title}
-                      </h2>
-                      {item.createdAt ? (
-                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: colors.muted }}>
-                          {formatDate(item.createdAt)}
-                        </span>
-                      ) : null}
-                    </div>
-                    <p className="mt-1 text-xs font-semibold leading-5" style={{ color: colors.muted }}>
-                      {item.message}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            );
-          })
-        )}
-      </div>
-    </section>
+    <AdminNotificationCenter
+      notifications={notifications}
+      unreadCount={unreadCount}
+      onMarkRead={onMarkRead}
+      onMarkAllRead={onMarkAllRead}
+      colors={colors}
+      isDarkMode={isDarkMode}
+    />
   );
 }
 
