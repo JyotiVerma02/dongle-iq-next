@@ -1,13 +1,19 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { cookies } from "next/headers";
-import { Poppins } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 
-
-const poppins = Poppins({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-poppins",
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-manrope",
   display: "swap",
 });
 
@@ -53,14 +59,17 @@ export default async function RootLayout({
   return (
     <html lang="en" className={initialTheme} suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        <link href="https://api.fontshare.com/v2/css?f[]=satoshi@900,700,500,300,400&f[]=clash-display@200,400,700,500,600,300&display=swap" rel="stylesheet" />
+        <link
+          href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.min.css"
+          rel="stylesheet"
+        />
         <Script
           id="theme-init"
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
       </head>
-      <body suppressHydrationWarning className={`${poppins.variable} antialiased`}>
+      <body suppressHydrationWarning className={`${inter.variable} ${manrope.variable} antialiased`}>
         <ThemeProvider initialTheme={initialTheme as "light" | "dark"}>
           <Providers>
             <AppShell>{children}</AppShell>
