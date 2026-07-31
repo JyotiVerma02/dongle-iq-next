@@ -286,7 +286,7 @@ export default function Navbar() {
             <a
               key={item.label}
               href={item.href}
-              className="nav-link group relative px-2 lg:px-3 xl:px-4 py-2 text-[0.9rem] font-medium transition-colors whitespace-nowrap"
+              className="nav-link group relative px-2 lg:px-3 xl:px-4 py-2 text-[0.95rem] font-medium transition-colors whitespace-nowrap"
               style={{ color: "var(--muted)" }}
             >
               <span

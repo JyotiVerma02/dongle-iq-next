@@ -17,9 +17,12 @@ import {
   Fingerprint,
   GraduationCap,
   Headphones,
+  Link2,
+  Lock,
   Mail,
   MapPin,
   MessageSquare,
+  Package,
   Phone,
   ShieldCheck,
   Sparkles,
@@ -28,13 +31,14 @@ import {
   Workflow,
   Zap,
 } from "lucide-react";
-import { FaInstagram, FaLinkedinIn } from "react-icons/fa6";
+import { FaInstagram, FaLinkedinIn, FaXTwitter } from "react-icons/fa6";
 
 import LiveChat from "@/components/LiveChat";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import { OverviewHeroShield } from "@/components/user-dashboard/OverviewHeroShield";
 import Image from "next/image";
 
 type FaqEntry = {
@@ -686,27 +690,35 @@ export default function DongleIQLanding() {
       <footer className="site-footer">
         <div className="container-shell">
           <div className="footer-intro">
-            <div>
-              <p className="footer-kicker">DongleIQ in one line</p>
-              <h2>Premium onboarding with trust-first design.</h2>
+            <div className="footer-intro-copy">
+              <div className="footer-kicker">
+                <Sparkles size={13} />
+                <span>DongleIQ in one line</span>
+              </div>
+              <h2>
+                Premium onboarding built on{" "}
+                <span className="text-gradient-brand">trust</span> and
+                simplicity.
+              </h2>
+              <p>
+                Clean hierarchy, balanced color, and a smoother conversion flow.
+                Empowering service partners with secure digital trust.
+              </p>
             </div>
-            <p>
-              Clean hierarchy, balanced color, and a smoother conversion flow
-              keep the brand feeling confident in both light and dark mode.
-            </p>
+            <div className="footer-intro-visual">
+              <OverviewHeroShield />
+            </div>
           </div>
 
           <div className="footer-grid">
-            <div>
+            <div className="footer-brand-col">
               <Link href="/" className="footer-brand">
-                <div className="footer-brand-icon">
-                  <Cpu size={18} />
-                </div>
+                <div className="footer-brand-icon">D</div>
                 <div>
                   <h3>
                     Dongle<span>IQ</span>
                   </h3>
-                  <p>Secure digital onboarding</p>
+                  <p>Secure. Simple. Trusted.</p>
                 </div>
               </Link>
 
@@ -716,21 +728,26 @@ export default function DongleIQLanding() {
               </p>
 
               <div className="footer-socials">
-                <a href="https://linkedin.com" target="_blank" rel="noreferrer">
+                <a href="https://linkedin.com" target="_blank" rel="noreferrer" aria-label="LinkedIn">
                   <FaLinkedinIn size={14} />
                 </a>
-                <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noreferrer"
-                >
+                <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
                   <FaInstagram size={14} />
                 </a>
+                <a href="https://x.com" target="_blank" rel="noreferrer" aria-label="X">
+                  <FaXTwitter size={14} />
+                </a>
+              </div>
+
+              <div className="footer-trust-badge">
+                <ShieldCheck size={16} />
+                <span>Trusted by thousands of agents across India.</span>
               </div>
             </div>
 
             <FooterLinks
               title="Quick links"
+              icon={<Link2 size={15} />}
               items={[
                 { label: "Home", href: "/" },
                 { label: "Why us", href: "/#whyus" },
@@ -743,6 +760,7 @@ export default function DongleIQLanding() {
 
             <FooterLinks
               title="Services"
+              icon={<Package size={15} />}
               items={[
                 { label: "Digital Signature Certificate", href: "/register" },
                 { label: "IRCTC Agent Registration", href: "/register" },
@@ -752,17 +770,55 @@ export default function DongleIQLanding() {
             />
 
             <div className="footer-contact">
-              <h4>Get in touch</h4>
-              <p>+91 8564345678</p>
-              <p>support@dongleiq.com</p>
-              <p>Gurugram, Haryana, India</p>
-              <p>Mon to Fri, 9AM to 6PM</p>
+              <h4>
+                <Phone size={15} />
+                Get in touch
+              </h4>
+              <ul>
+                <li>
+                  <Phone size={14} />
+                  <span>+91 8564345678</span>
+                </li>
+                <li>
+                  <Mail size={14} />
+                  <span>support@dongleiq.com</span>
+                </li>
+                <li>
+                  <MapPin size={14} />
+                  <span>Gurugram, Haryana, India</span>
+                </li>
+                <li>
+                  <Clock3 size={14} />
+                  <span>Mon to Fri, 9AM to 6PM</span>
+                </li>
+              </ul>
             </div>
           </div>
 
+          <div className="footer-wave" aria-hidden />
+
           <div className="footer-bottom">
-            <p>Â© 2026 DongleIQ. All rights reserved.</p>
-            <div>
+            <p className="footer-copyright">
+              <span className="footer-copyright-mark">D</span>
+              © 2026 DongleIQ. All rights reserved.
+            </p>
+            <div className="footer-trust-pills">
+              <span>
+                <ShieldCheck size={13} />
+                Secure
+              </span>
+              <span className="footer-trust-divider" aria-hidden />
+              <span>
+                <Lock size={13} />
+                Compliant
+              </span>
+              <span className="footer-trust-divider" aria-hidden />
+              <span>
+                <Zap size={13} />
+                Reliable
+              </span>
+            </div>
+            <div className="footer-legal-links">
               <a href="#">Privacy</a>
               <a href="#">Terms</a>
               <a href="#">Cookies</a>
@@ -889,19 +945,29 @@ function InfoCard({
 
 function FooterLinks({
   title,
+  icon,
   items,
 }: {
   title: string;
+  icon?: React.ReactNode;
   items: Array<{ label: string; href: string }>;
 }) {
   return (
     <div className="footer-links">
-      <h4>{title}</h4>
-      {items.map((item) => (
-        <a key={item.label} href={item.href}>
-          {item.label}
-        </a>
-      ))}
+      <h4>
+        {icon}
+        {title}
+      </h4>
+      <ul>
+        {items.map((item) => (
+          <li key={item.label}>
+            <a href={item.href}>
+              <ChevronRight size={12} />
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
