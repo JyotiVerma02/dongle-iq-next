@@ -37,6 +37,7 @@ import LiveChat from "@/components/LiveChat";
 import { useTheme } from "@/components/ThemeContext";
 import { getThemePalette } from "@/lib/themePalette";
 
+import BrandLogo from "@/components/BrandLogo";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { OverviewHeroShield } from "@/components/user-dashboard/OverviewHeroShield";
 import Image from "next/image";
@@ -713,7 +714,7 @@ export default function DongleIQLanding() {
           <div className="footer-grid">
             <div className="footer-brand-col">
               <Link href="/" className="footer-brand">
-                <div className="footer-brand-icon">D</div>
+                <BrandLogo showText={false} size="sm" />
                 <div>
                   <h3>
                     Dongle<span>IQ</span>
@@ -833,10 +834,10 @@ export default function DongleIQLanding() {
           type="button"
           onClick={() => setChatOpen(true)}
           aria-label="Open live support chat"
-          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-(--accent) text-white shadow-[0_16px_34px_-18px_var(--accent-shadow)] border border-white/10 hover:-translate-y-1 hover:brightness-110 transition-all duration-200"
+          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-[0_16px_34px_-18px_var(--accent-shadow)] border border-white/10 hover:-translate-y-1 hover:brightness-110 transition-all duration-200"
           style={{
             backgroundColor: colors.accent,
-            color: '#ffffff', // Fixed: Replaced colors.textContrast with explicit white
+            color: '#ffffff',
             boxShadow: `0 16px 34px -18px ${colors.accentShadow}`
           }}
         >
@@ -972,47 +973,6 @@ function FooterLinks({
   );
 }
 
-function PreviewRow({
-  title,
-  subtitle,
-  status,
-}: {
-  title: string;
-  subtitle: string;
-  status: string;
-}) {
-  return (
-    <div className="preview-row">
-      <div className="preview-row-icon">
-        <CheckCircle2 size={16} />
-      </div>
-      <div className="preview-row-copy">
-        <h3>{title}</h3>
-        <p>{subtitle}</p>
-      </div>
-      <div className="status-pill">{status}</div>
-    </div>
-  );
-}
-
-function MetricCard({
-  value,
-  label,
-  caption,
-}: {
-  value: string;
-  label: string;
-  caption: string;
-}) {
-  return (
-    <div className="metric-card">
-      <div className="metric-value">
-        {value} <span>{label}</span>
-      </div>
-      <p>{caption}</p>
-    </div>
-  );
-}
 
 function FaqItem({
   faq,

@@ -64,10 +64,14 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    setIsMenuOpen(false);
-    setNotificationOpen(false);
-  }, [pathname]);
+    if (isMenuOpen || notificationOpen) {
+      setIsMenuOpen(false);
+      setNotificationOpen(false);
+    }
+  }, [pathname, isMenuOpen, notificationOpen]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     const html = document.documentElement;
@@ -134,9 +138,11 @@ export default function Navbar() {
     [scheduleRefreshNotifications],
   );
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     void refreshNotifications();
   }, [refreshNotifications]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useRealtimeEvents(handleRealtimeEvent);
 
@@ -457,7 +463,7 @@ export default function Navbar() {
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMenuOpen}
-            className="nav-action flex  size-11 shrink-0  items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden"
+            className="nav-action flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border shadow-[0_16px_28px_-24px_var(--accent-shadow)] lg:hidden"
             style={{
               backgroundColor: "var(--card)",
               borderColor: "var(--border-soft)",

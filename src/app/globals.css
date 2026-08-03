@@ -360,6 +360,69 @@ select:focus {
   overflow-x: hidden;
 }
 
+.auth-page-shell {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.auth-page-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top left, rgba(124, 92, 255, 0.12), transparent 18%),
+    radial-gradient(circle at bottom right, rgba(79, 140, 255, 0.09), transparent 24%);
+}
+
+.auth-card {
+  position: relative;
+  width: 100%;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-soft);
+  background: var(--card);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 18px 42px -24px rgba(124, 58, 237, 0.12);
+}
+
+.auth-aside-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  border-radius: 1.5rem;
+  border: 1px solid var(--border-soft);
+  background: var(--card);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 12px 30px -22px rgba(124, 58, 237, 0.10);
+}
+
+.glass-input {
+  background: var(--input);
+  border: 1px solid var(--input-border);
+  color: var(--foreground);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 10px 20px -18px rgba(124, 58, 237, 0.08);
+}
+
+.glass-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px var(--accent-soft), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 0.85rem;
+}
+
 .app-page-min-height {
   min-height: var(--app-shell-min-height);
 }
@@ -521,21 +584,11 @@ html.dark .site-footer {
   border-bottom: 1px solid rgba(139, 92, 246, 0.15);
 } */
 
-html.dark .navbar-coder:hover {
-  /* background: rgba(5, 5, 15, 0.85); */
-  /* border-bottom-color: rgba(139, 92, 246, 0.4); */
-}
-
 /* Light mode */
-html:not(.dark) .navbar-coder {
-  /* background: rgba(255, 255, 255, 0.7); */
-  /* border-bottom: 1px solid rgba(124, 58, 237, 0.1); */
-}
-
-html:not(.dark) .navbar-coder:hover {
-  /* background: rgba(255, 255, 255, 0.85); */
-  /* border-bottom-color: rgba(124, 58, 237, 0.25); */
-}
+/* html:not(.dark) .navbar-coder {
+  background: rgba(255, 255, 255, 0.7);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+} */
 
 /* Ensure content starts below navbar */
 .page-shell {
@@ -982,6 +1035,11 @@ html.dark .button-secondary {
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
+.theme-primary-btn:focus-visible {
+  outline: 3px solid rgba(124, 92, 255, 0.3);
+  outline-offset: 3px;
+}
+
 /* ============================================================
    INPUTS / FIELDS
 ============================================================ */
@@ -1207,8 +1265,7 @@ html.dark .preview-row:hover {
 .premium-card-icon,
 .audience-icon,
 .info-card-icon,
-.support-badge,
-.footer-brand-icon {
+.support-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2669,6 +2726,8 @@ html.dark .footer-kicker {
 .footer-brand {
   gap: 0.9rem;
   margin-bottom: 0.85rem;
+  display: flex;
+  align-items: center;
 }
 
 .footer-brand h3 {
@@ -2686,17 +2745,6 @@ html.dark .footer-kicker {
   font-size: 0.82rem;
 }
 
-.footer-brand-icon {
-  width: 2.6rem;
-  height: 2.6rem;
-  border-radius: 0.85rem;
-  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
-  color: white;
-  font-size: 1.15rem;
-  font-weight: 800;
-  box-shadow: 0 0 20px -6px rgba(124, 58, 237, 0.40);
-  margin-bottom: 0;
-}
 
 .footer-copy {
   font-size: 0.9rem;
@@ -3852,7 +3900,6 @@ html.dark .feature-icon,
 html.dark .audience-icon,
 html.dark .info-card-icon,
 html.dark .support-badge,
-html.dark .footer-brand-icon,
 html.dark .preview-row-icon,
 html.dark .process-number,
 html.dark .feature-strip-icon {

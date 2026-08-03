@@ -1,4 +1,4 @@
-import { Cpu } from "lucide-react";
+import Image from "next/image";
 
 type BrandLogoProps = {
   showText?: boolean;
@@ -39,13 +39,19 @@ export default function BrandLogo({
   return (
     <div className={`flex min-w-0 flex-nowrap items-center ${classes.gap} ${className}`}>
       <div
-        className={`flex shrink-0 items-center justify-center text-white ${classes.icon}`}
+        className={`relative shrink-0 overflow-hidden rounded-xl ${classes.icon}`}
         style={{
-          background: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
           boxShadow: "0 16px 30px -18px rgba(124, 58, 237, 0.8)",
+          backgroundColor: "rgba(255, 255, 255, 0.06)",
         }}
       >
-        <Cpu size={classes.chip} strokeWidth={2.4} />
+        <Image
+          src="/Logo.png"
+          alt="DongleIQ logo"
+          fill
+          className="object-contain"
+          sizes="(max-width: 640px) 2.5rem, 3.75rem"
+        />
       </div>
 
       {showText ? (

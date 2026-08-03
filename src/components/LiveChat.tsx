@@ -91,6 +91,7 @@ export default function LiveChat({
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (open && initialMessages && initialMessages.length > 0) {
       setMessages(initialMessages);
@@ -115,6 +116,7 @@ export default function LiveChat({
       setMessages([starterMessage]);
     }
   }, [initialMessages, open, storageKey]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -221,7 +223,7 @@ export default function LiveChat({
     >
       <div
         ref={panelRef}
-        className="live-chat-panel relative z-[10001] flex h-dvh w-full flex-col overflow-hidden border text-(--foreground) shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(34rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
+        className="live-chat-panel relative z-[10001] flex h-dvh w-full flex-col overflow-hidden border text-[var(--foreground)] shadow-[0_28px_80px_-30px_rgba(0,0,0,0.6)] sm:h-[min(34rem,calc(100dvh-3rem))] sm:w-[24rem] sm:max-w-[calc(100vw-3rem)] sm:rounded-[1.25rem]"
         style={{
           backgroundColor: colors.card,
           borderColor: colors.border,
