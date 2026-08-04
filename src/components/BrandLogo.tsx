@@ -1,4 +1,4 @@
-import Image from "next/image";
+import React from "react";
 
 type BrandLogoProps = {
   showText?: boolean;
@@ -10,19 +10,21 @@ type BrandLogoProps = {
 const sizeClasses = {
   sm: {
     icon: "h-9 w-9 rounded-xl",
-    chip: 16,
+    iconText: "text-sm",
     text: "text-[1rem]",
     gap: "gap-2.5",
   },
+
   md: {
     icon: "h-10 w-10 rounded-xl",
-    chip: 18,
+    iconText: "text-base",
     text: "text-[1.05rem]",
     gap: "gap-3",
   },
+
   lg: {
     icon: "h-[3.75rem] w-[3.75rem] rounded-[1.1rem]",
-    chip: 27,
+    iconText: "text-xl",
     text: "text-2xl",
     gap: "gap-4",
   },
@@ -37,31 +39,103 @@ export default function BrandLogo({
   const classes = sizeClasses[size];
 
   return (
-    <div className={`flex min-w-0 flex-nowrap items-center ${classes.gap} ${className}`}>
+    <div
+      className={`
+        flex 
+        min-w-0 
+        items-center 
+        flex-nowrap
+        ${classes.gap}
+        ${className}
+      `}
+    >
+      {/* Premium D Logo */}
       <div
-        className={`relative shrink-0 overflow-hidden rounded-xl ${classes.icon}`}
+        className={`
+          relative
+          flex
+          items-center
+          justify-center
+          shrink-0
+          overflow-hidden
+          ${classes.icon}
+        `}
         style={{
-          boxShadow: "0 16px 30px -18px rgba(124, 58, 237, 0.8)",
-          backgroundColor: "rgba(255, 255, 255, 0.06)",
+          background:
+            "linear-gradient(145deg, #3B82F6 0%, #6366F1 45%, #8B5CF6 100%)",
+
+          boxShadow:
+            "0 18px 40px -15px rgba(99,102,241,0.75)",
         }}
-      >
-        <Image
-          src="/Logo.png"
-          alt="DongleIQ logo"
-          fill
-          className="object-contain"
-          sizes="(max-width: 640px) 2.5rem, 3.75rem"
+       >
+        {/* Inner glow */}
+        <div
+          className="
+            absolute
+            inset-px
+            rounded-[inherit]
+            bg-white/10
+          "
         />
+
+        {/* Shine effect */}
+        <div
+          className="
+            absolute
+            -left-5
+            top-0
+            h-full
+            w-8
+            rotate-12
+            bg-white/20
+            blur-md
+          "
+        />
+
+        {/* D Letter */}
+        <span
+          className={`
+            relative
+            z-10
+            font-black
+            tracking-tight
+            text-white
+            drop-shadow-lg
+            ${classes.iconText}
+          `}
+        >
+          D
+        </span>
       </div>
 
-      {showText ? (
+
+      {/* Brand Name */}
+      {showText && (
         <span
-          className={`truncate font-semibold tracking-wide ${classes.text} ${wordmarkClassName}`}
-          style={{ color: "var(--foreground)" }}
+          className={`
+            truncate
+            font-bold
+            tracking-tight
+            ${classes.text}
+            ${wordmarkClassName}
+          `}
+          style={{
+            color: "var(--foreground)",
+          }}
         >
-          Dongle<span style={{ color: "var(--accent)" }}>IQ</span>
+          Dongle
+          <span
+            style={{
+              background:
+                "linear-gradient(90deg,#60A5FA,#8B5CF6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            IQ
+          </span>
         </span>
-      ) : null}
+      )}
     </div>
   );
 }

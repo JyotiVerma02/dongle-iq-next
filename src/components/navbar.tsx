@@ -19,12 +19,12 @@ import { useTheme } from "@/components/ThemeContext";
 import { useRealtimeEvents } from "@/lib/useRealtimeEvents";
 
 const NAV_LINKS = [
-  { label: "Home", href: "/#hero" },
-  { label: "Why us", href: "/#whyus" },
-  { label: "Apply", href: "/#apply" },
-  { label: "Agents", href: "/#agents" },
-  { label: "FAQs", href: "/#faqs" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Home", href: "#hero" },
+  { label: "Why us", href: "#whyus" },
+  { label: "Apply", href: "#apply" },
+  { label: "Agents", href: "#agents" },
+  { label: "FAQs", href: "#faqs" },
+  { label: "Contact", href: "#contact" },
 ];
 
 const AUTH_ROUTES = new Set([
@@ -62,6 +62,7 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState("hero");
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -81,6 +82,37 @@ export default function Navbar() {
       html.classList.remove("mobile-menu-open");
     };
   }, [isMenuOpen]);
+
+  // Intersection Observer for active section detection
+  useEffect(() => {
+    const handleScrollSpy = () => {
+      const sections = document.querySelectorAll<HTMLElement>("section[id]");
+
+      let currentSection = "hero";
+      let minDistance = Number.MAX_VALUE;
+
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+
+        const distance = Math.abs(rect.top - 120);
+
+        if (distance < minDistance) {
+          minDistance = distance;
+          currentSection = section.id;
+        }
+      });
+
+      setActiveSection(currentSection);
+    };
+
+    handleScrollSpy();
+
+    window.addEventListener("scroll", handleScrollSpy);
+
+    return () => {
+      window.removeEventListener("scroll", handleScrollSpy);
+    };
+  }, []);
 
   const refreshNotifications = useCallback(async () => {
     console.log("[navbar:refresh]", { reason: "manual-or-scheduled" });
@@ -153,6 +185,7 @@ export default function Navbar() {
       }
     };
   }, []);
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
@@ -233,6 +266,27 @@ export default function Navbar() {
     );
   };
 
+  // Handle smooth scroll for anchor links
+  const handleAnchorClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    e.preventDefault();
+    const targetId = href.replace("#", "");
+
+    setActiveSection(targetId);
+    const targetElement = document.getElementById(targetId);
+
+    if (targetElement) {
+      const navbarHeight = 90;
+
+      window.scrollTo({
+        top: targetElement.offsetTop - navbarHeight,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
     <nav
       className="navbar-coder fixed top-0 left-0 right-0 z-50 transition-all duration-300"
@@ -258,11 +312,11 @@ export default function Navbar() {
       }}
     >
       <div
-        className={`mx-auto flex w-full max-w-[1400px] items-center justify-between px-4 md:px-8 transition-all duration-300 ${
+        className={`mx-auto flex w-full max-w-350 items-center justify-between px-4 md:px-8 transition-all duration-300 ${
           scrolled ? "py-2.5" : "py-4"
         }`}
       >
-        <div className="lg:w-[220px] w-auto shrink-0 flex items-center justify-start gap-2">
+        <div className="lg:w-55 w-auto shrink-0 flex items-center justify-start gap-2">
           <Link href="/" className="transition-opacity hover:opacity-80">
             <BrandLogo size="md" />
           </Link>
@@ -288,27 +342,50 @@ export default function Navbar() {
             boxShadow: isDarkMode ? "none" : "0 10px 40px rgba(15,23,42,0.08)",
           }}
         >
-          {NAV_LINKS.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className="nav-link group relative px-2 lg:px-3 xl:px-4 py-2 text-[0.95rem] font-medium transition-colors whitespace-nowrap"
-              style={{ color: "var(--muted)" }}
-            >
-              <span
-                className="nav-link-label opacity-80 transition-opacity group-hover:opacity-100"
-                style={{ color: "var(--foreground)" }}
+          {NAV_LINKS.map((item) => {
+            const section = item.href.replace("#", "");
+            const isActive = activeSection === section;
+
+            return (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={(e) => handleAnchorClick(e, item.href)}
+                className="nav-link group relative px-2 lg:px-3 xl:px-4 py-2 text-[0.95rem] font-medium transition-colors whitespace-nowrap cursor-pointer"
+                style={{
+                  color: isActive ? "var(--foreground)" : "var(--muted)",
+                }}
               >
-                {item.label}
-              </span>
-              <span
-                className="absolute bottom-1 left-4 right-4 h-[2px] scale-x-0 rounded-full transition-transform duration-300 ease-out group-hover:scale-x-100"
-                style={{ backgroundColor: "var(--accent)" }}
-              />
-            </a>
-          ))}
+                <span
+                  className={`nav-link-label transition-opacity ${
+                    isActive
+                      ? "opacity-100"
+                      : "opacity-80 group-hover:opacity-100"
+                  }`}
+                  style={{ color: "var(--foreground)" }}
+                >
+                  {item.label}
+                </span>
+                <span
+                  className={`absolute bottom-1 left-4 right-4 h-0.5 rounded-full transition-transform duration-300 ease-out ${
+                    isActive
+                      ? "scale-x-100"
+                      : "scale-x-0 group-hover:scale-x-100"
+                  }`}
+                  style={{
+                    background:
+                      "linear-gradient(90deg,#3B82F6,#6366F1,#8B5CF6)",
+                    boxShadow: isActive
+                      ? "0 0 10px rgba(99,102,241,.4)"
+                      : "none",
+                    transformOrigin: "center",
+                  }}
+                />
+              </a>
+            );
+          })}
         </div>
-        <div className="lg:w-[220px] w-auto shrink-0 flex items-center justify-end gap-1.5 sm:gap-2">
+        <div className="lg:w-55 w-auto shrink-0 flex items-center justify-end gap-1.5 sm:gap-2">
           {showAuthButtons ? (
             <button
               onClick={() => router.push(authAction.href)}
@@ -382,15 +459,13 @@ export default function Navbar() {
                     borderColor: "var(--border-soft)",
                   }}
                 >
-                  <h3 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
+                  <h3 className="mb-3 text-sm font-semibold text-(--foreground)">
                     Notifications
                   </h3>
 
                   <div className="max-h-72 space-y-2 overflow-auto">
                     {notifications.length === 0 ? (
-                      <p className="text-sm text-[var(--muted)]">
-                        No notifications
-                      </p>
+                      <p className="text-sm text-(--muted)">No notifications</p>
                     ) : (
                       notifications.map((item) => (
                         <div
@@ -424,12 +499,12 @@ export default function Navbar() {
                                 className={`text-sm font-medium ${
                                   isRejectionNotification(item)
                                     ? "text-rose-500"
-                                    : "text-[var(--foreground)]"
+                                    : "text-(--foreground)"
                                 }`}
                               >
                                 {item.title}
                               </div>
-                              <div className="mt-1 text-xs leading-5 text-[var(--muted)]">
+                              <div className="mt-1 text-xs leading-5 text-(--muted)">
                                 {item.message}
                               </div>
                             </div>
@@ -489,7 +564,10 @@ export default function Navbar() {
               <a
                 key={item.label}
                 href={item.href}
-                onClick={closeMenu}
+                onClick={(e) => {
+                  handleAnchorClick(e, item.href);
+                  closeMenu();
+                }}
                 className="rounded-2xl px-4 py-3 text-sm font-medium shadow-[0_16px_28px_-26px_var(--accent-shadow)]"
                 style={{
                   backgroundColor: "var(--card)",
